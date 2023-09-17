@@ -73,4 +73,7 @@ module _ {A B : Type} (M : M.MonStruct B) where
     lemma f (trunc xs ys p q i j) b = {!   !}
     lemma f b (trunc xs ys p q i j) = {!   !}
 
+  listMonEquiv : isEquiv \f -> (f ♯) ∘ [_]
+  listMonEquiv = isoToIsEquiv (iso {!   !} {!   !} {!   !} {!   !})
+
    
