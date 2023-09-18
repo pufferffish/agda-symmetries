@@ -38,5 +38,23 @@ module _ {A B : Type} (M : M.MonStruct B) where
   M.isMonHom.f-e ♯-isMonHom = refl
   M.isMonHom.f-⊕ ♯-isMonHom m n = refl
 
-   : isEquiv \f -> (f ♯) ∘ η
-  freeMonEquiv = isoToIsEquiv (iso (\f -> f) (\f -> f) (\_ -> refl) (\_ -> refl))
+  f-isMonHom : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f
+  f-isMonHom f = record
+    { f-e = {!   !}
+    ; f-⊕ = {!   !}
+    }
+
+  freeMonEquivLemma : (g : (FreeMon A -> B)) -> (x : FreeMon A) -> ((g ∘ η) ♯) x ≡ g x
+  freeMonEquivLemma g (η a) = refl
+  freeMonEquivLemma g e = {!   !}
+  freeMonEquivLemma g (x ⊕ x₁) = {!   !}
+  freeMonEquivLemma g (unitl x i) = {!   !}
+  freeMonEquivLemma g (unitr x i) = {!   !}
+  freeMonEquivLemma g (assocr x x₁ x₂ i) = {!   !}
+  freeMonEquivLemma g (trunc x x₁ x₂ y i i₁) = {!   !}
+
+  freeMonEquiv : isEquiv \f -> f ∘ η -- should be \f -> (f ♯) ∘ η?
+  freeMonEquiv = isoToIsEquiv (iso (\f -> f ∘ η) _♯ (\f -> refl) (\f i x -> freeMonEquivLemma f x i))
+
+  a : {B : Type} -> (FreeMon A -> B) -> (A -> B)
+  a f = f ∘ η
