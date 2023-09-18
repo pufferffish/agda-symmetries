@@ -24,34 +24,23 @@ M.MonStruct.trunc (freeMon A) = trunc
 
 module _ {A B : Type} (M : M.MonStruct B) where
   module B = M.MonStruct M
+  module _ (f : A -> B) where
 
-  _♯ : (f : A -> B) -> FreeMon A -> B
-  (f ♯) (η a) = f a
-  (f ♯) e = B.e
-  (f ♯) (m ⊕ n) = (f ♯) m B.⊕ (f ♯) n
-  (f ♯) (unitl m i) = B.unitl ((f ♯) m) i
-  (f ♯) (unitr m i) = B.unitr ((f ♯) m) i
-  (f ♯) (assocr m n o i) = B.assocr ((f ♯) m) ((f ♯) n) ((f ♯) o) i
-  (f ♯) (trunc m n p q i j) = B.trunc ((f ♯) m) ((f ♯) n) (cong (f ♯) p) (cong (f ♯) q) i j
+    _♯ : FreeMon A -> B
+    (_♯) (η a) = f a
+    (_♯) e = B.e
+    (_♯) (m ⊕ n) = (_♯) m B.⊕ (_♯) n
+    (_♯) (unitl m i) = B.unitl ((_♯) m) i
+    (_♯) (unitr m i) = B.unitr ((_♯) m) i
+    (_♯) (assocr m n o i) = B.assocr ((_♯) m) ((_♯) n) ((_♯) o) i
+    (_♯) (trunc m n p q i j) = B.trunc ((_♯) m) ((_♯) n) (cong (_♯) p) (cong (_♯) q) i j
 
-  ♯-isMonHom : {f : A -> B} -> M.isMonHom (freeMon A) M (f ♯)
-  M.isMonHom.f-e ♯-isMonHom = refl
-  M.isMonHom.f-⊕ ♯-isMonHom m n = refl
+    _♯-isMonHom : M.isMonHom (freeMon A) M _♯
+    M.isMonHom.f-e _♯-isMonHom = refl
+    M.isMonHom.f-⊕ _♯-isMonHom m n = refl
 
-  f-isMonHom : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f
-  f-isMonHom f = record
-    { f-e = {!   !}
-    ; f-⊕ = {!   !}
-    }
+  freeMonEquiv : M.MonHom (freeMon A) M ≃ (A -> B)
+  freeMonEquiv = isoToEquiv (iso (\(f , ϕ) -> f ∘ η) (\f -> (f ♯) , (f ♯-isMonHom)) (\f -> refl) {!!})
 
-  freeMonEquivLemma : (g : (FreeMon A -> B)) -> (x : FreeMon A) -> ((g ∘ η) ♯) x ≡ g x
-  freeMonEquivLemma g (η a) = refl
-  freeMonEquivLemma g e = {!   !}
-  freeMonEquivLemma g (x ⊕ x₁) = {!   !}
-  freeMonEquivLemma g (unitl x i) = {!   !}
-  freeMonEquivLemma g (unitr x i) = {!   !}
-  freeMonEquivLemma g (assocr x x₁ x₂ i) = {!   !}
-  freeMonEquivLemma g (trunc x x₁ x₂ y i i₁) = {!   !}
-
-  freeMonEquiv : isEquiv \f -> f ∘ η -- should be \f -> (f ♯) ∘ η?
-  freeMonEquiv = isoToIsEquiv (iso (\f -> f ∘ η) _♯ (\f -> refl) (\f i x -> freeMonEquivLemma f x i))
+  freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
+  freeMonIsEquiv = freeMonEquiv .snd

@@ -3,6 +3,7 @@
 module Mon where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Data.Sigma
 
 record MonStruct (A : Type) : Type where
   field
@@ -22,3 +23,6 @@ record isMonHom {A B : Type} (M : MonStruct A) (N : MonStruct B) (f : A -> B) : 
   private
     f-unitl : ∀ a -> cong f (M.unitl a) ≡ f-⊕ M.e a ∙ cong (N._⊕ f a) f-e ∙ N.unitl (f a)
     f-unitl a = N.trunc _ _ _ _
+
+MonHom : {A B : Type} (M : MonStruct A) (N : MonStruct B) -> Type
+MonHom {A} {B} M N = Σ[ f ∈ (A -> B) ] isMonHom M N f
