@@ -58,8 +58,8 @@ module _ {A B : Type} (M : M.MonStruct B) where
     }
     where
     lemma : (f : A -> B) -> (a b : List A) -> (f ♯) (a ⊕ b) ≡ ((f ♯) a B.⊕ (f ♯) b)
-    lemma f [] [] i = (B.unitr B.e) (~ i)
-    lemma f [] (a ∷ b) i = (B.unitl (f a B.⊕ (f ♯) b)) (~ i)
+    lemma f [] [] = sym (B.unitr B.e)
+    lemma f [] (a ∷ b) = sym (B.unitl (f a B.⊕ (f ♯) b))
     lemma f (a ∷ as) [] =
       f a B.⊕ (f ♯) (as ⊕ []) ≡⟨ cong (λ x -> f a B.⊕ (f ♯) x) (unitr as) ⟩ 
       f a B.⊕ (f ♯) as ≡⟨ sym (B.unitr (f a B.⊕ (f ♯) as)) ⟩

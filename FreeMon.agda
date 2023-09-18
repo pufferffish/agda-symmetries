@@ -55,6 +55,3 @@ module _ {A B : Type} (M : M.MonStruct B) where
 
   freeMonEquiv : isEquiv \f -> f ∘ η -- should be \f -> (f ♯) ∘ η?
   freeMonEquiv = isoToIsEquiv (iso (\f -> f ∘ η) _♯ (\f -> refl) (\f i x -> freeMonEquivLemma f x i))
-
-  a : {B : Type} -> (FreeMon A -> B) -> (A -> B)
-  a f = f ∘ η
