@@ -39,8 +39,31 @@ module _ {A B : Type} (M : M.MonStruct B) where
     M.isMonHom.f-e _♯-isMonHom = refl
     M.isMonHom.f-⊕ _♯-isMonHom m n = refl
 
+  private
+    freeMonEquivLemma : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> (x : FreeMon A) -> ((f ∘ η) ♯) x ≡ f x
+    freeMonEquivLemma f homWit (η a) = refl
+    freeMonEquivLemma f homWit e = {!   !}
+    freeMonEquivLemma f homWit (x ⊕ x₁) = {!   !}
+    freeMonEquivLemma f homWit (unitl x i) = {!   !}
+    freeMonEquivLemma f homWit (unitr x i) = {!   !}
+    freeMonEquivLemma f homWit (assocr x x₁ x₂ i) = {!   !}
+    freeMonEquivLemma f homWit (trunc x x₁ x₂ y i i₁) = {!   !}
+
+    freeMonEquivLemma-β : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> ((f ∘ η) ♯) ≡ f
+    freeMonEquivLemma-β f homWit i x = freeMonEquivLemma f homWit x i
+
+
   freeMonEquiv : M.MonHom (freeMon A) M ≃ (A -> B)
-  freeMonEquiv = isoToEquiv (iso (\(f , ϕ) -> f ∘ η) (\f -> (f ♯) , (f ♯-isMonHom)) (\f -> refl) {!!})
+  freeMonEquiv = isoToEquiv (iso (\(f , ϕ) -> f ∘ η) (\f -> (f ♯) , (f ♯-isMonHom)) (\f -> refl) lemma)
+    where
+    lemma : (homMon : Σ (FreeMon A -> B) (M.isMonHom (freeMon A) M))
+            -> ((fst homMon ∘ η) ♯ , (fst homMon ∘ η) ♯-isMonHom) ≡ homMon
+    lemma = {!   !}
+    -- lemma (f , homMonWit) i =
+    --   let p = freeMonEquivLemma-β f homMonWit 
+    --   in p i , transp (λ j -> M.isMonHom (freeMon A) M (p (~ j))) i homMonWit
+
 
   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
   freeMonIsEquiv = freeMonEquiv .snd
+  
