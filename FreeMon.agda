@@ -22,9 +22,6 @@ M.MonStruct.unitr (freeMon A) = unitr
 M.MonStruct.assocr (freeMon A) = assocr
 M.MonStruct.trunc (freeMon A) = trunc
 
-propPathFreeMon : {A : Type} {xs ys : FreeMon A} -> isProp (xs ≡ ys)
-propPathFreeMon = trunc _ _
-
 module elimFreeMonSet {p : Level} {A : Type} (P : FreeMon A -> Type p)
                     (η* : (a : A) -> P (η a))
                     (e* : P e)
@@ -98,7 +95,7 @@ module _ {A B : Type} (M : M.MonStruct B) where
         ((f ∘ η) ♯) m B.⊕ ((f ∘ η) ♯) n
         ∎
       )
-      {! propPathFreeMon  !}
+      (B.trunc _ _)
     
     freeMonEquivLemma-β : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> ((f ∘ η) ♯) ≡ f
     freeMonEquivLemma-β f homMonWit i x = freeMonEquivLemma f homMonWit x (~ i)
@@ -108,10 +105,9 @@ module _ {A B : Type} (M : M.MonStruct B) where
     where
     lemma : (homMon : Σ (FreeMon A -> B) (M.isMonHom (freeMon A) M))
             -> ((fst homMon ∘ η) ♯ , (fst homMon ∘ η) ♯-isMonHom) ≡ homMon
-    lemma = {!   !}
-    -- lemma (f , homMonWit) i =
-    --   let p = freeMonEquivLemma-β f homMonWit 
-    --   in p i , transp (λ j -> M.isMonHom (freeMon A) M (p (~ j))) i homMonWit
+    lemma (f , homMonWit) i =
+      let p = freeMonEquivLemma-β f homMonWit 
+      in p i , {!   !}
 
 
   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
