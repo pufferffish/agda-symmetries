@@ -20,9 +20,9 @@ record isMonHom {A B : Type} (M : MonStruct A) (N : MonStruct B) (f : A -> B) : 
   field
     f-e : f (M.e) ≡ N.e
     f-⊕ : ∀ a b -> f (a M.⊕ b) ≡ f a N.⊕ f b
-  private
-    f-unitl : ∀ a -> cong f (M.unitl a) ≡ f-⊕ M.e a ∙ cong (N._⊕ f a) f-e ∙ N.unitl (f a)
-    f-unitl a = N.trunc _ _ _ _
+
+  f-unitl : ∀ a -> cong f (M.unitl a) ≡ f-⊕ M.e a ∙ cong (N._⊕ f a) f-e ∙ N.unitl (f a)
+  f-unitl a = N.trunc _ _ _ _
 
 MonHom : {A B : Type} (M : MonStruct A) (N : MonStruct B) -> Type
 MonHom {A} {B} M N = Σ[ f ∈ (A -> B) ] isMonHom M N f
