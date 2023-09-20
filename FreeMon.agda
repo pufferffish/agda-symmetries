@@ -22,6 +22,48 @@ M.MonStruct.unitr (freeMon A) = unitr
 M.MonStruct.assocr (freeMon A) = assocr
 M.MonStruct.trunc (freeMon A) = trunc
 
+module elimFreeMonSet {p : Level} {A : Type} {P : FreeMon A -> Type p}
+                   (η* : (a : A) -> P (η a))
+                   (e* : P e)
+                   (_⊕*_ : {m n : FreeMon A} -> P m -> P n -> P (m ⊕ n))
+                   (unitl* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitl m i)) (e* ⊕* m*) m*)
+                   (unitr* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitr m i)) (m* ⊕* e*) m*)
+                   (assocr* : {m n o : FreeMon A}
+                              (m* : P m) ->
+                              (n* : P n) ->
+                              (o* : P o) -> PathP (λ i → P (assocr m n o i)) ((m* ⊕* n*) ⊕* o*) (m* ⊕* (n* ⊕* o*)))
+                   (trunc* : (xs : FreeMon A) -> isSet (P xs))
+                   where
+  f : (x : FreeMon A) -> P x
+  f (η a) = η* a
+  f e = e*
+  f (x ⊕ y) = f x ⊕* f y
+  f (unitl x i) = unitl* (f x) i
+  f (unitr x i) = unitr* (f x) i
+  f (assocr x y z i) = assocr* (f x) (f y) (f z) i
+  f (trunc xs ys p q i j) =
+     isOfHLevel→isOfHLevelDep 2 trunc* (f xs) (f ys) (cong f p) (cong f q) (trunc xs ys p q) i j
+
+module elimFreeMonProp {p : Level} {A : Type} {P : FreeMon A -> Type p} (PProp : {xs : FreeMon A} → isProp (P xs))
+                   (η* : (a : A) -> P (η a))
+                   (e* : P e)
+                   (_⊕*_ : {m n : FreeMon A} -> P m -> P n -> P (m ⊕ n))
+                   where
+  f : (x : FreeMon A) -> P x
+  f = elimFreeMonSet.f η* e* _⊕*_ ϕ χ ψ (λ _ → isProp→isSet PProp)
+    where
+      abstract
+        ϕ : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitl m i)) (e* ⊕* m*) m*
+        ϕ {m} m* = toPathP (PProp (transp (λ i → P (unitl m i)) i0 (e* ⊕* m*)) (m*))
+        χ : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitr m i)) (m* ⊕* e*) m*
+        χ {m} m* = toPathP (PProp (transp (λ i → P (unitr m i)) i0 (m* ⊕* e*)) (m*))
+        ψ : {m n o : FreeMon A}
+             (m* : P m) ->
+             (n* : P n) ->
+             (o* : P o) -> PathP (λ i → P (assocr m n o i)) ((m* ⊕* n*) ⊕* o*)(m* ⊕* (n* ⊕* o*))
+        ψ {m} {n} {o} m* n* o* =
+          toPathP (PProp (transp (λ i → P (assocr m n o i)) i0 ((m* ⊕* n*) ⊕* o*)) (m* ⊕* (n* ⊕* o*)))
+
 module _ {A B : Type} (M : M.MonStruct B) where
   module B = M.MonStruct M
   module _ (f : A -> B) where
@@ -41,22 +83,10 @@ module _ {A B : Type} (M : M.MonStruct B) where
 
   private
     freeMonEquivLemma : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> (x : FreeMon A) -> f x ≡ ((f ∘ η) ♯) x
-    freeMonEquivLemma f homMonWit (η a) = refl
-    freeMonEquivLemma f homMonWit e = M.isMonHom.f-e homMonWit
-    freeMonEquivLemma f homMonWit (x ⊕ y) =
-      f (x ⊕ y) ≡⟨ M.isMonHom.f-⊕ homMonWit x y ⟩
-      f x B.⊕ f y ≡⟨ cong (B._⊕ f y) (freeMonEquivLemma f homMonWit x) ⟩
-      ((f ∘ η) ♯) x B.⊕ f y ≡⟨ cong (((f ∘ η) ♯) x B.⊕_) (freeMonEquivLemma f homMonWit y) ⟩
-      ((f ∘ η) ♯) x B.⊕ ((f ∘ η) ♯) y
-      ∎
-    freeMonEquivLemma f homMonWit (unitl x i) j = {!   !}
-    freeMonEquivLemma f homMonWit (unitr x i) = {!   !}
-    freeMonEquivLemma f homMonWit (assocr x x₁ x₂ i) = {!   !}
-    freeMonEquivLemma f homMonWit (trunc x x₁ x₂ y i i₁) = {!   !}
+    freeMonEquivLemma = {!   !}
 
     freeMonEquivLemma-β : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> ((f ∘ η) ♯) ≡ f
     freeMonEquivLemma-β f homMonWit i x = freeMonEquivLemma f homMonWit x (~ i)
-
 
   freeMonEquiv : M.MonHom (freeMon A) M ≃ (A -> B)
   freeMonEquiv = isoToEquiv (iso (\(f , ϕ) -> f ∘ η) (\f -> (f ♯) , (f ♯-isMonHom)) (\f -> refl) lemma)
