@@ -19,3 +19,5 @@ Meeting with Dr. Vikraman Choudhury to discuss questions about category theory a
 involving trunated types, the `freeMonEquiv` theorem, potential plans to expand the project's
 scope to general free structures
 
+* 21/09/2023 [5 hours]
+Prove `freeMonEquivLemma`
