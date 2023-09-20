@@ -51,16 +51,23 @@ module elimFreeMonProp {p : Level} {A : Type} (P : FreeMon A -> Type p)
                     (η* : (a : A) -> P (η a))
                     (e* : P e)
                     (_⊕*_ : {m n : FreeMon A} -> P m -> P n -> P (m ⊕ n))
-                    (unitl* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitl m i)) (e* ⊕* m*) m*)
-                    (unitr* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitr m i)) (m* ⊕* e*) m*)
-                    (assocr* : {m n o : FreeMon A}
-                               (m* : P m) ->
-                               (n* : P n) ->
-                               (o* : P o) -> PathP (λ i → P (assocr m n o i)) ((m* ⊕* n*) ⊕* o*) (m* ⊕* (n* ⊕* o*)))
                     (trunc* : {xs : FreeMon A} -> isProp (P xs))
                     where 
   f : (x : FreeMon A) -> P x
   f = elimFreeMonSet.f P η* e* _⊕*_ unitl* unitr* assocr* (isProp→isSet trunc*)
+    where
+      abstract
+        unitl* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitl m i)) (e* ⊕* m*) m*
+        unitl* {m} m* = toPathP (trunc* (transp (λ i -> P (unitl m i)) i0 (e* ⊕* m*)) m*)
+        unitr* : {m : FreeMon A} (m* : P m) -> PathP (λ i → P (unitr m i)) (m* ⊕* e*) m*
+        unitr* {m} m* = toPathP (trunc* (transp (λ i -> P (unitr m i)) i0 (m* ⊕* e*)) m*)
+        assocr* : {m n o : FreeMon A}
+                  (m* : P m) ->
+                  (n* : P n) ->
+                  (o* : P o) -> PathP (λ i → P (assocr m n o i)) ((m* ⊕* n*) ⊕* o*) (m* ⊕* (n* ⊕* o*))
+        assocr* {m} {n} {o} m* n* o* =
+          toPathP (trunc* (transp (λ i -> P (assocr m n o i)) i0 ((m* ⊕* n*) ⊕* o*)) (m* ⊕* (n* ⊕* o*)))
+
 
 module _ {A B : Type} (M : M.MonStruct B) where
   module B = M.MonStruct M
@@ -91,9 +98,6 @@ module _ {A B : Type} (M : M.MonStruct B) where
         ((f ∘ η) ♯) m B.⊕ ((f ∘ η) ♯) n
         ∎
       )
-      (λ m* -> {!  !})
-      {!   !}
-      {!   !}
       {! propPathFreeMon  !}
     
     freeMonEquivLemma-β : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> ((f ∘ η) ♯) ≡ f
