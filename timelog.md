@@ -21,3 +21,6 @@ scope to general free structures
 
 * 21/09/2023 [5 hours]
 Prove `freeMonEquivLemma`
+
+* 22/09/2023 [3 hours]
+Complete proof for `freeMonEquiv`
