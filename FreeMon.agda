@@ -103,11 +103,13 @@ module _ {A B : Type} (M : M.MonStruct B) where
     freeMonEquivLemma-β f homMonWit i x = freeMonEquivLemma f homMonWit x (~ i)
 
   freeMonEquiv : M.MonHom (freeMon A) M ≃ (A -> B)
-  freeMonEquiv = isoToEquiv (iso (\(f , ϕ) -> f ∘ η) (\f -> (f ♯) , (f ♯-isMonHom)) (\f -> refl) lemma)
-    where
-    lemma : (homMon : Σ (FreeMon A -> B) (M.isMonHom (freeMon A) M))
-            -> ((fst homMon ∘ η) ♯ , (fst homMon ∘ η) ♯-isMonHom) ≡ homMon
-    lemma (f , homMonWit) = Σ≡Prop M.isMonHom-isProp (freeMonEquivLemma-β f homMonWit)
+  freeMonEquiv = isoToEquiv
+    ( iso
+      (λ (f , ϕ) -> f ∘ η)
+      (λ f -> (f ♯) , (f ♯-isMonHom))
+      (λ _ -> refl)
+      (λ (f , homMonWit) -> Σ≡Prop M.isMonHom-isProp (freeMonEquivLemma-β f homMonWit))
+    )
 
   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
   freeMonIsEquiv = freeMonEquiv .snd
