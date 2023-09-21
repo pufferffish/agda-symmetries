@@ -3,6 +3,8 @@
 module FreeMon where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Data.Sigma 
+
 import Mon as M
 
 data FreeMon (A : Type) : Type where
@@ -105,10 +107,7 @@ module _ {A B : Type} (M : M.MonStruct B) where
     where
     lemma : (homMon : Σ (FreeMon A -> B) (M.isMonHom (freeMon A) M))
             -> ((fst homMon ∘ η) ♯ , (fst homMon ∘ η) ♯-isMonHom) ≡ homMon
-    lemma (f , homMonWit) i =
-      let p = freeMonEquivLemma-β f homMonWit 
-      in p i , {!   !}
-
+    lemma (f , homMonWit) = Σ≡Prop M.isMonHom-isProp (freeMonEquivLemma-β f homMonWit)
 
   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
   freeMonIsEquiv = freeMonEquiv .snd
