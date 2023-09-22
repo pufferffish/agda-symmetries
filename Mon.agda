@@ -35,15 +35,9 @@ module _ {A B : Type} {M : MonStruct A} {N : MonStruct B} (f : A -> B) where
   module M = MonStruct M
   module N = MonStruct N
 
-  isProp-e : isProp (f M.e ≡ N.e)
-  isProp-e = N.trunc _ _
-
-  isProp-⊕ : isProp ((x y : A) → f (x M.⊕ y) ≡ (f x N.⊕ f y))
-  isProp-⊕ = isPropΠ λ _ → isPropΠ (λ _ → N.trunc _ _)
-
   isMonHom-isProp : isProp (isMonHom M N f)
   isMonHom-isProp (monHom x-e x-⊕) (monHom y-e y-⊕) =
-    cong₂ monHom (isProp-e x-e y-e) (isProp-⊕ x-⊕ y-⊕)
+    cong₂ monHom (N.trunc _ _ x-e y-e) ((isPropΠ λ _ → isPropΠ (λ _ → N.trunc _ _)) x-⊕ y-⊕)
 
 MonHom : {A B : Type} (M : MonStruct A) (N : MonStruct B) -> Type
 MonHom {A} {B} M N = Σ[ f ∈ (A -> B) ] isMonHom M N f
