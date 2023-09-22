@@ -3,6 +3,7 @@
 module ListMon where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Data.Sigma
 import Mon as M
 
 data List (A : Type) : Type where
@@ -71,19 +72,41 @@ module _ {A B : Type} (M : M.MonStruct B) where
     (_♯) (x ∷ xs) = f x B.⊕ (_♯) xs
     (_♯) (trunc m n p q i j) = B.trunc ((_♯) m) ((_♯) n) (cong (_♯) p) (cong (_♯) q) i j
 
-    private
-      ⊕-♯-β : (a b : List A) -> ((a ⊕ b) ♯) ≡ ((a ♯) B.⊕ (b ♯))
-      ⊕-♯-β =
-        elimListProp.f _
-          (λ b -> sym (B.unitl (b ♯)))
-          (λ x {xs} p b ->
-            f x B.⊕ ((xs ⊕ b) ♯) ≡⟨ cong (f x B.⊕_) (p b) ⟩
-            f x B.⊕ ((xs ♯) B.⊕ (b ♯)) ≡⟨ sym (B.assocr (f x) _ _) ⟩
-            (f x B.⊕ (xs ♯)) B.⊕ (b ♯)
-            ∎
-          )
-          (isPropΠ λ _ -> B.trunc _ _)
-
     _♯-isMonHom : M.isMonHom (listMon A) M _♯
     M.isMonHom.f-e _♯-isMonHom = refl
-    M.isMonHom.f-⊕ _♯-isMonHom = ⊕-♯-β
+    M.isMonHom.f-⊕ _♯-isMonHom =
+      elimListProp.f _
+        (λ b -> sym (B.unitl (b ♯)))
+        (λ x {xs} p b ->
+          f x B.⊕ ((xs ⊕ b) ♯) ≡⟨ cong (f x B.⊕_) (p b) ⟩
+          f x B.⊕ ((xs ♯) B.⊕ (b ♯)) ≡⟨ sym (B.assocr (f x) _ _) ⟩
+          (f x B.⊕ (xs ♯)) B.⊕ (b ♯)
+          ∎
+        )
+        (isPropΠ λ _ -> B.trunc _ _)
+       
+  private
+    listMonEquivLemma : (f : List A -> B) -> M.isMonHom (listMon A) M f -> (x : List A) -> f x ≡ ((f ∘ [_]) ♯) x
+    listMonEquivLemma f homMonWit = elimListProp.f _
+      (M.isMonHom.f-e homMonWit)
+      (λ x {xs} p ->
+        f ([ x ] ⊕ xs) ≡⟨ M.isMonHom.f-⊕ homMonWit [ x ] xs ⟩
+        f [ x ] B.⊕ f xs ≡⟨ cong (f [ x ] B.⊕_) p ⟩
+        (f ∘ [_]) x B.⊕ ((f ∘ [_]) ♯) xs
+        ∎)
+      (B.trunc _ _)
+    
+    listMonEquivLemma-β : (f : List A -> B) -> M.isMonHom (listMon A) M f -> ((f ∘ [_]) ♯) ≡ f
+    listMonEquivLemma-β f homMonWit i x = listMonEquivLemma f homMonWit x (~ i)
+
+  listMonEquiv : M.MonHom (listMon A) M ≃ (A -> B)
+  listMonEquiv = isoToEquiv
+    ( iso
+      (λ (f , ϕ) -> f ∘ [_])
+      (λ f -> (f ♯) , (f ♯-isMonHom))
+      (λ f i x -> B.unitr (f x) i)
+      (λ (f , homMonWit) -> Σ≡Prop M.isMonHom-isProp (listMonEquivLemma-β f homMonWit))
+    )
+
+  listMonIsEquiv : isEquiv {A = M.MonHom (listMon A) M} (\(f , ϕ) -> f ∘ [_])
+  listMonIsEquiv = listMonEquiv .snd

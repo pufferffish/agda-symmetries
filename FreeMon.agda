@@ -87,13 +87,13 @@ module _ {A B : Type} (M : M.MonStruct B) where
 
   private
     freeMonEquivLemma : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> (x : FreeMon A) -> f x ≡ ((f ∘ η) ♯) x
-    freeMonEquivLemma f homMonWit = elimFreeMonProp.f (λ x -> f x ≡ ((f ∘ η) ♯) x)
+    freeMonEquivLemma f homMonWit = elimFreeMonProp.f _
       (λ _ -> refl)
       (M.isMonHom.f-e homMonWit)
-      (λ {m} {n} x y ->
+      (λ {m} {n} p q ->
         f (m ⊕ n) ≡⟨ M.isMonHom.f-⊕ homMonWit m n ⟩
-        f m B.⊕ f n ≡⟨ cong (B._⊕ f n) x ⟩
-        ((f ∘ η) ♯) m B.⊕ f n ≡⟨ cong (((f ∘ η) ♯) m B.⊕_) y ⟩
+        f m B.⊕ f n ≡⟨ cong (B._⊕ f n) p ⟩
+        ((f ∘ η) ♯) m B.⊕ f n ≡⟨ cong (((f ∘ η) ♯) m B.⊕_) q ⟩
         ((f ∘ η) ♯) m B.⊕ ((f ∘ η) ♯) n
         ∎
       )
