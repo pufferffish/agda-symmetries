@@ -62,10 +62,10 @@ open EqSig
 
 module _ {f a : Level} (σ : Sig f a) where
 
-   FreeStr : ∀ {x} (X : Type x) -> Str (ℓ-max (ℓ-max f a) x) σ
-   Str.carrier (FreeStr X) = Tree σ X
-   Str.ops (FreeStr X) = node
-   Str.isSetStr (FreeStr X) = isSetTree
+   TreeStr : ∀ {x} (X : Type x) -> Str (ℓ-max (ℓ-max f a) x) σ
+   Str.carrier (TreeStr X) = Tree σ X
+   Str.ops (TreeStr X) = node
+   Str.isSetStr (TreeStr X) = isSetTree
 
    module elimTreeSet {x p} {X : Type x} (P : Tree σ X -> Type p)
                (leaf* : (x : X) -> P (leaf x))
@@ -100,25 +100,25 @@ module _ {f a : Level} (σ : Sig f a) where
      (h ♯) (isSetTree a b p q i j) =
        Str.isSetStr Y ((h ♯) a) ((h ♯) b) (cong (h ♯) p) (cong (h ♯) q) i j
 
-     _♯-hom : (X -> Y .carrier) -> StrHom σ (FreeStr X) Y
+     _♯-hom : (X -> Y .carrier) -> StrHom σ (TreeStr X) Y
      fun (h ♯-hom) = h ♯
      fun-prsrv-ops (h ♯-hom) f o = refl
 
-     _♯-eta : (g : StrHom σ (FreeStr X) Y) -> (f : Tree σ X) -> g .fun f ≡ ((g .fun ∘ leaf) ♯) f
+     _♯-eta : (g : StrHom σ (TreeStr X) Y) -> (f : Tree σ X) -> g .fun f ≡ ((g .fun ∘ leaf) ♯) f
      (g ♯-eta) =
        elimTreeProp.F (\f -> g .fun f ≡ ((g .fun ∘ leaf) ♯) f)
          (\_ -> refl)
          (\f {o} p -> g .fun-prsrv-ops f o ∙ cong (Y .ops f) (funExt p))
          (\f -> Str.isSetStr Y (g .fun f) (((g .fun ∘ leaf) ♯) f))
 
-     _♯-hom-eta : (g : StrHom σ (FreeStr X) Y) -> g ≡ (g .fun ∘ leaf) ♯-hom
+     _♯-hom-eta : (g : StrHom σ (TreeStr X) Y) -> g ≡ (g .fun ∘ leaf) ♯-hom
      (g ♯-hom-eta) = StrHom≡ g ((g .fun ∘ leaf) ♯-hom) (funExt (g ♯-eta))
 
-     freeEquiv : StrHom σ (FreeStr X) Y ≃ (X -> Y .carrier)
-     freeEquiv = isoToEquiv (iso (\g -> g .fun ∘ leaf) _♯-hom (\h -> refl) (\g -> sym (g ♯-hom-eta)))
+     treeEquiv : StrHom σ (TreeStr X) Y ≃ (X -> Y .carrier)
+     treeEquiv = isoToEquiv (iso (\g -> g .fun ∘ leaf) _♯-hom (\h -> refl) (\g -> sym (g ♯-hom-eta)))
 
-     freeIsEquiv : isEquiv (\g -> g .fun ∘ leaf)
-     freeIsEquiv = freeEquiv .snd
+     treeIsEquiv : isEquiv (\g -> g .fun ∘ leaf)
+     treeIsEquiv = treeEquiv .snd
 
 
 data MonSym : Type where
