@@ -12,6 +12,7 @@ open import Cubical.Data.List as L
 open import Cubical.Data.List.FinData as F
 open import Cubical.Data.Sigma
 open import Cubical.Reflection.RecordEquiv
+open import Cubical.HITs.SetQuotients renaming ([_] to liftToQuo)
 open import Agda.Primitive
 
 record Sig (f a : Level) : Type ((ℓ-suc f) ⊔ (ℓ-suc a)) where
@@ -47,6 +48,10 @@ module _ {f a n : Level} (σ : Sig f a) where
     node : (f : σ .symbol) -> (o : σ .arity f -> Tree X) -> Tree X
     isSetTree : isSet (Tree X)
 open Tree
+
+module _ {f a n e : Level} (σ : Sig f a) (X : Type n) (eqs : Tree σ X -> Tree σ X -> Type e) where
+  Free : Type (ℓ-max (ℓ-max (ℓ-max f a) n) e)
+  Free = Tree σ X / eqs
 
 record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
   field
@@ -119,6 +124,18 @@ module _ {f a : Level} (σ : Sig f a) where
 
      treeIsEquiv : isEquiv (\g -> g .fun ∘ leaf)
      treeIsEquiv = treeEquiv .snd
+
+module _ {f a e : Level} (σ : Sig f a) where
+
+  -- freeToTree : ∀ {x} (X : Type x) -> {eqs : Tree σ X -> Tree σ X -> Type e} -> Free σ X eqs -> Tree σ X
+  -- freeToTree X (liftToQuo a) = a
+  -- freeToTree X (eq/ a b r i) = {! a !}
+  -- freeToTree X (squash/ free₁ free₂ p q i i₁) = {!   !}
+
+  FreeStr : ∀ {x} (X : Type x) -> (eqs : Tree σ X -> Tree σ X -> Type e) -> Str (ℓ-max (ℓ-max (ℓ-max f a) x) e) σ
+  Str.carrier (FreeStr X eqs) = Free σ X eqs
+  Str.ops (FreeStr X eqs) g o = liftToQuo (node g {!   !})
+  Str.isSetStr (FreeStr X eqs) = squash/
 
 
 data MonSym : Type where
