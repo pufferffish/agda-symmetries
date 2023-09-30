@@ -49,21 +49,18 @@ module _ {f a n : Level} (σ : Sig f a) where
     isSetTree : isSet (Tree X)
 open Tree
 
-module _ {f a n e : Level} (σ : Sig f a) (X : Type n) (eqs : Tree σ X -> Tree σ X -> Type e) where
-  Free : Type (ℓ-max (ℓ-max (ℓ-max f a) n) e)
-  Free = Tree σ X / eqs
-
-record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
+record EqThy {f a e n : Level} (σ : Sig f a) (X : Type n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
   field
     name : Type e
-    free : name -> Type n
-open EqSig
+    lhs : (n : name) -> Tree σ X
+    rhs : (n : name) -> Tree σ X
+open EqThy
 
--- record EqThy {f a e n x : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc (ℓ-max x n)))) where
---   field
---     lhs : (n : τ .name) -> Tree σ (τ .free n)
---     rhs : (n : τ .name) -> Tree σ (τ .free n)
--- open EqThy
+module _ {f a e n : Level} {X : Type n} {σ : Sig f a} (eqs : EqThy {f} {a} {e} {n} σ X) where
+ data Free : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
+    tree : Tree σ X -> Free
+    eq/ : (n : eqs .name) -> tree (eqs .lhs n) ≡ tree (eqs .rhs n)
+    isSetFree : isSet Free
 
 module _ {f a : Level} (σ : Sig f a) where
 
@@ -132,10 +129,10 @@ module _ {f a e : Level} (σ : Sig f a) where
   -- freeToTree X (eq/ a b r i) = {! a !}
   -- freeToTree X (squash/ free₁ free₂ p q i i₁) = {!   !}
 
-  FreeStr : ∀ {x} (X : Type x) -> (eqs : Tree σ X -> Tree σ X -> Type e) -> Str (ℓ-max (ℓ-max (ℓ-max f a) x) e) σ
-  Str.carrier (FreeStr X eqs) = Free σ X eqs
-  Str.ops (FreeStr X eqs) g o = liftToQuo (node g {!   !})
-  Str.isSetStr (FreeStr X eqs) = squash/
+  FreeStr : ∀ {x} (X : Type x) -> (eqs : EqThy {f} {a} {e} {x} σ X) -> Str (ℓ-max (ℓ-max (ℓ-max f a) (ℓ-suc x)) (ℓ-suc e)) σ
+  Str.carrier (FreeStr X eqs) = Free eqs
+  Str.ops (FreeStr X eqs) g o = {!   !}
+  Str.isSetStr (FreeStr X eqs) = isSetFree
 
 
 data MonSym : Type where
