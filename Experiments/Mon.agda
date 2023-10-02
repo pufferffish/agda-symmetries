@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Mon where
+module Experiments.Mon where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma

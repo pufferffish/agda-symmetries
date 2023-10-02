@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module ListMon where
+module Experiments.ListMon where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
