@@ -54,7 +54,7 @@ env:
     ~/.cabal/bin
 
 jobs:
-  test-cubical:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Install cabal
