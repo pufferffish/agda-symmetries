@@ -105,11 +105,14 @@ jobs:
       # By default github actions do not pull the repo
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: symmetries
 
       - name: Checkout cubical
         uses: actions/checkout@v4
         with:
           repository: agda/cubical
+          path: cubical
 
       - name: Register cubical
         run: |
@@ -124,7 +127,9 @@ jobs:
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
 
       - name: Generate Everything.agda
-        run: ./create-everything.sh
+        run: |
+          cd symmetries
+          ./create-everything.sh
 
       - name: Test
         run: agda Everything.agda
