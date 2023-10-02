@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module FreeStr where
+module Experiments.FreeStr where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv

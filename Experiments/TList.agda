@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module TList where
+module Experiments.TList where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.List
