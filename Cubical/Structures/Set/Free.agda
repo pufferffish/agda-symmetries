@@ -25,15 +25,23 @@ module Definition (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero) (�
   record Free : Type (ℓ-suc ℓ-zero) where
     field
       F : (X : Type) -> Type
+      η : {X : Type} -> X -> F X
       α : {X : Type} -> sig σ (F X) -> F X
       sat : {X : Type} -> (F X , α) ⊨ ε
-      η : {X : Type} -> X -> F X
-      ext : {X : Type} {𝔜 : struct σ} {ϕ : 𝔜 ⊨ ε}
-         -> (h : X -> 𝔜 .fst) -> structHom σ (F X , α) 𝔜
-      ext-β : {X : Type} {𝔜 : struct σ} {ϕ : 𝔜 ⊨ ε} {h : X -> 𝔜 .fst}
-         -> (ext {ϕ = ϕ} h .fst) ∘ η ≡ h
-      ext-η : {X : Type} {𝔜 : struct σ} {ϕ : 𝔜 ⊨ ε} {H : structHom σ (F X , α) 𝔜}
-         -> ext {ϕ = ϕ} (H .fst ∘ η) ≡ H
+      isFree : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
+            -> isEquiv (\(f : structHom σ (F X , α) 𝔜) -> f .fst ∘ η)
+
+    ext : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
+       -> (h : X -> 𝔜 .fst) -> structHom σ (F X , α) 𝔜
+    ext ϕ = invIsEq (isFree ϕ)
+
+    ext-β : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (H : structHom σ (F X , α) 𝔜)
+         -> ext ϕ (H .fst ∘ η) ≡ H
+    ext-β ϕ H = retIsEq (isFree ϕ) H
+
+    ext-η : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .fst)
+         -> (ext ϕ h .fst) ∘ η ≡ h
+    ext-η ϕ h = secIsEq (isFree ϕ) h
 
 -- constructs a free structure on a signature and equations
 -- TODO: generalise the universe levels!!
