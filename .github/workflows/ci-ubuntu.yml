@@ -124,11 +124,11 @@ jobs:
       ########################################################################
 
       - name: Htmlize cubical
-        if: github.event_name == 'push' && github.ref_name == 'master'
+        if: github.event_name == 'push' && github.ref_name == 'main'
         run: agda --html --html-dir=html Everything.agda
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref_name == 'master'
+        if: github.event_name == 'push' && github.ref_name == 'main'
         uses: JamesIves/github-pages-deploy-action@4.1.8
         with:
           branch: gh-pages
