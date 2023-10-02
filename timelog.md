@@ -27,3 +27,24 @@ Complete proof for `freeMonEquiv`
 
 * 22/09/2023 [1 hours]
 Complete proof for `listMonIsEquiv`
+
+* 25/09/2023 [3 hours]
+Meeting with Dr. Vikraman Choudhury to discuss formalizing universal algebra to refactor existing code
+under the new univeral algebra framework
+
+* 27/09/2023 [30 minutes]
+Meeting with Dr. Vikraman Choudhury and Dr. Simon Gay to discuss general progress of the project, and
+setting some deadlines with experiments with universal algebra formalization
+
+* 29/09/2023 [3 hours]
+Implement `Tree` and prove `Tree`'s universal property
+
+* 30/09/2023 [1 hour]
+Minor experimentation with defining `Free` with quotients
+
+* 01/10/2023 [2 hour]
+Minor experimentation with defining `Free`'s algebraic structures 
+
+* 02/10/2023 [3 hours]
+Meeting with Dr. Vikraman Choudhury to finalize the universal algebra framework, and agree on tasks to do
+for the week
