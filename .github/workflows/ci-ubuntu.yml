@@ -104,7 +104,16 @@ jobs:
 
       # By default github actions do not pull the repo
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Checkout cubical
+        uses: actions/checkout@v4
+        with:
+          repository: agda/cubical
+          path: /home/runner/.agda/cubical
+
+      - name: Register cubical
+        run: echo "/home/runner/.agda/cubical/cubical.agda-lib" >> ~/.agda/libraries
 
       ########################################################################
       ## TESTING
