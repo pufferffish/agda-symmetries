@@ -132,7 +132,9 @@ jobs:
           ./create-everything.sh
 
       - name: Test
-        run: agda Everything.agda
+        run: |
+          cd symmetries
+          agda Everything.agda
 
       ########################################################################
       ## HTML GENERATION
