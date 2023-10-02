@@ -113,7 +113,9 @@ jobs:
           path: $GITHUB_WORKSPACE/cubical
 
       - name: Register cubical
-        run: echo "$GITHUB_WORKSPACE/cubical/cubical.agda-lib" >> ~/.agda/libraries
+        run: |
+          mkdir ~/.agda
+          echo "$GITHUB_WORKSPACE/cubical/cubical.agda-lib" >> ~/.agda/libraries
 
       ########################################################################
       ## TESTING
