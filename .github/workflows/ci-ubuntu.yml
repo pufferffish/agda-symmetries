@@ -110,10 +110,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: agda/cubical
-          path: /home/runner/.agda/cubical
+          path: $GITHUB_WORKSPACE/cubical
 
       - name: Register cubical
-        run: echo "/home/runner/.agda/cubical/cubical.agda-lib" >> ~/.agda/libraries
+        run: echo "$GITHUB_WORKSPACE/cubical/cubical.agda-lib" >> ~/.agda/libraries
 
       ########################################################################
       ## TESTING
