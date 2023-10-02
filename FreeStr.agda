@@ -12,180 +12,39 @@ open import Cubical.Data.List as L
 open import Cubical.Data.List.FinData as F
 open import Cubical.Data.Sigma
 open import Cubical.Reflection.RecordEquiv
-open import Cubical.HITs.SetQuotients renaming ([_] to liftToQuo)
+open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
-record Sig (f a : Level) : Type ((ℓ-suc f) ⊔ (ℓ-suc a)) where
-  field
-    symbol : Type f
-    arity : symbol -> Type a
-open Sig
+-- module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) (ε : seq σ τ) where
+--   srel : (X : Type n) -> Tr σ X -> Tr σ X -> Type {!!}
+--   srel X l r = sat σ τ ε {!!}
 
-record Str {f a : Level} (x : Level) (σ : Sig f a) : Type (ℓ-max (ℓ-max f a) (ℓ-suc x)) where
-  field
-    carrier : Type x
-    ops : (f : σ .symbol) -> (o : σ .arity f -> carrier) -> carrier
-    isSetStr : isSet carrier
-open Str
+--   Fr : (X : Type n) -> walg σ
+--   Fr X = (Tr σ X / {!!}) , {!!}
 
-record StrHom {f a : Level} {x y : Level} (σ : Sig f a) (X : Str x σ) (Y : Str y σ) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc x) (ℓ-suc y))) where
-  field
-    fun : X .carrier -> Y .carrier
-    fun-prsrv-ops : (f : σ .symbol) -> (op : σ .arity f -> X .carrier) -> fun (X .ops f op) ≡ Y .ops f (fun ∘ op)
+module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
 
-unquoteDecl StrHomIsoΣ = declareRecordIsoΣ StrHomIsoΣ (quote StrHom)
+  evalEq : {X : Type n} -> (n : τ .name) -> (ρ : X -> τ .free n) -> Tree σ X -> Tree σ (τ .free n)
+  evalEq {X = X} n ρ = _♯ σ {X = X} {Y = TreeStr σ (τ .free n)} (leaf ∘ ρ)
 
-StrHom≡ : {f a : Level} {x y : Level} {σ : Sig f a} {X : Str x σ} {Y : Str y σ} (g h : StrHom σ X Y) -> StrHom.fun g ≡ StrHom.fun h -> g ≡ h
-StrHom≡ {X = X} {Y = Y} g h p =
-  let g' = Iso.fun StrHomIsoΣ g ; h' = Iso.fun StrHomIsoΣ h
-      q : g' ≡ h'
-      q = Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ (\o -> Str.isSetStr Y (fun (Str.ops X f o)) (Str.ops Y f (fun ∘ o)))) p
-  in cong (Iso.inv StrHomIsoΣ) q
+  eqs : {X : Type n} -> Tree σ X -> Tree σ X -> Type (ℓ-max (ℓ-max f a) (ℓ-max e n))
+  eqs {X = X} lhs rhs = (n : τ .name) (ρ : X -> τ .free n) -> evalEq n ρ lhs ≡ evalEq n ρ rhs
 
-module _ {f a n : Level} (σ : Sig f a) where
-  data Tree (X : Type n) : Type (ℓ-max f (ℓ-max a n)) where
-    leaf : X -> Tree X
-    node : (f : σ .symbol) -> (o : σ .arity f -> Tree X) -> Tree X
-    isSetTree : isSet (Tree X)
-open Tree
+  Free : Type n -> Type (ℓ-max (ℓ-max f a) (ℓ-max e n))
+  Free X = Tree σ X / eqs
 
-record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
-  field
-    name : Type e
-    free : name -> Type n
-open EqSig
+module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
 
-record EqThy {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
-  field
-    lhs : (n : τ .name) -> Tree σ (τ .free n)
-    rhs : (n : τ .name) -> Tree σ (τ .free n)
-open EqThy
+  t2f : {X : Type n} -> Tree σ X -> Free σ τ X
+  t2f = Q.[_]
 
-module _ {f a e n : Level} {τ : EqSig e n} {σ : Sig f a} (eqs : EqThy σ τ) where
- data Free : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
-    tree : {X : Type n} -> Tree σ X -> Free
-    eq/ : (n : τ .name) -> tree (eqs .lhs n) ≡ tree (eqs .rhs n)
-    isSetFree : isSet Free
+  f2t : {X : Type n} -> Free σ τ X -> ∥ Tree σ X ∥₁
+  f2t F = let p = ([]surjective F) in P.map fst p
 
-module _ {f a : Level} (σ : Sig f a) where
-
-   TreeStr : ∀ {x} (X : Type x) -> Str (ℓ-max (ℓ-max f a) x) σ
-   Str.carrier (TreeStr X) = Tree σ X
-   Str.ops (TreeStr X) = node
-   Str.isSetStr (TreeStr X) = isSetTree
-
-   module elimTreeSet {x p} {X : Type x} (P : Tree σ X -> Type p)
-               (leaf* : (x : X) -> P (leaf x))
-               (node* : (f : σ .symbol) -> {o : σ .arity f -> Tree σ X} -> ((a : σ .arity f) -> P (o a)) -> P (node f o))
-               (isSetTree* : (x : Tree σ X) -> isSet (P x)) where
-     F : (x : Tree σ X) -> P x
-     F (leaf x) = leaf* x
-     F (node f o) = node* f (λ a -> F (o a))
-     F (isSetTree x y p q i j) = isOfHLevel→isOfHLevelDep 2 isSetTree* (F x) (F y) (cong F p) (cong F q) (isSetTree x y p q) i j
-
-   module recTreeSet {x p} {X : Type x} (P : Type p)
-               (leaf* : X -> P)
-               (node* : (f : σ .symbol) -> (σ .arity f -> P) -> P)
-               (isSetTree* : isSet P) where
-     F : (x : Tree σ X) -> P
-     F = elimTreeSet.F (\_ -> P) leaf* (\f o -> node* f o) \_ -> isSetTree*
-
-   module elimTreeProp {x p} {X : Type x} (P : Tree σ X -> Type p)
-               (leaf* : (x : X) -> P (leaf x))
-               (node* : (f : σ .symbol) -> {o : σ .arity f -> Tree σ X} -> ((a : σ .arity f) -> P (o a)) -> P (node f o))
-               (isPropTree* : (x : Tree σ X) -> isProp (P x)) where
-     F : (x : Tree σ X) -> P x
-     F = elimTreeSet.F P leaf* node* (isProp→isSet ∘ isPropTree*)
-
-   module _ {x y} {X : Type x} {Y : Str y σ} where
-     open Str
-     open StrHom
-
-     _♯ : (X -> Y .carrier) -> Tree σ X -> Y .carrier
-     (h ♯) (leaf x) = h x
-     (h ♯) (node f o) = Y .ops f (h ♯ ∘ o)
-     (h ♯) (isSetTree a b p q i j) =
-       Str.isSetStr Y ((h ♯) a) ((h ♯) b) (cong (h ♯) p) (cong (h ♯) q) i j
-
-     _♯-hom : (X -> Y .carrier) -> StrHom σ (TreeStr X) Y
-     fun (h ♯-hom) = h ♯
-     fun-prsrv-ops (h ♯-hom) f o = refl
-
-     _♯-eta : (g : StrHom σ (TreeStr X) Y) -> (f : Tree σ X) -> g .fun f ≡ ((g .fun ∘ leaf) ♯) f
-     (g ♯-eta) =
-       elimTreeProp.F (\f -> g .fun f ≡ ((g .fun ∘ leaf) ♯) f)
-         (\_ -> refl)
-         (\f {o} p -> g .fun-prsrv-ops f o ∙ cong (Y .ops f) (funExt p))
-         (\f -> Str.isSetStr Y (g .fun f) (((g .fun ∘ leaf) ♯) f))
-
-     _♯-hom-eta : (g : StrHom σ (TreeStr X) Y) -> g ≡ (g .fun ∘ leaf) ♯-hom
-     (g ♯-hom-eta) = StrHom≡ g ((g .fun ∘ leaf) ♯-hom) (funExt (g ♯-eta))
-
-     treeEquiv : StrHom σ (TreeStr X) Y ≃ (X -> Y .carrier)
-     treeEquiv = isoToEquiv (iso (\g -> g .fun ∘ leaf) _♯-hom (\h -> refl) (\g -> sym (g ♯-hom-eta)))
-
-     treeIsEquiv : isEquiv (\g -> g .fun ∘ leaf)
-     treeIsEquiv = treeEquiv .snd
-
--- module _ {f a e : Level} (σ : Sig f a) where
--- 
---   -- freeToTree : ∀ {x} (X : Type x) -> {eqs : Tree σ X -> Tree σ X -> Type e} -> Free σ X eqs -> Tree σ X
---   -- freeToTree X (liftToQuo a) = a
---   -- freeToTree X (eq/ a b r i) = {! a !}
---   -- freeToTree X (squash/ free₁ free₂ p q i i₁) = {!   !}
--- 
---   freeOps : ∀ {g} {x} {X : Type x} (eqs : EqThy {f} {a} {e} {x} σ X) -> (σ .arity g -> Free eqs) -> (σ .arity g -> Tree σ X)
---   freeOps eqs vars op with vars op
---   freeOps eqs vars op | tree t = t
---   freeOps eqs vars op | eq/ n i = {! (eq/ n) i!}
---   freeOps eqs vars op | isSetFree x y p q i j = {!  !}
--- 
--- 
---   FreeStr : ∀ {x} (X : Type x) -> (eqs : EqThy {f} {a} {e} {x} σ X) -> Str (ℓ-max (ℓ-max (ℓ-max f a) (ℓ-suc x)) (ℓ-suc e)) σ
---   Str.carrier (FreeStr X eqs) = Free eqs
---   Str.ops (FreeStr X eqs) g o = tree {!   !}
---   Str.isSetStr (FreeStr X eqs) = isSetFree
-
-
-data MonSym : Type where
-  e : MonSym
-  ⊕ : MonSym
-
-MonAr : MonSym -> Type
-MonAr e = Fin 0
-MonAr ⊕ = Fin 2
-
-MonSig : Sig ℓ-zero ℓ-zero
-Sig.symbol MonSig = MonSym
-Sig.arity MonSig = MonAr
-
-ℕ-MonStr : Str ℓ-zero MonSig
-Str.carrier ℕ-MonStr = ℕ
-Str.ops ℕ-MonStr e f = 0
-Str.ops ℕ-MonStr ⊕ f = f zero + f (suc zero)
-Str.isSetStr ℕ-MonStr = isSetℕ
-
-data MonEq : Type where
-  unitl unitr assocr : MonEq
-
--- Vec n A ≃ Fin n -> A
-
--- MonEqFree : MonEq -> ℕ
--- MonEqFree unitl = 1
--- MonEqFree unitr = 1
--- MonEqFree assocr = 3
-
--- MonEqLhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
--- MonEqLhs unitl = node ⊕ (F.rec (node e \()) (leaf zero))
--- MonEqLhs unitr = node ⊕ (F.rec (leaf zero) (node e \()))
--- MonEqLhs assocr = node ⊕ (F.rec (node ⊕ (F.rec (leaf zero) (leaf (suc zero))))
---                                 (leaf (suc (suc zero))))
-
--- MonEqRhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
--- MonEqRhs unitl = leaf zero
--- MonEqRhs unitr = leaf zero
--- MonEqRhs assocr = node ⊕ (F.rec (leaf zero)
---                          (node ⊕ (F.rec (leaf (suc zero)) (leaf two))))
+  FreeStr : (X : Type n) -> Str (ℓ-max (ℓ-max (ℓ-max f a) e) n) σ
+  carrier (FreeStr X) = Free σ τ X
+  ops (FreeStr X) f o = {!!}
+  isSetStr (FreeStr X) = {!!}
 
 -- ℕ-MonStrEq : Eqs ℓ-zero MonSig ℕ-MonStr
 -- Eqs.name ℕ-MonStrEq = MonEq
@@ -280,4 +139,3 @@ data MonEq : Type where
 --   field
 --     f : α.el -> β.el
 --     f-coh : β.alg ∘ T.map f ≡ f ∘ α.alg
- 
