@@ -61,7 +61,7 @@ structHom : {f a x y : Level}
             -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
 structHom 𝔛 𝔜 = Σ[ h ∈ (𝔛 .carrier -> 𝔜 .carrier) ] structIsHom 𝔛 𝔜 h
 
-structHom≡ : {f a : Level} {x y : Level} {σ : Sig f a}
+structHom≡ : {f a x y : Level} {σ : Sig f a}
              {𝔛 : struct {f} {a} {x} σ}
              {𝔜 : struct {f} {a} {y} σ} 
              (g h : structHom 𝔛 𝔜)

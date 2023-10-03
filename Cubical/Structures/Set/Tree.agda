@@ -93,27 +93,41 @@ module _ {f a n : Level} (σ : Sig f a) where
   data Tr (V : Type n) : Type (ℓ-max (ℓ-max f a) n) where
     leaf : V -> Tr V
     node : sig σ (Tr V) -> Tr V
+  open Tr
 
-  algTr : (V : Type n) -> struct σ
-  carrier (algTr V) = Tr V
-  algebra (algTr V) = node
+module _ {f a : Level} (σ : Sig f a) where
+  algTr : ∀ {x} (X : Type x) -> struct σ
+  carrier (algTr X) = Tr σ X
+  algebra (algTr X) = node
 
-module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
-  open Tr {f} {a} {n} σ
+module _ {f a n : Level} (σ : Sig f a) where
 
-  module _ (𝔛 : struct {f} {a} {ℓ-max (ℓ-max f a) n} σ) (ρ : V -> 𝔛 .carrier) where
-    sharp : Tr σ V -> 𝔛 .carrier
-    sharp (leaf v) = ρ v
-    sharp (node (f , o)) = 𝔛 .algebra (f , (sharp ∘ o))
+  module _ {x y} {X : Type x} {𝔜 : struct {f} {a} {y} σ} where
+    sharp : (X -> 𝔜 .carrier) -> Tr σ X -> 𝔜 .carrier
+    sharp ρ (leaf v) = ρ v
+    sharp ρ (node (f , o)) = 𝔜 .algebra (f , sharp ρ ∘ o)
 
-  module _ (𝔛 : struct σ) (ρ : V -> 𝔛 .carrier) where
-    freeVarStr : struct σ
-    carrier freeVarStr = Tr σ V
-    algebra freeVarStr = Tr.node 
+    eval : (X -> 𝔜 .carrier) -> structHom (algTr σ X) 𝔜
+    eval h = sharp h , λ _ _ -> refl
 
-    eval : structHom freeVarStr 𝔛
-    eval = sharp 𝔛 ρ , λ f i -> refl
+    sharp-eta : (g : structHom (algTr σ X) 𝔜) -> (tr : Tr σ X) -> g .fst tr ≡ sharp (g .fst ∘ leaf) tr
+    sharp-eta g (leaf x) = refl
+    sharp-eta (g-f , g-hom) (node x) =
+      g-f (node x) ≡⟨ sym (g-hom (x .fst) (x .snd)) ⟩
+      𝔜 .algebra (x .fst , (λ y → g-f (x .snd y))) ≡⟨ cong (λ z → 𝔜 .algebra (x .fst , z)) (funExt λ y -> sharp-eta ((g-f , g-hom)) (x .snd y)) ⟩
+      𝔜 .algebra (x .fst , (λ y → sharp (g-f ∘ leaf) (x .snd y)))
+      ∎
 
-module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
-  mu : Tr σ (Tr σ V) -> Tr σ V
-  mu = sharp σ (algTr σ V) (idfun (Tr σ V))
+    -- sharp-hom-eta : isSet (𝔜 .carrier) -> (g : structHom (algTr σ X) 𝔜) -> g ≡ eval (g .fst ∘ leaf)
+    -- sharp-hom-eta p g = structHom≡ g (eval (g .fst ∘ leaf)) p (funExt (sharp-eta g))
+
+
+-- module _ {f a x y : Level} (σ : Sig f a) {X : Type x} {Y : struct {f} {a} {ℓ-max (ℓ-max f a) y} σ}  where
+--   sharp-hom : (X -> Y .carrier) ->
+--               structHom {f} {a} {ℓ-max (ℓ-max f a) x} {ℓ-max (ℓ-max f a) y} (algTr σ X) Y
+--   sharp-hom h = sharp {f} {a} {y} σ Y h , {!   !}
+
+-- module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
+--   mu : Tr σ (Tr σ V) -> Tr σ V
+--   mu = sharp σ (algTr σ V) (idfun (Tr σ V))
+ 
