@@ -1,12 +1,8 @@
 ## Adapted from the agda/agda-stdlib workflow
 
-name: Ubuntu build
+name: HTML deploy
 on:
   push:
-    branches:
-      - master
-      - main
-  pull_request:
     branches:
       - master
       - main
@@ -56,6 +52,13 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Install cabal
@@ -120,19 +123,40 @@ jobs:
           mkdir ~/.agda
           echo "$GITHUB_WORKSPACE/cubical/cubical.agda-lib" >> ~/.agda/libraries
 
-      ########################################################################
-      ## TESTING
-      ########################################################################
-
       - name: Put cabal programs in PATH
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
+
+      ########################################################################
+      ## HTML GENERATION
+      ########################################################################
 
       - name: Generate Everything.agda
         run: |
           cd symmetries
           ./create-everything.sh
 
-      - name: Test
+      - name: Htmlize cubical
         run: |
           cd symmetries
-          agda Everything.agda
+          agda --html --html-dir=html Everything.agda
+          tar \
+            --dereference --hard-dereference \
+            --directory "./html" \
+            -cvf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git \
+            --exclude=.github \
+            .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: ${{ inputs.retention-days }}
+          if-no-files-found: error
+        env:
+          INPUT_PATH: ${{ inputs.path }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
