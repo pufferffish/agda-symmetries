@@ -45,6 +45,16 @@ MonEqRhs unitr = leaf zero
 MonEqRhs assocr = node ⊕ (F.rec (leaf zero)
                          (node ⊕ (F.rec (leaf (suc zero)) (leaf two))))
 
+monEqLhs : (eq : MonEq) -> Tr MonSig (MonEqFree eq)
+monEqLhs unitl = node (⊕ , rec (node (e , \())) (leaf zero))
+monEqLhs unitr = node (⊕ , rec (leaf zero) (node (e , \())))
+monEqLhs assocr = node (⊕ , rec (node (⊕ , rec (leaf zero) (leaf one))) (leaf two))
+
+monEqRhs : (eq : MonEq) -> Tr MonSig (MonEqFree eq)
+monEqRhs unitl = leaf zero
+monEqRhs unitr = leaf zero
+monEqRhs assocr = node (⊕ , rec (leaf zero) (node (⊕ , rec (leaf one) (leaf two))))
+
 MonEqSig : EqSig ℓ-zero ℓ-zero
 name MonEqSig = MonEq
 free MonEqSig = MonEqFree
@@ -54,7 +64,7 @@ lhs MonEqs = MonEqLhs
 rhs MonEqs = MonEqRhs
 
 MonSEq : seq MonSig MonEqSig
-MonSEq n = {!!} , {!!} -- TODO: Tr vs Tree
+MonSEq n = monEqLhs n , monEqRhs n
 
 MonStruct = Str ℓ-zero MonSig
 
@@ -66,5 +76,5 @@ module Examples where
   Str.ops ℕ-MonStr ⊕ f = f zero + f (suc zero)
   Str.isSetStr ℕ-MonStr = isSetℕ
 
-  -- ℕ-MonStr-MonSeq : ℕ-MonStr ⊨ MonSEq -- TODO: struct vs Str
-  -- ℕ-MonStr-MoNSEq = ?
+  -- ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
+  -- ℕ-MonStr-MonSEq = ?
