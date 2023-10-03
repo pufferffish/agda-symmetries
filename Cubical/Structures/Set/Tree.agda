@@ -111,7 +111,7 @@ module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
     carrier freeVarStr = Tr σ V
     algebra freeVarStr = Tr.node 
 
-    eval : structHom σ freeVarStr str-α
+    eval : structHom freeVarStr str-α
     eval = sharp str-α ρ , λ f i -> refl
 
 module _ {f a n : Level} (σ : Sig f a) {V : Type n} where

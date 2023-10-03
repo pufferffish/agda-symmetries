@@ -29,13 +29,13 @@ module Definition (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero) (�
       α : {X : Type} -> sig σ (F X) -> F X
       sat : {X : Type} -> mkStruct (F X) α ⊨ ε
       isFree : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
-            -> isEquiv (\(f : structHom σ (mkStruct (F X) α) 𝔜) -> f .fst ∘ η)
+            -> isEquiv (\(f : structHom (mkStruct (F X) α) 𝔜) -> f .fst ∘ η)
 
     ext : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
-       -> (h : X -> 𝔜 .carrier) -> structHom σ (mkStruct (F X) α) 𝔜
+       -> (h : X -> 𝔜 .carrier) -> structHom (mkStruct (F X) α) 𝔜
     ext ϕ = invIsEq (isFree ϕ)
 
-    ext-β : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (H : structHom σ (mkStruct (F X) α) 𝔜)
+    ext-β : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (H : structHom (mkStruct (F X) α) 𝔜)
          -> ext ϕ (H .fst ∘ η) ≡ H
     ext-β ϕ H = retIsEq (isFree ϕ) H
 
