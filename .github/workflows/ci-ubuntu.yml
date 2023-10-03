@@ -56,6 +56,13 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Install cabal
         uses: haskell/actions/setup@v2
@@ -145,10 +152,24 @@ jobs:
         run: |
           cd symmetries
           agda --html --html-dir=html Everything.agda
+          tar \
+            --dereference --hard-dereference \
+            --directory "./html" \
+            -cvf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git \
+            --exclude=.github \
+            .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: ${{ inputs.retention-days }}
+          if-no-files-found: error
+        env:
+          INPUT_PATH: ${{ inputs.path }}
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        uses: JamesIves/github-pages-deploy-action@4.1.8
-        with:
-          branch: gh-pages
-          folder: symmetries/html
+        id: deployment
+        uses: actions/deploy-pages@v2 # or the latest "vX.X.X" version tag for this action
