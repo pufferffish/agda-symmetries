@@ -25,11 +25,11 @@ record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
     free : name -> Type n
 open EqSig public
 
-record EqThy {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
-  field
-    lhs : (n : τ .name) -> Tree σ (τ .free n)
-    rhs : (n : τ .name) -> Tree σ (τ .free n)
-open EqThy public
+-- record EqThy {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
+--   field
+--     lhs : (n : τ .name) -> Tree σ (τ .free n)
+--     rhs : (n : τ .name) -> Tree σ (τ .free n)
+-- open EqThy public
 
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
   -- same as EqThy

@@ -17,11 +17,12 @@ data FreeMon (A : Type) : Type where
   assocr : ∀ m n o -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
   trunc : isSet (FreeMon A)
 
-freeMon : (A : Type) -> M.MonStruct
-M.carrier (freeMon A) = FreeMon A
-M.ops (freeMon A) M.e i = e
-M.ops (freeMon A) M.⊕ i = i M.zero ⊕ i M.one
-M.isSetStr (freeMon A) = trunc
+freeMon : ∀ {n : Level} -> (A : Type n) -> M.MonStruct {n}
+freeMon _ = {!   !}
+-- M.carrier (freeMon A) = FreeMon A
+-- M.ops (freeMon A) M.e i = e
+-- M.ops (freeMon A) M.⊕ i = i M.zero ⊕ i M.one
+-- M.isSetStr (freeMon A) = trunc
 
 -- sat : freeMon A ⊨ MonSEq
 

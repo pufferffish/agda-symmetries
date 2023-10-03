@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --allow-unsolved-metas #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
@@ -33,18 +33,6 @@ MonEqFree unitl = Fin 1
 MonEqFree unitr = Fin 1
 MonEqFree assocr = Fin 3
 
-MonEqLhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-MonEqLhs unitl = node ⊕ (F.rec (node e \()) (leaf zero))
-MonEqLhs unitr = node ⊕ (F.rec (leaf zero) (node e \()))
-MonEqLhs assocr = node ⊕ (F.rec (node ⊕ (F.rec (leaf zero) (leaf (suc zero))))
-                                (leaf (suc (suc zero))))
-
-MonEqRhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-MonEqRhs unitl = leaf zero
-MonEqRhs unitr = leaf zero
-MonEqRhs assocr = node ⊕ (F.rec (leaf zero)
-                         (node ⊕ (F.rec (leaf (suc zero)) (leaf two))))
-
 monEqLhs : (eq : MonEq) -> Tr MonSig (MonEqFree eq)
 monEqLhs unitl = node (⊕ , rec (node (e , \())) (leaf zero))
 monEqLhs unitr = node (⊕ , rec (leaf zero) (node (e , \())))
@@ -58,10 +46,6 @@ monEqRhs assocr = node (⊕ , rec (leaf zero) (node (⊕ , rec (leaf one) (leaf 
 MonEqSig : EqSig ℓ-zero ℓ-zero
 name MonEqSig = MonEq
 free MonEqSig = MonEqFree
-
-MonEqs : EqThy MonSig MonEqSig
-lhs MonEqs = MonEqLhs
-rhs MonEqs = MonEqRhs
 
 MonSEq : seq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n
