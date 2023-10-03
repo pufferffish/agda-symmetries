@@ -101,18 +101,18 @@ module _ {f a n : Level} (σ : Sig f a) where
 module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
   open Tr {f} {a} {n} σ
 
-  module _ (str-α : struct {f} {a} {ℓ-max (ℓ-max f a) n} σ) (ρ : V -> str-α .carrier) where
-    sharp : Tr σ V -> str-α .carrier
+  module _ (𝔛 : struct {f} {a} {ℓ-max (ℓ-max f a) n} σ) (ρ : V -> 𝔛 .carrier) where
+    sharp : Tr σ V -> 𝔛 .carrier
     sharp (leaf v) = ρ v
-    sharp (node (f , o)) = str-α .algebra (f , (sharp ∘ o))
+    sharp (node (f , o)) = 𝔛 .algebra (f , (sharp ∘ o))
 
-  module _ (str-α : struct σ) (ρ : V -> str-α .carrier) where
+  module _ (𝔛 : struct σ) (ρ : V -> 𝔛 .carrier) where
     freeVarStr : struct σ
     carrier freeVarStr = Tr σ V
     algebra freeVarStr = Tr.node 
 
-    eval : structHom freeVarStr str-α
-    eval = sharp str-α ρ , λ f i -> refl
+    eval : structHom freeVarStr 𝔛
+    eval = sharp 𝔛 ρ , λ f i -> refl
 
 module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
   mu : Tr σ (Tr σ V) -> Tr σ V
