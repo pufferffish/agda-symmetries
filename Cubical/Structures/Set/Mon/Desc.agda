@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
@@ -66,15 +66,17 @@ rhs MonEqs = MonEqRhs
 MonSEq : seq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n
 
-MonStruct = Str ℓ-zero MonSig
+MonStruct : ∀ {n : Level} -> Type (ℓ-suc n)
+MonStruct {n} = struct {ℓ-zero} {ℓ-zero} {n} MonSig
 
 module Examples where
 
-  ℕ-MonStr : MonStruct
-  Str.carrier ℕ-MonStr = ℕ
-  Str.ops ℕ-MonStr e f = 0
-  Str.ops ℕ-MonStr ⊕ f = f zero + f (suc zero)
-  Str.isSetStr ℕ-MonStr = isSetℕ
+  evalℕ : sig MonSig ℕ → ℕ
+  evalℕ (e , _) = 0
+  evalℕ (⊕ , i) = i zero + i one
 
-  -- ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
-  -- ℕ-MonStr-MonSEq = ?
+  ℕ-MonStr : MonStruct
+  ℕ-MonStr = ℕ , evalℕ
+
+  ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
+  ℕ-MonStr-MonSEq eqs ρ = {!   !}
