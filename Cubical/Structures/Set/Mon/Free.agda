@@ -28,14 +28,12 @@ M.isSetStr (freeMon A) = trunc
 -- TODO: construct this
 module FreeMonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
 
-todo : FreeMonDef.Free
-F.Definition.Free.F todo = FreeMon
-F.Definition.Free.α todo = {!!}
-F.Definition.Free.sat todo = {!!}
-F.Definition.Free.η todo = {!!}
-F.Definition.Free.ext todo = {!!}
-F.Definition.Free.ext-β todo = {!!}
-F.Definition.Free.ext-η todo = {!!}
+-- todo : FreeMonDef.Free
+-- F.Definition.Free.F todo = {!!}
+-- F.Definition.Free.η todo = {!!}
+-- F.Definition.Free.α todo = {!!}
+-- F.Definition.Free.sat todo = {!!}
+-- F.Definition.Free.isFree todo = {!!}
 
 -- TODO: the same for list
 
