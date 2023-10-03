@@ -60,7 +60,9 @@ module Examples where
   evalℕ (⊕ , i) = i zero + i one
 
   ℕ-MonStr : MonStruct
-  ℕ-MonStr = ℕ , evalℕ
+  carrier ℕ-MonStr = ℕ
+  algebra ℕ-MonStr (e , _) = 0
+  algebra ℕ-MonStr (⊕ , i) = i zero + i one
 
   ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
   ℕ-MonStr-MonSEq eqs ρ = {!   !}

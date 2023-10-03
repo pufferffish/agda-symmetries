@@ -95,22 +95,25 @@ module _ {f a n : Level} (σ : Sig f a) where
     node : sig σ (Tr V) -> Tr V
 
   algTr : (V : Type n) -> struct σ
-  algTr V = Tr V , node
+  carrier (algTr V) = Tr V
+  algebra (algTr V) = node
 
 module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
   open Tr {f} {a} {n} σ
 
-  module _ ((X , α) : struct {f} {a} {ℓ-max (ℓ-max f a) n} σ) (ρ : V -> X) where
-    sharp : Tr σ V -> X
+  module _ (str-α : struct {f} {a} {ℓ-max (ℓ-max f a) n} σ) (ρ : V -> str-α .carrier) where
+    sharp : Tr σ V -> str-α .carrier
     sharp (leaf v) = ρ v
-    sharp (node (f , o)) = α (f , (sharp ∘ o))
+    sharp (node (f , o)) = str-α .algebra (f , (sharp ∘ o))
 
-  module _ ((X , α) : struct σ) (ρ : V -> X) where
-    eval : structHom σ (Tr σ V , Tr.node) (X , α)
-    eval = sharp (X , α) ρ , \f i -> refl
+  module _ (str-α : struct σ) (ρ : V -> str-α .carrier) where
+    freeVarStr : struct σ
+    carrier freeVarStr = Tr σ V
+    algebra freeVarStr = Tr.node 
+
+    eval : structHom σ freeVarStr str-α
+    eval = sharp str-α ρ , λ f i -> refl
 
 module _ {f a n : Level} (σ : Sig f a) {V : Type n} where
   mu : Tr σ (Tr σ V) -> Tr σ V
   mu = sharp σ (algTr σ V) (idfun (Tr σ V))
-  -- mu (leaf t) = t
-  -- mu (node (f , i)) = node (f , (\a -> mu (i a)))

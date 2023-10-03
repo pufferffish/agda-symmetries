@@ -27,19 +27,19 @@ module Definition (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero) (�
       F : (X : Type) -> Type
       η : {X : Type} -> X -> F X
       α : {X : Type} -> sig σ (F X) -> F X
-      sat : {X : Type} -> (F X , α) ⊨ ε
+      sat : {X : Type} -> mkStruct (F X) α ⊨ ε
       isFree : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
-            -> isEquiv (\(f : structHom σ (F X , α) 𝔜) -> f .fst ∘ η)
+            -> isEquiv (\(f : structHom σ (mkStruct (F X) α) 𝔜) -> f .fst ∘ η)
 
     ext : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε)
-       -> (h : X -> 𝔜 .fst) -> structHom σ (F X , α) 𝔜
+       -> (h : X -> 𝔜 .carrier) -> structHom σ (mkStruct (F X) α) 𝔜
     ext ϕ = invIsEq (isFree ϕ)
 
-    ext-β : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (H : structHom σ (F X , α) 𝔜)
+    ext-β : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (H : structHom σ (mkStruct (F X) α) 𝔜)
          -> ext ϕ (H .fst ∘ η) ≡ H
     ext-β ϕ H = retIsEq (isFree ϕ) H
 
-    ext-η : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .fst)
+    ext-η : {X : Type} {𝔜 : struct σ} (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .carrier)
          -> (ext ϕ h .fst) ∘ η ≡ h
     ext-η ϕ h = secIsEq (isFree ϕ) h
 
@@ -51,16 +51,17 @@ module Construction (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero) 
   data Free (X : Type) : Type ℓ-zero where
       η : X -> Free X
       α : sig σ (Free X) -> Free X
-      sat : (Free X , α) ⊨ ε
+      sat : mkStruct (Free X) α ⊨ ε
 
   freeStruct : (X : Type) -> struct σ
-  freeStruct X = Free X , α
+  carrier (freeStruct X) = Free X
+  algebra (freeStruct _) = α
 
   module _ (X : Type) (𝔜 : struct σ) (ϕ : 𝔜 ⊨ ε) where
 
-    private
-      Y = 𝔜 .fst
-      β = 𝔜 .snd
+    -- private
+    --   Y = 𝔜 .fst
+    --   β = 𝔜 .snd
 
     -- ext : (h : X -> Y) -> Free X -> Y
     -- ext h (η x) = h x
@@ -91,7 +92,7 @@ module Construction2 (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero)
           -> ((a : σ .arity f) -> t a ≈ s a)
           -> node (f , t) ≈ node (f , s)
     ≈-eqs : (𝔜 : struct {ℓ-zero} {ℓ-zero} {ℓ-zero} σ) (ϕ : 𝔜 ⊨ ε)
-         -> (e : τ .name) (ρ : X -> 𝔜 .fst)
+         -> (e : τ .name) (ρ : X -> 𝔜 .carrier)
          -> ∀ t s -> sharp σ 𝔜 ρ t ≡ sharp σ 𝔜 ρ s
          -> t ≈ s
 
@@ -104,8 +105,8 @@ module Construction2 (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero)
   -- freeStruct : (X : Type) -> struct σ
   -- freeStruct X = Free X , freeAlg X
 
-  module _ (X : Type) (𝔜 : struct σ) (ϕ : 𝔜 ⊨ ε) where
+  -- module _ (X : Type) (𝔜 : struct σ) (ϕ : 𝔜 ⊨ ε) where
 
-    private
-      Y = 𝔜 .fst
-      β = 𝔜 .snd
+  --   private
+  --     Y = 𝔜 .fst
+  --     β = 𝔜 .snd

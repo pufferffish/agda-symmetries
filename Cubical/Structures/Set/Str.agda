@@ -43,11 +43,16 @@ open import Cubical.Structures.Set.Sig
 -- alternative definition as algebras of signature functor
 -- TODO: prove lemmas about its homotopy type
 module _ {f a n : Level} (σ : Sig f a) where
-  struct : Type (ℓ-max f (ℓ-max a (ℓ-suc n)))
-  struct = Σ (Type n) \X -> sig σ X -> X
+  record struct : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
+    constructor mkStruct
+    field
+      carrier : Type n
+      algebra : sig σ carrier -> carrier
+  open struct public
 
-  structIsHom : ((X , α) : struct) ((Y , β) : struct) (h : X -> Y) -> Type (ℓ-max f (ℓ-max a n))
-  structIsHom (X , α) (Y , β) h = ((f : σ .symbol) -> (i : σ .arity f -> X) -> β (f , h ∘ i) ≡ h (α (f , i)))
+  structIsHom : (str-α : struct) (str-β : struct) (h : str-α .carrier -> str-β .carrier) -> Type (ℓ-max f (ℓ-max a n))
+  structIsHom α β h =
+    ((f : σ .symbol) -> (i : σ .arity f -> α .carrier) -> β .algebra (f , h ∘ i) ≡ h (α .algebra (f , i)))
 
   structHom : struct -> struct -> Type (ℓ-max f (ℓ-max a n))
-  structHom (X , α) (Y , β) = Σ[ h ∈ (X -> Y) ] structIsHom (X , α) (Y , β) h
+  structHom α β = Σ[ h ∈ (α .carrier -> β .carrier) ] structIsHom α β h

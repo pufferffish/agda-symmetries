@@ -40,4 +40,4 @@ module _ {f a e n : Level} {σ : Sig f a} {τ : EqSig e n} where
   -- type of structure satisfying equations
   infix 30 _⊨_
   _⊨_ : struct σ -> (ε : seq σ τ) -> Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
-  _⊨_ (X , α) ε = (e : τ .name) (ρ : τ .free e -> X) -> sharp σ (X , α) ρ (ε e .fst) ≡ sharp σ (X , α) ρ (ε e .snd)
+  _⊨_ α ε = (e : τ .name) (ρ : τ .free e -> α .carrier) -> sharp σ α ρ (ε e .fst) ≡ sharp σ α ρ (ε e .snd)
