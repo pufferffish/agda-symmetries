@@ -163,6 +163,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
+        if: github.event_name == 'push' && github.ref_name == 'main'
         with:
           name: github-pages
           path: ${{ runner.temp }}/artifact.tar
@@ -172,5 +173,6 @@ jobs:
           INPUT_PATH: ${{ inputs.path }}
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref_name == 'main'
         id: deployment
-        uses: actions/deploy-pages@v2 # or the latest "vX.X.X" version tag for this action
+        uses: actions/deploy-pages@v2
