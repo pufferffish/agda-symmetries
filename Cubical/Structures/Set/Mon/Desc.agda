@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical  #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
