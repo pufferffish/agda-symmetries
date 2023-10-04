@@ -138,7 +138,7 @@ jobs:
       - name: Htmlize cubical
         run: |
           cd symmetries
-          agda --html --html-dir=html Everything.agda
+          agda --html --html-dir=html index.agda
           tar \
             --dereference --hard-dereference \
             --directory "./html" \
