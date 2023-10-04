@@ -1,4 +1,3 @@
 *.agdai
 MAlonzo/**
 _build/
-/Everything.agda
