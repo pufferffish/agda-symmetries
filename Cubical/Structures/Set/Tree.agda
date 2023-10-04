@@ -100,7 +100,7 @@ module _ {f a : Level} (σ : Sig f a) where
   carrier (algTr X) = Tr σ X
   algebra (algTr X) = node
 
-module _ {f a n : Level} (σ : Sig f a) where
+module _ {f a : Level} (σ : Sig f a) where
 
   module _ {x y} {X : Type x} {𝔜 : struct {f} {a} {y} σ} where
     sharp : (X -> 𝔜 .carrier) -> Tr σ X -> 𝔜 .carrier

@@ -65,4 +65,6 @@ module Examples where
   algebra ℕ-MonStr (⊕ , i) = i zero + i one
 
   ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
-  ℕ-MonStr-MonSEq eqs ρ = {!   !}
+  ℕ-MonStr-MonSEq unitl ρ = refl
+  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ zero)
+  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ zero) (ρ one) (ρ two))
