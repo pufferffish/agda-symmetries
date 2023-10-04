@@ -93,7 +93,7 @@ module Construction2 (σ : Sig ℓ-zero ℓ-zero) (τ : EqSig ℓ-zero ℓ-zero)
           -> node (f , t) ≈ node (f , s)
     ≈-eqs : (𝔜 : struct {ℓ-zero} {ℓ-zero} {ℓ-zero} σ) (ϕ : 𝔜 ⊨ ε)
          -> (e : τ .name) (ρ : X -> 𝔜 .carrier)
-         -> ∀ t s -> sharp σ 𝔜 ρ t ≡ sharp σ 𝔜 ρ s
+         -> ∀ t s -> sharp σ {𝔜 = 𝔜} ρ t ≡ sharp σ {𝔜 = 𝔜} ρ s
          -> t ≈ s
 
   Free : Type -> Type₁

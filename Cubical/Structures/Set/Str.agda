@@ -48,25 +48,16 @@ record struct {f a n : Level} (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-s
     algebra : sig σ carrier -> carrier
 open struct public
 
-structIsHom : {f a x y : Level} {σ : Sig f a}
-              (𝔛 : struct {f} {a} {x} σ) (𝔜 : struct {f} {a} {y} σ) (h : 𝔛 .carrier -> 𝔜 .carrier)
-              -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
-structIsHom {σ = σ} 𝔛 𝔜 h =
-  ((f : σ .symbol) -> (i : σ .arity f -> 𝔛 .carrier) -> 𝔜 .algebra (f , h ∘ i) ≡ h (𝔛 .algebra (f , i)))
+module _  {f a x y : Level} {σ : Sig f a} where
+  structIsHom :  (𝔛 : struct {f} {a} {x} σ) (𝔜 : struct {f} {a} {y} σ) (h : 𝔛 .carrier -> 𝔜 .carrier)
+                -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
+  structIsHom 𝔛 𝔜 h =
+    ((f : σ .symbol) -> (i : σ .arity f -> 𝔛 .carrier) -> 𝔜 .algebra (f , h ∘ i) ≡ h (𝔛 .algebra (f , i)))
 
-structHom : {f a x y : Level}
-            {σ : Sig f a}
-            -> struct {f} {a} {x} σ
-            -> struct {f} {a} {y} σ
-            -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
-structHom 𝔛 𝔜 = Σ[ h ∈ (𝔛 .carrier -> 𝔜 .carrier) ] structIsHom 𝔛 𝔜 h
+  structHom : struct {f} {a} {x} σ -> struct {f} {a} {y} σ -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
+  structHom 𝔛 𝔜 = Σ[ h ∈ (𝔛 .carrier -> 𝔜 .carrier) ] structIsHom 𝔛 𝔜 h
 
-structHom≡ : {f a x y : Level} {σ : Sig f a}
-             {𝔛 : struct {f} {a} {x} σ}
-             {𝔜 : struct {f} {a} {y} σ} 
-             (g h : structHom 𝔛 𝔜)
-             -> isSet (𝔜 .carrier)
-             -> g .fst ≡ h .fst
-             -> g ≡ h
-structHom≡ {𝔛 = 𝔛} {𝔜 = 𝔜} (g-f , g-hom) (h-f , h-hom) isSetY p =
-  Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ \o -> isSetY (𝔜 .algebra (f , (λ x → fun (o x)))) (fun (𝔛 .algebra (f , o)))) p
+  structHom≡ : {𝔛 : struct {f} {a} {x} σ} {𝔜 : struct {f} {a} {y} σ} 
+               (g h : structHom 𝔛 𝔜) -> isSet (𝔜 .carrier) -> g .fst ≡ h .fst -> g ≡ h
+  structHom≡ {𝔛 = 𝔛} {𝔜 = 𝔜} (g-f , g-hom) (h-f , h-hom) isSetY p =
+    Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ \o -> isSetY (𝔜 .algebra (f , (λ x → fun (o x)))) (fun (𝔛 .algebra (f , o)))) p

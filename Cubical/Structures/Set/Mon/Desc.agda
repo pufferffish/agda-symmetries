@@ -55,10 +55,6 @@ MonStruct {n} = struct {ℓ-zero} {ℓ-zero} {n} MonSig
 
 module Examples where
 
-  evalℕ : sig MonSig ℕ → ℕ
-  evalℕ (e , _) = 0
-  evalℕ (⊕ , i) = i zero + i one
-
   ℕ-MonStr : MonStruct
   carrier ℕ-MonStr = ℕ
   algebra ℕ-MonStr (e , _) = 0
