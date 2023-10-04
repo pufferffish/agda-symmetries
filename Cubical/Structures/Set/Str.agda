@@ -17,29 +17,6 @@ open import Agda.Primitive
 
 open import Cubical.Structures.Set.Sig
 
--- record Str {f a : Level} (x : Level) (σ : Sig f a) : Type (ℓ-max (ℓ-max f a) (ℓ-suc x)) where
---   field
---     carrier : Type x
---     ops : (f : σ .symbol) -> (o : σ .arity f -> carrier) -> carrier
---     -- TODO: drop this and prove lemmas about homotopy type of Tree
---     isSetStr : isSet carrier
--- open Str public
--- 
--- record StrHom {f a : Level} {x y : Level} (σ : Sig f a) (X : Str x σ) (Y : Str y σ) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc x) (ℓ-suc y))) where
---   field
---     fun : X .carrier -> Y .carrier
---     fun-prsrv-ops : (f : σ .symbol) -> (op : σ .arity f -> X .carrier) -> fun (X .ops f op) ≡ Y .ops f (fun ∘ op)
--- 
--- unquoteDecl StrHomIsoΣ = declareRecordIsoΣ StrHomIsoΣ (quote StrHom)
--- 
--- StrHom≡ : {f a : Level} {x y : Level} {σ : Sig f a} {X : Str x σ} {Y : Str y σ} (g h : StrHom σ X Y) -> StrHom.fun g ≡ StrHom.fun h -> g ≡ h
--- StrHom≡ {X = X} {Y = Y} g h p =
---   let g' = Iso.fun StrHomIsoΣ g ; h' = Iso.fun StrHomIsoΣ h
---       q : g' ≡ h'
---       q = Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ (\o -> Y .isSetStr (fun (X .ops f o)) (Y .ops f (fun ∘ o)))) p
---   in cong (Iso.inv StrHomIsoΣ) q
-
--- alternative definition as algebras of signature functor
 -- TODO: prove lemmas about its homotopy type
 record struct {f a n : Level} (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
   constructor mkStruct
@@ -57,5 +34,5 @@ module _  {f a x y : Level} {σ : Sig f a} (𝔛 : struct {f} {a} {x} σ) (𝔜 
   structHom = Σ[ h ∈ (𝔛 .carrier -> 𝔜 .carrier) ] structIsHom h
 
   structHom≡ : (g h : structHom) -> isSet (𝔜 .carrier) -> g .fst ≡ h .fst -> g ≡ h
-  structHom≡ (g-f , g-hom) (h-f , h-hom) isSetY p =
-    Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ \o -> isSetY (𝔜 .algebra (f , (λ x → fun (o x)))) (fun (𝔛 .algebra (f , o)))) p
+  structHom≡ (g-f , g-hom) (h-f , h-hom) isSetY =
+    Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ \o -> isSetY (𝔜 .algebra (f , fun ∘ o)) (fun (𝔛 .algebra (f , o))))
