@@ -1,14 +1,20 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Structures.Set.Mon.Free where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData using (zero; one; two)
 
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.Free as F
+open import Cubical.Structures.Set.Sig
+open import Cubical.Structures.Set.Str public
+open import Cubical.Structures.Set.Tree
+open import Cubical.Structures.Set.Eq
 
-data FreeMon (A : Type) : Type where
+
+data FreeMon {ℓ : Level} (A : Type ℓ) : Type ℓ where
   η : (a : A) -> FreeMon A
   e : FreeMon A
   _⊕_ : FreeMon A -> FreeMon A -> FreeMon A
@@ -18,13 +24,14 @@ data FreeMon (A : Type) : Type where
   trunc : isSet (FreeMon A)
 
 freeMon : ∀ {n : Level} -> (A : Type n) -> M.MonStruct {n}
-freeMon _ = {!   !}
--- M.carrier (freeMon A) = FreeMon A
--- M.ops (freeMon A) M.e i = e
--- M.ops (freeMon A) M.⊕ i = i M.zero ⊕ i M.one
--- M.isSetStr (freeMon A) = trunc
+carrier (freeMon A) = FreeMon A
+algebra (freeMon A) (M.e , _) = e
+algebra (freeMon A) (M.⊕ , i) = i zero ⊕ i one
 
--- sat : freeMon A ⊨ MonSEq
+sat : ∀ {A} -> freeMon A ⊨ M.MonSEq
+sat {A} M.unitl ρ = unitl (ρ zero)
+sat {A} M.unitr ρ = unitr (ρ zero)
+sat {A} M.assocr ρ = assocr (ρ zero) (ρ one) (ρ two)
 
 -- TODO: construct this
 module FreeMonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq

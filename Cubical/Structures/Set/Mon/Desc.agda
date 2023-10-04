@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical  #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
