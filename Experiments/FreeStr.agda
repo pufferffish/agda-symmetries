@@ -16,11 +16,11 @@ open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
 -- module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) (ε : seq σ τ) where
---   srel : (X : Type n) -> Tr σ X -> Tr σ X -> Type {!!}
+--   srel : (X : Type n) -> Tree σ X -> Tree σ X -> Type {!!}
 --   srel X l r = sat σ τ ε {!!}
 
 --   Fr : (X : Type n) -> walg σ
---   Fr X = (Tr σ X / {!!}) , {!!}
+--   Fr X = (Tree σ X / {!!}) , {!!}
 
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
 

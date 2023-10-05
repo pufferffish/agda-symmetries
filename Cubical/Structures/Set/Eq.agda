@@ -34,10 +34,10 @@ open EqSig public
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
   -- same as EqThy
   seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
-  seq = (e : τ .name) -> Tr σ (τ .free e) × Tr σ (τ .free e)
+  seq = (e : τ .name) -> Tree σ (τ .free e) × Tree σ (τ .free e)
 
 module _ {f a e n : Level} {σ : Sig f a} {τ : EqSig e n} where
   -- type of structure satisfying equations
   infix 30 _⊨_
-  _⊨_ : struct {f} {a} {n} σ -> (ε : seq σ τ) -> Type (ℓ-max e n)
-  _⊨_ 𝔛 ε = (e : τ .name) (ρ : τ .free e -> 𝔛 .carrier) -> sharp σ {𝔜 = 𝔛} ρ (ε e .fst) ≡ sharp σ {𝔜 = 𝔛} ρ (ε e .snd)
+  _⊨_ : struct n σ -> (ε : seq σ τ) -> Type (ℓ-max e n)
+  _⊨_ 𝔛 ε = (e : τ .name) (ρ : τ .free e -> 𝔛 .carrier) -> sharp σ 𝔛 ρ (ε e .fst) ≡ sharp σ 𝔛 ρ (ε e .snd)

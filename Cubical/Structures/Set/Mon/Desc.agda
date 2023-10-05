@@ -33,12 +33,12 @@ MonEqFree unitl = Fin 1
 MonEqFree unitr = Fin 1
 MonEqFree assocr = Fin 3
 
-monEqLhs : (eq : MonEq) -> Tr MonSig (MonEqFree eq)
+monEqLhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
 monEqLhs unitl = node (⊕ , rec (node (e , \())) (leaf zero))
 monEqLhs unitr = node (⊕ , rec (leaf zero) (node (e , \())))
 monEqLhs assocr = node (⊕ , rec (node (⊕ , rec (leaf zero) (leaf one))) (leaf two))
 
-monEqRhs : (eq : MonEq) -> Tr MonSig (MonEqFree eq)
+monEqRhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
 monEqRhs unitl = leaf zero
 monEqRhs unitr = leaf zero
 monEqRhs assocr = node (⊕ , rec (leaf zero) (node (⊕ , rec (leaf one) (leaf two))))
@@ -51,7 +51,7 @@ MonSEq : seq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n
 
 MonStruct : ∀ {n : Level} -> Type (ℓ-suc n)
-MonStruct {n} = struct {ℓ-zero} {ℓ-zero} {n} MonSig
+MonStruct {n} = struct n MonSig
 
 module Examples where
 

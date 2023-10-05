@@ -18,14 +18,14 @@ open import Agda.Primitive
 open import Cubical.Structures.Set.Sig
 
 -- TODO: prove lemmas about its homotopy type
-record struct {f a n : Level} (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
+record struct {f a : Level} (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
   constructor mkStruct
   field
     carrier : Type n
     algebra : sig σ carrier -> carrier
 open struct public
 
-module _  {f a x y : Level} {σ : Sig f a} (𝔛 : struct {f} {a} {x} σ) (𝔜 : struct {f} {a} {y} σ)  where
+module _  {f a x y : Level} {σ : Sig f a} (𝔛 : struct x σ) (𝔜 : struct y σ)  where
   structIsHom : (h : 𝔛 .carrier -> 𝔜 .carrier) -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
   structIsHom h =
     ((f : σ .symbol) -> (i : σ .arity f -> 𝔛 .carrier) -> 𝔜 .algebra (f , h ∘ i) ≡ h (𝔛 .algebra (f , i)))

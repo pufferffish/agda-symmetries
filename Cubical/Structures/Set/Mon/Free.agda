@@ -29,9 +29,9 @@ algebra (freeMon A) (M.e , _) = e
 algebra (freeMon A) (M.⊕ , i) = i zero ⊕ i one
 
 sat : ∀ {A} -> freeMon A ⊨ M.MonSEq
-sat {A} M.unitl ρ = unitl (ρ zero)
-sat {A} M.unitr ρ = unitr (ρ zero)
-sat {A} M.assocr ρ = assocr (ρ zero) (ρ one) (ρ two)
+sat M.unitl ρ = unitl (ρ zero)
+sat M.unitr ρ = unitr (ρ zero)
+sat M.assocr ρ = assocr (ρ zero) (ρ one) (ρ two)
 
 -- TODO: construct this
 module FreeMonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq

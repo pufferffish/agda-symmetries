@@ -57,7 +57,7 @@ free CMonEqSig = CMonEqFree
 -- rhs CMonEqs = CMonEqRhs
 
 CMonSEq : seq CMonSig CMonEqSig
-CMonSEq n = {!!} , {!!} -- TODO: Tr vs Tree
+CMonSEq n = {!!} , {!!} -- TODO: Tree vs Tree
 
 -- CMonStruct = Str ℓ-zero CMonSig
 -- 
