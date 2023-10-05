@@ -27,15 +27,15 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
       F : (X : Type n) -> Type (ℓ-max n s)
       η : {X : Type n} -> X -> F X
       α : {X : Type n} -> sig σ (F X) -> F X
-      sat : {X : Type n} -> mkStruct {n = ℓ-max n s} (F X) α ⊨ ε
+      sat : {X : Type n} -> <_,_> {n = ℓ-max n s} (F X) α ⊨ ε
       isFree : {X : Type n} {𝔜 : struct (ℓ-max n s) σ} (ϕ : 𝔜 ⊨ ε)
-            -> isEquiv (\(f : structHom (mkStruct {n = ℓ-max n s} (F X) α) 𝔜) -> f .fst ∘ η)
+            -> isEquiv (\(f : structHom {x = ℓ-max n s} < F X , α > 𝔜) -> f .fst ∘ η)
 
     ext : {X : Type n} {𝔜 : struct (ℓ-max n s) σ} (ϕ : 𝔜 ⊨ ε)
-       -> (h : X -> 𝔜 .carrier) -> structHom (mkStruct (F X) α) 𝔜
+       -> (h : X -> 𝔜 .carrier) -> structHom < F X , α > 𝔜
     ext ϕ = invIsEq (isFree ϕ)
 
-    ext-β : {X : Type n} {𝔜 : struct (ℓ-max n s) σ} (ϕ : 𝔜 ⊨ ε) (H : structHom (mkStruct (F X) α) 𝔜)
+    ext-β : {X : Type n} {𝔜 : struct (ℓ-max n s) σ} (ϕ : 𝔜 ⊨ ε) (H : structHom < F X , α > 𝔜)
          -> ext ϕ (H .fst ∘ η) ≡ H
     ext-β ϕ H = retIsEq (isFree ϕ) H
 

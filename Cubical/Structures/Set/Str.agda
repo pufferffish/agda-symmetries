@@ -19,7 +19,7 @@ open import Cubical.Structures.Set.Sig
 
 -- TODO: prove lemmas about its homotopy type
 record struct {f a : Level} (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
-  constructor mkStruct
+  constructor <_,_>
   field
     carrier : Type n
     algebra : sig σ carrier -> carrier
