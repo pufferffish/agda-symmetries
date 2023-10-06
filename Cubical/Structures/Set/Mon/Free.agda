@@ -4,7 +4,7 @@ module Cubical.Structures.Set.Mon.Free where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
-open import Cubical.Data.FinData using (zero; one; two)
+open import Cubical.Data.FinData using (rec; zero; one; two; ¬Fin0; Fin)
 
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.Free as F
@@ -81,7 +81,34 @@ F.Definition.Free.F freeMonDef = FreeMon
 F.Definition.Free.η freeMonDef = η
 F.Definition.Free.α freeMonDef = freeMon-α
 F.Definition.Free.sat freeMonDef = freeMon-sat
-F.Definition.Free.isFree freeMonDef satMonoid = {! !}
+F.Definition.Free.isFree freeMonDef satMonoid = {!   !}
+
+module _ {ns x y : Level} {A : Type x} (𝔜 : struct y M.MonSig) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
+  module _ (f : A -> 𝔜 .carrier) where
+    interleaved mutual
+      freeMon-sharp : FreeMon A -> 𝔜 .carrier
+      freeMon-sharp-α :
+        ∀ m ->
+        e ⊕ m ≡ m ->
+        𝔜 .algebra (M.⊕ , rec (𝔜 .algebra (M.e , (λ ()))) (freeMon-sharp m)) ≡ freeMon-sharp m
+
+      freeMon-sharp (η a) = f a
+      freeMon-sharp e = 𝔜 .algebra (M.e , λ ())
+      freeMon-sharp (m ⊕ n) = 𝔜 .algebra (M.⊕ , rec (freeMon-sharp m) (freeMon-sharp n))
+      freeMon-sharp (unitl m i) = freeMon-sharp-α m (unitl m) i
+      freeMon-sharp (unitr m i) = {!   !}
+      freeMon-sharp (assocr m m₁ m₂ i) = {!   !}
+      freeMon-sharp (trunc m m₁ x y i i₁) = {!   !}
+
+      freeMon-sharp-α m p =
+        𝔜 .algebra (M.⊕ , rec (𝔜 .algebra (M.e , (λ ()))) (freeMon-sharp m)) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma) ⟩
+        𝔜 .algebra (M.⊕ , (λ x₁ -> sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (rec (node (M.e , (λ ()))) (leaf zero) x₁))) ≡⟨ 𝔜-monoid M.unitl (λ _ -> freeMon-sharp m) ⟩
+        freeMon-sharp m
+        ∎
+        where
+          lemma : (z : Fin 2) -> rec (𝔜 .algebra (M.e , (λ ()))) (freeMon-sharp m) z ≡ sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (rec (node (M.e , (λ ()))) (leaf zero) z)
+          lemma zero = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ ())
+          lemma one  = refl
 
 -- TODO: the same for list
 
@@ -130,4 +157,4 @@ F.Definition.Free.isFree freeMonDef satMonoid = {! !}
 
 --   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
 --   freeMonIsEquiv = freeMonEquiv .snd
- 
+     
