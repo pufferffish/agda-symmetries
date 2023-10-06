@@ -25,19 +25,12 @@ record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
     free : name -> Type n
 open EqSig public
 
--- record EqThy {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
---   field
---     lhs : (n : τ .name) -> Tree σ (τ .free n)
---     rhs : (n : τ .name) -> Tree σ (τ .free n)
--- open EqThy public
-
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
-  -- same as EqThy
   seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
   seq = (e : τ .name) -> Tree σ (τ .free e) × Tree σ (τ .free e)
 
-module _ {f a e n : Level} {σ : Sig f a} {τ : EqSig e n} where
+module _ {f a e n c : Level} {σ : Sig f a} {τ : EqSig e n} where
   -- type of structure satisfying equations
   infix 30 _⊨_
-  _⊨_ : struct n σ -> (ε : seq σ τ) -> Type (ℓ-max e n)
-  _⊨_ 𝔛 ε = (e : τ .name) (ρ : τ .free e -> 𝔛 .carrier) -> sharp σ 𝔛 ρ (ε e .fst) ≡ sharp σ 𝔛 ρ (ε e .snd)
+  _⊨_ : struct c σ -> (ε : seq σ τ) -> Type (ℓ-max c (ℓ-max e n))
+  _⊨_ 𝔛 ε = (eqn : τ .name) (ρ : τ .free eqn -> 𝔛 .carrier) -> sharp σ 𝔛 ρ (ε eqn .fst) ≡ sharp σ 𝔛 ρ (ε eqn .snd)
