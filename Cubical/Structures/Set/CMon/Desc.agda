@@ -4,7 +4,7 @@ module Cubical.Structures.Set.CMon.Desc where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData as F public
+open import Cubical.Structures.Arity as F public
 
 open import Cubical.Structures.Set.Sig
 open import Cubical.Structures.Set.Str public
@@ -16,8 +16,8 @@ data CMonSym : Type where
   ⊕ : CMonSym
 
 CMonAr : CMonSym -> Type
-CMonAr e = Fin 0
-CMonAr ⊕ = Fin 2
+CMonAr e = Arity 0
+CMonAr ⊕ = Arity 2
 
 CMonSig : Sig ℓ-zero ℓ-zero
 Sig.symbol CMonSig = CMonSym
@@ -29,10 +29,10 @@ data CMonEq : Type where
 -- Vec n A ≃ Fin n -> A
 
 CMonEqFree : CMonEq -> Type
-CMonEqFree unitl = Fin 1
-CMonEqFree unitr = Fin 1
-CMonEqFree assocr = Fin 3
-CMonEqFree comm = Fin 2
+CMonEqFree unitl = Arity 1
+CMonEqFree unitr = Arity 1
+CMonEqFree assocr = Arity 3
+CMonEqFree comm = Arity 2
 
 -- CMonEqLhs : (eq : CMonEq) -> Tree CMonSig (CMonEqFree eq)
 -- CMonEqLhs unitl = node ⊕ (F.rec (node e \()) (leaf zero))

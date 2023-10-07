@@ -4,20 +4,21 @@ module Cubical.Structures.Set.Mon.Desc where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData as F public
+open import Cubical.Data.List
 
 open import Cubical.Structures.Set.Sig
 open import Cubical.Structures.Set.Str public
 open import Cubical.Structures.Set.Tree
 open import Cubical.Structures.Set.Eq
+open import Cubical.Structures.Arity as F
 
 data MonSym : Type where
   e : MonSym
   ⊕ : MonSym
 
 MonAr : MonSym -> Type
-MonAr e = Fin 0
-MonAr ⊕ = Fin 2
+MonAr e = Arity 0
+MonAr ⊕ = Arity 2
 
 MonSig : Sig ℓ-zero ℓ-zero
 Sig.symbol MonSig = MonSym
@@ -29,19 +30,19 @@ data MonEq : Type where
 -- Vec n A ≃ Fin n -> A
 
 MonEqFree : MonEq -> Type
-MonEqFree unitl = Fin 1
-MonEqFree unitr = Fin 1
-MonEqFree assocr = Fin 3
+MonEqFree unitl = Arity 1
+MonEqFree unitr = Arity 1
+MonEqFree assocr = Arity 3
 
 monEqLhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-monEqLhs unitl = node (⊕ , rec (node (e , \())) (leaf zero))
-monEqLhs unitr = node (⊕ , rec (leaf zero) (node (e , \())))
-monEqLhs assocr = node (⊕ , rec (node (⊕ , rec (leaf zero) (leaf one))) (leaf two))
+monEqLhs unitl  = node (⊕ , lookup (node (e , fabsurd) ∷ leaf fzero ∷ []))
+monEqLhs unitr  = node (⊕ , lookup (leaf fzero ∷ node (e , fabsurd) ∷ []))
+monEqLhs assocr = node (⊕ , lookup ((node (⊕ , lookup (leaf fzero ∷ leaf fone ∷ []))) ∷ leaf ftwo ∷ []))
 
 monEqRhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-monEqRhs unitl = leaf zero
-monEqRhs unitr = leaf zero
-monEqRhs assocr = node (⊕ , rec (leaf zero) (node (⊕ , rec (leaf one) (leaf two))))
+monEqRhs unitl = leaf fzero
+monEqRhs unitr = leaf fzero
+monEqRhs assocr = node (⊕ , lookup (leaf fzero ∷ node (⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []))
 
 MonEqSig : EqSig ℓ-zero ℓ-zero
 name MonEqSig = MonEq
@@ -58,9 +59,9 @@ module Examples where
   ℕ-MonStr : MonStruct
   carrier ℕ-MonStr = ℕ
   algebra ℕ-MonStr (e , _) = 0
-  algebra ℕ-MonStr (⊕ , i) = i zero + i one
+  algebra ℕ-MonStr (⊕ , i) = i fzero + i fone
 
   ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
   ℕ-MonStr-MonSEq unitl ρ = refl
-  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ zero)
-  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ zero) (ρ one) (ρ two))
+  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ fzero)
+  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))

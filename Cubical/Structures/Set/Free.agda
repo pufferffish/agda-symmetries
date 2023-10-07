@@ -7,9 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData as F
 open import Cubical.Data.List as L
-open import Cubical.Data.List.FinData as F
 open import Cubical.Data.Sigma
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
