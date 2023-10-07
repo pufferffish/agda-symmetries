@@ -20,7 +20,7 @@ private
     k : ℕ
 
 ftwo : Arity (suc (suc (suc k)))
-ftwo = (2 , suc-≤-suc (suc-≤-suc (suc-≤-suc zero-≤)))
+ftwo = fsuc fone
 
 fabsurd : ∀ {A : Type ℓ} -> Arity zero -> A
 fabsurd x = ⊥.rec (¬Fin0 x)

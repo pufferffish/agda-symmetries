@@ -7,12 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
-open import Cubical.Data.List as L
-open import Cubical.Data.Sigma
-open import Cubical.Reflection.RecordEquiv
-open import Cubical.HITs.SetQuotients as Q
-open import Agda.Primitive
-
+open import Cubical.Data.Fin
 open import Cubical.Structures.Set.Sig
 open import Cubical.Structures.Set.Str
 
@@ -21,6 +16,10 @@ module _ {f a n : Level} (σ : Sig f a) where
     leaf : V -> Tree V
     node : sig σ (Tree V) -> Tree V
   open Tree
+
+module _ {f : Level} (σ : FinSig f) where
+  FinTree : (k : ℕ) -> Type f
+  FinTree k = Tree (finSig σ) (Fin k)
 
 module _ {f a : Level} (σ : Sig f a) where
   algTr : ∀ {x} (X : Type x) -> struct (ℓ-max f (ℓ-max a x)) σ
