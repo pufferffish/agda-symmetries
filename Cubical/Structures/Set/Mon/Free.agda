@@ -48,6 +48,20 @@ module elimFreeMonSet {p n : Level} {A : Type n} (P : FreeMon A -> Type p)
   f (trunc xs ys p q i j) =
      isOfHLevel→isOfHLevelDep 2 (\xs -> trunc* {xs = xs}) (f xs) (f ys) (cong f p) (cong f q) (trunc xs ys p q) i j
 
+module recFreeMonSet {p n : Level} {A : Type n} (P : Type p)
+                    (η* : (a : A) -> P)
+                    (e* : P)
+                    (_⊕*_ : P -> P -> P)
+                    (unitl* : (m* : P) -> PathP (λ i → P) (e* ⊕* m*) m*)
+                    (unitr* : (m* : P) -> PathP (λ i → P) (m* ⊕* e*) m*)
+                    (assocr* : (m* : P) ->
+                               (n* : P) ->
+                               (o* : P) -> PathP (λ i → P) ((m* ⊕* n*) ⊕* o*) (m* ⊕* (n* ⊕* o*)))
+                    (trunc* : isSet P)
+                    where
+  f : (x : FreeMon A) -> P
+  f = elimFreeMonSet.f (\_ -> P) η* e* _⊕*_ unitl* unitr* assocr* trunc*
+
 module elimFreeMonProp {p n : Level} {A : Type n} (P : FreeMon A -> Type p)
                     (η* : (a : A) -> P (η a))
                     (e* : P e)

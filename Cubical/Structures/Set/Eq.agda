@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
+open import Cubical.Data.Fin
 open import Cubical.Data.List as L
 open import Cubical.Data.Sigma
 open import Cubical.Reflection.RecordEquiv
@@ -22,6 +23,13 @@ record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
     name : Type e
     free : name -> Type n
 open EqSig public
+
+FinEqSig : (e : Level) -> Type (ℓ-max (ℓ-suc e) (ℓ-suc ℓ-zero))
+FinEqSig = FinSig
+
+finEqSig : {e : Level} -> FinEqSig e -> EqSig e ℓ-zero
+name (finEqSig σ) = σ .fst
+free (finEqSig σ) = Fin ∘ σ .snd
 
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
   seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
