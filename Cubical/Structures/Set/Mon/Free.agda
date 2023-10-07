@@ -139,10 +139,28 @@ module _ {ns x y : Level} {A : Type x} (𝔜 : struct y M.MonSig) (isSet𝔜 : i
         ∎
     freeMon-sharp-γ m n o =
       let
-        lol = 𝔜-monoid M.assocr (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) 
+        p =
+          Fin.elim (λ z -> rec (freeMon-sharp m) (freeMon-sharp n) z ≡ sharp M.MonSig 𝔜 (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) (rec (leaf zero) (leaf one) z))
+            refl
+            λ _ -> refl
+        q =
+          Fin.elim (λ z -> rec (𝔜 .algebra (M.⊕ , rec (freeMon-sharp m) (freeMon-sharp n))) (freeMon-sharp o) z ≡ sharp M.MonSig 𝔜 (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) (rec (node (M.⊕ , rec (leaf zero) (leaf one))) (leaf two) z))
+            (cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt p))
+            λ _ -> refl
+        r =
+          Fin.elim (λ z -> sharp M.MonSig 𝔜 (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) (rec (leaf one) (leaf two) z) ≡ rec (freeMon-sharp n) (freeMon-sharp o) z)
+            refl
+            λ _ -> refl 
+        s =
+          Fin.elim (λ z -> sharp M.MonSig 𝔜 (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) (rec (leaf zero) (node (M.⊕ , rec (leaf one) (leaf two))) z) ≡ rec (freeMon-sharp m) (𝔜 .algebra (M.⊕ , rec (freeMon-sharp n) (freeMon-sharp o))) z)
+            refl
+            λ _ -> cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt r)
       in
-        𝔜 .algebra (M.⊕ , rec (𝔜 .algebra (M.⊕ , rec (freeMon-sharp m) (freeMon-sharp n))) (freeMon-sharp o)) ≡⟨⟩
-        {!   !}
+        𝔜 .algebra (M.⊕ , rec (𝔜 .algebra (M.⊕ , rec (freeMon-sharp m) (freeMon-sharp n))) (freeMon-sharp o)) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt q) ⟩
+        _ ≡⟨ 𝔜-monoid M.assocr (lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ [ freeMon-sharp o ])) ⟩
+        _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt s) ⟩
+        _ 
+        ∎
 
 
 -- TODO: the same for list
