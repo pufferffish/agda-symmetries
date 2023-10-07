@@ -30,8 +30,9 @@ module _ {f a : Level} (σ : Sig f a) where
   algebra (algTr X) = node
 
 module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} (𝔜 : struct y σ) where
-  𝔛 : struct (ℓ-max f (ℓ-max a x)) σ
-  𝔛 = algTr σ X
+  private
+    𝔛 : struct (ℓ-max f (ℓ-max a x)) σ
+    𝔛 = algTr σ X
 
   sharp : (X -> 𝔜 .carrier) -> Tree σ X -> 𝔜 .carrier
   sharp ρ (leaf v) = ρ v

@@ -24,7 +24,7 @@ data FreeMon {ℓ : Level} (A : Type ℓ) : Type ℓ where
   assocr : ∀ m n o -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
   trunc : isSet (FreeMon A)
 
-module elimFreeMonSet {p : Level} {A : Type} (P : FreeMon A -> Type p)
+module elimFreeMonSet {p n : Level} {A : Type n} (P : FreeMon A -> Type p)
                     (η* : (a : A) -> P (η a))
                     (e* : P e)
                     (_⊕*_ : {m n : FreeMon A} -> P m -> P n -> P (m ⊕ n))
@@ -46,7 +46,7 @@ module elimFreeMonSet {p : Level} {A : Type} (P : FreeMon A -> Type p)
   f (trunc xs ys p q i j) =
      isOfHLevel→isOfHLevelDep 2 (\xs -> trunc* {xs = xs}) (f xs) (f ys) (cong f p) (cong f q) (trunc xs ys p q) i j
 
-module elimFreeMonProp {p : Level} {A : Type} (P : FreeMon A -> Type p)
+module elimFreeMonProp {p n : Level} {A : Type n} (P : FreeMon A -> Type p)
                     (η* : (a : A) -> P (η a))
                     (e* : P e)
                     (_⊕*_ : {m n : FreeMon A} -> P m -> P n -> P (m ⊕ n))
@@ -76,16 +76,10 @@ freeMon-sat M.unitl ρ = unitl (ρ zero)
 freeMon-sat M.unitr ρ = unitr (ρ zero)
 freeMon-sat M.assocr ρ = assocr (ρ zero) (ρ one) (ρ two)
 
-module FreeMonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
+module _ {x y : Level} {A : Type x} (𝔜 : struct y M.MonSig) (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
+  𝔉 : struct x M.MonSig
+  𝔉 = < FreeMon A , freeMon-α >
 
-freeMonDef : FreeMonDef.Free 2
-F.Definition.Free.F freeMonDef = FreeMon
-F.Definition.Free.η freeMonDef = η
-F.Definition.Free.α freeMonDef = freeMon-α
-F.Definition.Free.sat freeMonDef = freeMon-sat
-F.Definition.Free.isFree freeMonDef isSet𝔜 satMon = {!   !}
-
-module _ {ns x y : Level} {A : Type x} (𝔜 : struct y M.MonSig) (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
   module _ (f : A -> 𝔜 .carrier) where
     freeMon-sharp : FreeMon A -> 𝔜 .carrier
     freeMon-sharp-α :
@@ -162,52 +156,34 @@ module _ {ns x y : Level} {A : Type x} (𝔜 : struct y M.MonSig) (isSet𝔜 : i
         _ 
         ∎
 
+    freeMon-sharp-isMonHom : structHom 𝔉 𝔜
+    freeMon-sharp-isMonHom = freeMon-sharp , lemma-β
+      where
+      lemma-β : structIsHom 𝔉 𝔜 freeMon-sharp
+      lemma-β M.e i = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ ())
+      lemma-β M.⊕ i =
+        cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt {!   !})
 
--- TODO: the same for list
+  private
+    freeMonEquivLemma : (g : structHom 𝔉 𝔜) -> (x : FreeMon A) -> g .fst x ≡ freeMon-sharp (g .fst ∘ η) x
+    freeMonEquivLemma (g , homMonWit) = elimFreeMonProp.f (λ x -> g x ≡ freeMon-sharp (g ∘ η) x)
+      (λ _ -> refl)
+      {!   !}
+      {!   !}
+      (isSet𝔜 _ _)
 
--- module _ {A B : Type} (M : M.MonStruct B) where
---   module B = M.MonStruct M
---   module _ (f : A -> B) where
+    freeMonEquivLemma-β : (g : structHom 𝔉 𝔜) -> g ≡ freeMon-sharp-isMonHom (g .fst ∘ η)
+    freeMonEquivLemma-β g = structHom≡ 𝔉 𝔜 g (freeMon-sharp-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt (freeMonEquivLemma g))
 
---     _♯ : FreeMon A -> B
---     (_♯) (η a) = f a
---     (_♯) e = B.e
---     (_♯) (m ⊕ n) = (_♯) m B.⊕ (_♯) n
---     (_♯) (unitl m i) = B.unitl ((_♯) m) i
---     (_♯) (unitr m i) = B.unitr ((_♯) m) i
---     (_♯) (assocr m n o i) = B.assocr ((_♯) m) ((_♯) n) ((_♯) o) i
---     (_♯) (trunc m n p q i j) = B.trunc ((_♯) m) ((_♯) n) (cong (_♯) p) (cong (_♯) q) i j
+  freeMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .carrier)
+  freeMonEquiv =
+    isoToEquiv (iso (λ g -> g .fst ∘ η) freeMon-sharp-isMonHom (λ _ -> refl) (sym ∘ freeMonEquivLemma-β))
+      
+module FreeMonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
 
---     _♯-isMonHom : M.isMonHom (freeMon A) M _♯
---     M.isMonHom.f-e _♯-isMonHom = refl
---     M.isMonHom.f-⊕ _♯-isMonHom m n = refl
-
---   private
---     freeMonEquivLemma : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> (x : FreeMon A) -> f x ≡ ((f ∘ η) ♯) x
---     freeMonEquivLemma f homMonWit = elimFreeMonProp.f _
---       (λ _ -> refl)
---       (M.isMonHom.f-e homMonWit)
---       (λ {m} {n} p q ->
---         f (m ⊕ n) ≡⟨ M.isMonHom.f-⊕ homMonWit m n ⟩
---         f m B.⊕ f n ≡⟨ cong (B._⊕ f n) p ⟩
---         ((f ∘ η) ♯) m B.⊕ f n ≡⟨ cong (((f ∘ η) ♯) m B.⊕_) q ⟩
---         ((f ∘ η) ♯) m B.⊕ ((f ∘ η) ♯) n
---         ∎
---       )
---       (B.trunc _ _)
-
---     freeMonEquivLemma-β : (f : FreeMon A -> B) -> M.isMonHom (freeMon A) M f -> ((f ∘ η) ♯) ≡ f
---     freeMonEquivLemma-β f homMonWit i x = freeMonEquivLemma f homMonWit x (~ i)
-
---   freeMonEquiv : M.MonHom (freeMon A) M ≃ (A -> B)
---   freeMonEquiv = isoToEquiv
---     ( iso
---       (λ (f , ϕ) -> f ∘ η)
---       (λ f -> (f ♯) , (f ♯-isMonHom))
---       (λ _ -> refl)
---       (λ (f , homMonWit) -> Σ≡Prop M.isMonHom-isProp (freeMonEquivLemma-β f homMonWit))
---     )
-
---   freeMonIsEquiv : isEquiv {A = M.MonHom (freeMon A) M} (\(f , ϕ) -> f ∘ η)
---   freeMonIsEquiv = freeMonEquiv .snd
-       
+freeMonDef : FreeMonDef.Free 2
+F.Definition.Free.F freeMonDef = FreeMon
+F.Definition.Free.η freeMonDef = η
+F.Definition.Free.α freeMonDef = freeMon-α
+F.Definition.Free.sat freeMonDef = freeMon-sat
+F.Definition.Free.isFree freeMonDef {𝔜 = 𝔜} isSet𝔜 satMon = (freeMonEquiv 𝔜 isSet𝔜 satMon) .snd
