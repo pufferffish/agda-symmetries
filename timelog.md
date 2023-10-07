@@ -42,9 +42,25 @@ Implement `Tree` and prove `Tree`'s universal property
 * 30/09/2023 [1 hour]
 Minor experimentation with defining `Free` with quotients
 
-* 01/10/2023 [2 hour]
-Minor experimentation with defining `Free`'s algebraic structures 
+* 01/10/2023 [2 hours]
+Minor experimentation with defining `Free`'s algebraic structures
 
 * 02/10/2023 [3 hours]
 Meeting with Dr. Vikraman Choudhury to finalize the universal algebra framework, and agree on tasks to do
 for the week
+
+* 03/10/2023 [3 hours]
+Setting up CI, patching up the universal algebra framework
+
+* 04/10/2023 [3 hours]
+Proving theorems about homomorphisms and defining trees in the new universal algebra framework, meeting
+with Dr. Simon Gay to report progress
+
+* 05/10/2023 [1 hours]
+Minor asethetics changes to the framework from according to feedbacks by Dr. Vikraman Choudhury
+
+* 06/10/2023 [2 hours]
+Begin work on formalizing free monoids in the new framework
+
+* 07/10/2023 [7 hours]
+Formalizing free monoids with the new universal algebra framework, fixing issues with the framework
