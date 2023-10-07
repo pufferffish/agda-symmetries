@@ -7,9 +7,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData as F
+open import Cubical.Data.Fin
 open import Cubical.Data.List as L
-open import Cubical.Data.List.FinData as F
 open import Cubical.Data.Sigma
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
@@ -25,19 +24,20 @@ record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
     free : name -> Type n
 open EqSig public
 
-record EqThy {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) : Type (ℓ-max (ℓ-max f a) (ℓ-max (ℓ-suc e) (ℓ-suc n))) where
-  field
-    lhs : (n : τ .name) -> Tree σ (τ .free n)
-    rhs : (n : τ .name) -> Tree σ (τ .free n)
-open EqThy public
+FinEqSig : (e : Level) -> Type (ℓ-max (ℓ-suc e) (ℓ-suc ℓ-zero))
+FinEqSig = FinSig
+
+finEqSig : {e : Level} -> FinEqSig e -> EqSig e ℓ-zero
+name (finEqSig σ) = σ .fst
+free (finEqSig σ) = Fin ∘ σ .snd
 
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
-  -- same as EqThy
   seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
-  seq = (e : τ .name) -> Tr σ (τ .free e) × Tr σ (τ .free e)
+  seq = (e : τ .name) -> Tree σ (τ .free e) × Tree σ (τ .free e)
 
-module _ {f a e n : Level} {σ : Sig f a} {τ : EqSig e n} where
+module _ {f a e n s : Level} {σ : Sig f a} {τ : EqSig e n} where
   -- type of structure satisfying equations
   infix 30 _⊨_
-  _⊨_ : struct σ -> (ε : seq σ τ) -> Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
-  _⊨_ (X , α) ε = (e : τ .name) (ρ : τ .free e -> X) -> sharp σ (X , α) ρ (ε e .fst) ≡ sharp σ (X , α) ρ (ε e .snd)
+  _⊨_ : struct s σ -> (ε : seq σ τ) -> Type (ℓ-max s (ℓ-max e n))
+  𝔛 ⊨ ε = (eqn : τ .name) (ρ : τ .free eqn -> 𝔛 .carrier)
+       -> sharp σ 𝔛 ρ (ε eqn .fst) ≡ sharp σ 𝔛 ρ (ε eqn .snd)

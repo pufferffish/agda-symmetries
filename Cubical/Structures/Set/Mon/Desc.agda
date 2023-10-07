@@ -1,70 +1,66 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData as F public
+open import Cubical.Data.List
 
 open import Cubical.Structures.Set.Sig
 open import Cubical.Structures.Set.Str public
 open import Cubical.Structures.Set.Tree
 open import Cubical.Structures.Set.Eq
+open import Cubical.Structures.Arity as F
 
 data MonSym : Type where
   e : MonSym
   ⊕ : MonSym
 
-MonAr : MonSym -> Type
-MonAr e = Fin 0
-MonAr ⊕ = Fin 2
+MonAr : MonSym -> ℕ
+MonAr e = 0
+MonAr ⊕ = 2
+
+MonFinSig : FinSig ℓ-zero
+MonFinSig = MonSym , MonAr
 
 MonSig : Sig ℓ-zero ℓ-zero
-Sig.symbol MonSig = MonSym
-Sig.arity MonSig = MonAr
+MonSig = finSig MonFinSig
 
 data MonEq : Type where
   unitl unitr assocr : MonEq
 
--- Vec n A ≃ Fin n -> A
-
-MonEqFree : MonEq -> Type
-MonEqFree unitl = Fin 1
-MonEqFree unitr = Fin 1
-MonEqFree assocr = Fin 3
-
-MonEqLhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-MonEqLhs unitl = node ⊕ (F.rec (node e \()) (leaf zero))
-MonEqLhs unitr = node ⊕ (F.rec (leaf zero) (node e \()))
-MonEqLhs assocr = node ⊕ (F.rec (node ⊕ (F.rec (leaf zero) (leaf (suc zero))))
-                                (leaf (suc (suc zero))))
-
-MonEqRhs : (eq : MonEq) -> Tree MonSig (MonEqFree eq)
-MonEqRhs unitl = leaf zero
-MonEqRhs unitr = leaf zero
-MonEqRhs assocr = node ⊕ (F.rec (leaf zero)
-                         (node ⊕ (F.rec (leaf (suc zero)) (leaf two))))
+MonEqFree : MonEq -> ℕ
+MonEqFree unitl = 1
+MonEqFree unitr = 1
+MonEqFree assocr = 3
 
 MonEqSig : EqSig ℓ-zero ℓ-zero
-name MonEqSig = MonEq
-free MonEqSig = MonEqFree
+MonEqSig = finEqSig (MonEq , MonEqFree)
 
-MonEqs : EqThy MonSig MonEqSig
-lhs MonEqs = MonEqLhs
-rhs MonEqs = MonEqRhs
+monEqLhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
+monEqLhs unitl = node (⊕ , lookup (node (e , lookup []) ∷ leaf fzero ∷ []))
+monEqLhs unitr = node (⊕ , lookup (leaf fzero ∷ node (e , lookup []) ∷ []))
+monEqLhs assocr = node (⊕ , lookup (node (⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []))
+
+monEqRhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
+monEqRhs unitl = leaf fzero
+monEqRhs unitr = leaf fzero
+monEqRhs assocr = node (⊕ , lookup (leaf fzero ∷ node (⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []))
 
 MonSEq : seq MonSig MonEqSig
-MonSEq n = {!!} , {!!} -- TODO: Tr vs Tree
+MonSEq n = monEqLhs n , monEqRhs n
 
-MonStruct = Str ℓ-zero MonSig
+MonStruct : ∀ {n : Level} -> Type (ℓ-suc n)
+MonStruct {n} = struct n MonSig
 
 module Examples where
 
   ℕ-MonStr : MonStruct
-  Str.carrier ℕ-MonStr = ℕ
-  Str.ops ℕ-MonStr e f = 0
-  Str.ops ℕ-MonStr ⊕ f = f zero + f (suc zero)
-  Str.isSetStr ℕ-MonStr = isSetℕ
+  carrier ℕ-MonStr = ℕ
+  algebra ℕ-MonStr (e , _) = 0
+  algebra ℕ-MonStr (⊕ , i) = i fzero + i fone
 
-  -- ℕ-MonStr-MonSeq : ℕ-MonStr ⊨ MonSEq -- TODO: struct vs Str
-  -- ℕ-MonStr-MoNSEq = ?
+  ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
+  ℕ-MonStr-MonSEq unitl ρ = refl
+  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ fzero)
+  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
