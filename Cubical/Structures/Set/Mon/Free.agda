@@ -95,12 +95,12 @@ module _ {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSe
     freeMon-sharp : FreeMon A -> 𝔜 .carrier
     freeMon-sharp-α :
       ∀ m ->
-      𝔜 .algebra (M.⊕ , lookup (𝔜 .algebra (M.e , fabsurd) ∷ freeMon-sharp m ∷ []))
+      𝔜 .algebra (M.⊕ , lookup (𝔜 .algebra (M.e , lookup []) ∷ freeMon-sharp m ∷ []))
       ≡
       freeMon-sharp m
     freeMon-sharp-β :
       ∀ m ->
-      𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , fabsurd) ∷ []))
+      𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , lookup []) ∷ []))
       ≡
       freeMon-sharp m
     freeMon-sharp-γ :
@@ -110,7 +110,7 @@ module _ {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSe
       𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.⊕ , lookup (freeMon-sharp n ∷ freeMon-sharp o ∷ [])) ∷ []))
 
     freeMon-sharp (η a) = f a
-    freeMon-sharp e = 𝔜 .algebra (M.e , fabsurd)
+    freeMon-sharp e = 𝔜 .algebra (M.e , lookup [])
     freeMon-sharp (m ⊕ n) = 𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ freeMon-sharp n ∷ []))
     freeMon-sharp (unitl m i) = freeMon-sharp-α m i
     freeMon-sharp (unitr m i) = freeMon-sharp-β m i
@@ -119,28 +119,28 @@ module _ {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSe
       isSet𝔜 (freeMon-sharp m) (freeMon-sharp n) (cong freeMon-sharp p) (cong freeMon-sharp q) i j
 
     freeMon-sharp-α m =
-      𝔜 .algebra (M.⊕ , lookup (𝔜 .algebra (M.e , fabsurd) ∷ freeMon-sharp m ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma) ⟩
-      𝔜 .algebra (M.⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (node (M.e , fabsurd) ∷ leaf fzero ∷ []) z)) ≡⟨ 𝔜-monoid M.unitl (λ _ -> freeMon-sharp m) ⟩
+      𝔜 .algebra (M.⊕ , lookup (𝔜 .algebra (M.e , lookup []) ∷ freeMon-sharp m ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma) ⟩
+      𝔜 .algebra (M.⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (node (M.e , lookup []) ∷ leaf fzero ∷ []) z)) ≡⟨ 𝔜-monoid M.unitl (λ _ -> freeMon-sharp m) ⟩
       freeMon-sharp m ∎
       where
       lemma : (z : Arity 2) ->
-        lookup (𝔜 .algebra (M.e , fabsurd) ∷ freeMon-sharp m ∷ []) z
+        lookup (𝔜 .algebra (M.e , lookup []) ∷ freeMon-sharp m ∷ []) z
         ≡
-        sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (node (M.e , fabsurd) ∷ leaf fzero ∷ []) z)
-      lemma (zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> fabsurd z)
+        sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (node (M.e , lookup []) ∷ leaf fzero ∷ []) z)
+      lemma (zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> lookup [] z)
       lemma (suc zero , p) = refl
       lemma (suc (suc _), p) = ⊥.rec (¬m+n<m {m = 2} p)
     freeMon-sharp-β m =
-      𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , fabsurd) ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma) ⟩
-      𝔜 .algebra (M.⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (leaf fzero ∷ node (M.e , fabsurd) ∷ []) z)) ≡⟨ 𝔜-monoid M.unitr (λ _ -> freeMon-sharp m) ⟩
+      𝔜 .algebra (M.⊕ , lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , lookup []) ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma) ⟩
+      𝔜 .algebra (M.⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (leaf fzero ∷ node (M.e , lookup []) ∷ []) z)) ≡⟨ 𝔜-monoid M.unitr (λ _ -> freeMon-sharp m) ⟩
       freeMon-sharp m ∎
       where
       lemma : (z : Arity 2) ->
-        lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , fabsurd) ∷ []) z
+        lookup (freeMon-sharp m ∷ 𝔜 .algebra (M.e , lookup []) ∷ []) z
         ≡
-        sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (leaf fzero ∷ node (M.e , fabsurd) ∷ []) z)
+        sharp M.MonSig 𝔜 (λ _ → freeMon-sharp m) (lookup (leaf fzero ∷ node (M.e , lookup []) ∷ []) z)
       lemma (zero , p) = refl
-      lemma (suc zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> fabsurd z)
+      lemma (suc zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> lookup [] z)
       lemma (suc (suc _), p) = ⊥.rec (¬m+n<m {m = 2} p)
     freeMon-sharp-γ m n o =
       _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma-α) ⟩
@@ -179,7 +179,18 @@ module _ {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSe
       lemma-δ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
     freeMon-sharp-isMonHom : structHom 𝔉 𝔜
-    freeMon-sharp-isMonHom = freeMon-sharp , {!   !}
+    freeMon-sharp-isMonHom = freeMon-sharp , lemma-α
+      where
+      lemma-α : structIsHom 𝔉 𝔜 freeMon-sharp
+      lemma-β : (i : Arity 2 -> FreeMon A) (p : Arity 2) ->
+        freeMon-sharp (i p)
+        ≡
+        lookup (freeMon-sharp (i fzero) ∷ freeMon-sharp (i fone) ∷ []) p
+      lemma-α M.e i = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ p -> lookup [] p)
+      lemma-α M.⊕ i = cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (lemma-β i))
+      lemma-β i (zero , p) = cong (freeMon-sharp ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
+      lemma-β i (suc zero , p) = cong (freeMon-sharp ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
+      lemma-β i (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
   private
     freeMonEquivLemma : (g : structHom 𝔉 𝔜) -> (x : FreeMon A) -> g .fst x ≡ freeMon-sharp (g .fst ∘ η) x

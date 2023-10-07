@@ -22,9 +22,6 @@ private
 ftwo : Arity (suc (suc (suc k)))
 ftwo = fsuc fone
 
-fabsurd : ∀ {A : Type ℓ} -> Arity zero -> A
-fabsurd x = ⊥.rec (¬Fin0 x)
-
 lookup : ∀ (xs : List A) -> Arity (length xs) -> A
 lookup [] num = ⊥.rec (¬Fin0 num)
 lookup (x ∷ xs) (zero , prf) = x
