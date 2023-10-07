@@ -26,5 +26,10 @@ module _ {f a n : Level} (σ : Sig f a) where
   sig : Type n -> Type (ℓ-max f (ℓ-max a n))
   sig X = Σ (σ .symbol) \f -> σ .arity f -> X
 
+  sig≡ : {X : Type n} (f : σ .symbol) {i j : σ .arity f -> X}
+      -> ((a : σ .arity f) -> i a ≡ j a)
+      -> Path (sig X) (f , i) (f , j)
+  sig≡ f H = ΣPathP (refl , funExt H)
+
   sigF : {X Y : Type n} -> (X -> Y) -> sig X -> sig Y
   sigF h (f , i) = f , h ∘ i
