@@ -11,12 +11,10 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 
-variable
-  ℓ : Level
-  A B : Type ℓ
-
 private
   variable
+    ℓ : Level
+    A B : Type ℓ
     k : ℕ
 
 ftwo : Arity (suc (suc (suc k)))
