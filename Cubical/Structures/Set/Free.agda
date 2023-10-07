@@ -25,26 +25,28 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
   ns : Level
   ns = ℓ-max n s
 
-  record Free : Type (ℓ-suc (ℓ-max f (ℓ-max a (ℓ-max e ns)))) where
+  record Free (h : HLevel) : Type (ℓ-suc (ℓ-max f (ℓ-max a (ℓ-max e ns)))) where
     field
       F : (X : Type n) -> Type ns
       η : {X : Type n} -> X -> F X
       α : {X : Type n} -> sig σ (F X) -> F X
       sat : {X : Type n} -> <_,_> {n = ns} (F X) α ⊨ ε
-      isFree : {X : Type n} {𝔜 : struct ns σ} (ϕ : 𝔜 ⊨ ε)
+      isFree : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε)
             -> isEquiv (\(f : structHom {x = ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
-    ext : {X : Type n} {𝔜 : struct ns σ} (ϕ : 𝔜 ⊨ ε)
-       -> (h : X -> 𝔜 .carrier) -> structHom < F X , α > 𝔜
-    ext ϕ = invIsEq (isFree ϕ)
+    ext : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε)
+       -> (hom : X -> 𝔜 .carrier) -> structHom < F X , α > 𝔜
+    ext h ϕ = invIsEq (isFree h ϕ)
 
-    ext-β : {X : Type n} {𝔜 : struct ns σ} (ϕ : 𝔜 ⊨ ε) (H : structHom < F X , α > 𝔜)
-         -> ext ϕ (H .fst ∘ η) ≡ H
-    ext-β ϕ H = retIsEq (isFree ϕ) H
+    ext-β : {X : Type n} {𝔜 : struct ns σ}
+            (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
+         -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
+    ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
 
-    ext-η : {X : Type n} {𝔜 : struct ns σ} (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .carrier)
-         -> (ext ϕ h .fst) ∘ η ≡ h
-    ext-η ϕ h = secIsEq (isFree ϕ) h
+    ext-η : {X : Type n} {𝔜 : struct ns σ}
+            (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .carrier)
+         -> (ext H ϕ h .fst) ∘ η ≡ h
+    ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
 -- -- constructions of a free structure on a signature and equations
 -- -- TODO: generalise the universe levels!!
