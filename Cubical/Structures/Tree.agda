@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Tree where
+module Cubical.Structures.Tree where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
@@ -8,8 +8,8 @@ open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin
-open import Cubical.Structures.Set.Sig
-open import Cubical.Structures.Set.Str
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str
 
 module _ {f a n : Level} (σ : Sig f a) where
   data Tree (V : Type n) : Type (ℓ-max (ℓ-max f a) n) where

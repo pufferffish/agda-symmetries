@@ -6,10 +6,10 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
 open import Cubical.Data.List
 
-open import Cubical.Structures.Set.Sig
-open import Cubical.Structures.Set.Str public
-open import Cubical.Structures.Set.Tree
-open import Cubical.Structures.Set.Eq
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str public
+open import Cubical.Structures.Tree
+open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity as F
 
 data MonSym : Type where

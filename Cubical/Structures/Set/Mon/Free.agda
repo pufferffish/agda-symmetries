@@ -10,11 +10,11 @@ open import Cubical.Data.Nat.Order
 import Cubical.Data.Empty as ⊥
 
 import Cubical.Structures.Set.Mon.Desc as M
-import Cubical.Structures.Set.Free as F
-open import Cubical.Structures.Set.Sig
-open import Cubical.Structures.Set.Str public
-open import Cubical.Structures.Set.Tree
-open import Cubical.Structures.Set.Eq
+import Cubical.Structures.Free as F
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str public
+open import Cubical.Structures.Tree
+open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
 
 data FreeMon {ℓ : Level} (A : Type ℓ) : Type ℓ where

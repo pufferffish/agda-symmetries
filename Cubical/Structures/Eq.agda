@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Eq where
+module Cubical.Structures.Eq where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
@@ -14,9 +14,9 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
-open import Cubical.Structures.Set.Sig
-open import Cubical.Structures.Set.Str
-open import Cubical.Structures.Set.Tree
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str
+open import Cubical.Structures.Tree
 
 record EqSig (e n : Level) : Type (ℓ-max (ℓ-suc e) (ℓ-suc n)) where
   field
