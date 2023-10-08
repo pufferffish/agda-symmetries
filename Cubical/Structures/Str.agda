@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Str where
+module Cubical.Structures.Str where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
@@ -13,7 +13,7 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
-open import Cubical.Structures.Set.Sig
+open import Cubical.Structures.Sig
 
 -- TODO: prove lemmas about its homotopy type
 record struct {f a : Level} (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where

@@ -4,18 +4,18 @@ module index where
 
 -- an organised list of modules:
 --
--- universal algebra for sets
-import Cubical.Structures.Set.Sig
-import Cubical.Structures.Set.Str
-import Cubical.Structures.Set.Eq
+-- universal algebra
+import Cubical.Structures.Sig
+import Cubical.Structures.Str
+import Cubical.Structures.Eq
 
 -- free algebras
-import Cubical.Structures.Set.Free
+import Cubical.Structures.Free
 
--- monoids
+-- monoids for sets
 import Cubical.Structures.Set.Mon.Free
 
--- commutative monoids
+-- commutative monoids for sets
 import Cubical.Structures.Set.CMon.Free
 
 -- an exhaustive list of all modules:
