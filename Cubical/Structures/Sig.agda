@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Sig where
+module Cubical.Structures.Sig where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv

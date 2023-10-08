@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Free where
+module Cubical.Structures.Free where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
@@ -13,10 +13,10 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
-open import Cubical.Structures.Set.Sig
-open import Cubical.Structures.Set.Str
-open import Cubical.Structures.Set.Tree
-open import Cubical.Structures.Set.Eq
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str
+open import Cubical.Structures.Tree
+open import Cubical.Structures.Eq
 
 -- defines a free structure on a signature and equations
 module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)) (ε : seq {n = ℓ-max n s} σ τ) where

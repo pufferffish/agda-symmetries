@@ -5,12 +5,12 @@ module index where
 -- an organised list of modules:
 --
 -- universal algebra for sets
-import Cubical.Structures.Set.Sig
-import Cubical.Structures.Set.Str
-import Cubical.Structures.Set.Eq
+import Cubical.Structures.Sig
+import Cubical.Structures.Str
+import Cubical.Structures.Eq
 
 -- free algebras
-import Cubical.Structures.Set.Free
+import Cubical.Structures.Free
 
 -- monoids
 import Cubical.Structures.Set.Mon.Free

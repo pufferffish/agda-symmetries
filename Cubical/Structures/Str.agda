@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.Str where
+module Cubical.Structures.Str where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
@@ -13,17 +13,18 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
 
-open import Cubical.Structures.Set.Sig
+open import Cubical.Structures.Sig
 
 -- TODO: prove lemmas about its homotopy type
-record struct {f a : Level} (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
-  constructor <_,_>
+record struct {f a : Level} (h : HLevel) (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-max a (ℓ-suc n))) where
+  constructor <_,_,_>
   field
     carrier : Type n
     algebra : sig σ carrier -> carrier
+    trunc : isOfHLevel (suc (suc h)) carrier
 open struct public
 
-module _  {f a x y : Level} {σ : Sig f a} (𝔛 : struct x σ) (𝔜 : struct y σ)  where
+module _  {f a x y : Level} {σ : Sig f a} (h' : HLevel) (𝔛 : struct h' x σ) (𝔜 : struct h' y σ)  where
   structIsHom : (h : 𝔛 .carrier -> 𝔜 .carrier) -> Type (ℓ-max f (ℓ-max a (ℓ-max x y)))
   structIsHom h =
     ((f : σ .symbol) -> (i : σ .arity f -> 𝔛 .carrier) -> 𝔜 .algebra (f , h ∘ i) ≡ h (𝔛 .algebra (f , i)))
