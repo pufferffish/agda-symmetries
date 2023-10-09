@@ -12,10 +12,10 @@ import Cubical.Structures.Eq
 -- free algebras
 import Cubical.Structures.Free
 
--- monoids
+-- monoids for sets
 import Cubical.Structures.Set.Mon.Free
 
--- commutative monoids
+-- commutative monoids for sets
 import Cubical.Structures.Set.CMon.Free
 
 -- an exhaustive list of all modules:
