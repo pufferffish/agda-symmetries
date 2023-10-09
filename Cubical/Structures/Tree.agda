@@ -4,14 +4,16 @@ module Cubical.Structures.Tree where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Empty as E
+open import Cubical.Data.Sum as S
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str
 open import Cubical.Structures.Arity
-open import Cubical.Data.Empty as ⊥
 
 data Tree {f a n : Level} (σ : Sig f a) (V : Type n) : Type (ℓ-max (ℓ-max f a) n) where
   leaf : V -> Tree σ V
@@ -21,40 +23,50 @@ module _ {f : Level} (σ : FinSig f) where
   FinTree : (k : ℕ) -> Type f
   FinTree k = Tree (finSig σ) (Arity k)
 
+module Types {f a n} {σ : Sig f a} {V : Type n} where
+
+  open import Cubical.Data.W.Indexed
+
+  -- shapes
+  S : Type n -> Type (ℓ-max f n)
+  S V = V ⊎ (σ .symbol)
+
+  -- positions
+  P : (V : Type n) -> S V -> Type a
+  P V (inl v) = ⊥*
+  P V (inr f) = σ .arity f
+
+  inX : ∀ V (s : S V) -> P V s -> Type n
+  inX V s p = V
+
+  RepTree : Type (ℓ-max (ℓ-max f a) (ℓ-suc n))
+  RepTree = IW S P inX V
+
+  Tree→RepTree : Tree σ V -> RepTree
+  Tree→RepTree (leaf v) = node (inl v) E.rec*
+  Tree→RepTree (node (f , i)) = node (inr f) (Tree→RepTree ∘ i)
+
+  RepTree→Tree : RepTree -> Tree σ V
+  RepTree→Tree (node (inl v) subtree) = leaf v
+  RepTree→Tree (node (inr f) subtree) = node (f , RepTree→Tree ∘ subtree)
+
+  Tree→RepTree→Tree : ∀ t -> RepTree→Tree (Tree→RepTree t) ≡ t
+  Tree→RepTree→Tree (leaf v) = refl
+  Tree→RepTree→Tree (node (f , i)) j = node (f , \a -> Tree→RepTree→Tree (i a) j)
+
+  RepTree→Tree→RepTree : ∀ r -> Tree→RepTree (RepTree→Tree r) ≡ r
+  RepTree→Tree→RepTree (node (inl v) subtree) = congS (node (inl v)) (funExt (E.rec ∘ lower))
+  RepTree→Tree→RepTree (node (inr f) subtree) = congS (node (inr f)) (funExt (RepTree→Tree→RepTree ∘ subtree))
+
+  isoRepTree : Tree σ V ≅ RepTree
+  Iso.fun isoRepTree = Tree→RepTree
+  Iso.inv isoRepTree = RepTree→Tree
+  Iso.rightInv isoRepTree = RepTree→Tree→RepTree
+  Iso.leftInv isoRepTree = Tree→RepTree→Tree
+
+open Types
+
 module TreePath {f a n} {σ : Sig f a} {V : Type n} where
-  Cover : Tree σ V -> Tree σ V -> Type (ℓ-max (ℓ-max f a) n)
-  Cover (leaf x) (leaf y) = Lift {j = ℓ-max f a} (x ≡ y)
-  Cover (leaf x) (node y) = Lift ⊥
-  Cover (node x) (leaf y) = Lift ⊥
-  Cover (node (sym-α , ari-α)) (node (sym-β , ari-β)) =
-    Σ[ p ∈ sym-α ≡ sym-β ] ((α : σ .arity sym-α) -> Cover (ari-α α) (ari-β (subst (σ .arity) p α)))
-
-  reflCode : ∀ tr -> Cover tr tr
-  reflCode (leaf x) = lift refl
-  reflCode (node (sym-α , ari-α)) =
-    refl , λ α -> subst (Cover (ari-α α)) (cong ari-α (sym (substRefl {B = σ .arity} α))) (reflCode (ari-α α))
-
-  encode : ∀ trx try -> (p : trx ≡ try) -> Cover trx try
-  encode trx _ = J (λ try _ -> Cover trx try) (reflCode trx)
-  
-  encodeRefl : ∀ xs -> encode xs xs refl ≡ reflCode xs
-  encodeRefl trx = JRefl (λ try _ -> Cover trx try) (reflCode trx)
-
-  decode : ∀ trx try -> Cover trx try -> trx ≡ try
-  decode (leaf x) (leaf y) (lift p) = cong leaf p
-  decode (leaf x) (node y) (lift p) = ⊥.rec p
-  decode (node x) (leaf y) (lift p) = ⊥.rec p
-  decode (node (sym-α , ari-α)) (node (sym-β , ari-β)) (p , f) =
-    cong node (cong₂ _,_ p {!   !})
-
-  decodeRefl : ∀ trx -> decode trx trx (reflCode trx) ≡ refl
-  decodeRefl (leaf x) i = refl
-  decodeRefl (node x) i = refl
-
-  decodeEncode : ∀ trx try -> (p : trx ≡ try) -> decode trx try (encode trx try p) ≡ p
-  decodeEncode trx _ =
-    J (λ try p -> decode trx try (encode trx try p) ≡ p)
-      (cong (decode trx trx) (encodeRefl trx) ∙ decodeRefl trx)
 
   isOfHLevelMax : ∀ {ℓ} {n m : HLevel} {A : Type ℓ}
     -> isOfHLevel n A
@@ -71,24 +83,26 @@ module TreePath {f a n} {σ : Sig f a} {V : Type n} where
     -> isOfHLevel n (σ .arity sym -> V)
   isOfHLevelSym n sym p = isOfHLevelΠ n λ _ -> p
 
-  isOfHLevelSig :
-    (n : HLevel) (sym : σ .symbol)
-    -> isOfHLevel n V
-    -> isOfHLevel n (σ .symbol)
-    -> isOfHLevel n (sig σ (Tree σ V))
-  isOfHLevelSig n sym p q = isOfHLevelΣ n q {!   !}
+  -- TODO: Prove h-level of Tree using isOfHLevelSuc-IW and isoRepTree
 
-  isOfHLevelCover : (n m : HLevel)
-    (p : isOfHLevel (2 + n) V) (q : isOfHLevel (2 + m) (σ .symbol))
-    (trx try : Tree σ V) -> isOfHLevel (max (suc n) (suc m)) (Cover trx try)
-  isOfHLevelCover n m p q (leaf x) (leaf y) =
-    isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (p x y))
-  isOfHLevelCover n m p q (leaf x) (node y) =
-    isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
-  isOfHLevelCover n m p q (node x) (leaf y) =
-    isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
-  isOfHLevelCover n m p q (node x) (node y) =
-    {!   !}
+  -- isOfHLevelSig :
+  --   (n : HLevel) (sym : σ .symbol)
+  --   -> isOfHLevel n V
+  --   -> isOfHLevel n (σ .symbol)
+  --   -> isOfHLevel n (sig σ (Tree σ V))
+  -- isOfHLevelSig n sym p q = isOfHLevelΣ n q {!   !}
+
+  -- isOfHLevelCover : (n m : HLevel)
+  --   (p : isOfHLevel (2 + n) V) (q : isOfHLevel (2 + m) (σ .symbol))
+  --   (trx try : Tree σ V) -> isOfHLevel (max (suc n) (suc m)) (Cover trx try)
+  -- isOfHLevelCover n m p q (leaf x) (leaf y) =
+  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (p x y))
+  -- isOfHLevelCover n m p q (leaf x) (node y) =
+  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
+  -- isOfHLevelCover n m p q (node x) (leaf y) =
+  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
+  -- isOfHLevelCover n m p q (node x) (node y) =
+  --   {!   !}
 
 algTr : ∀ {f a x} {h : HLevel} {X : Type x} (σ : Sig f a) ->
         isOfHLevel (suc (suc h)) X -> struct h (ℓ-max f (ℓ-max a x)) σ
@@ -124,4 +138,3 @@ module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} {h : HLevel} (trunc : 
 
   trIsEquiv : isSet (𝔜 .carrier) -> isEquiv (\g -> g .fst ∘ leaf)
   trIsEquiv = snd ∘ trEquiv
- 
