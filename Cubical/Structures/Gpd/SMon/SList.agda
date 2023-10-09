@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Cubical.Structures.Set.CMon.SList where
+module Cubical.Structures.Gpd.SMon.SList where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
@@ -12,7 +12,14 @@ data SList {a} (A : Type a) : Type a where
   _∷_ : (a : A) -> (as : SList A) -> SList A
   swap : (a b : A) (cs : SList A)
       -> a ∷ b ∷ cs ≡ b ∷ a ∷ cs
-  isSetSList : isSet (SList A)
+  swap² : (a b : A) (cs : SList A)
+       -> swap a b cs ≡ sym (swap b a cs)
+  hexagon– : ∀ a b c cs -> a ∷ b ∷ c ∷ cs ≡ c ∷ b ∷ a ∷ cs
+  hexagon↑ : ∀ a b c cs -> Square (\i -> b ∷ swap a c cs i) (hexagon– a b c cs)
+                                 (swap b a (c ∷ cs)) (swap b c (a ∷ cs))
+  hexagon↓ : ∀ a b c cs -> Square (hexagon– a b c cs) (swap a c (b ∷ cs))
+                                 (\i -> a ∷ swap b c cs i) (\i -> c ∷ swap b a cs i)
+  isGpdSList : isGroupoid (SList A)
 
 pattern [_] a = a ∷ []
 
@@ -21,14 +28,28 @@ private
     ℓ : Level
     A : Type ℓ
 
+hexagon : (a b c : A) (cs : SList A)
+       -> (swap a b (c ∷ cs) ∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs))
+        ≡ cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs) ∙ cong (c ∷_) (swap a b cs)
+hexagon a b c cs = {!!}
+
 _++_ : SList A -> SList A -> SList A
 [] ++ bs = bs
 (a ∷ as) ++ bs = a ∷ (as ++ bs)
 swap a b as i ++ bs = swap a b (as ++ bs) i
-isSetSList a b p q i j ++ bs = isSetSList (a ++ bs) (b ++ bs) (cong (_++ bs) p) (cong (_++ bs) q) i j
+swap² a b as i j ++ bs = swap² a b (as ++ bs) i j
+hexagon– a b c as i ++ bs = hexagon– a b c (as ++ bs) i
+hexagon↑ a b c as i j ++ bs = hexagon↑ a b c (as ++ bs) i j
+hexagon↓ a b c as i j ++ bs = hexagon↓ a b c (as ++ bs) i j
+isGpdSList a b p q x y i j k ++ bs = {!!}
 
-++-unitl : (as : SList A) -> [] ++ as ≡ as
-++-unitl as = refl
+-- [] ++ bs = bs
+-- (a ∷ as) ++ bs = a ∷ (as ++ bs)
+-- swap a b cs i ++ bs = swap a b (cs ++ bs) i
+-- hexagon a b c cs i j ++ bs = hexagon a b c (cs ++ bs) i {!j!}
+
+-- ++-unitl : (as : SList A) -> [] ++ as ≡ as
+-- ++-unitl as = refl
 
 -- ++-unitr : (as : SList A) -> as ++ [] ≡ as
 -- ++-unitr [] = refl
