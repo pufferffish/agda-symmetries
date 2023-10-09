@@ -12,7 +12,7 @@ data SList {a} (A : Type a) : Type a where
   _∷_ : (a : A) -> (as : SList A) -> SList A
   swap : (a b : A) (cs : SList A)
       -> a ∷ b ∷ cs ≡ b ∷ a ∷ cs
-  swap² : (a b : A) (cs : SList A)
+  swap⁻¹ : (a b : A) (cs : SList A)
        -> swap a b cs ≡ sym (swap b a cs)
   hexagon– : (a b c : A) (cs : SList A)
           -> a ∷ b ∷ c ∷ cs ≡ c ∷ b ∷ a ∷ cs
@@ -31,17 +31,37 @@ private
     ℓ : Level
     A : Type ℓ
 
--- TODO: Reconstruct hexagon from the split squares
--- hexagon : (a b c : A) (cs : SList A)
---        -> (swap a b (c ∷ cs) ∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs))
---         ≡ cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs) ∙ cong (c ∷_) (swap a b cs)
--- hexagon a b c cs = {!!}
+swap² : (a b : A) (cs : SList A)
+     -> swap a b cs ∙ swap b a cs ≡ refl
+swap² a b cs = cong (_∙ swap b a cs) (swap⁻¹ a b cs) ∙ lCancel (swap b a cs)
+
+hexagon : (a b c : A) (cs : SList A)
+       -> (swap a b (c ∷ cs) ∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs))
+        ≡ cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs) ∙ cong (c ∷_) (swap a b cs)
+hexagon a b c cs =
+  let hex-up = PathP→compPathL (hexagon↑ a b c cs)
+      hex-dn = PathP→compPathR (hexagon↓ a b c cs)
+  in
+    swap a b (c ∷ cs) ∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs)
+  ≡⟨ cong (_∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs)) (swap⁻¹ a b (c ∷ cs)) ⟩
+    sym (swap b a (c ∷ cs)) ∙ cong (b ∷_) (swap a c cs) ∙ swap b c (a ∷ cs)
+  ≡⟨ hex-up ⟩
+    hexagon– a b c cs
+  ≡⟨ hex-dn ⟩
+    cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs) ∙ cong (c ∷_) (sym (swap b a cs))
+  ≡⟨ assoc (cong (a ∷_) (swap b c cs)) (swap a c (b ∷ cs)) (cong (c ∷_) (sym (swap b a cs))) ⟩
+    (cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs)) ∙ cong (c ∷_) (sym (swap b a cs))
+  ≡⟨ cong ((cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs)) ∙_) (cong (cong (c ∷_)) (sym (swap⁻¹ a b cs))) ⟩
+    (cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs)) ∙ cong (c ∷_) (swap a b cs)
+  ≡⟨ sym (assoc (cong (a ∷_) (swap b c cs)) (swap a c (b ∷ cs)) (cong (c ∷_) (swap a b cs))) ⟩
+    cong (a ∷_) (swap b c cs) ∙ swap a c (b ∷ cs) ∙ cong (c ∷_) (swap a b cs)
+  ∎
 
 _++_ : SList A -> SList A -> SList A
 [] ++ bs = bs
 (a ∷ as) ++ bs = a ∷ (as ++ bs)
 swap a b as i ++ bs = swap a b (as ++ bs) i
-swap² a b as i j ++ bs = swap² a b (as ++ bs) i j
+swap⁻¹ a b as i j ++ bs = swap⁻¹ a b (as ++ bs) i j
 hexagon– a b c as i ++ bs = hexagon– a b c (as ++ bs) i
 hexagon↑ a b c as i j ++ bs = hexagon↑ a b c (as ++ bs) i j
 hexagon↓ a b c as i j ++ bs = hexagon↓ a b c (as ++ bs) i j
@@ -56,7 +76,7 @@ isGpdSList as cs p q u v i j k ++ bs =
 ++-unitr [] = refl
 ++-unitr (a ∷ as) = cong (a ∷_) (++-unitr as)
 ++-unitr (swap a b as i) j = swap a b (++-unitr as j) i
-++-unitr (swap² a b as i j) k = swap² a b (++-unitr as k) i j
+++-unitr (swap⁻¹ a b as i j) k = swap⁻¹ a b (++-unitr as k) i j
 ++-unitr (hexagon– a b c as i) j = hexagon– a b c (++-unitr as j) i
 ++-unitr (hexagon↑ a b c as i j) k = hexagon↑ a b c (++-unitr as k) i j
 ++-unitr (hexagon↓ a b c as i j) k = hexagon↓ a b c (++-unitr as k) i j
@@ -68,7 +88,7 @@ isGpdSList as cs p q u v i j k ++ bs =
 ++-assocr [] bs cs = refl
 ++-assocr (a ∷ as) bs cs = cong (a ∷_) (++-assocr as bs cs)
 ++-assocr (swap a b as i) bs cs j = swap a b (++-assocr as bs cs j) i
-++-assocr (swap² a b as i j) bs cs k = swap² a b (++-assocr as bs cs k) i j
+++-assocr (swap⁻¹ a b as i j) bs cs k = swap⁻¹ a b (++-assocr as bs cs k) i j
 ++-assocr (hexagon– a b c as i) bs cs j = hexagon– a b c (++-assocr as bs cs j) i
 ++-assocr (hexagon↑ a b c as i j) bs cs k = hexagon↑ a b c (++-assocr as bs cs k) i j
 ++-assocr (hexagon↓ a b c as i j) bs cs k = hexagon↓ a b c (++-assocr as bs cs k) i j
