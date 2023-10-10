@@ -9,8 +9,9 @@ open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Empty as E
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as S
+open import Cubical.Functions.Embedding
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str
 open import Cubical.Structures.Arity
@@ -29,21 +30,21 @@ module Types {f a n} {σ : Sig f a} {V : Type n} where
 
   -- shapes
   S : Type n -> Type (ℓ-max f n)
-  S V = V ⊎ (σ .symbol)
+  S _ = V ⊎ (σ .symbol)
 
   -- positions
   P : (V : Type n) -> S V -> Type a
-  P V (inl v) = ⊥*
-  P V (inr f) = σ .arity f
+  P _ (inl v) = ⊥*
+  P _ (inr f) = σ .arity f
 
   inX : ∀ V (s : S V) -> P V s -> Type n
-  inX V s p = V
+  inX _ s p = V
 
-  RepTree : Type (ℓ-max (ℓ-max f a) (ℓ-suc n))
+  RepTree : Type (ℓ-max f (ℓ-max a (ℓ-suc n)))
   RepTree = IW S P inX V
 
   Tree→RepTree : Tree σ V -> RepTree
-  Tree→RepTree (leaf v) = node (inl v) E.rec*
+  Tree→RepTree (leaf v) = node (inl v) ⊥.rec*
   Tree→RepTree (node (f , i)) = node (inr f) (Tree→RepTree ∘ i)
 
   RepTree→Tree : RepTree -> Tree σ V
@@ -55,7 +56,7 @@ module Types {f a n} {σ : Sig f a} {V : Type n} where
   Tree→RepTree→Tree (node (f , i)) j = node (f , \a -> Tree→RepTree→Tree (i a) j)
 
   RepTree→Tree→RepTree : ∀ r -> Tree→RepTree (RepTree→Tree r) ≡ r
-  RepTree→Tree→RepTree (node (inl v) subtree) = congS (node (inl v)) (funExt (E.rec ∘ lower))
+  RepTree→Tree→RepTree (node (inl v) subtree) = congS (node (inl v)) (funExt (⊥.rec ∘ lower))
   RepTree→Tree→RepTree (node (inr f) subtree) = congS (node (inr f)) (funExt (RepTree→Tree→RepTree ∘ subtree))
 
   isoRepTree : Tree σ V ≅ RepTree
@@ -63,10 +64,6 @@ module Types {f a n} {σ : Sig f a} {V : Type n} where
   Iso.inv isoRepTree = RepTree→Tree
   Iso.rightInv isoRepTree = RepTree→Tree→RepTree
   Iso.leftInv isoRepTree = Tree→RepTree→Tree
-
-open Types
-
-module TreePath {f a n} {σ : Sig f a} {V : Type n} where
 
   isOfHLevelMax : ∀ {ℓ} {n m : HLevel} {A : Type ℓ}
     -> isOfHLevel n A
@@ -77,32 +74,19 @@ module TreePath {f a n} {σ : Sig f a} {V : Type n} where
     in
       subst (λ l -> isOfHLevel l A) o (isOfHLevelPlus k p)
 
-  isOfHLevelSym :
-    (n : HLevel) (sym : σ .symbol)
-    -> isOfHLevel n V
-    -> isOfHLevel n (σ .arity sym -> V)
-  isOfHLevelSym n sym p = isOfHLevelΠ n λ _ -> p
+  isOfHLevelS : (h h' : HLevel)
+    (p : isOfHLevel (2 + h) V) (q : isOfHLevel (2 + h') (σ .symbol))
+    -> isOfHLevel (max (2 + h) (2 + h')) (V ⊎ σ .symbol)
+  isOfHLevelS h h' p q =
+    isOfHLevel⊎ _
+      (isOfHLevelMax {n = 2 + h} {m = 2 + h'} p)
+      (subst (λ h'' -> isOfHLevel h'' (σ .symbol)) (maxComm (2 + h') (2 + h)) (isOfHLevelMax {n = 2 + h'} {m = 2 + h} q))
 
-  -- TODO: Prove h-level of Tree using isOfHLevelSuc-IW and isoRepTree
-
-  -- isOfHLevelSig :
-  --   (n : HLevel) (sym : σ .symbol)
-  --   -> isOfHLevel n V
-  --   -> isOfHLevel n (σ .symbol)
-  --   -> isOfHLevel n (sig σ (Tree σ V))
-  -- isOfHLevelSig n sym p q = isOfHLevelΣ n q {!   !}
-
-  -- isOfHLevelCover : (n m : HLevel)
-  --   (p : isOfHLevel (2 + n) V) (q : isOfHLevel (2 + m) (σ .symbol))
-  --   (trx try : Tree σ V) -> isOfHLevel (max (suc n) (suc m)) (Cover trx try)
-  -- isOfHLevelCover n m p q (leaf x) (leaf y) =
-  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (p x y))
-  -- isOfHLevelCover n m p q (leaf x) (node y) =
-  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
-  -- isOfHLevelCover n m p q (node x) (leaf y) =
-  --   isOfHLevelMax {m = suc m} (isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isProp⊥))
-  -- isOfHLevelCover n m p q (node x) (node y) =
-  --   {!   !}
+  isOfHLevelRepTree : (h h' : HLevel)
+    (p : isOfHLevel (2 + h) V) (q : isOfHLevel (2 + h') (σ .symbol))
+    -> isOfHLevel (max (2 + h) (2 + h')) RepTree
+  isOfHLevelRepTree h h' p q =
+    isOfHLevelSuc-IW (max (suc h) (suc h')) (λ _ -> isOfHLevelPath' _ (isOfHLevelS _ _ p q)) V
 
 algTr : ∀ {f a x} {h : HLevel} {X : Type x} (σ : Sig f a) ->
         isOfHLevel (suc (suc h)) X -> struct h (ℓ-max f (ℓ-max a x)) σ
