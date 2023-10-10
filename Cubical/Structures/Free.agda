@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --allow-unsolved-metas #-}
 
 module Cubical.Structures.Free where
 

@@ -4,7 +4,7 @@ module index where
 
 -- an organised list of modules:
 --
--- universal algebra
+-- universal algebra for sets
 import Cubical.Structures.Sig
 import Cubical.Structures.Str
 import Cubical.Structures.Eq
