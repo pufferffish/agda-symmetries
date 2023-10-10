@@ -34,11 +34,11 @@ module Types {f a n} {σ : Sig f a} {V : Type n} where
 
   -- positions
   P : (V : Type n) -> S V -> Type a
-  P _ (inl v) = ⊥*
-  P _ (inr f) = σ .arity f
+  P V (inl v) = ⊥*
+  P V (inr f) = σ .arity f
 
   inX : ∀ V (s : S V) -> P V s -> Type n
-  inX _ s p = V
+  inX V s p = V
 
   RepTree : Type (ℓ-max f (ℓ-max a (ℓ-suc n)))
   RepTree = IW S P inX V
@@ -76,37 +76,57 @@ module Types {f a n} {σ : Sig f a} {V : Type n} where
 
   isOfHLevelS : (h h' : HLevel)
     (p : isOfHLevel (2 + h) V) (q : isOfHLevel (2 + h') (σ .symbol))
-    -> isOfHLevel (max (2 + h) (2 + h')) (V ⊎ σ .symbol)
+    -> isOfHLevel (max (2 + h) (2 + h')) (S V)
   isOfHLevelS h h' p q =
     isOfHLevel⊎ _
       (isOfHLevelMax {n = 2 + h} {m = 2 + h'} p)
       (subst (λ h'' -> isOfHLevel h'' (σ .symbol)) (maxComm (2 + h') (2 + h)) (isOfHLevelMax {n = 2 + h'} {m = 2 + h} q))
 
-  isOfHLevelRepTree : (h h' : HLevel)
-    (p : isOfHLevel (2 + h) V) (q : isOfHLevel (2 + h') (σ .symbol))
+  isOfHLevelRepTree : ∀ {h h' : HLevel}
+    -> isOfHLevel (2 + h) V
+    -> isOfHLevel (2 + h') (σ .symbol)
     -> isOfHLevel (max (2 + h) (2 + h')) RepTree
-  isOfHLevelRepTree h h' p q =
+  isOfHLevelRepTree {h} {h'} p q =
     isOfHLevelSuc-IW (max (suc h) (suc h')) (λ _ -> isOfHLevelPath' _ (isOfHLevelS _ _ p q)) V
 
-algTr : ∀ {f a x} {h : HLevel} {X : Type x} (σ : Sig f a) ->
-        isOfHLevel (suc (suc h)) X -> struct h (ℓ-max f (ℓ-max a x)) σ
-carrier (algTr {X = X} σ _) = Tree σ X
-algebra (algTr _ _) = node
-trunc (algTr {h = h} {X = X} σ trunc) x y = {!   !}
+  isOfHLevelTree : ∀ {h h' : HLevel}
+    -> isOfHLevel (2 + h) V
+    -> isOfHLevel (2 + h') (σ .symbol)
+    -> isOfHLevel (max (2 + h) (2 + h')) (Tree σ V)
+  isOfHLevelTree {h} {h'} p q =
+    isOfHLevelRetract (max (2 + h) (2 + h'))
+      Tree→RepTree
+      RepTree→Tree
+      Tree→RepTree→Tree
+      (isOfHLevelRepTree p q)
 
-module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} {h : HLevel} (trunc : isOfHLevel (2 + h) X) (𝔜 : struct h y σ) where
+algTr : ∀ {f a x} {h h' : HLevel} {X : Type x} (σ : Sig f a) ->
+        isOfHLevel (2 + h) X ->
+        isOfHLevel (2 + h') (σ .symbol) ->
+        struct (max (2 + h) (2 + h')) (ℓ-max f (ℓ-max a x)) σ
+carrier (algTr {X = X} σ _ _) = Tree σ X
+algebra (algTr _ _ _) = node
+trunc (algTr {h = h} {h' = h'} {X = X} σ car-trunc sym-trunc) =
+  Types.isOfHLevelTree car-trunc sym-trunc
+
+module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} {h h' : HLevel}
+  (car-trunc : isOfHLevel (2 + h) X) (sym-trunc : isOfHLevel (2 + h') (σ .symbol))
+  (𝔜 : struct (max (2 + h) (2 + h')) y σ) where
   private
-    𝔛 : struct h (ℓ-max f (ℓ-max a x)) σ
-    𝔛 = algTr σ trunc
+    h'' : HLevel
+    h'' = max (2 + h) (2 + h')
+
+    𝔛 : struct h'' (ℓ-max f (ℓ-max a x)) σ
+    𝔛 = algTr σ car-trunc sym-trunc
 
   sharp : (X -> 𝔜 .carrier) -> Tree σ X -> 𝔜 .carrier
   sharp ρ (leaf v) = ρ v
   sharp ρ (node (f , o)) = 𝔜 .algebra (f , sharp ρ ∘ o)
 
-  eval : (X -> 𝔜 .carrier) -> structHom h 𝔛 𝔜
+  eval : (X -> 𝔜 .carrier) -> structHom h'' 𝔛 𝔜
   eval h = sharp h , λ _ _ -> refl
 
-  sharp-eta : (g : structHom h 𝔛 𝔜) -> (tr : Tree σ X) -> g .fst tr ≡ sharp (g .fst ∘ leaf) tr
+  sharp-eta : (g : structHom h'' 𝔛 𝔜) -> (tr : Tree σ X) -> g .fst tr ≡ sharp (g .fst ∘ leaf) tr
   sharp-eta g (leaf x) = refl
   sharp-eta (g-f , g-hom) (node x) =
     g-f (node x) ≡⟨ sym (g-hom (x .fst) (x .snd)) ⟩
@@ -114,10 +134,10 @@ module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} {h : HLevel} (trunc : 
     𝔜 .algebra (x .fst , (λ y → sharp (g-f ∘ leaf) (x .snd y)))
     ∎
 
-  sharp-hom-eta : isSet (𝔜 .carrier) -> (g : structHom h 𝔛 𝔜) -> g ≡ eval (g .fst ∘ leaf)
-  sharp-hom-eta p g = structHom≡ h 𝔛 𝔜 g (eval (g .fst ∘ leaf)) p (funExt (sharp-eta g))
+  sharp-hom-eta : isSet (𝔜 .carrier) -> (g : structHom h'' 𝔛 𝔜) -> g ≡ eval (g .fst ∘ leaf)
+  sharp-hom-eta p g = structHom≡ h'' 𝔛 𝔜 g (eval (g .fst ∘ leaf)) p (funExt (sharp-eta g))
 
-  trEquiv : isSet (𝔜 .carrier) -> structHom h 𝔛 𝔜 ≃ (X -> 𝔜 .carrier)
+  trEquiv : isSet (𝔜 .carrier) -> structHom h'' 𝔛 𝔜 ≃ (X -> 𝔜 .carrier)
   trEquiv isSetY = isoToEquiv (iso (\g -> g .fst ∘ leaf) eval (\_ -> refl) (sym ∘ sharp-hom-eta isSetY))
 
   trIsEquiv : isSet (𝔜 .carrier) -> isEquiv (\g -> g .fst ∘ leaf)

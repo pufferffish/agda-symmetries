@@ -21,7 +21,7 @@ record struct {f a : Level} (h : HLevel) (n : Level) (σ : Sig f a) : Type (ℓ-
   field
     carrier : Type n
     algebra : sig σ carrier -> carrier
-    trunc : isOfHLevel (2 + h) carrier
+    trunc : isOfHLevel h carrier
 open struct public
 
 module _  {f a x y : Level} {σ : Sig f a} (h' : HLevel) (𝔛 : struct h' x σ) (𝔜 : struct h' y σ)  where
