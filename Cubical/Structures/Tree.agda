@@ -10,12 +10,92 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Fin
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum as S
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
 
 module _ {f a n : Level} (σ : Sig f a) where
   data Tree (V : Type n) : Type (ℓ-max (ℓ-max f a) n) where
     leaf : V -> Tree V
     node : sig σ (Tree V) -> Tree V
   open Tree
+
+
+module _  {f a n y : Level} (σ : Sig f a) {V : Type n} where
+  open import Cubical.Data.W.Indexed
+
+  -- shapes
+  S : Type n -> Type (ℓ-max f n)
+  S _ = V ⊎ (σ .symbol)
+
+  -- positions
+  P : (V : Type n) -> S V -> Type a
+  P V (inl v) = ⊥*
+  P V (inr f) = σ .arity f
+
+  inX : ∀ V (s : S V) -> P V s -> Type n
+  inX V s p = V
+
+  RepTree : Type (ℓ-max f (ℓ-max a (ℓ-suc n)))
+  RepTree = IW S P inX V
+
+  Tree→RepTree : Tree σ V -> RepTree
+  Tree→RepTree (leaf v) = node (inl v) ⊥.rec*
+  Tree→RepTree (node (f , i)) = node (inr f) (Tree→RepTree ∘ i)
+
+  RepTree→Tree : RepTree -> Tree σ V
+  RepTree→Tree (node (inl v) subtree) = leaf v
+  RepTree→Tree (node (inr f) subtree) = node (f , RepTree→Tree ∘ subtree)
+
+  Tree→RepTree→Tree : ∀ t -> RepTree→Tree (Tree→RepTree t) ≡ t
+  Tree→RepTree→Tree (leaf v) = refl
+  Tree→RepTree→Tree (node (f , i)) j = node (f , \a -> Tree→RepTree→Tree (i a) j)
+
+  RepTree→Tree→RepTree : ∀ r -> Tree→RepTree (RepTree→Tree r) ≡ r
+  RepTree→Tree→RepTree (node (inl v) subtree) = congS (node (inl v)) (funExt (⊥.rec ∘ lower))
+  RepTree→Tree→RepTree (node (inr f) subtree) = congS (node (inr f)) (funExt (RepTree→Tree→RepTree ∘ subtree))
+
+  isoRepTree : Tree σ V ≅ RepTree
+  Iso.fun isoRepTree = Tree→RepTree
+  Iso.inv isoRepTree = RepTree→Tree
+  Iso.rightInv isoRepTree = RepTree→Tree→RepTree
+  Iso.leftInv isoRepTree = Tree→RepTree→Tree
+
+  isOfHLevelMax : ∀ {ℓ} {n m : HLevel} {A : Type ℓ}
+    -> isOfHLevel n A
+    -> isOfHLevel (max n m) A
+  isOfHLevelMax {n = n} {m = m} {A = A} p =
+    let
+      (k , o) = left-≤-max {m = n} {n = m}
+    in
+      subst (λ l -> isOfHLevel l A) o (isOfHLevelPlus k p)
+
+  isOfHLevelS : (h h' : HLevel)
+    (p : isOfHLevel (2 + h) V) (q : isOfHLevel (2 + h') (σ .symbol))
+    -> isOfHLevel (max (2 + h) (2 + h')) (S V)
+  isOfHLevelS h h' p q =
+    isOfHLevel⊎ _
+      (isOfHLevelMax {n = 2 + h} {m = 2 + h'} p)
+      (subst (λ h'' -> isOfHLevel h'' (σ .symbol)) (maxComm (2 + h') (2 + h)) (isOfHLevelMax {n = 2 + h'} {m = 2 + h} q))
+
+  isOfHLevelRepTree : ∀ {h h' : HLevel}
+    -> isOfHLevel (2 + h) V
+    -> isOfHLevel (2 + h') (σ .symbol)
+    -> isOfHLevel (max (2 + h) (2 + h')) RepTree
+  isOfHLevelRepTree {h} {h'} p q =
+    isOfHLevelSuc-IW (max (suc h) (suc h')) (λ _ -> isOfHLevelPath' _ (isOfHLevelS _ _ p q)) V
+
+  isOfHLevelTree : ∀ {h h' : HLevel}
+    -> isOfHLevel (2 + h) V
+    -> isOfHLevel (2 + h') (σ .symbol)
+    -> isOfHLevel (max (2 + h) (2 + h')) (Tree σ V)
+  isOfHLevelTree {h} {h'} p q =
+    isOfHLevelRetract (max (2 + h) (2 + h'))
+      Tree→RepTree
+      RepTree→Tree
+      Tree→RepTree→Tree
+      (isOfHLevelRepTree p q)
 
 module _ {f : Level} (σ : FinSig f) where
   FinTree : (k : ℕ) -> Type f
