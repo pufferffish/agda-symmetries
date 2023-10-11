@@ -25,27 +25,27 @@ module _ {f n : Level} (σ : Sig f) where
     node : sig σ (Tree V) -> Tree V
   open Tree
 
-module _ {f n y : Level} (σ : Sig f) {V : Type n} where
-  open import Cubical.Data.W.Indexed
-
-  -- shapes
-  S : Type n -> Type (ℓ-max f n)
-  S _ = V ⊎ (σ .symbol)
-
-  -- positions
-  P : (V : Type n) -> S V -> Type
-  P V (inl v) = ⊥*
-  P V (inr f) = ℕ+∞
-
-  inX : ∀ V (s : S V) -> P V s -> Type n
-  inX V s p = V
-
-  RepTree : Type (ℓ-max f (ℓ-suc n))
-  RepTree = IW S P inX V
-
-  Tree→RepTree : Tree σ V -> RepTree
-  Tree→RepTree (leaf v) = node (inl v) ⊥.rec*
-  Tree→RepTree (node (f , i)) = node (inr f) {!   !}
+-- module _ {f n y : Level} (σ : Sig f) {V : Type n} where
+--   open import Cubical.Data.W.Indexed
+-- 
+--   -- shapes
+--   S : Type n -> Type (ℓ-max f n)
+--   S _ = V ⊎ (σ .symbol)
+-- 
+--   -- positions
+--   P : (V : Type n) -> S V -> Type
+--   P V (inl v) = ⊥*
+--   P V (inr f) = ℕ+∞
+-- 
+--   inX : ∀ V (s : S V) -> P V s -> Type n
+--   inX V s p = V
+-- 
+--   RepTree : Type (ℓ-max f (ℓ-suc n))
+--   RepTree = IW S P inX V
+-- 
+--   Tree→RepTree : Tree σ V -> RepTree
+--   Tree→RepTree (leaf v) = node (inl v) ⊥.rec*
+--   Tree→RepTree (node (f , i)) = node (inr f) {!   !}
 
   -- RepTree→Tree : RepTree -> Tree σ V
   -- RepTree→Tree (node (inl v) subtree) = leaf v
@@ -114,16 +114,22 @@ module _  {f : Level} (σ : Sig f) {x y} {X : Type x} (𝔜 : struct y σ) where
     𝔛 : struct (ℓ-max f x) σ
     𝔛 = algTr σ X
 
+  -- TODO: Find a less cheaty way to define sharp without switching off termination checking
+  {-# TERMINATING #-}
   sharp : (X -> 𝔜 .carrier) -> Tree σ X -> 𝔜 .carrier
   sharp ρ (leaf v) = ρ v
-  sharp ρ (node (f , o)) = 𝔜 .algebra (f , omap {! sharp ρ !} o) -- termination checker fails
+  sharp ρ (node (f , o)) = 𝔜 .algebra (f , omap (sharp ρ) o)
 
   eval : (X -> 𝔜 .carrier) -> structHom 𝔛 𝔜
-  eval h = sharp h , λ _ _ -> {!   !}
+  eval h = sharp h , λ _ _ -> refl
 
+  {-# TERMINATING #-}
   sharp-eta : (g : structHom 𝔛 𝔜) -> (tr : Tree σ X) -> g .fst tr ≡ sharp (g .fst ∘ leaf) tr
   sharp-eta g (leaf x) = refl
-  sharp-eta (g-f , g-hom) (node x) = {!   !}
+  sharp-eta (g-f , g-hom) (node x) =
+    g-f (node x) ≡⟨ sym (g-hom (x .fst) (x .snd)) ⟩
+    𝔜 .algebra (x .fst , omap g-f (x .snd)) ≡⟨ cong (λ z → 𝔜 .algebra (x .fst , omap z (x .snd))) (funExt (sharp-eta (g-f , g-hom))) ⟩
+    𝔜 .algebra (fst x , omap (sharp (g-f ∘ leaf)) (snd x)) ∎
 
   sharp-hom-eta : isSet (𝔜 .carrier) -> (g : structHom 𝔛 𝔜) -> g ≡ eval (g .fst ∘ leaf)
   sharp-hom-eta p g = structHom≡ 𝔛 𝔜 g (eval (g .fst ∘ leaf)) p (funExt (sharp-eta g))
@@ -133,4 +139,4 @@ module _  {f : Level} (σ : Sig f) {x y} {X : Type x} (𝔜 : struct y σ) where
 
   trIsEquiv : isSet (𝔜 .carrier) -> isEquiv (\g -> g .fst ∘ leaf)
   trIsEquiv = snd ∘ trEquiv
- 
+  

@@ -31,11 +31,11 @@ finEqSig : {e : Level} -> FinEqSig e -> EqSig e ℓ-zero
 name (finEqSig σ) = σ .fst
 free (finEqSig σ) = Fin ∘ σ .snd
 
-module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
-  seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
+module _ {f e n : Level} (σ : Sig f) (τ : EqSig e n) where
+  seq : Type (ℓ-max (ℓ-max f e) n)
   seq = (e : τ .name) -> Tree σ (τ .free e) × Tree σ (τ .free e)
 
-module _ {f a e n s : Level} {σ : Sig f a} {τ : EqSig e n} where
+module _ {f e n s : Level} {σ : Sig f} {τ : EqSig e n} where
   -- type of structure satisfying equations
   infix 30 _⊨_
   _⊨_ : struct s σ -> (ε : seq σ τ) -> Type (ℓ-max s (ℓ-max e n))

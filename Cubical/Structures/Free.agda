@@ -19,11 +19,11 @@ open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 
 -- defines a free structure on a signature and equations
-module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)) (ε : seq {n = ℓ-max n s} σ τ) where
+module Definition {f e n s : Level} (σ : Sig f) (τ : EqSig e (ℓ-max n s)) (ε : seq {n = ℓ-max n s} σ τ) where
   ns : Level
   ns = ℓ-max n s
 
-  record Free (h : HLevel) : Type (ℓ-suc (ℓ-max f (ℓ-max a (ℓ-max e ns)))) where
+  record Free (h : HLevel) : Type (ℓ-suc (ℓ-max f (ℓ-max e ns))) where
     field
       F : (X : Type n) -> Type ns
       η : {X : Type n} -> X -> F X

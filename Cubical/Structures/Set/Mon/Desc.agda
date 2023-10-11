@@ -23,7 +23,7 @@ MonAr ⊕ = 2
 MonFinSig : FinSig ℓ-zero
 MonFinSig = MonSym , MonAr
 
-MonSig : Sig ℓ-zero ℓ-zero
+MonSig : Sig ℓ-zero
 MonSig = finSig MonFinSig
 
 data MonEq : Type where
@@ -58,9 +58,10 @@ module Examples where
   ℕ-MonStr : MonStruct
   carrier ℕ-MonStr = ℕ
   algebra ℕ-MonStr (e , _) = 0
-  algebra ℕ-MonStr (⊕ , i) = i fzero + i fone
+  algebra ℕ-MonStr (⊕ , [] , p) = {!   !}
+  algebra ℕ-MonStr (⊕ , x ∷ args , p) = {!   !}
 
   ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
-  ℕ-MonStr-MonSEq unitl ρ = refl
-  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ fzero)
-  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+  ℕ-MonStr-MonSEq unitl ρ = {!   !}
+  ℕ-MonStr-MonSEq unitr ρ = {!   !}
+  ℕ-MonStr-MonSEq assocr ρ = {!   !}
