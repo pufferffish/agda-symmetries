@@ -16,10 +16,41 @@ data SList {a} (A : Type a) : Type a where
 
 pattern [_] a = a ∷ []
 
+module elimSListSet {ℓ p : Level} {A : Type ℓ} (P : SList A -> Type p)
+                   ([]* : P [])
+                   (_∷*_ : (x : A) {xs : SList A} -> P xs -> P (x ∷ xs))
+                   (swap* : (a b : A) -> {cs : SList A}
+                            -> (cs* : P cs)
+                            -> PathP (λ i -> P (swap a b cs i)) (a ∷* (b ∷* cs*)) (b ∷* (a ∷* cs*))
+                   )
+                   (isSetSList* : {xs : SList A} -> isSet (P xs))
+                   where
+  f : (xs : SList A) -> P xs
+  f [] = []*
+  f (a ∷ xs) = a ∷* f xs
+  f (swap a b xs i) = swap* a b (f xs) i
+  f (isSetSList xs ys p q i j) =
+    isOfHLevel→isOfHLevelDep 2 (\xs -> isSetSList* {xs = xs}) (f xs) (f ys) (cong f p) (cong f q) (isSetSList xs ys p q) i j
+
+module elimSListProp {ℓ p : Level} {A : Type ℓ} (P : SList A -> Type p)
+                   ([]* : P [])
+                   (_∷*_ : (x : A) {xs : SList A} -> P xs -> P (x ∷ xs))
+                   (isSetSList* : {xs : SList A} -> isProp (P xs))
+                   where
+  f : (xs : SList A) -> P xs
+  f = elimSListSet.f P []* _∷*_ comm* (isProp→isSet isSetSList*)
+    where
+      abstract
+        comm* : (a b : A) {cs : SList A} (cs* : P cs) ->
+                PathP (λ i -> P (swap a b cs i)) (a ∷* (b ∷* cs*)) (b ∷* (a ∷* cs*))
+        comm* a b {cs} cs* =
+          toPathP (isSetSList* (subst P (swap a b cs) (a ∷* (b ∷* cs*))) (b ∷* (a ∷* cs*)))
+
 private
   variable
     ℓ : Level
     A : Type ℓ
+
 
 _++_ : SList A -> SList A -> SList A
 [] ++ bs = bs
@@ -30,27 +61,23 @@ isSetSList a b p q i j ++ bs = isSetSList (a ++ bs) (b ++ bs) (cong (_++ bs) p) 
 ++-unitl : (as : SList A) -> [] ++ as ≡ as
 ++-unitl as = refl
 
--- ++-unitr : (as : SList A) -> as ++ [] ≡ as
--- ++-unitr [] = refl
--- ++-unitr (a ∷ as) = cong (a ∷_) (++-unitr as)
--- ++-unitr (swap a b cs i) j = swap a b (++-unitr cs j) i
+++-unitr : (as : SList A) -> as ++ [] ≡ as
+++-unitr = elimSListProp.f _ refl (λ x p -> cong (x ∷_) p) (isSetSList _ _)
 
--- ++-assocr : (as bs cs : SList A) -> (as ++ bs) ++ cs ≡ as ++ (bs ++ cs)
--- ++-assocr [] bs cs = refl
--- ++-assocr (a ∷ as) bs cs = cong (a ∷_) (++-assocr as bs cs)
--- ++-assocr (swap a b as i) bs cs j = swap a b (++-assocr as bs cs j) i
+++-assocr : (as bs cs : SList A) -> (as ++ bs) ++ cs ≡ as ++ (bs ++ cs)
+++-assocr = elimSListProp.f _
+  (λ _ _ -> refl)
+  (λ x p bs cs -> cong (x ∷_) (p bs cs))
+  (isPropΠ λ _ -> isPropΠ λ _ -> isSetSList _ _)
 
--- -- TODO: Define commutativity for SList directly or after truncation
--- -- To do this directly will probably need coherence for swap
--- ++-∷ : (a : A) (as : SList A) -> a ∷ as ≡ as ++ [ a ]
--- ++-∷ a [] = refl
--- ++-∷ a (b ∷ as) = swap a b as ∙ cong (b ∷_) (++-∷ a as)
--- ++-∷ a (swap b c as i) =
---   {!!}
+++-∷ : (a : A) (as : SList A) -> a ∷ as ≡ as ++ [ a ]
+++-∷ a = elimSListProp.f (λ as -> a ∷ as ≡ as ++ [ a ])
+  refl
+  (λ b {as} p -> swap a b as ∙ cong (b ∷_) p)
+  (isSetSList _ _) 
 
--- ++-comm : (as bs : SList A) -> as ++ bs ≡ bs ++ as
--- ++-comm [] bs = sym (++-unitr bs)
--- ++-comm (a ∷ as) bs = cong (a ∷_) (++-comm as bs)
---                     ∙ cong (_++ as) (++-∷ a bs)
---                     ∙ ++-assocr bs [ a ] as
--- ++-comm (swap a b as i) bs = {!!}
+++-comm : (as bs : SList A) -> as ++ bs ≡ bs ++ as
+++-comm = elimSListProp.f _
+  (sym ∘ ++-unitr)
+  (λ a {as} p bs -> cong (a ∷_) (p bs) ∙ cong (_++ as) (++-∷ a bs) ∙ ++-assocr bs [ a ] as)
+  (isPropΠ λ _ -> isSetSList _ _)
