@@ -12,9 +12,41 @@ data CList {a} (A : Type a) : Type a where
       -> {as bs : CList A} (cs : CList A)
       -> (p : as ≡ b ∷ cs) (q : bs ≡ a ∷ cs)
       -> a ∷ as ≡ b ∷ bs
+  trunc : isSet (CList A)
 
--- TODO: Add truncation to the CList HIT or truncate the CList type
--- TODO: Define eliminators for CList
+module elimCListSet {ℓ p : Level} {A : Type ℓ} (P : CList A -> Type p)
+                   ([]* : P [])
+                   (_∷*_ : (x : A) {xs : CList A} -> P xs -> P (x ∷ xs))
+                   (comm* : (a b : A)
+                            -> {as bs : CList A} (cs : CList A)
+                            -> (as* : P as)
+                            -> (bs* : P bs)
+                            -> (p : as ≡ b ∷ cs) (q : bs ≡ a ∷ cs)
+                            -> PathP (λ i -> P (comm a b cs p q i)) (a ∷* as*) (b ∷* bs*)
+                   )
+                   (trunc* : {xs : CList A} -> isSet (P xs))
+                   where
+  f : (xs : CList A) -> P xs
+  f [] = []*
+  f (x ∷ xs) = x ∷* f xs
+  f (comm a b {xs} {ys} cs p q i) = comm* a b cs (f xs) (f ys) p q i
+  f (trunc xs ys p q i j) =
+    isOfHLevel→isOfHLevelDep 2 (\xs -> trunc* {xs = xs}) (f xs) (f ys) (cong f p) (cong f q) (trunc xs ys p q) i j
+
+module elimCListProp {ℓ p : Level} {A : Type ℓ} (P : CList A -> Type p)
+                   ([]* : P [])
+                   (_∷*_ : (x : A) {xs : CList A} -> P xs -> P (x ∷ xs))
+                   (trunc* : {xs : CList A} -> isProp (P xs))
+                   where
+  f : (xs : CList A) -> P xs
+  f = elimCListSet.f P []* _∷*_ comm* (isProp→isSet trunc*)
+    where
+      abstract
+        comm* : (a b : A) {as bs : CList A} (cs : CList A) (as* : P as)
+                (bs* : P bs) (p : as ≡ (b ∷ cs)) (q : bs ≡ (a ∷ cs)) ->
+                PathP (λ i -> P (comm a b cs p q i)) (a ∷* as*) (b ∷* bs*)
+        comm* a b cs as* bs* p q =
+          toPathP (trunc* (subst P (comm a b cs p q) (a ∷* as*)) (b ∷* bs*))
 
 private
   variable
@@ -25,26 +57,19 @@ _++_ : CList A -> CList A -> CList A
 [] ++ bs = bs
 (a ∷ as) ++ bs = a ∷ (as ++ bs)
 comm a b cs p q i ++ bs = comm a b (cs ++ bs) (cong (_++ bs) p) (cong (_++ bs) q) i
+trunc a b p q i j ++ bs = trunc (a ++ bs) (b ++ bs) (cong (_++ bs) p) (cong (_++ bs) q) i j
 
 ++-unitl : (as : CList A) -> [] ++ as ≡ as
 ++-unitl as = refl
 
--- TODO: Define unitr for CList directly or after truncation
 ++-unitr : (as : CList A) -> as ++ [] ≡ as
-++-unitr [] = refl
-++-unitr (a ∷ as) = cong (a ∷_) (++-unitr as)
-++-unitr (comm a b {as} {bs} cs p q i) j =
-  comm a b {++-unitr as j} {++-unitr bs j} (++-unitr cs j)
-       {!!}
-       {!!} i
+++-unitr = elimCListProp.f _ refl (λ a p -> cong (a ∷_) p) (trunc _ _)
 
--- TODO: Define assocr for CList directly or after truncation
 ++-assocr : (as bs cs : CList A) -> (as ++ bs) ++ cs ≡ as ++ (bs ++ cs)
-++-assocr [] bs cs = refl
-++-assocr (a ∷ as) bs cs = cong (a ∷_) (++-assocr as bs cs)
-++-assocr (comm a b {xs} {ys} zs p q i) bs cs j =
-  comm a b {++-assocr xs bs cs j} {++-assocr ys bs cs j} (++-assocr zs bs cs j)
-       {!!} {!!} i
+++-assocr = elimCListProp.f _
+  (λ _ _ -> refl)
+  (λ x p bs cs -> cong (x ∷_) (p bs cs))
+  (isPropΠ λ _ -> isPropΠ λ _ -> trunc _ _)
 
--- TODO: Define commutativity for CList directly or after truncation
--- Doing this directly will need coherence for comm
+-- -- TODO: Define commutativity for CList directly or after truncation
+-- -- Doing this directly will need coherence for comm

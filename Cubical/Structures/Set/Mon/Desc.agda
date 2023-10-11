@@ -40,7 +40,7 @@ MonEqSig = finEqSig (MonEq , MonEqFree)
 monEqLhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
 monEqLhs unitl = node (⊕ , lookup (node (e , lookup []) ∷ leaf fzero ∷ []))
 monEqLhs unitr = node (⊕ , lookup (leaf fzero ∷ node (e , lookup []) ∷ []))
-monEqLhs assocr = node (⊕ , node (⊕ , leaf fzero ▸ leaf fone ▸ ◼) ▸ leaf ftwo ▸ ◼)
+monEqLhs assocr = node (⊕ , lookup (node (⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []))
 
 monEqRhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
 monEqRhs unitl = leaf fzero
