@@ -5,6 +5,8 @@ module Cubical.Structures.Set.CMon.CList where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
 
+infixr 20 _∷_
+
 data CList {a} (A : Type a) : Type a where
   [] : CList A
   _∷_ : (a : A) -> (as : CList A) -> CList A
@@ -13,6 +15,8 @@ data CList {a} (A : Type a) : Type a where
       -> (p : as ≡ b ∷ cs) (q : bs ≡ a ∷ cs)
       -> a ∷ as ≡ b ∷ bs
   trunc : isSet (CList A)
+
+pattern [_] a = a ∷ []
 
 module elimCListSet {ℓ p : Level} {A : Type ℓ} (P : CList A -> Type p)
                    ([]* : P [])
@@ -71,5 +75,20 @@ trunc a b p q i j ++ bs = trunc (a ++ bs) (b ++ bs) (cong (_++ bs) p) (cong (_++
   (λ x p bs cs -> cong (x ∷_) (p bs cs))
   (isPropΠ λ _ -> isPropΠ λ _ -> trunc _ _)
 
--- -- TODO: Define commutativity for CList directly or after truncation
--- -- Doing this directly will need coherence for comm
+swap : (a b : A) (cs : CList A) -> a ∷ b ∷ cs ≡ b ∷ a ∷ cs
+swap a b = elimCListProp.f _
+  (comm a b [] refl refl)
+  (λ x {xs} p -> comm a b (x ∷ xs) refl refl)
+  (trunc _ _)
+
+++-∷ : (a : A) (as : CList A) -> a ∷ as ≡ as ++ [ a ]
+++-∷ a = elimCListProp.f (λ as -> a ∷ as ≡ as ++ [ a ])
+  refl
+  (λ b {as} p -> swap a b as ∙ cong (b ∷_) p)
+  (trunc _ _) 
+
+++-comm : (as bs : CList A) -> as ++ bs ≡ bs ++ as
+++-comm = elimCListProp.f _
+  (sym ∘ ++-unitr)
+  (λ a {as} p bs -> cong (a ∷_) (p bs) ∙ cong (_++ as) (++-∷ a bs) ∙ ++-assocr bs [ a ] as)
+  (isPropΠ λ _ -> trunc _ _)
