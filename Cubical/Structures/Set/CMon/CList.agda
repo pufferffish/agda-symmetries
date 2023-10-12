@@ -4,6 +4,20 @@ module Cubical.Structures.Set.CMon.CList where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Empty as ⊥
+import Cubical.Data.List as L
+
+import Cubical.Structures.Set.Mon.Desc as M
+import Cubical.Structures.Set.Mon.Free as FM
+import Cubical.Structures.Set.CMon.Desc as M
+import Cubical.Structures.Free as F
+open import Cubical.Structures.Sig
+open import Cubical.Structures.Str public
+open import Cubical.Structures.Tree
+open import Cubical.Structures.Eq
+open import Cubical.Structures.Arity
 
 infixr 20 _∷_
 
@@ -92,3 +106,65 @@ swap a b = elimCListProp.f _
   (sym ∘ ++-unitr)
   (λ a {as} p bs -> cong (a ∷_) (p bs) ∙ cong (_++ as) (++-∷ a bs) ∙ ++-assocr bs [ a ] as)
   (isPropΠ λ _ -> isSetCList _ _)
+
+clist-α : ∀ {n : Level} {X : Type n} -> sig M.MonSig (CList X) -> CList X
+clist-α (M.e , i) = []
+clist-α (M.⊕ , i) = i fzero ++ i fone
+
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+  𝔉 : struct x M.MonSig
+  𝔉 = < CList A , clist-α >
+
+  module _ (f : A -> 𝔜 .carrier) where
+    _♯ : CList A -> 𝔜 .carrier
+    ♯-α :
+      ∀ a b as bs cs p q ->
+      𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
+      ≡
+      𝔜 .algebra (M.⊕ , lookup (f b L.∷ (bs ♯) L.∷ L.[]))
+    [] ♯ = 𝔜 .algebra (M.e , lookup L.[])
+    (a ∷ as) ♯ = 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
+    comm a b {as} {bs} cs p q i ♯ = {!   !} -- ♯-α a b as bs cs p q i
+    (isSetCList m n p q i j) ♯ = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
+    
+    ♯-α a b as bs cs p q =
+      𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[])) ≡⟨ lemma-α ⟩
+      -- _ ≡⟨ 𝔜-cmon M.comm (lookup (f a L.∷ (as ♯) L.∷ L.[])) ⟩
+      {!    !}
+      where
+      lemma-α : -- needs to be a lemma to pass termination check??
+        𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
+        ≡
+        𝔜 .algebra (M.⊕ , lookup (f a L.∷ ((b ∷ cs) ♯) L.∷ L.[]))
+      lemma-α = cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (z ♯) L.∷ L.[]))) p
+      lemma-β : -- needs to be a lemma to pass termination check??
+        𝔜 .algebra (M.⊕ , lookup (f b L.∷ (bs ♯) L.∷ L.[]))
+        ≡
+        𝔜 .algebra (M.⊕ , lookup (f b L.∷ ((a ∷ cs) ♯) L.∷ L.[]))
+      lemma-β = cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (f b L.∷ (z ♯) L.∷ L.[]))) q
+
+
+      -- lemma-α : (z : Arity 2) ->
+      --   lookup (f a L.∷ (as ♯) L.∷ L.[]) z
+      --   ≡
+      --   sharp M.MonSig 𝔜 (lookup (f a L.∷ ((b ∷ cs) ♯) L.∷ L.[])) (lookup (leaf fzero L.∷ leaf fone L.∷ L.[]) z)
+      -- lemma-α (zero , p) = ?
+      -- lemma-α (suc zero , p) = ?
+      -- lemma-α (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+
+
+module CListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
+
+freeCMon-sat : ∀ {n} {X : Type n} -> < CList X , clist-α > ⊨ M.CMonSEq
+freeCMon-sat M.unitl ρ = ++-unitl (ρ fzero)
+freeCMon-sat M.unitr ρ = ++-unitr (ρ fzero)
+freeCMon-sat M.assocr ρ = ++-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+freeCMon-sat M.comm ρ = ++-comm (ρ fzero) (ρ fone)
+
+clistDef : CListDef.Free 2
+F.Definition.Free.F clistDef = CList
+F.Definition.Free.η clistDef = [_]
+F.Definition.Free.α clistDef = clist-α
+F.Definition.Free.sat clistDef = freeCMon-sat
+F.Definition.Free.isFree clistDef isSet𝔜 satMon = {!   !}
+ 
