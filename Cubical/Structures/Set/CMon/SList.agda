@@ -178,7 +178,26 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
   
   slistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .carrier)
   slistMonEquiv =
-    isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ _ -> funExt {!   !}) (sym ∘ slistEquivLemma-β))
+    isoToEquiv
+      ( iso
+        (λ g -> g .fst ∘ [_])
+        ♯-isMonHom
+        (λ g -> funExt (λ x ->
+          _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (g x L.∷ 𝔜 .algebra (M.e , z) L.∷ L.[]))) (funExt λ z -> lookup L.[] z) ⟩
+          _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (lemma-β g x)) ⟩
+          _ ≡⟨ 𝔜-cmon M.unitr (λ _ -> g x)  ⟩
+          _ ∎
+        ))
+        (sym ∘ slistEquivLemma-β)
+      )
+    where
+    lemma-β : (g : (a : A) -> 𝔜 .carrier) (x : A) (z : Arity 2) ->
+      lookup (g x L.∷ 𝔜 .algebra (M.e , (λ num → ⊥.rec (¬Fin0 num))) L.∷ L.[]) z
+      ≡
+      sharp M.MonSig 𝔜 (λ _ → g x) (lookup (leaf fzero L.∷ node (M.e , (λ num → ⊥.rec (¬Fin0 num))) L.∷ L.[]) z)
+    lemma-β g x (zero , p) = refl
+    lemma-β g x (suc zero , p) = cong (λ z → 𝔜 .algebra (M.e , z)) (funExt λ z -> lookup L.[] z)
+    lemma-β g x (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)  
 
 module SListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
