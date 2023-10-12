@@ -50,6 +50,11 @@ CMonSEq n = cmonEqLhs n , cmonEqRhs n
 CMonStruct : {n : Level} -> Type (ℓ-suc n)
 CMonStruct {n} = struct n CMonSig
 
+cmonSatMon : ∀ {s} {str : struct s CMonSig} -> str ⊨ CMonSEq -> str ⊨ M.MonSEq
+cmonSatMon {_} {str} cmonSat M.unitl ρ = cmonSat unitl ρ
+cmonSatMon {_} {str} cmonSat M.unitr ρ = cmonSat unitr ρ
+cmonSatMon {_} {str} cmonSat M.assocr ρ = cmonSat assocr ρ
+
 module Examples where
 
   ℕ-CMonStr : CMonStruct
