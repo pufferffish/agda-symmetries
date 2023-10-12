@@ -121,26 +121,21 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     toFree [] = FCM.e
     toFree (a ∷ as) = FCM.η a FCM.⊕ toFree as
     toFree (swap a b cs i) =
-      let
-        p =
-          FCM.η a FCM.⊕ (FCM.η b FCM.⊕ toFree cs) ≡⟨ sym (FCM.assocr (FCM.η a) (FCM.η b) (toFree cs))  ⟩
-          (FCM.η a FCM.⊕ FCM.η b) FCM.⊕ toFree cs ≡⟨ cong (FCM._⊕ toFree cs) (FCM.comm (FCM.η a) (FCM.η b)) ⟩
-          (FCM.η b FCM.⊕ FCM.η a) FCM.⊕ toFree cs ≡⟨ FCM.assocr (FCM.η b) (FCM.η a) (toFree cs) ⟩
-          FCM.η b FCM.⊕ (FCM.η a FCM.⊕ toFree cs) ∎
-      in
-        p i
+      ( sym (FCM.assocr (FCM.η a) (FCM.η b) (toFree cs))
+      ∙ cong (FCM._⊕ toFree cs) (FCM.comm (FCM.η a) (FCM.η b))
+      ∙ FCM.assocr (FCM.η b) (FCM.η a) (toFree cs)
+      ) i
     toFree (isSetSList x y p q i j) =
       FCM.trunc (toFree x) (toFree y) (cong toFree p) (cong toFree q) i j
 
-    abstract
-      toFree-++ : ∀ xs ys -> toFree (xs ++ ys) ≡ toFree xs FCM.⊕ toFree ys
-      toFree-++ = elimSListProp.f _
-        (λ ys -> sym (FCM.unitl (toFree ys)))
-        (λ x {xs} p ys ->
-          FCM.η x FCM.⊕ toFree (xs ++ ys) ≡⟨ cong (FCM.η x FCM.⊕_) (p ys) ⟩
-          FCM.η x FCM.⊕ (toFree xs FCM.⊕ toFree ys) ≡⟨ sym (FCM.assocr _ _ _) ⟩
-          _ ∎)
-        (isPropΠ λ _ -> FCM.trunc _ _)
+    toFree-++ : ∀ xs ys -> toFree (xs ++ ys) ≡ toFree xs FCM.⊕ toFree ys
+    toFree-++ = elimSListProp.f _
+      (λ ys -> sym (FCM.unitl (toFree ys)))
+      (λ x {xs} p ys ->
+        FCM.η x FCM.⊕ toFree (xs ++ ys) ≡⟨ cong (FCM.η x FCM.⊕_) (p ys) ⟩
+        FCM.η x FCM.⊕ (toFree xs FCM.⊕ toFree ys) ≡⟨ sym (FCM.assocr _ _ _) ⟩
+        _ ∎)
+      (isPropΠ λ _ -> FCM.trunc _ _)
 
     toFree-isMonHom : structHom 𝔛 𝔉
     toFree-isMonHom = toFree , lemma-α
@@ -152,27 +147,38 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     _♯ : SList A -> 𝔜 .carrier    
     xs ♯ = FCM.Free._♯ isSet𝔜 𝔜-cmon f (toFree xs)
 
-    -- ♯-isMonHom = _♯ , lemma-α
-    --   where
-    --   lemma-α : structIsHom 𝔉 𝔜 _♯
-    --   lemma-β : (i : Arity 2 -> SList A)
-    --     -> (z : Arity 2)
-    --     -> (i z ♯) ≡ lookup ((i fzero ♯) L.∷ (i fone ♯) L.∷ L.[]) z
+    ♯-isMonHom : structHom 𝔛 𝔜
+    ♯-isMonHom = structHom∘ 𝔛 𝔉 𝔜 (FCM.Free.♯-isMonHom isSet𝔜 𝔜-cmon f) toFree-isMonHom
 
-    --   lemma-α M.e i = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ p -> lookup L.[] p)
-    --   lemma-α M.⊕ i with 𝔉 .algebra (M.⊕ , i)
-    --   ... | [] =
-    --     𝔜 .algebra (M.⊕ , (λ z -> (i z) ♯)) ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (lemma-β i)) ⟩
-    --     𝔜 .algebra (M.⊕ , lookup ((i fzero) ♯ L.∷ (i fone) ♯ L.∷ L.[])) ≡⟨⟩
-    --     {!   !}
-    --   ... | a ∷ as =
-    --     cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt {!   !})
-    --   ... | swap a b lol i₁ = {!  !}
-    --   ... | isSetSList lol lol₁ x y i₁ i₂ = {!   !}
+  private
+    slistEquivLemma : (g : structHom 𝔛 𝔜) -> (x : SList A) -> g .fst x ≡ ((g .fst ∘ [_]) ♯) x
+    slistEquivLemma (g , homMonWit) = elimSListProp.f _
+      ( sym (homMonWit M.e (lookup L.[]))
+      ∙ cong (λ p -> 𝔜 .algebra (M.e , p)) (funExt λ p -> lookup L.[] p)
+      )
+      (λ x {xs} p ->
+        g (x ∷ xs) ≡⟨ sym (homMonWit M.⊕ (lookup ([ x ] L.∷ xs L.∷ L.[]))) ⟩
+        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.⊕ , p)) (funExt (lemma-α x xs p)) ⟩
+        _ ∎
+      )
+      (isSet𝔜 _ _)
+      where
+      lemma-α : (x : A) (xs : SList A)
+        -> (g xs ≡ ((g ∘ [_]) ♯) xs)
+        -> (z : Arity 2)
+        -> g (lookup ([ x ] L.∷ xs L.∷ L.[]) z)
+           ≡
+           lookup ((g ∘ [_]) x L.∷ (isSet𝔜 FCM.Free.♯) 𝔜-cmon (g ∘ [_]) (toFree (g ∘ [_]) xs) L.∷ L.[]) z
+      lemma-α x xs p (zero , q) = refl
+      lemma-α x xs p (suc zero , q) = p
+      lemma-α x xs p (suc (suc n) , q) = ⊥.rec (¬m+n<m {m = 2} q)
 
-    --   lemma-β i (zero , p) = cong (λ z -> i z ♯) (Σ≡Prop (λ _ -> isProp≤) refl)
-    --   lemma-β i (suc zero , p) = cong (λ z -> i z ♯) (Σ≡Prop (λ _ -> isProp≤) refl)
-    --   lemma-β i (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+    slistEquivLemma-β : (g : structHom 𝔛 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ [_])
+    slistEquivLemma-β g = structHom≡ 𝔛 𝔜 g (♯-isMonHom (g .fst ∘ [_])) isSet𝔜 (funExt (slistEquivLemma g))
+  
+  slistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .carrier)
+  slistMonEquiv =
+    isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ _ -> funExt {!   !}) (sym ∘ slistEquivLemma-β))
 
 module SListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
@@ -187,6 +193,6 @@ F.Definition.Free.F slistDef = SList
 F.Definition.Free.η slistDef = [_]
 F.Definition.Free.α slistDef = slist-α
 F.Definition.Free.sat slistDef = freeCMon-sat
-F.Definition.Free.isFree slistDef isSet𝔜 satMon = {!   !}
+F.Definition.Free.isFree slistDef isSet𝔜 satMon = (Free.slistMonEquiv isSet𝔜 satMon) .snd
  
-    
+     
