@@ -110,3 +110,5 @@ isGpdSList as cs p q u v i j k ++ bs =
 --                     ∙ cong (_++ as) (++-∷ a bs)
 --                     ∙ ++-assocr bs [ a ] as
 -- ++-comm (swap a b as i) bs = {!!}
+
+-- TODO: Prove SList is free monoid on groupoids
