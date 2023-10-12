@@ -216,4 +216,3 @@ F.Definition.Free.α slistDef = slist-α
 F.Definition.Free.sat slistDef = freeCMon-sat
 F.Definition.Free.isFree slistDef isSet𝔜 satMon = (Free.slistMonEquiv isSet𝔜 satMon) .snd
  
-     

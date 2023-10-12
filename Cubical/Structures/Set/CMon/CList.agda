@@ -134,6 +134,77 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       )
       (λ _ -> FCM.trunc)
 
+    toFree-++ : ∀ xs ys -> toFree (xs ++ ys) ≡ toFree xs FCM.⊕ toFree ys
+    toFree-++ = elimCListProp.f _
+      (λ ys -> sym (FCM.unitl (toFree ys)))
+      (λ x {xs} p ys ->
+        FCM.η x FCM.⊕ toFree (xs ++ ys) ≡⟨ cong (FCM.η x FCM.⊕_) (p ys) ⟩
+        FCM.η x FCM.⊕ (toFree xs FCM.⊕ toFree ys) ≡⟨ sym (FCM.assocr _ _ _) ⟩
+        _ ∎)
+      (λ _ -> isPropΠ λ _ -> FCM.trunc _ _)
+
+    toFree-isMonHom : structHom 𝔛 𝔉
+    toFree-isMonHom = toFree , lemma-α
+      where
+      lemma-α : structIsHom 𝔛 𝔉 toFree
+      lemma-α M.e i = refl
+      lemma-α M.⊕ i = sym (toFree-++ (i fzero) (i fone))
+
+    _♯ : CList A -> 𝔜 .carrier    
+    _♯ = Free._♯ f ∘ toFree
+
+    ♯-isMonHom : structHom 𝔛 𝔜
+    ♯-isMonHom = structHom∘ 𝔛 𝔉 𝔜 (Free.♯-isMonHom f) toFree-isMonHom
+
+  private
+    clistEquivLemma : (g : structHom 𝔛 𝔜) -> (x : CList A) -> g .fst x ≡ ((g .fst ∘ [_]) ♯) x
+    clistEquivLemma (g , homMonWit) = elimCListProp.f _
+      ( sym (homMonWit M.e (lookup L.[]))
+      ∙ cong (λ p -> 𝔜 .algebra (M.e , p)) (funExt λ p -> lookup L.[] p)
+      )
+      (λ x {xs} p ->
+        g (x ∷ xs) ≡⟨ sym (homMonWit M.⊕ (lookup ([ x ] L.∷ xs L.∷ L.[]))) ⟩
+        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.⊕ , p)) (funExt (lemma-α x xs p)) ⟩
+        _ ∎
+      )
+      (λ _ -> isSet𝔜 _ _)
+      where
+      lemma-α : (x : A) (xs : CList A)
+        -> (g xs ≡ ((g ∘ [_]) ♯) xs)
+        -> (z : Arity 2)
+        -> g (lookup ([ x ] L.∷ xs L.∷ L.[]) z)
+           ≡
+           lookup ((g ∘ [_]) x L.∷ (Free._♯ (g ∘ [_])) (toFree (g ∘ [_]) xs) L.∷ L.[]) z
+      lemma-α x xs p (zero , q) = refl
+      lemma-α x xs p (suc zero , q) = p
+      lemma-α x xs p (suc (suc n) , q) = ⊥.rec (¬m+n<m {m = 2} q)
+
+    clistEquivLemma-β : (g : structHom 𝔛 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ [_])
+    clistEquivLemma-β g = structHom≡ 𝔛 𝔜 g (♯-isMonHom (g .fst ∘ [_])) isSet𝔜 (funExt (clistEquivLemma g))
+
+  clistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .carrier)
+  clistMonEquiv =
+    isoToEquiv
+      ( iso
+        (λ g -> g .fst ∘ [_])
+        ♯-isMonHom
+        (λ g -> funExt (λ x ->
+          _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (g x L.∷ 𝔜 .algebra (M.e , z) L.∷ L.[]))) (funExt λ z -> lookup L.[] z) ⟩
+          _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (lemma-β g x)) ⟩
+          _ ≡⟨ 𝔜-cmon M.unitr (λ _ -> g x)  ⟩
+          _ ∎
+        ))
+        (sym ∘ clistEquivLemma-β)
+      )
+    where
+    lemma-β : (g : (a : A) -> 𝔜 .carrier) (x : A) (z : Arity 2) ->
+      lookup (g x L.∷ 𝔜 .algebra (M.e , (λ num → ⊥.rec (¬Fin0 num))) L.∷ L.[]) z
+      ≡
+      sharp M.MonSig 𝔜 (λ _ → g x) (lookup (leaf fzero L.∷ node (M.e , (λ num → ⊥.rec (¬Fin0 num))) L.∷ L.[]) z)
+    lemma-β g x (zero , p) = refl
+    lemma-β g x (suc zero , p) = cong (λ z → 𝔜 .algebra (M.e , z)) (funExt λ z -> lookup L.[] z)
+    lemma-β g x (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)  
+
 module CListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
 freeCMon-sat : ∀ {n} {X : Type n} -> < CList X , clist-α > ⊨ M.CMonSEq
@@ -147,4 +218,4 @@ F.Definition.Free.F clistDef = CList
 F.Definition.Free.η clistDef = [_]
 F.Definition.Free.α clistDef = clist-α
 F.Definition.Free.sat clistDef = freeCMon-sat
-F.Definition.Free.isFree clistDef isSet𝔜 satMon = {!   !}
+F.Definition.Free.isFree clistDef isSet𝔜 satMon = (Free.clistMonEquiv isSet𝔜 satMon) .snd
