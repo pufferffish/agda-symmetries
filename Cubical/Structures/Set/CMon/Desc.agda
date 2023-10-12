@@ -4,6 +4,7 @@ module Cubical.Structures.Set.CMon.Desc where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
+open import Cubical.Data.List
 open import Cubical.Structures.Arity as F public
 
 open import Cubical.Structures.Sig
@@ -11,63 +12,56 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 
-data CMonSym : Type where
-  e : CMonSym
-  ⊕ : CMonSym
+import Cubical.Structures.Set.Mon.Desc as M
+open M.MonSym
 
-CMonAr : CMonSym -> Type
-CMonAr e = Arity 0
-CMonAr ⊕ = Arity 2
-
-CMonSig : Sig ℓ-zero ℓ-zero
-Sig.symbol CMonSig = CMonSym
-Sig.arity CMonSig = CMonAr
+CMonSym = M.MonSym
+CMonAr = M.MonAr
+CMonFinSig = M.MonFinSig
+CMonSig = M.MonSig
 
 data CMonEq : Type where
   unitl unitr assocr comm : CMonEq
 
--- Vec n A ≃ Fin n -> A
-
-CMonEqFree : CMonEq -> Type
-CMonEqFree unitl = Arity 1
-CMonEqFree unitr = Arity 1
-CMonEqFree assocr = Arity 3
-CMonEqFree comm = Arity 2
-
--- CMonEqLhs : (eq : CMonEq) -> Tree CMonSig (CMonEqFree eq)
--- CMonEqLhs unitl = node ⊕ (F.rec (node e \()) (leaf zero))
--- CMonEqLhs unitr = node ⊕ (F.rec (leaf zero) (node e \()))
--- CMonEqLhs assocr = node ⊕ (F.rec (node ⊕ (F.rec (leaf zero) (leaf (suc zero))))
---                                 (leaf (suc (suc zero))))
--- CMonEqLhs comm = {!!} -- TODO: comm equation
--- 
--- CMonEqRhs : (eq : CMonEq) -> Tree CMonSig (CMonEqFree eq)
--- CMonEqRhs unitl = leaf zero
--- CMonEqRhs unitr = leaf zero
--- CMonEqRhs assocr = node ⊕ (F.rec (leaf zero)
---                          (node ⊕ (F.rec (leaf (suc zero)) (leaf two))))
--- CMonEqRhs comm = {!!}
+CMonEqFree : CMonEq -> ℕ
+CMonEqFree unitl = 1
+CMonEqFree unitr = 1
+CMonEqFree assocr = 3
+CMonEqFree comm = 2
 
 CMonEqSig : EqSig ℓ-zero ℓ-zero
-name CMonEqSig = CMonEq
-free CMonEqSig = CMonEqFree
+CMonEqSig = finEqSig (CMonEq , CMonEqFree)
 
--- CMonEqs : EqThy CMonSig CMonEqSig
--- lhs CMonEqs = CMonEqLhs
--- rhs CMonEqs = CMonEqRhs
+cmonEqLhs : (eq : CMonEq) -> FinTree CMonFinSig (CMonEqFree eq)
+cmonEqLhs unitl = node (⊕ , lookup (node (e , lookup []) ∷ leaf fzero ∷ []))
+cmonEqLhs unitr = node (⊕ , lookup (leaf fzero ∷ node (e , lookup []) ∷ []))
+cmonEqLhs assocr = node (⊕ , lookup (node (⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []))
+cmonEqLhs comm = node (⊕ , lookup (leaf fzero ∷ leaf fone ∷ []))
+
+cmonEqRhs : (eq : CMonEq) -> FinTree CMonFinSig (CMonEqFree eq)
+cmonEqRhs unitl = leaf fzero
+cmonEqRhs unitr = leaf fzero
+cmonEqRhs assocr = node (⊕ , lookup (leaf fzero ∷ node (⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []))
+cmonEqRhs comm = node (⊕ , lookup (leaf fone ∷ leaf fzero ∷ []))
 
 CMonSEq : seq CMonSig CMonEqSig
-CMonSEq n = {!!} , {!!} -- TODO: Tree vs Tree
+CMonSEq n = cmonEqLhs n , cmonEqRhs n
 
--- CMonStruct = Str ℓ-zero CMonSig
--- 
--- module Examples where
--- 
---   ℕ-CMonStr : CMonStruct
---   Str.carrier ℕ-CMonStr = ℕ
---   Str.ops ℕ-CMonStr e f = 0
---   Str.ops ℕ-CMonStr ⊕ f = f zero + f (suc zero)
---   Str.isSetStr ℕ-CMonStr = isSetℕ
--- 
---   -- ℕ-CMonStr-CMonSeq : ℕ-CMonStr ⊨ CMonSEq -- TODO: struct vs Str
---   -- ℕ-CMonStr-MoNSEq = ?
+CMonStruct : {n : Level} -> Type (ℓ-suc n)
+CMonStruct {n} = struct n CMonSig
+
+cmonSatMon : ∀ {s} {str : struct s CMonSig} -> str ⊨ CMonSEq -> str ⊨ M.MonSEq
+cmonSatMon {_} {str} cmonSat M.unitl ρ = cmonSat unitl ρ
+cmonSatMon {_} {str} cmonSat M.unitr ρ = cmonSat unitr ρ
+cmonSatMon {_} {str} cmonSat M.assocr ρ = cmonSat assocr ρ
+
+module Examples where
+
+  ℕ-CMonStr : CMonStruct
+  ℕ-CMonStr = M.Examples.ℕ-MonStr
+
+  ℕ-CMonStr-MonSEq : ℕ-CMonStr ⊨ CMonSEq
+  ℕ-CMonStr-MonSEq unitl ρ = refl
+  ℕ-CMonStr-MonSEq unitr ρ = +-zero (ρ fzero)
+  ℕ-CMonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+  ℕ-CMonStr-MonSEq comm ρ = +-comm (ρ fzero) (ρ fone)

@@ -11,12 +11,10 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 
-variable
-  ℓ : Level
-  A B : Type ℓ
-
 private
   variable
+    ℓ : Level
+    A B : Type ℓ
     k : ℕ
 
 ftwo : Arity (suc (suc (suc k)))
@@ -41,3 +39,24 @@ tabulate-lookup (x ∷ xs) =
    _ ≡⟨ cong (λ z -> x ∷ tabulate (length xs) z) (funExt λ _ -> cong (lookup xs) (Σ≡Prop (λ _ -> isProp≤) refl)) ⟩
    _ ≡⟨ cong (x ∷_) (tabulate-lookup xs) ⟩
    _ ∎
+
+◼ : Arity 0 -> A
+◼ = ⊥.rec ∘ ¬Fin0
+
+infixr 30 _▸_
+
+_▸_ : ∀ {n} -> A -> (Arity n -> A) -> Arity (suc n) -> A
+_▸_ {n = zero} x f i = x
+_▸_ {n = suc n} x f i = lookup (x ∷ tabulate (suc n) f) (subst Arity (congS (suc ∘ suc) (sym (length-tabulate n (f ∘ fsuc)))) i)
+
+⟪⟫ : Arity 0 -> A
+⟪⟫ = lookup []
+
+⟪_⟫ : (a : A) -> Arity 1 -> A
+⟪ a ⟫ = lookup [ a ]
+
+⟪_⨾_⟫ : (a b : A) -> Arity 2 -> A
+⟪ a ⨾ b ⟫ = lookup (a ∷ b ∷ [])
+
+⟪_⨾_⨾_⟫ : (a b c : A) -> Arity 3 -> A
+⟪ a ⨾ b ⨾ c ⟫ = lookup (a ∷ b ∷ c ∷ [])
