@@ -7,6 +7,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Induction.WellFounded
 import Cubical.Data.List as L
 
 import Cubical.Structures.Set.Mon.Desc as M
@@ -66,6 +67,13 @@ private
     ℓ : Level
     A : Type ℓ
 
+length : SList A -> ℕ
+length [] = 0
+length (a ∷ as) = suc (length as)
+length (swap a b as i) =
+  (idfun (suc (suc (length as)) ≡ suc (suc (length as)))) refl i
+length (isSetSList as bs p q i j) =
+  isSetℕ (length as) (length bs) (cong length p) (cong length q) i j
 
 _++_ : SList A -> SList A -> SList A
 [] ++ bs = bs
@@ -124,28 +132,22 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     toFree (isSetSList x y p q i j) =
       FCM.trunc (toFree x) (toFree y) (cong toFree p) (cong toFree q) i j
 
+    abstract
+      toFree-++ : ∀ xs ys -> toFree (xs ++ ys) ≡ toFree xs FCM.⊕ toFree ys
+      toFree-++ = elimSListProp.f _
+        (λ ys -> sym (FCM.unitl (toFree ys)))
+        (λ x {xs} p ys ->
+          FCM.η x FCM.⊕ toFree (xs ++ ys) ≡⟨ cong (FCM.η x FCM.⊕_) (p ys) ⟩
+          FCM.η x FCM.⊕ (toFree xs FCM.⊕ toFree ys) ≡⟨ sym (FCM.assocr _ _ _) ⟩
+          _ ∎)
+        (isPropΠ λ _ -> FCM.trunc _ _)
+
     toFree-isMonHom : structHom 𝔛 𝔉
     toFree-isMonHom = toFree , lemma-α
       where
       lemma-α : structIsHom 𝔛 𝔉 toFree
       lemma-α M.e i = refl
-      lemma-α M.⊕ i with i fzero | i fone
-      ... | []     | []     = FCM.unitl _
-      ... | []     | a ∷ as = FCM.unitl _
-      ... | a ∷ as | []     =
-        (FCM.η a FCM.⊕ toFree as) FCM.⊕ FCM.e ≡⟨ FCM.unitr _ ⟩
-        FCM.η a FCM.⊕ toFree as ≡⟨ cong (λ z -> FCM.η a FCM.⊕ toFree z) (sym (++-unitr as)) ⟩
-        FCM.η a FCM.⊕ toFree (as ++ []) ∎
-      ... | a ∷ as | b ∷ bs = {!   !}
-      ... | [] | swap a b ys i₁ = {!   !}
-      ... | [] | isSetSList ys ys₁ x y i₁ i₂ = {!   !}
-      ... | swap a b xs i₁ | ys = {!   !}
-      ... | isSetSList xs xs₁ x y i₁ i₂ | ys = {!   !}
-      ... | a ∷ xs | swap a₁ b ys i₁ = {!   !}
-      ... | a ∷ xs | isSetSList ys ys₁ x y i₁ i₂ = {!   !}
-
-
-
+      lemma-α M.⊕ i = sym (toFree-++ (i fzero) (i fone))
 
     _♯ : SList A -> 𝔜 .carrier    
     xs ♯ = FCM.Free._♯ isSet𝔜 𝔜-cmon f (toFree xs)
