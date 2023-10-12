@@ -12,6 +12,7 @@ import Cubical.Data.List as L
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.Mon.Free as FM
 import Cubical.Structures.Set.CMon.Desc as M
+import Cubical.Structures.Set.CMon.Free as FCM
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public
@@ -36,35 +37,36 @@ module elimCListSet {ℓ p : Level} {A : Type ℓ} (P : CList A -> Type p)
                    ([]* : P [])
                    (_∷*_ : (x : A) {xs : CList A} -> P xs -> P (x ∷ xs))
                    (comm* : (a b : A)
-                            -> {as bs : CList A} (cs : CList A)
-                            -> (as* : P as)
-                            -> (bs* : P bs)
-                            -> (p : as ≡ b ∷ cs) (q : bs ≡ a ∷ cs)
+                            -> {as bs : CList A} {cs : CList A}
+                            -> {as* : P as}
+                            -> {bs* : P bs}
+                            -> (cs* : P cs)
+                            -> {p : as ≡ b ∷ cs} {q : bs ≡ a ∷ cs}
+                            -> (bp : PathP (λ i -> P (p i)) as* (b ∷* cs*))
+                            -> (bq : PathP (λ i -> P (q i)) bs* (a ∷* cs*))
                             -> PathP (λ i -> P (comm a b cs p q i)) (a ∷* as*) (b ∷* bs*)
                    )
-                   (isSetCList* : {xs : CList A} -> isSet (P xs))
+                   (isSetCList* : (xs : CList A) -> isSet (P xs))
                    where
   f : (xs : CList A) -> P xs
   f [] = []*
-  f (x ∷ xs) = x ∷* f xs
-  f (comm a b {xs} {ys} cs p q i) = comm* a b cs (f xs) (f ys) p q i
+  f (a ∷ as) = a ∷* f as
+  f (comm a b {as} {bs} cs p q i) =
+    comm* a b (f cs) (cong f p) (cong f q) i
   f (isSetCList xs ys p q i j) =
-    isOfHLevel→isOfHLevelDep 2 (\xs -> isSetCList* {xs = xs}) (f xs) (f ys) (cong f p) (cong f q) (isSetCList xs ys p q) i j
+    isOfHLevel→isOfHLevelDep 2 isSetCList* (f xs) (f ys) (cong f p) (cong f q) (isSetCList xs ys p q) i j
 
 module elimCListProp {ℓ p : Level} {A : Type ℓ} (P : CList A -> Type p)
                    ([]* : P [])
                    (_∷*_ : (x : A) {xs : CList A} -> P xs -> P (x ∷ xs))
-                   (isSetCList* : {xs : CList A} -> isProp (P xs))
+                   (isSetCList* : (xs : CList A) -> isProp (P xs))
                    where
   f : (xs : CList A) -> P xs
-  f = elimCListSet.f P []* _∷*_ comm* (isProp→isSet isSetCList*)
-    where
-      abstract
-        comm* : (a b : A) {as bs : CList A} (cs : CList A) (as* : P as)
-                (bs* : P bs) (p : as ≡ (b ∷ cs)) (q : bs ≡ (a ∷ cs)) ->
-                PathP (λ i -> P (comm a b cs p q i)) (a ∷* as*) (b ∷* bs*)
-        comm* a b cs as* bs* p q =
-          toPathP (isSetCList* (subst P (comm a b cs p q) (a ∷* as*)) (b ∷* bs*))
+  f = elimCListSet.f P []* _∷*_
+    (λ a b {as} {bs} {cs} {as*} {bs*} cs* bp bq ->
+      toPathP (isSetCList* _ _ (b ∷* bs*))
+    )
+    (isProp→isSet ∘ isSetCList*)
 
 private
   variable
@@ -81,13 +83,13 @@ isSetCList a b p q i j ++ bs = isSetCList (a ++ bs) (b ++ bs) (cong (_++ bs) p) 
 ++-unitl as = refl
 
 ++-unitr : (as : CList A) -> as ++ [] ≡ as
-++-unitr = elimCListProp.f _ refl (λ a p -> cong (a ∷_) p) (isSetCList _ _)
+++-unitr = elimCListProp.f _ refl (λ a p -> cong (a ∷_) p) (λ _ -> isSetCList _ _)
 
 ++-assocr : (as bs cs : CList A) -> (as ++ bs) ++ cs ≡ as ++ (bs ++ cs)
 ++-assocr = elimCListProp.f _
   (λ _ _ -> refl)
   (λ x p bs cs -> cong (x ∷_) (p bs cs))
-  (isPropΠ λ _ -> isPropΠ λ _ -> isSetCList _ _)
+  (λ _ -> isPropΠ λ _ -> isPropΠ λ _ -> isSetCList _ _)
 
 swap : (a b : A) (cs : CList A) -> a ∷ b ∷ cs ≡ b ∷ a ∷ cs
 swap a b cs = comm a b cs refl refl
@@ -96,59 +98,41 @@ swap a b cs = comm a b cs refl refl
 ++-∷ a = elimCListProp.f (λ as -> a ∷ as ≡ as ++ [ a ])
   refl
   (λ b {as} p -> swap a b as ∙ cong (b ∷_) p)
-  (isSetCList _ _) 
+  (λ _ -> isSetCList _ _) 
 
 ++-comm : (as bs : CList A) -> as ++ bs ≡ bs ++ as
 ++-comm = elimCListProp.f _
   (sym ∘ ++-unitr)
   (λ a {as} p bs -> cong (a ∷_) (p bs) ∙ cong (_++ as) (++-∷ a bs) ∙ ++-assocr bs [ a ] as)
-  (isPropΠ λ _ -> isSetCList _ _)
+  (λ _ -> isPropΠ λ _ -> isSetCList _ _)
 
 clist-α : ∀ {n : Level} {X : Type n} -> sig M.MonSig (CList X) -> CList X
 clist-α (M.e , i) = []
 clist-α (M.⊕ , i) = i fzero ++ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+  module Free = FCM.Free {A = A} isSet𝔜 𝔜-cmon
+
+  𝔛 : struct x M.MonSig
+  𝔛 = < CList A , clist-α >
+
   𝔉 : struct x M.MonSig
-  𝔉 = < CList A , clist-α >
+  𝔉 = Free.𝔉
 
   module _ (f : A -> 𝔜 .carrier) where
-    _♯ : CList A -> 𝔜 .carrier
-    ♯-α :
-      ∀ a b as bs cs p q ->
-      𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
-      ≡
-      𝔜 .algebra (M.⊕ , lookup (f b L.∷ (bs ♯) L.∷ L.[]))
-    [] ♯ = 𝔜 .algebra (M.e , lookup L.[])
-    (a ∷ as) ♯ = 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
-    comm a b {as} {bs} cs p q i ♯ = {!   !} -- ♯-α a b as bs cs p q i
-    (isSetCList m n p q i j) ♯ = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
-    
-    ♯-α a b as bs cs p q =
-      𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[])) ≡⟨ lemma-α ⟩
-      -- _ ≡⟨ 𝔜-cmon M.comm (lookup (f a L.∷ (as ♯) L.∷ L.[])) ⟩
-      {!    !}
-      where
-      lemma-α : -- needs to be a lemma to pass termination check??
-        𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
-        ≡
-        𝔜 .algebra (M.⊕ , lookup (f a L.∷ ((b ∷ cs) ♯) L.∷ L.[]))
-      lemma-α = cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (z ♯) L.∷ L.[]))) p
-      lemma-β : -- needs to be a lemma to pass termination check??
-        𝔜 .algebra (M.⊕ , lookup (f b L.∷ (bs ♯) L.∷ L.[]))
-        ≡
-        𝔜 .algebra (M.⊕ , lookup (f b L.∷ ((a ∷ cs) ♯) L.∷ L.[]))
-      lemma-β = cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (f b L.∷ (z ♯) L.∷ L.[]))) q
-
-
-      -- lemma-α : (z : Arity 2) ->
-      --   lookup (f a L.∷ (as ♯) L.∷ L.[]) z
-      --   ≡
-      --   sharp M.MonSig 𝔜 (lookup (f a L.∷ ((b ∷ cs) ♯) L.∷ L.[])) (lookup (leaf fzero L.∷ leaf fone L.∷ L.[]) z)
-      -- lemma-α (zero , p) = ?
-      -- lemma-α (suc zero , p) = ?
-      -- lemma-α (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
-
+    toFree : CList A -> 𝔉 .carrier
+    toFree = elimCListSet.f _
+      FCM.e
+      (λ x {xs} p -> FCM.η x FCM.⊕ p)
+      (λ a b {as} {bs} {cs} {as*} {bs*} cs* bp bq ->
+        FCM.η a FCM.⊕ as* ≡⟨ cong (FCM.η a FCM.⊕_) bp ⟩
+        FCM.η a FCM.⊕ (FCM.η b FCM.⊕ cs*) ≡⟨ sym (FCM.assocr _ _ _) ⟩
+        (FCM.η a FCM.⊕ FCM.η b) FCM.⊕ cs* ≡⟨ cong (FCM._⊕ cs*) (FCM.comm _ _) ⟩
+        (FCM.η b FCM.⊕ FCM.η a) FCM.⊕ cs* ≡⟨ FCM.assocr _ _ _ ⟩
+        FCM.η b FCM.⊕ (FCM.η a FCM.⊕ cs*) ≡⟨ cong (FCM.η b FCM.⊕_) (sym bq) ⟩
+        FCM.η b FCM.⊕ bs* ∎
+      )
+      (λ _ -> FCM.trunc)
 
 module CListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
@@ -164,4 +148,3 @@ F.Definition.Free.η clistDef = [_]
 F.Definition.Free.α clistDef = clist-α
 F.Definition.Free.sat clistDef = freeCMon-sat
 F.Definition.Free.isFree clistDef isSet𝔜 satMon = {!   !}
- 

@@ -110,11 +110,13 @@ slist-α (M.e , i) = []
 slist-α (M.⊕ , i) = i fzero ++ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+  module Free = FCM.Free {A = A} isSet𝔜 𝔜-cmon
+
   𝔛 : struct x M.MonSig
   𝔛 = < SList A , slist-α >
 
   𝔉 : struct x M.MonSig
-  𝔉 = FCM.Free.𝔉 {A = A} isSet𝔜 𝔜-cmon
+  𝔉 = Free.𝔉
 
   module _ (f : A -> 𝔜 .carrier) where
     toFree : SList A -> 𝔉 .carrier
@@ -145,10 +147,10 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       lemma-α M.⊕ i = sym (toFree-++ (i fzero) (i fone))
 
     _♯ : SList A -> 𝔜 .carrier    
-    xs ♯ = FCM.Free._♯ isSet𝔜 𝔜-cmon f (toFree xs)
+    _♯ = Free._♯ f ∘ toFree
 
     ♯-isMonHom : structHom 𝔛 𝔜
-    ♯-isMonHom = structHom∘ 𝔛 𝔉 𝔜 (FCM.Free.♯-isMonHom isSet𝔜 𝔜-cmon f) toFree-isMonHom
+    ♯-isMonHom = structHom∘ 𝔛 𝔉 𝔜 (Free.♯-isMonHom f) toFree-isMonHom
 
   private
     slistEquivLemma : (g : structHom 𝔛 𝔜) -> (x : SList A) -> g .fst x ≡ ((g .fst ∘ [_]) ♯) x
@@ -168,7 +170,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
         -> (z : Arity 2)
         -> g (lookup ([ x ] L.∷ xs L.∷ L.[]) z)
            ≡
-           lookup ((g ∘ [_]) x L.∷ (isSet𝔜 FCM.Free.♯) 𝔜-cmon (g ∘ [_]) (toFree (g ∘ [_]) xs) L.∷ L.[]) z
+           lookup ((g ∘ [_]) x L.∷ (Free._♯ (g ∘ [_])) (toFree (g ∘ [_]) xs) L.∷ L.[]) z
       lemma-α x xs p (zero , q) = refl
       lemma-α x xs p (suc zero , q) = p
       lemma-α x xs p (suc (suc n) , q) = ⊥.rec (¬m+n<m {m = 2} q)
