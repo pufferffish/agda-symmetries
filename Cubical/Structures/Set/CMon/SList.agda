@@ -196,6 +196,48 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
         _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma-comm-β) ⟩
         _ ∎
 
+    ♯-isMonHom : structHom 𝔉 𝔜
+    ♯-isMonHom = _♯ , lemma-α
+      where
+      lemma-α : structIsHom 𝔉 𝔜 _♯
+      lemma-α M.e i = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ p -> lookup L.[] p)
+      lemma-α M.⊕ i = {!   !}
+
+  private
+    slistEquivLemma : (g : structHom 𝔉 𝔜) -> (x : SList A) -> g .fst x ≡ ((g .fst ∘ [_]) ♯) x
+    slistEquivLemma (g , homMonWit) = elimSListProp.f _
+      lemma-α
+      (λ x {xs} p -> lemma-β x xs p)
+      (isSet𝔜 _ _)
+      where
+      lemma-α : g [] ≡ 𝔜 .algebra (M.e , (λ num → ⊥.rec (¬Fin0 num)))
+      lemma-α =
+        _ ≡⟨ sym (homMonWit M.e (lookup L.[])) ⟩
+        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.e , p)) (funExt λ p -> lookup L.[] p) ⟩
+        _ ∎
+      lemma-β : (x : A) (xs : SList A)
+        -> g xs ≡ ((g ∘ [_]) ♯) xs
+        -> g (x ∷ xs) ≡ 𝔜 .algebra (M.⊕ , lookup ((g ∘ [_]) x L.∷ ((g ∘ [_]) ♯) xs L.∷ L.[]))
+      lemma-γ : (x : A) (xs : SList A)
+        -> (g xs ≡ ((g ∘ [_]) ♯) xs)
+        -> (z : Arity 2)
+        -> g (lookup ([ x ] L.∷ xs L.∷ L.[]) z)
+           ≡
+           lookup ((g ∘ [_]) x L.∷ ((g ∘ [_]) ♯) xs L.∷ L.[]) z
+      lemma-β x xs p =
+        g ([ x ] ++ xs) ≡⟨ sym (homMonWit M.⊕ (lookup ([ x ] L.∷ xs L.∷ L.[]))) ⟩
+        𝔜 .algebra (M.⊕ , (λ z -> g (lookup ([ x ] L.∷ xs L.∷ L.[]) z))) ≡⟨ cong (λ p -> 𝔜 .algebra (M.⊕ , p)) (funExt (lemma-γ x xs p)) ⟩
+        _ ∎
+      lemma-γ x xs p (zero , _) = refl
+      lemma-γ x xs p (suc zero , _) = p
+      lemma-γ x xs _ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+
+    slistEquivLemma-β : (g : structHom 𝔉 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ [_])
+    slistEquivLemma-β g = structHom≡ 𝔉 𝔜 g (♯-isMonHom (g .fst ∘ [_])) isSet𝔜 (funExt (slistEquivLemma g))
+
+  slistMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .carrier)
+  slistMonEquiv =
+    isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ _ -> {!   !}) (sym ∘ slistEquivLemma-β))
 
 module SListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
@@ -210,6 +252,6 @@ F.Definition.Free.F slistDef = SList
 F.Definition.Free.η slistDef = [_]
 F.Definition.Free.α slistDef = slist-α
 F.Definition.Free.sat slistDef = freeCMon-sat
-F.Definition.Free.isFree slistDef isSet𝔜 satMon = {!   !}
+F.Definition.Free.isFree slistDef isSet𝔜 satMon = (Free.slistMonEquiv isSet𝔜 satMon) .snd
  
- 
+   

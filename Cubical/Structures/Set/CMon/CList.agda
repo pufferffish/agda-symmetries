@@ -90,10 +90,7 @@ isSetCList a b p q i j ++ bs = isSetCList (a ++ bs) (b ++ bs) (cong (_++ bs) p) 
   (isPropΠ λ _ -> isPropΠ λ _ -> isSetCList _ _)
 
 swap : (a b : A) (cs : CList A) -> a ∷ b ∷ cs ≡ b ∷ a ∷ cs
-swap a b = elimCListProp.f _
-  (comm a b [] refl refl)
-  (λ x {xs} p -> comm a b (x ∷ xs) refl refl)
-  (isSetCList _ _)
+swap a b cs = comm a b cs refl refl
 
 ++-∷ : (a : A) (as : CList A) -> a ∷ as ≡ as ++ [ a ]
 ++-∷ a = elimCListProp.f (λ as -> a ∷ as ≡ as ++ [ a ])
