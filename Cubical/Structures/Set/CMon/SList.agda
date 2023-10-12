@@ -111,42 +111,49 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       𝔜 .algebra (M.⊕ , lookup (f a L.∷ 𝔜 .algebra (M.⊕ , lookup (f b L.∷ (cs ♯) L.∷ L.[])) L.∷ L.[]))
       ≡
       𝔜 .algebra (M.⊕ , lookup (f b L.∷ 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (cs ♯) L.∷ L.[])) L.∷ L.[]))
+    ♯-asscor :
+      ∀ a b cs z ->
+        lookup (a L.∷ 𝔜 .algebra (M.⊕ , lookup (b L.∷ cs L.∷ L.[])) L.∷ L.[]) z
+        ≡
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (leaf fzero L.∷ node (M.⊕ , lookup (leaf fone L.∷ leaf ftwo L.∷ L.[])) L.∷ L.[]) z)
+    ♯-comm :
+      ∀ a b cs z ->
+        lookup (𝔜 .algebra (M.⊕ , lookup (a L.∷ b L.∷ L.[])) L.∷ cs L.∷ L.[]) z
+        ≡
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (node (M.⊕ , lookup (leaf fzero L.∷ leaf fone L.∷ L.[])) L.∷ leaf ftwo L.∷ L.[]) z)
 
     [] ♯ = 𝔜 .algebra (M.e , lookup L.[])
     (a ∷ as) ♯ = 𝔜 .algebra (M.⊕ , lookup (f a L.∷ (as ♯) L.∷ L.[]))
     swap a b cs i ♯ = ♯-α a b cs i
     (isSetSList m n p q i j) ♯ = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
 
-    ♯-α a b cs =
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma-α) ⟩
-      _ ≡⟨ sym (𝔜-cmon M.assocr (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[]))) ⟩ -- sym assocr, a + (b + c) = (a + b) + c
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (sym (funExt lemma-γ)) ⟩
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (z L.∷ (cs ♯) L.∷ L.[]) )) lemma-comm ⟩ -- comm (a + b) + c = (b + a) + c
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt {!   !}) ⟩ -- assocr (b + a) + c = b + (a + c) 
-      _ ∎
+    ♯-asscor a b cs = lemma-α
       where
       lemma-α : (z : Arity 2) ->
-        lookup (f a L.∷ 𝔜 .algebra (M.⊕ , lookup (f b L.∷ (cs ♯) L.∷ L.[])) L.∷ L.[]) z
+        lookup (a L.∷ 𝔜 .algebra (M.⊕ , lookup (b L.∷ cs L.∷ L.[])) L.∷ L.[]) z
         ≡
-        sharp M.MonSig 𝔜 (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[])) (lookup (leaf fzero L.∷ node (M.⊕ , lookup (leaf fone L.∷ leaf ftwo L.∷ L.[])) L.∷ L.[]) z)
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (leaf fzero L.∷ node (M.⊕ , lookup (leaf fone L.∷ leaf ftwo L.∷ L.[])) L.∷ L.[]) z)
       lemma-β : (z : Arity 2) ->
-        lookup (f b L.∷ (cs ♯) L.∷ L.[]) z
+        lookup (b L.∷ cs L.∷ L.[]) z
         ≡
-        sharp M.MonSig 𝔜 (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[])) (lookup (leaf fone L.∷ leaf ftwo L.∷ L.[]) z)
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (leaf fone L.∷ leaf ftwo L.∷ L.[]) z)
       lemma-α (zero , p) = refl
       lemma-α (suc zero , p) = cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma-β)
       lemma-α (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
       lemma-β (zero , p) = refl
       lemma-β (suc zero , p) = refl
       lemma-β (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+
+    ♯-comm a b cs = lemma-γ
+      where
       lemma-γ : (z : Arity 2) ->
-        lookup (𝔜 .algebra (M.⊕ , lookup (f a L.∷ f b L.∷ L.[])) L.∷ (cs ♯) L.∷ L.[]) z
+        lookup (𝔜 .algebra (M.⊕ , lookup (a L.∷ b L.∷ L.[])) L.∷ cs L.∷ L.[]) z
         ≡
-        sharp M.MonSig 𝔜 (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[])) (lookup (node (M.⊕ , lookup (leaf fzero L.∷ leaf fone L.∷ L.[])) L.∷ leaf ftwo L.∷ L.[]) z)
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (node (M.⊕ , lookup (leaf fzero L.∷ leaf fone L.∷ L.[])) L.∷ leaf ftwo L.∷ L.[]) z)
       lemma-δ : (z : Arity 2) ->
-        lookup (f a L.∷ f b L.∷ L.[]) z
+        lookup (a L.∷ b L.∷ L.[]) z
         ≡
-        sharp M.MonSig 𝔜 (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[])) (lookup (leaf fzero L.∷ leaf fone L.∷ L.[]) z)
+        sharp M.MonSig 𝔜 (lookup (a L.∷ b L.∷ cs L.∷ L.[])) (lookup (leaf fzero L.∷ leaf fone L.∷ L.[]) z)
       lemma-γ (zero , p) = cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt lemma-δ)
       lemma-γ (suc zero , p) = refl
       lemma-γ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
@@ -154,6 +161,16 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       lemma-δ (suc zero , p) = refl
       lemma-δ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
+    ♯-α a b cs =
+      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (♯-asscor (f a) (f b) (cs ♯))) ⟩
+      _ ≡⟨ sym (𝔜-cmon M.assocr (lookup (f a L.∷ f b L.∷ (cs ♯) L.∷ L.[]))) ⟩ -- sym assocr, a + (b + c) = (a + b) + c
+      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (sym (funExt (♯-comm (f a) (f b) (cs ♯)))) ⟩
+      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , lookup (z L.∷ (cs ♯) L.∷ L.[]) )) lemma-comm ⟩ -- comm (a + b) + c = (b + a) + c
+      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (funExt (♯-comm (f b) (f a) (cs ♯))) ⟩
+      _ ≡⟨ 𝔜-cmon M.assocr (lookup (f b L.∷ f a L.∷ (cs ♯) L.∷ L.[])) ⟩ -- assocr, (b + a) + c = b + (a + c)
+      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.⊕ , z)) (sym (funExt (♯-asscor (f b) (f a) (cs ♯)))) ⟩
+      _ ∎
+      where
       lemma-comm :
         𝔜 .algebra (M.⊕ , lookup (f a L.∷ f b L.∷ L.[]))
         ≡
