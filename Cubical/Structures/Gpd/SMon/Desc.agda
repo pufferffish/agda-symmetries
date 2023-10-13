@@ -56,16 +56,15 @@ SMonSEq n = smonEqLhs n , smonEqRhs n
 SMonStruct : ∀ {n : Level} -> Type (ℓ-suc n)
 SMonStruct {n} = struct n MonSig
 
--- module Examples where
--- 
---   ℕ-MonStr : MonStruct
---   carrier ℕ-MonStr = ℕ
---   algebra ℕ-MonStr (e , _) = 0
---   algebra ℕ-MonStr (⊕ , i) = i fzero + i fone
--- 
---   ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
---   ℕ-MonStr-MonSEq unitl ρ = refl
---   ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ fzero)
---   ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
--- 
--- 
+module Examples where
+
+  ℕ-MonStr : SMonStruct
+  carrier ℕ-MonStr = ℕ
+  algebra ℕ-MonStr (e , _) = 0
+  algebra ℕ-MonStr (⊕ , i) = i fzero + i fone
+
+  ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ SMonSEq
+  ℕ-MonStr-MonSEq unitl ρ = refl
+  ℕ-MonStr-MonSEq unitr ρ = +-zero (ρ fzero)
+  ℕ-MonStr-MonSEq assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+  ℕ-MonStr-MonSEq symm ρ = +-comm (ρ fzero) (ρ fone)
