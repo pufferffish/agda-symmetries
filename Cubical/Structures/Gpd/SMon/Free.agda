@@ -33,5 +33,6 @@ data FreeSMon {ℓ : Level} (A : Type ℓ) : Type ℓ where
   hexagon : ∀ m n o ->
     assocr m n o ∙ symm m (n ⊕ o) ∙ assocr n o m
     ≡ cong (_⊕ o) (symm m n) ∙ assocr n m o ∙ cong (n ⊕_) (symm m o)
+  symm² : ∀ m n -> (symm n m) ∙ (symm m n) ≡ refl
   trunc : isGroupoid (FreeSMon A)
 
