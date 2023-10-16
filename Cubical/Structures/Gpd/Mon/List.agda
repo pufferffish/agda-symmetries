@@ -1,0 +1,1 @@
+-- TODO: Show that List A has all the monoidal coherences

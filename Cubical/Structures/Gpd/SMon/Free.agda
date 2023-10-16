@@ -1,0 +1,1 @@
+-- TODO: Define free symmetric monoidal groupoids as a HIT

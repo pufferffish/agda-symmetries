@@ -111,4 +111,5 @@ isGpdSList as cs p q u v i j k ++ bs =
 --                     ∙ ++-assocr bs [ a ] as
 -- ++-comm (swap a b as i) bs = {!!}
 
--- TODO: Prove SList is free monoid on groupoids
+-- TODO: Prove SList is free symmetric monoidal on groupoids
+--
