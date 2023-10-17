@@ -80,8 +80,6 @@ module elimFreeCMonProp {p n : Level} {A : Type n} (P : FreeCMon A -> Type p)
         comm* : {m n : FreeCMon A} (m* : P m) (n* : P n) -> PathP (λ i → P (comm m n i)) (m* ⊕* n*) (n* ⊕* m*)
         comm* {m} {n} m* n* = toPathP (trunc* (transp (λ i -> P (comm m n i)) i0 (m* ⊕* n*)) (n* ⊕* m*))
 
--- TODO: Try to generalize the almost identical CMon and Mon proofs
-
 freeCMon-α : ∀ {ℓ} {X : Type ℓ} -> sig M.MonSig (FreeCMon X) -> FreeCMon X
 freeCMon-α (M.`e , _) = e
 freeCMon-α (M.`⊕ , i) = i fzero ⊕ i fone
