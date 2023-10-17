@@ -164,15 +164,15 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
 
 module CListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
-freeCMon-sat : ∀ {n} {X : Type n} -> < CList X , clist-α > ⊨ M.CMonSEq
-freeCMon-sat M.`unitl ρ = ++-unitl (ρ fzero)
-freeCMon-sat M.`unitr ρ = ++-unitr (ρ fzero)
-freeCMon-sat M.`assocr ρ = ++-assocr (ρ fzero) (ρ fone) (ρ ftwo)
-freeCMon-sat M.`comm ρ = ++-comm (ρ fzero) (ρ fone)
+clist-sat : ∀ {n} {X : Type n} -> < CList X , clist-α > ⊨ M.CMonSEq
+clist-sat (M.`mon M.`unitl) ρ = ++-unitl (ρ fzero)
+clist-sat (M.`mon M.`unitr) ρ = ++-unitr (ρ fzero)
+clist-sat (M.`mon M.`assocr) ρ = ++-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+clist-sat M.`comm ρ = ++-comm (ρ fzero) (ρ fone)
 
 clistDef : CListDef.Free 2
 F.Definition.Free.F clistDef = CList
 F.Definition.Free.η clistDef = [_]
 F.Definition.Free.α clistDef = clist-α
-F.Definition.Free.sat clistDef = freeCMon-sat
+F.Definition.Free.sat clistDef = clist-sat
 F.Definition.Free.isFree clistDef isSet𝔜 satMon = (Free.clistMonEquiv isSet𝔜 satMon) .snd

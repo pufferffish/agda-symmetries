@@ -131,9 +131,9 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
 module FreeCMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
 freeCMon-sat : ∀ {n} {X : Type n} -> < FreeCMon X , freeCMon-α > ⊨ M.CMonSEq
-freeCMon-sat M.`unitl ρ = unitl (ρ fzero)
-freeCMon-sat M.`unitr ρ = unitr (ρ fzero)
-freeCMon-sat M.`assocr ρ = assocr (ρ fzero) (ρ fone) (ρ ftwo)
+freeCMon-sat (M.`mon M.`unitl) ρ = unitl (ρ fzero)
+freeCMon-sat (M.`mon M.`unitr) ρ = unitr (ρ fzero)
+freeCMon-sat (M.`mon M.`assocr) ρ = assocr (ρ fzero) (ρ fone) (ρ ftwo)
 freeCMon-sat M.`comm ρ = comm (ρ fzero) (ρ fone)
 
 freeMonDef : FreeCMonDef.Free 2
