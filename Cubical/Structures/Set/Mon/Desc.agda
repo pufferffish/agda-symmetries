@@ -15,11 +15,6 @@ open import Cubical.Structures.Tree as T
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity as F
 
--- TODO: Put level variables in a public prelude
-private
-  variable
-    ℓ : Level
-
 data MonSym : Type where
   `e : MonSym
   `⊕ : MonSym
@@ -34,10 +29,10 @@ MonFinSig = MonSym , MonAr
 MonSig : Sig ℓ-zero ℓ-zero
 MonSig = finSig MonFinSig
 
-MonStruct : ∀ {n : Level} -> Type (ℓ-suc n)
+MonStruct : ∀ {n} -> Type (ℓ-suc n)
 MonStruct {n} = struct n MonSig
 
-module MonStruct (𝔛 : MonStruct {ℓ}) where
+module MonStruct {ℓ} (𝔛 : MonStruct {ℓ}) where
   e : 𝔛 .carrier
   e = 𝔛 .algebra (`e , lookup [])
 
@@ -80,7 +75,7 @@ monEqRhs `assocr = node (`⊕ , lookup (leaf fzero ∷ node (`⊕ , lookup (leaf
 MonSEq : seq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n
 
-module MonSEq (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
+module MonSEq {ℓ} (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
   open MonStruct 𝔛 public
 
   unitl : ∀ m -> e ⊕ m ≡ m
@@ -113,24 +108,24 @@ module MonSEq (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
       lemma (suc zero , p) = sym e-eta
       lemma (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
-  assocr : ∀ x y z -> (x ⊕ y) ⊕ z ≡ x ⊕ (y ⊕ z)
-  assocr x y z =
-      (x ⊕ y) ⊕ z
+  assocr : ∀ m n o -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
+  assocr m n o =
+      (m ⊕ n) ⊕ o
     ≡⟨⟩
-      𝔛 .algebra (`⊕ , lookup (𝔛 .algebra (`⊕ , lookup (x ∷ y ∷ [])) ∷ z ∷ []))
+      𝔛 .algebra (`⊕ , lookup (𝔛 .algebra (`⊕ , lookup (m ∷ n ∷ [])) ∷ o ∷ []))
     ≡⟨ cong (\w -> 𝔛 .algebra (`⊕ , w)) (funExt lemma1) ⟩
-      𝔛 .algebra (`⊕ , (\w -> sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []) w)))
-    ≡⟨ ϕ `assocr (lookup (x ∷ y ∷ z ∷ [])) ⟩
-      𝔛 .algebra (`⊕ , (λ w -> sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []) w)))
+      𝔛 .algebra (`⊕ , (\w -> sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []) w)))
+    ≡⟨ ϕ `assocr (lookup (m ∷ n ∷ o ∷ [])) ⟩
+      𝔛 .algebra (`⊕ , (λ w -> sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []) w)))
     ≡⟨ cong (\w -> 𝔛 .algebra (`⊕ , w)) (sym (funExt lemma3)) ⟩
-      𝔛 .algebra (`⊕ , lookup (x ∷ 𝔛 .algebra (`⊕ , lookup (y ∷ z ∷ [])) ∷ []))
+      𝔛 .algebra (`⊕ , lookup (m ∷ 𝔛 .algebra (`⊕ , lookup (n ∷ o ∷ [])) ∷ []))
     ≡⟨⟩
-      x ⊕ (y ⊕ z) ∎
+      m ⊕ (n ⊕ o) ∎
     where
-      lemma1 : (w : MonSig .arity `⊕) -> lookup (𝔛 .algebra (`⊕ , lookup (x ∷ y ∷ [])) ∷ z ∷ []) w ≡ sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []) w)
-      lemma2 : (w : MonSig .arity `⊕) -> lookup (x ∷ y ∷ []) w ≡ sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (leaf fzero ∷ leaf fone ∷ []) w)
+      lemma1 : (w : MonSig .arity `⊕) -> lookup (𝔛 .algebra (`⊕ , lookup (m ∷ n ∷ [])) ∷ o ∷ []) w ≡ sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []) w)
+      lemma2 : (w : MonSig .arity `⊕) -> lookup (m ∷ n ∷ []) w ≡ sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (leaf fzero ∷ leaf fone ∷ []) w)
 
-      lemma1 (zero , p) = cong (λ z → 𝔛 .algebra (`⊕ , z)) (funExt lemma2)
+      lemma1 (zero , p) = cong (λ o → 𝔛 .algebra (`⊕ , o)) (funExt lemma2)
       lemma1 (suc zero , p) = refl
       lemma1 (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
@@ -138,8 +133,8 @@ module MonSEq (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
       lemma2 (suc zero , p) = refl
       lemma2 (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
-      lemma3 : (w : MonSig .arity `⊕) -> lookup (x ∷ 𝔛 .algebra (`⊕ , lookup (y ∷ z ∷ [])) ∷ []) w ≡ sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []) w)
-      lemma4 : (w : MonSig .arity `⊕) -> lookup (y ∷ z ∷ []) w ≡ sharp MonSig 𝔛 (lookup (x ∷ y ∷ z ∷ [])) (lookup (leaf fone ∷ leaf ftwo ∷ []) w)
+      lemma3 : (w : MonSig .arity `⊕) -> lookup (m ∷ 𝔛 .algebra (`⊕ , lookup (n ∷ o ∷ [])) ∷ []) w ≡ sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []) w)
+      lemma4 : (w : MonSig .arity `⊕) -> lookup (n ∷ o ∷ []) w ≡ sharp MonSig 𝔛 (lookup (m ∷ n ∷ o ∷ [])) (lookup (leaf fone ∷ leaf ftwo ∷ []) w)
 
       lemma3 (zero , p) = refl
       lemma3 (suc zero , p) = cong (λ w → 𝔛 .algebra (`⊕ , w)) (funExt lemma4)
