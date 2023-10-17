@@ -95,13 +95,13 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
 
   module _ (f : A -> 𝔜 .carrier) where
     _♯ : FreeMon A -> 𝔜 .carrier
-    _♯ (η a) = f a
-    _♯ e = 𝔜.e
-    _♯ (m ⊕ n) = (m ♯) 𝔜.⊕ (n ♯)
-    _♯ (unitl m i) = 𝔜.unitl (m ♯) i
-    _♯ (unitr m i) = 𝔜.unitr (m ♯) i
-    _♯ (assocr m n o i) = 𝔜.assocr (m ♯) (n ♯) (o ♯) i
-    _♯ (trunc m n p q i j) = isSet𝔜 (m ♯) (n ♯) (cong _♯ p) (cong _♯ q) i j
+    (η a) ♯ = f a
+    e ♯ = 𝔜.e
+    (m ⊕ n) ♯ = (m ♯) 𝔜.⊕ (n ♯)
+    (unitl m i) ♯ = 𝔜.unitl (m ♯) i
+    (unitr m i) ♯ = 𝔜.unitr (m ♯) i
+    (assocr m n o i) ♯ = 𝔜.assocr (m ♯) (n ♯) (o ♯) i
+    (trunc m n p q i j) ♯ = isSet𝔜 (m ♯) (n ♯) (cong _♯ p) (cong _♯ q) i j
 
     ♯-isMonHom : structHom 𝔉 𝔜
     fst ♯-isMonHom = _♯
