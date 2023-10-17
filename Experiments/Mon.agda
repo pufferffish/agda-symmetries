@@ -25,10 +25,10 @@ record isMonHom {A B : Type} (M : MonStruct A) (N : MonStruct B) (f : A -> B) : 
   module N = MonStruct N
 
   field
-    f-e : f (M.e) ≡ N.e
-    f-⊕ : ∀ a b -> f (a M.⊕ b) ≡ f a N.⊕ f b
+    f-e : f (M.`e) ≡ N.e
+    f-⊕ : ∀ a b -> f (a M.`⊕ b) ≡ f a N.⊕ f b
 
-  f-unitl : ∀ a -> cong f (M.unitl a) ≡ f-⊕ M.e a ∙ cong (N._⊕ f a) f-e ∙ N.unitl (f a)
+  f-unitl : ∀ a -> cong f (M.unitl a) ≡ f-⊕ M.`e a ∙ cong (N._⊕ f a) f-e ∙ N.unitl (f a)
   f-unitl a = N.trunc _ _ _ _
 
 module _ {A B : Type} {M : MonStruct A} {N : MonStruct B} (f : A -> B) where

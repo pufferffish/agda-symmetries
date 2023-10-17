@@ -21,6 +21,9 @@ record struct {f a : Level} (n : Level) (σ : Sig f a) : Type (ℓ-max f (ℓ-ma
   field
     carrier : Type n
     algebra : sig σ carrier -> carrier
+  -- TODO : Rename the fields to shorter names
+  car = carrier
+  alg = algebra
 open struct public
 
 module _  {f a x y : Level} {σ : Sig f a} (𝔛 : struct x σ) (𝔜 : struct y σ)  where
