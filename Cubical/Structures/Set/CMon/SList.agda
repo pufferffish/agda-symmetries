@@ -59,8 +59,7 @@ module elimSListProp {ℓ p : Level} {A : Type ℓ} (P : SList A -> Type p)
       abstract
         comm* : (a b : A) {cs : SList A} (cs* : P cs) ->
                 PathP (λ i -> P (swap a b cs i)) (a ∷* (b ∷* cs*)) (b ∷* (a ∷* cs*))
-        comm* a b {cs} cs* =
-          toPathP (isSetSList* (subst P (swap a b cs) (a ∷* (b ∷* cs*))) (b ∷* (a ∷* cs*)))
+        comm* a b {cs} cs* = toPathP (isSetSList* _ (b ∷* (a ∷* cs*)))
 
 private
   variable
@@ -112,7 +111,7 @@ slist-α (M.`⊕ , i) = i fzero ++ i fone
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
   module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
-  𝔛 : struct x M.MonSig
+  𝔛 : M.CMonStruct
   𝔛 = < SList A , slist-α >
 
   module _ (f : A -> 𝔜 .carrier) where
