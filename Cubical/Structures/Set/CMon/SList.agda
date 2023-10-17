@@ -11,8 +11,6 @@ open import Cubical.Induction.WellFounded
 import Cubical.Data.List as L
 
 import Cubical.Structures.Set.Mon.Desc as M
-import Cubical.Structures.Set.Mon.Free as FM
-import Cubical.Structures.Set.CMon.Free as FCM
 import Cubical.Structures.Set.CMon.Desc as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Sig
