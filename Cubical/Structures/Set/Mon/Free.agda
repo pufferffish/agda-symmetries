@@ -101,7 +101,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     _♯ (unitl m i) = 𝔜.unitl (m ♯) i
     _♯ (unitr m i) = 𝔜.unitr (m ♯) i
     _♯ (assocr m n o i) = 𝔜.assocr (m ♯) (n ♯) (o ♯) i
-    _♯ (trunc m n p q i j) = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
+    _♯ (trunc m n p q i j) = isSet𝔜 (m ♯) (n ♯) (cong _♯ p) (cong _♯ q) i j
 
     ♯-isMonHom : structHom 𝔉 𝔜
     fst ♯-isMonHom = _♯
