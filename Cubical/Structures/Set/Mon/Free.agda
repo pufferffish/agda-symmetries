@@ -88,7 +88,7 @@ freeMon-α (M.`e , i) = e
 freeMon-α (M.`⊕ , i) = i fzero ⊕ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
-  module M' = M.MonSEq 𝔜 𝔜-monoid
+  module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
 
   𝔉 : struct x M.MonSig
   𝔉 = < FreeMon A , freeMon-α >
@@ -96,27 +96,27 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
   module _ (f : A -> 𝔜 .carrier) where
     _♯ : FreeMon A -> 𝔜 .carrier
     _♯ (η a) = f a
-    _♯ e = M'.e
-    _♯ (m ⊕ n) = (m ♯) M'.⊕ (n ♯)
-    _♯ (unitl m i) = M'.unitl (m ♯) i
-    _♯ (unitr m i) = M'.unitr (m ♯) i
-    _♯ (assocr m n o i) = M'.assocr (m ♯) (n ♯) (o ♯) i
+    _♯ e = 𝔜.e
+    _♯ (m ⊕ n) = (m ♯) 𝔜.⊕ (n ♯)
+    _♯ (unitl m i) = 𝔜.unitl (m ♯) i
+    _♯ (unitr m i) = 𝔜.unitr (m ♯) i
+    _♯ (assocr m n o i) = 𝔜.assocr (m ♯) (n ♯) (o ♯) i
     _♯ (trunc m n p q i j) = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
 
     ♯-isMonHom : structHom 𝔉 𝔜
     fst ♯-isMonHom = _♯
-    snd ♯-isMonHom M.`e i = M'.e-eta
-    snd ♯-isMonHom M.`⊕ i = M'.⊕-eta i _♯
+    snd ♯-isMonHom M.`e i = 𝔜.e-eta
+    snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯
 
   private
     freeMonEquivLemma : (g : structHom 𝔉 𝔜) -> (x : FreeMon A) -> g .fst x ≡ ((g .fst ∘ η) ♯) x
     freeMonEquivLemma (g , homMonWit) = elimFreeMonProp.f (λ x -> g x ≡ ((g ∘ η) ♯) x)
       (λ _ -> refl)
-      (sym (homMonWit M.`e (lookup [])) ∙ M'.e-eta)
+      (sym (homMonWit M.`e (lookup [])) ∙ 𝔜.e-eta)
       (λ {m} {n} p q ->
         g (m ⊕ n) ≡⟨ sym (homMonWit M.`⊕ (lookup (m ∷ n ∷ []))) ⟩
-        𝔜 .algebra (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ M'.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
-        g m M'.⊕ g n ≡⟨ cong₂ M'._⊕_ p q ⟩
+        𝔜 .algebra (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
+        g m 𝔜.⊕ g n ≡⟨ cong₂ 𝔜._⊕_ p q ⟩
         _ ∎
       )
       (isSet𝔜 _ _)
