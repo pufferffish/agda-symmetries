@@ -101,49 +101,25 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     _♯ (unitl m i) = M'.unitl (m ♯) i
     _♯ (unitr m i) = M'.unitr (m ♯) i
     _♯ (assocr m n o i) = M'.assocr (m ♯) (n ♯) (o ♯) i
-    _♯ (trunc m n p q i j) =
-      isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
+    _♯ (trunc m n p q i j) = isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
 
     ♯-isMonHom : structHom 𝔉 𝔜
-    ♯-isMonHom = _♯ , lemma-α
-      where
-      lemma-α : structIsHom 𝔉 𝔜 _♯
-      lemma-α M.`e i = M'.e-eta
-      lemma-α M.`⊕ i = M'.⊕-eta i _♯
+    fst ♯-isMonHom = _♯
+    snd ♯-isMonHom M.`e i = M'.e-eta
+    snd ♯-isMonHom M.`⊕ i = M'.⊕-eta i _♯
 
   private
     freeMonEquivLemma : (g : structHom 𝔉 𝔜) -> (x : FreeMon A) -> g .fst x ≡ ((g .fst ∘ η) ♯) x
     freeMonEquivLemma (g , homMonWit) = elimFreeMonProp.f (λ x -> g x ≡ ((g ∘ η) ♯) x)
       (λ _ -> refl)
-      lemma-α
-      (λ {m} {n} -> lemma-β m n)
-      (isSet𝔜 _ _)
-      where
-      lemma-α : g e ≡ 𝔜 .algebra (M.`e , (λ num → ⊥.rec (¬Fin0 num)))
-      lemma-α =
-        _ ≡⟨ sym (homMonWit M.`e (lookup [])) ⟩
-        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.`e , p)) (funExt λ p -> lookup [] p) ⟩
-        _ ∎
-      lemma-β : (m n : FreeMon A) ->
-        g m ≡ ((g ∘ η) ♯) m ->
-        g n ≡ ((g ∘ η) ♯) n ->
-        g (m ⊕ n)
-        ≡
-        𝔜 .algebra (M.`⊕ , lookup (_♯ (λ x₁ → g (η x₁)) m ∷ _♯ (λ x₁ → g (η x₁)) n ∷ []))
-      lemma-γ : {m n : FreeMon A} ->
-        g m ≡ ((g ∘ η) ♯) m ->
-        g n ≡ ((g ∘ η) ♯) n ->
-       (z : Arity 2) ->
-        g (lookup (m ∷ n ∷ []) z)
-        ≡
-        lookup (((g ∘ η) ♯) m ∷ ((g ∘ η) ♯) n ∷ []) z
-      lemma-β m n p q =
+      (sym (homMonWit M.`e (lookup [])) ∙ M'.e-eta)
+      (λ {m} {n} p q ->
         g (m ⊕ n) ≡⟨ sym (homMonWit M.`⊕ (lookup (m ∷ n ∷ []))) ⟩
-        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.`⊕ , p)) (funExt (lemma-γ p q)) ⟩
+        𝔜 .algebra (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ M'.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
+        g m M'.⊕ g n ≡⟨ cong₂ M'._⊕_ p q ⟩
         _ ∎
-      lemma-γ p q (zero , _) = p
-      lemma-γ p q (suc zero , _) = q
-      lemma-γ _ _ (suc (suc fs) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+      )
+      (isSet𝔜 _ _)
 
     freeMonEquivLemma-β : (g : structHom 𝔉 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ η)
     freeMonEquivLemma-β g = structHom≡ 𝔉 𝔜 g (♯-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt (freeMonEquivLemma g))
@@ -165,3 +141,4 @@ F.Definition.Free.η freeMonDef = η
 F.Definition.Free.α freeMonDef = freeMon-α
 F.Definition.Free.sat freeMonDef = freeMon-sat
 F.Definition.Free.isFree freeMonDef isSet𝔜 satMon = (Free.freeMonEquiv isSet𝔜 satMon) .snd
+ 
