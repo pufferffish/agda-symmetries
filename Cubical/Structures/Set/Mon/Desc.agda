@@ -41,12 +41,20 @@ module MonStruct (𝔛 : MonStruct {ℓ}) where
   e : 𝔛 .carrier
   e = 𝔛 .algebra (`e , lookup [])
 
-  e-eta : {i : Arity 0 -> 𝔛 .carrier} -> 𝔛 .algebra (`e , i) ≡ e
+  e-eta : {i j : Arity 0 -> 𝔛 .carrier} -> 𝔛 .algebra (`e , i) ≡ 𝔛 .algebra (`e , j)
   e-eta {i} = cong (\j -> 𝔛 .algebra (`e , j)) (funExt λ z -> lookup [] z)
 
   infixr 40 _⊕_
   _⊕_ : 𝔛 .carrier -> 𝔛 .carrier -> 𝔛 .carrier
   _⊕_ x y = 𝔛 .algebra (`⊕ , lookup (x ∷ y ∷ []))
+
+  ⊕-eta : ∀ {ℓ} {A : Type ℓ} (i : Arity 2 -> A) (_♯ : A -> 𝔛 .carrier) -> 𝔛 .algebra (`⊕ , (λ w -> i w ♯)) ≡ (i fzero ♯) ⊕ (i fone ♯)
+  ⊕-eta i _♯ = cong (λ z -> 𝔛 .algebra (`⊕ , z)) (funExt lemma)
+    where
+    lemma : (x : Arity 2) -> (i x ♯) ≡ lookup ((i fzero ♯) ∷ (i fone ♯) ∷ []) x
+    lemma (zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
+    lemma (suc zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
+    lemma (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
 data MonEq : Type where
   `unitl `unitr `assocr : MonEq

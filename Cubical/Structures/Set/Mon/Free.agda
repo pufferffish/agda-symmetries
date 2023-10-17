@@ -108,15 +108,8 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     ♯-isMonHom = _♯ , lemma-α
       where
       lemma-α : structIsHom 𝔉 𝔜 _♯
-      lemma-β : (i : Arity 2 -> FreeMon A) (p : Arity 2) ->
-        _♯ (i p)
-        ≡
-        lookup (_♯ (i fzero) ∷ _♯ (i fone) ∷ []) p
       lemma-α M.`e i = M'.e-eta
-      lemma-α M.`⊕ i = cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt (lemma-β i))
-      lemma-β i (zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
-      lemma-β i (suc zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
-      lemma-β i (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+      lemma-α M.`⊕ i = M'.⊕-eta i _♯
 
   private
     freeMonEquivLemma : (g : structHom 𝔉 𝔜) -> (x : FreeMon A) -> g .fst x ≡ ((g .fst ∘ η) ♯) x
