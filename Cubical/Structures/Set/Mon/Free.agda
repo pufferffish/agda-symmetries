@@ -88,97 +88,21 @@ freeMon-α (M.`e , i) = e
 freeMon-α (M.`⊕ , i) = i fzero ⊕ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
+  module M' = M.MonSEq 𝔜 𝔜-monoid
+
   𝔉 : struct x M.MonSig
   𝔉 = < FreeMon A , freeMon-α >
 
   module _ (f : A -> 𝔜 .carrier) where
     _♯ : FreeMon A -> 𝔜 .carrier
-    -- TODO: Rewrite these so there is no mutual recursion
-    -- TODO: Refactor these lemmas and move them to the Desc file
-    ♯-α :
-      ∀ m ->
-      𝔜 .algebra (M.`⊕ , lookup (𝔜 .algebra (M.e , lookup []) ∷ _♯ m ∷ []))
-      ≡
-      _♯ m
-    ♯-β :
-      ∀ m ->
-      𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ 𝔜 .algebra (M.e , lookup []) ∷ []))
-      ≡
-      _♯ m
-    ♯-γ :
-      ∀ m n o ->
-      𝔜 .algebra (M.`⊕ , lookup (𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ _♯ n ∷ [])) ∷ _♯ o ∷ []))
-      ≡
-      𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ 𝔜 .algebra (M.`⊕ , lookup (_♯ n ∷ _♯ o ∷ [])) ∷ []))
-
     _♯ (η a) = f a
-    _♯ e = 𝔜 .algebra (M.e , lookup [])
-    _♯ (m ⊕ n) = 𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ _♯ n ∷ []))
-    _♯ (unitl m i) = ♯-α m i
-    _♯ (unitr m i) = ♯-β m i
-    _♯ (assocr m n o i) = M.assocr (m ♯) (n ♯) (o ♯) i
+    _♯ e = M'.e
+    _♯ (m ⊕ n) = (m ♯) M'.⊕ (n ♯)
+    _♯ (unitl m i) = M'.unitl (m ♯) i
+    _♯ (unitr m i) = M'.unitr (m ♯) i
+    _♯ (assocr m n o i) = M'.assocr (m ♯) (n ♯) (o ♯) i
     _♯ (trunc m n p q i j) =
       isSet𝔜 (_♯ m) (_♯ n) (cong _♯ p) (cong _♯ q) i j
-
-    ♯-α m =
-      𝔜 .algebra (M.`⊕ , lookup (𝔜 .algebra (M.e , lookup []) ∷ _♯ m ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma) ⟩
-      𝔜 .algebra (M.`⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → _♯ m) (lookup (node (M.e , lookup []) ∷ leaf fzero ∷ []) z)) ≡⟨ 𝔜-monoid M.`unitl (λ _ -> _♯ m) ⟩
-      _♯ m ∎
-      where
-      lemma : (z : Arity 2) ->
-        lookup (𝔜 .algebra (M.e , lookup []) ∷ _♯ m ∷ []) z
-        ≡
-        sharp M.MonSig 𝔜 (λ _ → _♯ m) (lookup (node (M.e , lookup []) ∷ leaf fzero ∷ []) z)
-      lemma (zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> lookup [] z)
-      lemma (suc zero , p) = refl
-      lemma (suc (suc _), p) = ⊥.rec (¬m+n<m {m = 2} p)
-    ♯-β m =
-      𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ 𝔜 .algebra (M.e , lookup []) ∷ [])) ≡⟨ cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma) ⟩
-      𝔜 .algebra (M.`⊕ , λ z -> sharp M.MonSig 𝔜 (λ _ → _♯ m) (lookup (leaf fzero ∷ node (M.e , lookup []) ∷ []) z)) ≡⟨ 𝔜-monoid M.`unitr (λ _ -> _♯ m) ⟩
-      _♯ m ∎
-      where
-      lemma : (z : Arity 2) ->
-        lookup (_♯ m ∷ 𝔜 .algebra (M.e , lookup []) ∷ []) z
-        ≡
-        sharp M.MonSig 𝔜 (λ _ → _♯ m) (lookup (leaf fzero ∷ node (M.e , lookup []) ∷ []) z)
-      lemma (zero , p) = refl
-      lemma (suc zero , p) = cong (λ q → 𝔜 .algebra (M.e , q)) (funExt λ z -> lookup [] z)
-      lemma (suc (suc _), p) = ⊥.rec (¬m+n<m {m = 2} p)
-    ♯-γ m n o =
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma-α) ⟩
-      _ ≡⟨ 𝔜-monoid M.`assocr (lookup (_♯ m ∷ _♯ n ∷ _♯ o ∷ [])) ⟩
-      _ ≡⟨ cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma-γ) ⟩
-      _ ∎
-      where
-      lemma-α : (z : Arity 2) ->
-        lookup (𝔜 .algebra (M.`⊕ , lookup (_♯ m ∷ _♯ n ∷ [])) ∷ _♯ o ∷ []) z
-        ≡
-        sharp M.MonSig 𝔜 (lookup (_♯ m ∷ _♯ n ∷ _♯ o ∷ [])) (lookup (node (M.`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []) z)
-      lemma-β : (z : Arity 2) ->
-        lookup (_♯ m ∷ _♯ n ∷ []) z
-        ≡
-        sharp M.MonSig 𝔜 (lookup (_♯ m ∷ _♯ n ∷ _♯ o ∷ [])) (lookup (leaf fzero ∷ leaf fone ∷ []) z)
-      lemma-α (zero , p) = cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma-β)
-      lemma-α (suc zero , p) = refl
-      lemma-α (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
-      lemma-β (zero , p) = refl
-      lemma-β (suc zero , p) = refl
-      lemma-β (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
-
-      lemma-γ : (z : Arity 2) ->
-        sharp M.MonSig 𝔜 (lookup (_♯ m ∷ _♯ n ∷ [ _♯ o ])) (lookup (leaf fzero ∷ node (M.`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []) z)
-        ≡
-        lookup (_♯ m ∷ 𝔜 .algebra (M.`⊕ , lookup (_♯ n ∷ _♯ o ∷ [])) ∷ []) z
-      lemma-δ : (z : Arity 2) ->
-        sharp M.MonSig 𝔜 (lookup (_♯ m ∷ _♯ n ∷ [ _♯ o ])) (lookup (leaf fone ∷ leaf ftwo ∷ []) z)
-        ≡
-        lookup (_♯ n ∷ _♯ o ∷ []) z
-      lemma-γ (zero , p) = refl
-      lemma-γ (suc zero , p) = cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt lemma-δ)
-      lemma-γ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
-      lemma-δ (zero , p) = refl
-      lemma-δ (suc zero , p) = refl
-      lemma-δ (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
     ♯-isMonHom : structHom 𝔉 𝔜
     ♯-isMonHom = _♯ , lemma-α
@@ -188,7 +112,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
         _♯ (i p)
         ≡
         lookup (_♯ (i fzero) ∷ _♯ (i fone) ∷ []) p
-      lemma-α M.`e i = cong (λ z -> 𝔜 .algebra (M.e , z)) (funExt λ p -> lookup [] p)
+      lemma-α M.`e i = M'.e-eta
       lemma-α M.`⊕ i = cong (λ z -> 𝔜 .algebra (M.`⊕ , z)) (funExt (lemma-β i))
       lemma-β i (zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
       lemma-β i (suc zero , p) = cong (_♯ ∘ i) (Σ≡Prop (λ _ -> isProp≤) refl)
@@ -202,10 +126,10 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       (λ {m} {n} -> lemma-β m n)
       (isSet𝔜 _ _)
       where
-      lemma-α : g e ≡ 𝔜 .algebra (M.e , (λ num → ⊥.rec (¬Fin0 num)))
+      lemma-α : g e ≡ 𝔜 .algebra (M.`e , (λ num → ⊥.rec (¬Fin0 num)))
       lemma-α =
-        _ ≡⟨ sym (homMonWit M.e (lookup [])) ⟩
-        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.e , p)) (funExt λ p -> lookup [] p) ⟩
+        _ ≡⟨ sym (homMonWit M.`e (lookup [])) ⟩
+        _ ≡⟨ cong (λ p -> 𝔜 .algebra (M.`e , p)) (funExt λ p -> lookup [] p) ⟩
         _ ∎
       lemma-β : (m n : FreeMon A) ->
         g m ≡ ((g ∘ η) ♯) m ->
