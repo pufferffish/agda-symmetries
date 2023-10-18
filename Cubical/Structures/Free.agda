@@ -29,20 +29,20 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
       η : {X : Type n} -> X -> F X
       α : {X : Type n} -> sig σ (F X) -> F X
       sat : {X : Type n} -> <_,_> {n = ns} (F X) α ⊨ ε
-      isFree : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε)
+      isFree : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
             -> isEquiv (\(f : structHom {x = ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
-    ext : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε)
-       -> (hom : X -> 𝔜 .carrier) -> structHom < F X , α > 𝔜
+    ext : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+       -> (hom : X -> 𝔜 .car) -> structHom < F X , α > 𝔜
     ext h ϕ = invIsEq (isFree h ϕ)
 
     ext-β : {X : Type n} {𝔜 : struct ns σ}
-            (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
+            (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
          -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
     ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
 
     ext-η : {X : Type n} {𝔜 : struct ns σ}
-            (H : isOfHLevel h (𝔜 .carrier)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .carrier)
+            (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
          -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
@@ -57,8 +57,8 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
 --       sat : mkStruct (Free X) α ⊨ ε
 
 --  freeStruct : (X : Type) -> struct σ
---  carrier (freeStruct X) = Free X
---  algebra (freeStruct _) = α
+--  car (freeStruct X) = Free X
+--  alg (freeStruct _) = α
 --
 --  module _ (X : Type) (𝔜 : struct σ) (ϕ : 𝔜 ⊨ ε) where
 
@@ -95,7 +95,7 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
 --           -> ((a : σ .arity f) -> t a ≈ s a)
 --           -> node (f , t) ≈ node (f , s)
 --     ≈-eqs : (𝔜 : struct {ℓ-zero} {ℓ-zero} {ℓ-zero} σ) (ϕ : 𝔜 ⊨ ε)
---          -> (e : τ .name) (ρ : X -> 𝔜 .carrier)
+--          -> (e : τ .name) (ρ : X -> 𝔜 .car)
 --          -> ∀ t s -> sharp σ {𝔜 = 𝔜} ρ t ≡ sharp σ {𝔜 = 𝔜} ρ s
 --          -> t ≈ s
 -- 

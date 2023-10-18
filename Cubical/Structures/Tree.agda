@@ -103,34 +103,34 @@ module _ {f : Level} (σ : FinSig f) where
 
 module _ {f a : Level} (σ : Sig f a) where
   algTr : ∀ {x} (X : Type x) -> struct (ℓ-max f (ℓ-max a x)) σ
-  carrier (algTr X) = Tree σ X
-  algebra (algTr X) = node
+  car (algTr X) = Tree σ X
+  alg (algTr X) = node
 
 module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} (𝔜 : struct y σ) where
   private
     𝔛 : struct (ℓ-max f (ℓ-max a x)) σ
     𝔛 = algTr σ X
 
-  sharp : (X -> 𝔜 .carrier) -> Tree σ X -> 𝔜 .carrier
+  sharp : (X -> 𝔜 .car) -> Tree σ X -> 𝔜 .car
   sharp ρ (leaf v) = ρ v
-  sharp ρ (node (f , o)) = 𝔜 .algebra (f , sharp ρ ∘ o)
+  sharp ρ (node (f , o)) = 𝔜 .alg (f , sharp ρ ∘ o)
 
-  eval : (X -> 𝔜 .carrier) -> structHom 𝔛 𝔜
+  eval : (X -> 𝔜 .car) -> structHom 𝔛 𝔜
   eval h = sharp h , λ _ _ -> refl
 
   sharp-eta : (g : structHom 𝔛 𝔜) -> (tr : Tree σ X) -> g .fst tr ≡ sharp (g .fst ∘ leaf) tr
   sharp-eta g (leaf x) = refl
   sharp-eta (g-f , g-hom) (node x) =
     g-f (node x) ≡⟨ sym (g-hom (x .fst) (x .snd)) ⟩
-    𝔜 .algebra (x .fst , (λ y → g-f (x .snd y))) ≡⟨ cong (λ z → 𝔜 .algebra (x .fst , z)) (funExt λ y -> sharp-eta ((g-f , g-hom)) (x .snd y)) ⟩
-    𝔜 .algebra (x .fst , (λ y → sharp (g-f ∘ leaf) (x .snd y)))
+    𝔜 .alg (x .fst , (λ y → g-f (x .snd y))) ≡⟨ cong (λ z → 𝔜 .alg (x .fst , z)) (funExt λ y -> sharp-eta ((g-f , g-hom)) (x .snd y)) ⟩
+    𝔜 .alg (x .fst , (λ y → sharp (g-f ∘ leaf) (x .snd y)))
     ∎
 
-  sharp-hom-eta : isSet (𝔜 .carrier) -> (g : structHom 𝔛 𝔜) -> g ≡ eval (g .fst ∘ leaf)
+  sharp-hom-eta : isSet (𝔜 .car) -> (g : structHom 𝔛 𝔜) -> g ≡ eval (g .fst ∘ leaf)
   sharp-hom-eta p g = structHom≡ 𝔛 𝔜 g (eval (g .fst ∘ leaf)) p (funExt (sharp-eta g))
 
-  trEquiv : isSet (𝔜 .carrier) -> structHom 𝔛 𝔜 ≃ (X -> 𝔜 .carrier)
+  trEquiv : isSet (𝔜 .car) -> structHom 𝔛 𝔜 ≃ (X -> 𝔜 .car)
   trEquiv isSetY = isoToEquiv (iso (\g -> g .fst ∘ leaf) eval (\_ -> refl) (sym ∘ sharp-hom-eta isSetY))
 
-  trIsEquiv : isSet (𝔜 .carrier) -> isEquiv (\g -> g .fst ∘ leaf)
+  trIsEquiv : isSet (𝔜 .car) -> isEquiv (\g -> g .fst ∘ leaf)
   trIsEquiv = snd ∘ trEquiv
