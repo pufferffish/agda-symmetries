@@ -4,7 +4,7 @@ module index where
 
 -- an organised list of modules:
 --
--- universal algebra
+-- universal alg
 -- algebraic theories and 2-theories
 import Cubical.Structures.Sig
 import Cubical.Structures.Str

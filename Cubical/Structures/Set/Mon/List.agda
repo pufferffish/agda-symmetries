@@ -26,14 +26,14 @@ list-α : sig M.MonSig (List A) -> List A
 list-α (M.`e , i) = []
 list-α (M.`⊕ , i) = i fzero ++ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where  
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where  
   module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
 
   𝔏 : M.MonStruct
   𝔏 = < List A , list-α >
 
-  module _ (f : A -> 𝔜 .carrier) where
-    _♯ : List A -> 𝔜 .carrier
+  module _ (f : A -> 𝔜 .car) where
+    _♯ : List A -> 𝔜 .car
     [] ♯ = 𝔜.e
     (x ∷ xs) ♯ = f x 𝔜.⊕ (xs ♯)
 
@@ -52,14 +52,14 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     listEquivLemma (g , homMonWit) [] = sym (homMonWit M.`e (lookup [])) ∙ 𝔜.e-eta
     listEquivLemma (g , homMonWit) (x ∷ xs) =
       g (x ∷ xs) ≡⟨ sym (homMonWit M.`⊕ (lookup ([ x ] ∷ xs ∷ []))) ⟩
-      𝔜 .algebra (M.`⊕ , (λ w -> g (lookup ((x ∷ []) ∷ xs ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup ([ x ] ∷ xs ∷ [])) g ⟩
+      𝔜 .alg (M.`⊕ , (λ w -> g (lookup ((x ∷ []) ∷ xs ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup ([ x ] ∷ xs ∷ [])) g ⟩
       g [ x ] 𝔜.⊕ g xs ≡⟨ cong (g [ x ] 𝔜.⊕_) (listEquivLemma (g , homMonWit) xs) ⟩ 
       _ ∎
 
     listEquivLemma-β : (g : structHom 𝔏 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ [_])
     listEquivLemma-β g = structHom≡ 𝔏 𝔜 g (♯-isMonHom (g .fst ∘ [_])) isSet𝔜 (funExt (listEquivLemma g))
 
-  listEquiv : structHom 𝔏 𝔜 ≃ (A -> 𝔜 .carrier)
+  listEquiv : structHom 𝔏 𝔜 ≃ (A -> 𝔜 .car)
   listEquiv =
     isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ g -> funExt (𝔜.unitr ∘ g)) (sym ∘ listEquivLemma-β))
 

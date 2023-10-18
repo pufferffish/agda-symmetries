@@ -42,7 +42,7 @@ module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
   f2t F = let p = ([]surjective F) in P.map fst p
 
   FreeStr : (X : Type n) -> Str (ℓ-max (ℓ-max (ℓ-max f a) e) n) σ
-  carrier (FreeStr X) = Free σ τ X
+  car (FreeStr X) = Free σ τ X
   ops (FreeStr X) f o = {!!}
   isSetStr (FreeStr X) = {!!}
 
@@ -56,7 +56,7 @@ module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
 -- Eqs.equ ℕ-MonStrEq assocr = funExt \v -> sym (+-assoc (v zero) (v one) (v two))
 
 -- Free-MonStr : (X : Type) -> Str ℓ-zero MonSig
--- Str.carrier (Free-MonStr X) = Free MonSig X
+-- Str.car (Free-MonStr X) = Free MonSig X
 -- Str.ops (Free-MonStr X) e f = op e f
 -- Str.ops (Free-MonStr X) ⊕ f = op ⊕ f
 -- Str.isSetStr (Free-MonStr X) = isSetStr
@@ -113,7 +113,7 @@ module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
 --     η : (A : Type ℓ) -> A -> F A
 
 -- freeS : (S : Type ℓ -> Type ℓ') -> FreeS ℓ S
--- monad T, T-algebra
+-- monad T, T-alg
 
 -- monads on hSet
 

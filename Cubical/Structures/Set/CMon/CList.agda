@@ -106,14 +106,14 @@ clist-α : ∀ {n : Level} {X : Type n} -> sig M.MonSig (CList X) -> CList X
 clist-α (M.`e , i) = []
 clist-α (M.`⊕ , i) = i fzero ++ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
   module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
   𝔛 : M.CMonStruct
   𝔛 = < CList A , clist-α >
 
-  module _ (f : A -> 𝔜 .carrier) where
-    _♯ : CList A -> 𝔜 .carrier
+  module _ (f : A -> 𝔜 .car) where
+    _♯ : CList A -> 𝔜 .car
     _♯ = elimCListSet.f _
       𝔜.e
       (λ a p -> f a 𝔜.⊕ p)
@@ -158,7 +158,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     clistEquivLemma-β : (g : structHom 𝔛 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ [_])
     clistEquivLemma-β g = structHom≡ 𝔛 𝔜 g (♯-isMonHom (g .fst ∘ [_])) isSet𝔜 (funExt (clistEquivLemma g))
 
-  clistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .carrier)
+  clistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .car)
   clistMonEquiv =
     isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ g -> funExt (𝔜.unitr ∘ g)) (sym ∘ clistEquivLemma-β))
 

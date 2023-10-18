@@ -84,14 +84,14 @@ freeCMon-α : ∀ {ℓ} {X : Type ℓ} -> sig M.MonSig (FreeCMon X) -> FreeCMon 
 freeCMon-α (M.`e , _) = e
 freeCMon-α (M.`⊕ , i) = i fzero ⊕ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
   module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
   𝔉 : struct x M.MonSig
   𝔉 = < FreeCMon A , freeCMon-α >
 
-  module _ (f : A -> 𝔜 .carrier) where
-    _♯ : FreeCMon A -> 𝔜 .carrier
+  module _ (f : A -> 𝔜 .car) where
+    _♯ : FreeCMon A -> 𝔜 .car
     _♯ (η a) = f a
     _♯ e = 𝔜.e
     _♯ (m ⊕ n) = (m ♯) 𝔜.⊕ (n ♯)
@@ -113,7 +113,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       (sym (homMonWit M.`e (lookup [])) ∙ 𝔜.e-eta)
       (λ {m} {n} p q ->
         g (m ⊕ n) ≡⟨ sym (homMonWit M.`⊕ (lookup (m ∷ n ∷ []))) ⟩
-        𝔜 .algebra (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
+        𝔜 .alg (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
         g m 𝔜.⊕ g n ≡⟨ cong₂ 𝔜._⊕_ p q ⟩
         _ ∎
       )
@@ -122,7 +122,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     freeCMonEquivLemma-β : (g : structHom 𝔉 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ η)
     freeCMonEquivLemma-β g = structHom≡ 𝔉 𝔜 g (♯-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt (freeCMonEquivLemma g))
 
-  freeCMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .carrier)
+  freeCMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .car)
   freeCMonEquiv =
     isoToEquiv (iso (λ g -> g .fst ∘ η) ♯-isMonHom (λ _ -> refl) (sym ∘ freeCMonEquivLemma-β))
 

@@ -87,14 +87,14 @@ freeMon-α : ∀ {n : Level} {X : Type n} -> sig M.MonSig (FreeMon X) -> FreeMon
 freeMon-α (M.`e , i) = e
 freeMon-α (M.`⊕ , i) = i fzero ⊕ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .carrier)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
   module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
 
   𝔉 : struct x M.MonSig
   𝔉 = < FreeMon A , freeMon-α >
 
-  module _ (f : A -> 𝔜 .carrier) where
-    _♯ : FreeMon A -> 𝔜 .carrier
+  module _ (f : A -> 𝔜 .car) where
+    _♯ : FreeMon A -> 𝔜 .car
     (η a) ♯ = f a
     e ♯ = 𝔜.e
     (m ⊕ n) ♯ = (m ♯) 𝔜.⊕ (n ♯)
@@ -115,7 +115,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       (sym (homMonWit M.`e (lookup [])) ∙ 𝔜.e-eta)
       (λ {m} {n} p q ->
         g (m ⊕ n) ≡⟨ sym (homMonWit M.`⊕ (lookup (m ∷ n ∷ []))) ⟩
-        𝔜 .algebra (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
+        𝔜 .alg (M.`⊕ , (λ w -> g (lookup (m ∷ n ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (m ∷ n ∷ [])) g ⟩
         g m 𝔜.⊕ g n ≡⟨ cong₂ 𝔜._⊕_ p q ⟩
         _ ∎
       )
@@ -124,7 +124,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     freeMonEquivLemma-β : (g : structHom 𝔉 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ η)
     freeMonEquivLemma-β g = structHom≡ 𝔉 𝔜 g (♯-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt (freeMonEquivLemma g))
 
-  freeMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .carrier)
+  freeMonEquiv : structHom 𝔉 𝔜 ≃ (A -> 𝔜 .car)
   freeMonEquiv =
     isoToEquiv (iso (λ g -> g .fst ∘ η) ♯-isMonHom (λ _ -> refl) (sym ∘ freeMonEquivLemma-β))
       

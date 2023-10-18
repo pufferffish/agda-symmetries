@@ -28,8 +28,8 @@ CMonStruct : ∀ {n} -> Type (ℓ-suc n)
 CMonStruct {n} = struct n CMonSig
 
 CMon→Mon : ∀ {ℓ} -> CMonStruct {ℓ} -> M.MonStruct {ℓ}
-carrier (CMon→Mon 𝔛) = 𝔛 .carrier
-algebra (CMon→Mon 𝔛) = 𝔛 .algebra
+car (CMon→Mon 𝔛) = 𝔛 .car
+alg (CMon→Mon 𝔛) = 𝔛 .alg
 
 module CMonStruct {ℓ} (𝔛 : CMonStruct {ℓ}) where
   open M.MonStruct (CMon→Mon 𝔛) public
@@ -66,13 +66,13 @@ module CMonSEq {ℓ} (𝔛 : CMonStruct {ℓ}) (ϕ : 𝔛 ⊨ CMonSEq) where
   comm m n =
       m ⊕ n
     ≡⟨⟩
-      𝔛 .algebra (`⊕ , lookup (m ∷ n ∷ []))
-    ≡⟨ cong (λ z -> 𝔛 .algebra (`⊕ , z)) (funExt lemma1) ⟩
-      𝔛 .algebra (`⊕ , (λ x -> sharp CMonSig 𝔛 (lookup (m ∷ n ∷ [])) (lookup (leaf fzero ∷ leaf fone ∷ []) x)))
+      𝔛 .alg (`⊕ , lookup (m ∷ n ∷ []))
+    ≡⟨ cong (λ z -> 𝔛 .alg (`⊕ , z)) (funExt lemma1) ⟩
+      𝔛 .alg (`⊕ , (λ x -> sharp CMonSig 𝔛 (lookup (m ∷ n ∷ [])) (lookup (leaf fzero ∷ leaf fone ∷ []) x)))
     ≡⟨ ϕ `comm (lookup (m ∷ n ∷ [])) ⟩
-      𝔛 .algebra (`⊕ , (λ x -> sharp CMonSig 𝔛 (lookup (m ∷ n ∷ [])) (lookup (leaf fone ∷ leaf fzero ∷ []) x)))
-    ≡⟨ cong (λ z -> 𝔛 .algebra (`⊕ , z)) (sym (funExt lemma2)) ⟩
-      𝔛 .algebra (`⊕ , lookup (n ∷ m ∷ []))
+      𝔛 .alg (`⊕ , (λ x -> sharp CMonSig 𝔛 (lookup (m ∷ n ∷ [])) (lookup (leaf fone ∷ leaf fzero ∷ []) x)))
+    ≡⟨ cong (λ z -> 𝔛 .alg (`⊕ , z)) (sym (funExt lemma2)) ⟩
+      𝔛 .alg (`⊕ , lookup (n ∷ m ∷ []))
     ≡⟨⟩
       n ⊕ m ∎
     where
