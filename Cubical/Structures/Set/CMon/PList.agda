@@ -74,6 +74,9 @@ PList A = List A / _≈ₚ_
 e : PList A
 e = Q.[ [] ]
 
+η : A -> PList A
+η x = Q.[ x ∷ [] ]
+
 _⊕_ : PList A -> PList A -> PList A
 _⊕_ = Q.rec2 squash/
   (λ xs ys -> Q.[ xs ++ ys ])
@@ -120,12 +123,12 @@ plist-α (M.`⊕ , i) = i fzero ⊕ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
   module 𝔜' = M.CMonSEq 𝔜 𝔜-cmon
+  open LM.Free {A = A} isSet𝔜 (M.cmonSatMon 𝔜-cmon)
 
   𝔛 : M.CMonStruct
   𝔛 = < PList A , plist-α >
 
   module _ (f : A -> 𝔜 .car) where
-    open LM.Free {A = A} isSet𝔜 (M.cmonSatMon 𝔜-cmon)
 
     ♯-≅ₚ-α : ∀ {x y : A} (xs ys : List A) -> (f ♯) (xs ++ x ∷ y ∷ ys) ≡ (f ♯) (xs ++ y ∷ x ∷ ys)
     ♯-≅ₚ-α {x} {y} [] ys =
@@ -151,9 +154,47 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     eq/ as bs r i ♯ₚ = P.rec (isSet𝔜 _ _) (♯-≅ₚ {as} {bs}) r i
     squash/ xs ys p q i j ♯ₚ = isSet𝔜 (xs ♯ₚ) (ys ♯ₚ) (cong _♯ₚ p) (cong _♯ₚ q) i j
 
+    ♯ₚ-++ : ∀ xs ys -> (xs ⊕ ys) ♯ₚ ≡ (xs ♯ₚ) 𝔜.⊕ (ys ♯ₚ)
+    ♯ₚ-++ =
+      elimProp (λ _ -> isPropΠ λ _ -> isSet𝔜 _ _) λ xs ->
+        elimProp (λ _ -> isSet𝔜 _ _) λ ys ->
+          ♯-++ f xs ys
+
+    ♯ₚ-isMonHom : structHom 𝔛 𝔜
+    fst ♯ₚ-isMonHom = _♯ₚ
+    snd ♯ₚ-isMonHom M.`e i = 𝔜.e-eta
+    snd ♯ₚ-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ₚ ∙ sym (♯ₚ-++ (i fzero) (i fone))
+
+  private
+    plistEquivLemma : (g : structHom 𝔛 𝔜) -> (x : PList A) -> g .fst x ≡ ((g .fst ∘ η) ♯ₚ) x
+    plistEquivLemma (g , homMonWit) = elimProp (λ _ -> isSet𝔜 _ _) lemma
+      where
+      lemma : (a : List A) -> g Q.[ a ] ≡ ((g ∘ η) ♯) a
+      lemma [] = sym (homMonWit M.`e (lookup L.[])) ∙ 𝔜.e-eta
+      lemma (a ∷ as) =
+        g Q.[ a ∷ as ] ≡⟨ sym (homMonWit M.`⊕ (lookup (Q.[ L.[ a ] ] ∷ Q.[ as ] ∷ L.[]))) ⟩
+        _ ≡⟨ 𝔜.⊕-eta (lookup (Q.[ L.[ a ] ] ∷ Q.[ as ] ∷ L.[])) g ⟩
+        _ ≡⟨ cong (g Q.[ L.[ a ] ] 𝔜.⊕_) (lemma as) ⟩
+        _ ∎
+
+    plistEquivLemma-β : (g : structHom 𝔛 𝔜) -> g ≡ ♯ₚ-isMonHom (g .fst ∘ η)
+    plistEquivLemma-β g = structHom≡ 𝔛 𝔜 g (♯ₚ-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt (plistEquivLemma g))
+
+  plistMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .car)
+  plistMonEquiv =
+    isoToEquiv (iso (λ g -> g .fst ∘ η) ♯ₚ-isMonHom (λ g -> funExt (𝔜.unitr ∘ g)) (sym ∘ plistEquivLemma-β))
+
+module PListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
+
 plist-sat : ∀ {n} {X : Type n} -> < PList X , plist-α > ⊨ M.CMonSEq
 plist-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
 plist-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
 plist-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
 plist-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
- 
+
+plistDef : PListDef.Free 2
+F.Definition.Free.F plistDef = PList
+F.Definition.Free.η plistDef = η
+F.Definition.Free.α plistDef = plist-α
+F.Definition.Free.sat plistDef = plist-sat
+F.Definition.Free.isFree plistDef isSet𝔜 satMon = (Free.plistMonEquiv isSet𝔜 satMon) .snd
