@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
--- Taken from https://drops.dagstuhl.de/opus/volltexte/2023/18395/pdf/LIPIcs-ITP-2023-20.pdf
+-- Definition taken from https://drops.dagstuhl.de/opus/volltexte/2023/18395/pdf/LIPIcs-ITP-2023-20.pdf
 module Cubical.Structures.Set.CMon.PList where
 
 open import Cubical.Core.Everything
