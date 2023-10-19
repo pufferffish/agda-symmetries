@@ -65,11 +65,11 @@ perm-map : (f : A -> B) {xs ys : List A} -> Perm xs ys -> Perm (L.map f xs) (L.m
 perm-map f perm-refl = perm-refl
 perm-map f (perm-swap {xs = xs} p) = perm-subst (map++ xs) ∙ₚ perm-swap (perm-subst (sym (map++ xs)) ∙ₚ perm-map f p)
 
-_≈_ : ∀ {ℓ} {A : Type ℓ} -> List A -> List A -> Type ℓ
-xs ≈ ys = ∥ Perm xs ys ∥₁
+_≈ₚ_ : ∀ {ℓ} {A : Type ℓ} -> List A -> List A -> Type ℓ
+xs ≈ₚ ys = ∥ Perm xs ys ∥₁
 
 PList : Type ℓ -> Type ℓ
-PList A = List A / _≈_
+PList A = List A / _≈ₚ_
 
 e : PList A
 e = Q.[ [] ]
@@ -115,23 +115,45 @@ _⊕_ = Q.rec2 squash/
       eq/ _ _ ∣ ⊕-commₚ xs ys ∣₁
 
 plist-α : ∀ {n : Level} {X : Type n} -> sig M.MonSig (PList X) -> PList X
-plist-α (M.`e , i) = _/_.[ [] ]
+plist-α (M.`e , i) = Q.[ [] ]
 plist-α (M.`⊕ , i) = i fzero ⊕ i fone
 
 module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
-  module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
+  module 𝔜' = M.CMonSEq 𝔜 𝔜-cmon
 
   𝔛 : M.CMonStruct
   𝔛 = < PList A , plist-α >
 
   module _ (f : A -> 𝔜 .car) where
-    _♯ : PList A -> 𝔜 .car    
-    _/_.[ as ] ♯ = LM.Free._♯ isSet𝔜 (M.cmonSatMon 𝔜-cmon) f as
-    eq/ as bs r i ♯ = {!   !}
-    squash/ xs ys p q i j ♯ = isSet𝔜 (xs ♯) (ys ♯) (cong _♯ p) (cong _♯ q) i j
+    open LM.Free {A = A} isSet𝔜 (M.cmonSatMon 𝔜-cmon)
+
+    ♯-≅ₚ-α : ∀ {x y : A} (xs ys : List A) -> (f ♯) (xs ++ x ∷ y ∷ ys) ≡ (f ♯) (xs ++ y ∷ x ∷ ys)
+    ♯-≅ₚ-α {x} {y} [] ys =
+      (f ♯) ((L.[ x ] ++ L.[ y ]) ++ ys) ≡⟨ ♯-++ f (L.[ x ] ++ L.[ y ]) ys  ⟩
+      (f ♯) (L.[ x ] ++ L.[ y ]) 𝔜.⊕ (f ♯) ys ≡⟨ cong (𝔜._⊕ (f ♯) ys) (♯-++ f L.[ x ] L.[ y ]) ⟩
+      ((f ♯) L.[ x ] 𝔜.⊕ (f ♯) L.[ y ]) 𝔜.⊕ (f ♯) ys ≡⟨ cong (𝔜._⊕ (f ♯) ys) (𝔜'.comm _ _) ⟩
+      ((f ♯) L.[ y ] 𝔜.⊕ (f ♯) L.[ x ]) 𝔜.⊕ (f ♯) ys ≡⟨ cong (𝔜._⊕ (f ♯) ys) (sym (♯-++ f L.[ y ] L.[ x ])) ⟩
+      (f ♯) (L.[ y ] ++ L.[ x ]) 𝔜.⊕ (f ♯) ys ≡⟨ sym (♯-++ f (L.[ y ] ++ L.[ x ]) ys) ⟩
+      (f ♯) ((L.[ y ] ++ L.[ x ]) ++ ys) ∎
+    ♯-≅ₚ-α {x} {y} (a ∷ as) ys =
+      (f ♯) (L.[ a ] ++ (as ++ x ∷ y ∷ ys)) ≡⟨ ♯-++ f L.[ a ] (as ++ x ∷ y ∷ ys) ⟩
+      (f ♯) L.[ a ] 𝔜.⊕ (f ♯) (as ++ x ∷ y ∷ ys) ≡⟨ cong ((f ♯) L.[ a ] 𝔜.⊕_) (♯-≅ₚ-α as ys) ⟩
+      (f ♯) L.[ a ] 𝔜.⊕ (f ♯) (as ++ y ∷ x ∷ ys) ≡⟨ sym (♯-++ f L.[ a ] (as ++ y ∷ x ∷ ys)) ⟩
+      (f ♯) (L.[ a ] ++ (as ++ y ∷ x ∷ ys)) ≡⟨⟩
+      (f ♯) ((a ∷ as) ++ y ∷ x ∷ ys) ∎
+
+    ♯-≅ₚ : ∀ {xs zs} -> Perm xs zs -> (f ♯) xs ≡ (f ♯) zs
+    ♯-≅ₚ perm-refl = refl
+    ♯-≅ₚ (perm-swap {xs = xs} p) = ♯-≅ₚ-α xs _ ∙ ♯-≅ₚ p
+
+    _♯ₚ : PList A -> 𝔜 .car    
+    Q.[ as ] ♯ₚ = (f ♯) as
+    eq/ as bs r i ♯ₚ = P.rec (isSet𝔜 _ _) (♯-≅ₚ {as} {bs}) r i
+    squash/ xs ys p q i j ♯ₚ = isSet𝔜 (xs ♯ₚ) (ys ♯ₚ) (cong _♯ₚ p) (cong _♯ₚ q) i j
 
 plist-sat : ∀ {n} {X : Type n} -> < PList X , plist-α > ⊨ M.CMonSEq
 plist-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
 plist-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
 plist-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
 plist-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
+ 

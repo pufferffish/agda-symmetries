@@ -123,16 +123,15 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       ) i
     isSetSList xs ys p q i j ♯ = isSet𝔜 (xs ♯) (ys ♯) (cong _♯ p) (cong _♯ q) i j
 
-    private
-      ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
-      ♯-++ = elimSListProp.f _
-        (λ ys -> sym (𝔜.unitl (ys ♯)))
-        (λ a {xs} p ys ->
-          f a 𝔜.⊕ ((xs ++ ys) ♯) ≡⟨ cong (f a 𝔜.⊕_) (p ys) ⟩
-          f a 𝔜.⊕ ((xs ♯) 𝔜.⊕ (ys ♯)) ≡⟨ sym (𝔜.assocr (f a) (xs ♯) (ys ♯)) ⟩
-          _ ∎
-        )
-        (isPropΠ λ _ -> isSet𝔜 _ _)
+    ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
+    ♯-++ = elimSListProp.f _
+      (λ ys -> sym (𝔜.unitl (ys ♯)))
+      (λ a {xs} p ys ->
+        f a 𝔜.⊕ ((xs ++ ys) ♯) ≡⟨ cong (f a 𝔜.⊕_) (p ys) ⟩
+        f a 𝔜.⊕ ((xs ♯) 𝔜.⊕ (ys ♯)) ≡⟨ sym (𝔜.assocr (f a) (xs ♯) (ys ♯)) ⟩
+        _ ∎
+      )
+      (isPropΠ λ _ -> isSet𝔜 _ _)
 
     ♯-isMonHom : structHom 𝔛 𝔜
     fst ♯-isMonHom = _♯
