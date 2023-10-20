@@ -6,8 +6,6 @@ module Cubical.Structures.Set.CMon.QList.Perm where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.Data.List as L
-open import Cubical.HITs.PropositionalTruncation as P
-open import Cubical.HITs.SetQuotients as Q
 
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.Mon.List as LM

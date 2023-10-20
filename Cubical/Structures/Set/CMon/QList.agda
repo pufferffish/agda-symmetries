@@ -95,7 +95,7 @@ module QListFree (r : PermRelation) where
     module _ (f : A -> 𝔜 .car) where
       _♯ₚ : QList A -> 𝔜 .car    
       Q.[ as ] ♯ₚ = (f ♯) as
-      eq/ as bs p i ♯ₚ = P.rec (isSet𝔜 _ _) (λ q -> r .f-≅ₚ 𝔜-cmon (♯-isMonHom f) as bs q) p i
+      eq/ as bs p i ♯ₚ = P.rec (isSet𝔜 _ _) (r .f-≅ₚ 𝔜-cmon (♯-isMonHom f) as bs) p i
       squash/ xs ys p q i j ♯ₚ = isSet𝔜 (xs ♯ₚ) (ys ♯ₚ) (cong _♯ₚ p) (cong _♯ₚ q) i j
   
       ♯ₚ-++ : ∀ xs ys -> (xs ⊕ ys) ♯ₚ ≡ (xs ♯ₚ) 𝔜.⊕ (ys ♯ₚ)
