@@ -56,26 +56,41 @@ e = 0 , ⊥.rec ∘ ¬Fin0
     xs (m , p) ∎
   ... | inr q = ⊥.rec ((<-asym p) q)
 
+∸-+-assoc : ∀ m n o → m ∸ n ∸ o ≡ m ∸ (n + o)
+∸-+-assoc m       n       zero    = cong (m ∸_) (sym (+-zero n))
+∸-+-assoc zero    zero    (suc o) = refl
+∸-+-assoc zero    (suc n) (suc o) = refl
+∸-+-assoc (suc m) zero    (suc o) = refl
+∸-+-assoc (suc m) (suc n) (suc o) = ∸-+-assoc m n (suc o)
+
 ⊕-assocr : ∀ {ℓ} {A : Type ℓ} (m n o : Array A) -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
-⊕-assocr (n , as) (m , bs) (o , cs) = ΣPathP (sym (+-assoc n m o) , toPathP (funExt lemma))
+⊕-assocr {A = A} (n , as) (m , bs) (o , cs) = ΣPathP (sym (+-assoc n m o) , toPathP (funExt lemma))
   where
   lemma : _
   lemma (w , p) with w ≤? (n + m)
   lemma (w , p) | inl q with w ≤? n
-  lemma (w , p) | inl q | inl r = {!   !}
+  lemma (w , p) | inl q | inl r =
+    sym (transport-filler refl (as (w , r)))
   lemma (w , p) | inl q | inr r with (w ∸ n) ≤? m
-  lemma (w , p) | inl q | inr r | inl s = {!   !}
-  lemma (w , p) | inl q | inr r | inr s = {!   !}
+  lemma (w , p) | inl q | inr r | inl s =
+    _ ≡⟨ sym (transport-filler refl _) ⟩
+    bs (w ∸ n , _) ≡⟨ cong bs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+    bs (w ∸ n , s) ∎
+  lemma (w , p) | inl q | inr r | inr s =
+    ⊥.rec (<-asym q t)
+    where
+    t : n + m ≤ w
+    t = subst (n + m ≤_) (+-comm n (w ∸ n) ∙ ≤-∸-+-cancel r) (≤-k+ s)
   lemma (w , p) | inr q with w ≤? n
-  lemma (w , p) | inr q | inl r = {!   !}
+  lemma (w , p) | inr q | inl r =
+    ⊥.rec (¬m+n<m (≤<-trans q r))
   lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
-  lemma (w , p) | inr q | inr r | inl s = {!   !}
-  lemma (w , p) | inr q | inr r | inr s = {!   !}
-
--- transp (λ i → A) i0
---     (⊎.rec xs
---      (λ x → ⊥.rec void)
---      (Cubical.Data.Fin.Properties.f n₁ 0
---       (n , transp (λ i → Σ ℕ (λ k → k + suc n ≡ +-zero n₁ (~ i))) i0 p)
---       | (n ≤? n₁ | n ≟ n₁)))
---     ≡ xs (n , p) 
+  lemma (w , p) | inr q | inr r | inl s =
+    ⊥.rec (<-asym t q)
+    where
+    t : w < n + m
+    t = subst2 _<_ (≤-∸-+-cancel r) (+-comm m n) (≤-+k s)
+  lemma (w , p) | inr q | inr r | inr s =
+    _ ≡⟨ sym (transport-filler refl _) ⟩
+    cs (w ∸ (n + m) , _) ≡⟨ cong cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc w n m))) ⟩
+    cs (w ∸ n ∸ m , _) ∎
