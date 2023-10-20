@@ -49,15 +49,32 @@ uncons∘cons x xs = cong (x ,_) (funExt λ _ -> cong xs (Σ≡Prop (λ _ -> isP
 _∷_ : A -> Array A -> Array A
 x ∷ (n , xs) = (suc n) , cons x xs
 
+⊕-compute : (n : ℕ) -> (Fin n -> A) -> Array A -> Array A
+⊕-compute zero as bs = bs
+⊕-compute (suc n) as bs = let (head , tail) = uncons as in head ∷ ⊕-compute n tail bs
+
 _⊕_ : Array A -> Array A -> Array A
-(n , as) ⊕ bs = go n as bs -- to help with termination checking
-  where
-  go : (n : ℕ) -> (Fin n -> A) -> Array A -> Array A
-  go zero as bs = bs
-  go (suc n) as bs = as fzero ∷ go n (as ∘ fsuc) bs
+(n , as) ⊕ bs = ⊕-compute n as bs -- to help with termination checking
+
+{-# DISPLAY ⊕-compute (n , as) bs = (n , as) ⊕ bs #-}
 
 e : Array A
 e = 0 , ⊥.rec ∘ ¬Fin0
 
--- ⊕-unitl : (xs : Array A) -> e ⊕ xs ≡ xs
--- ⊕-unitl (n , xs) = ΣPathP (refl , {!   !})
+⊕-unitl : (xs : Array A) -> e ⊕ xs ≡ xs
+⊕-unitl (n , xs) = ΣPathP (refl , funExt λ _ -> refl)
+
+-- ⊕-unitr'' : (f : Fin n -> A) -> (⊕-compute n f e) .snd ≡ {!   !}
+-- ⊕-unitr'' n f = {!   !}
+
+⊕-unitr' : (n : ℕ) -> (xs : Fin n -> A) -> (n , xs) ⊕ e ≡ (n , xs)
+⊕-unitr' zero xs = ΣPathP (refl , funExt λ (_ , p) -> ⊥.rec (¬-<-zero p))
+⊕-unitr' (suc n) xs =
+  let (indL , indI) = PathPΣ (⊕-unitr' n (xs ∘ fsuc))
+  in ΣPathP (cong suc indL , λ i x -> {!   !})
+
+-- ⊕-unitr : (xs : Array A) -> xs ⊕ e ≡ xs
+-- ⊕-unitr (zero , xs) = ΣPathP (refl , funExt λ (_ , p) -> ⊥.rec (¬-<-zero p))
+-- ⊕-unitr (suc n , xs) = 
+--   let (indL , indI) = PathPΣ (⊕-unitr (n , xs ∘ fsuc))
+--   in ΣPathP (cong suc indL , {!   !}) 
