@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical #-}
 
 -- Definition taken from https://drops.dagstuhl.de/opus/volltexte/2023/18395/pdf/LIPIcs-ITP-2023-20.pdf
-module Cubical.Structures.Set.CMon.PList.Perm where
+module Cubical.Structures.Set.CMon.QList.Perm where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
@@ -18,7 +18,7 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity hiding (_/_)
-open import Cubical.Structures.Set.CMon.PList
+open import Cubical.Structures.Set.CMon.QList
 
 data Perm {ℓ : Level} {A : Type ℓ} : List A -> List A -> Type ℓ where
   perm-refl : ∀ {xs} -> Perm xs xs
@@ -112,7 +112,6 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
   f-≅ₚ perm-refl = refl
   f-≅ₚ (perm-swap {xs = xs} p) = f-≅ₚ-α xs _ ∙ f-≅ₚ p
 
-
 permRelation : PermRelation
 PermRelation.R permRelation = Perm
 PermRelation.perm-append permRelation as bs p cs = perm-append p cs
@@ -123,4 +122,4 @@ PermRelation.⊕-assocrₚ permRelation = ⊕-assocrₚ
 PermRelation.⊕-commₚ permRelation = ⊕-commₚ
 PermRelation.f-≅ₚ permRelation 𝔜-cmon f xs zs r = f-≅ₚ 𝔜-cmon f r
 
-open Cubical.Structures.Set.CMon.PList.PListFree permRelation public
+open Cubical.Structures.Set.CMon.QList.QListFree permRelation public
