@@ -37,7 +37,7 @@ _⊕_ : Array A -> Array A -> Array A
 e : Array A
 e = 0 , ⊥.rec ∘ ¬Fin0
 
-⊕-unitl : (xs : Array A) -> e ⊕ xs ≡ xs
+⊕-unitl : ∀ {ℓ} {A : Type ℓ} -> (xs : Array A) -> e ⊕ xs ≡ xs
 ⊕-unitl (n , xs) = ΣPathP (refl , funExt lemma)
   where
   lemma : (x : Fin (fst (e ⊕ (n , xs)))) -> snd (e ⊕ (n , xs)) x ≡ xs x
@@ -55,6 +55,22 @@ e = 0 , ⊥.rec ∘ ¬Fin0
     xs (m , q) ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
     xs (m , p) ∎
   ... | inr q = ⊥.rec ((<-asym p) q)
+
+⊕-assocr : ∀ {ℓ} {A : Type ℓ} (m n o : Array A) -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
+⊕-assocr (n , as) (m , bs) (o , cs) = ΣPathP (sym (+-assoc n m o) , toPathP (funExt lemma))
+  where
+  lemma : _
+  lemma (w , p) with w ≤? (n + m)
+  lemma (w , p) | inl q with w ≤? n
+  lemma (w , p) | inl q | inl r = {!   !}
+  lemma (w , p) | inl q | inr r with (w ∸ n) ≤? m
+  lemma (w , p) | inl q | inr r | inl s = {!   !}
+  lemma (w , p) | inl q | inr r | inr s = {!   !}
+  lemma (w , p) | inr q with w ≤? n
+  lemma (w , p) | inr q | inl r = {!   !}
+  lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
+  lemma (w , p) | inr q | inr r | inl s = {!   !}
+  lemma (w , p) | inr q | inr r | inr s = {!   !}
 
 -- transp (λ i → A) i0
 --     (⊎.rec xs
