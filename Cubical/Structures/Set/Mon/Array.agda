@@ -227,5 +227,20 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     arrayEquivLemma-β : (g : structHom 𝔄 𝔜) -> g ≡ ♯-isMonHom (g .fst ∘ η)
     arrayEquivLemma-β g = structHom≡ 𝔄 𝔜 g (♯-isMonHom (g .fst ∘ η)) isSet𝔜 (funExt λ (n , p) -> arrayEquivLemma g n p)
 
+  arrayEquiv : structHom 𝔄 𝔜 ≃ (A -> 𝔜 .car)
+  arrayEquiv =
+    isoToEquiv (iso (λ g -> g .fst ∘ η) ♯-isMonHom (λ g -> funExt (𝔜.unitr ∘ g)) (sym ∘ arrayEquivLemma-β))
 
- 
+module ArrayDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
+
+array-sat : ∀ {n} {X : Type n} -> < Array X , array-α > ⊨ M.MonSEq
+array-sat M.`unitl ρ = ⊕-unitl (ρ fzero)
+array-sat M.`unitr ρ = ⊕-unitr (ρ fzero)
+array-sat M.`assocr ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+
+arrayDef : ArrayDef.Free 2
+F.Definition.Free.F arrayDef = Array
+F.Definition.Free.η arrayDef = η
+F.Definition.Free.α arrayDef = array-α
+F.Definition.Free.sat arrayDef = array-sat
+F.Definition.Free.isFree arrayDef isSet𝔜 satMon = (Free.arrayEquiv isSet𝔜 satMon) .snd
