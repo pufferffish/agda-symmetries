@@ -33,10 +33,12 @@ private
 Array : Type ℓ -> Type ℓ
 Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 
+finSplitAux : ∀ m n k -> k < m + n -> (k < m) ⊎ (m ≤ k) -> Fin m ⊎ Fin n
+finSplitAux m n k k<m+n (inl k<m) = inl (k , k<m)
+finSplitAux m n k k<m+n (inr k≥m) = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+
 finSplit : ∀ m n -> Fin (m + n) -> Fin m ⊎ Fin n
-finSplit m n (k , k<m+n) with k ≤? m
-finSplit m n (k , k<m+n) | inl k<m = inl (k , k<m)
-finSplit m n (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+finSplit m n (k , k<m+n) = finSplitAux m n k k<m+n (k ≤? m)
 
 combine : ∀ n m -> (Fin n -> A) -> (Fin m -> A) -> (Fin (n + m) -> A)
 combine n m as bs w = ⊎.rec as bs (finSplit n m w)
@@ -124,8 +126,17 @@ x ∷ (n , xs) = (suc n) , cons x xs
 uncons : (Fin (suc n) -> A) -> A × (Fin n -> A)
 uncons xs = xs fzero , xs ∘ fsuc
 
-η+fsuc : (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
-η+fsuc = {!   !}
+η+fsuc : ∀ {n} (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
+η+fsuc {n = n} xs = ΣPathP (refl , funExt lemma)
+  where
+  lemma : _
+  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc m , p) with oldInspect (suc m ≤? 1)
+  ... | inl q with-≡ r = ⊥.rec (¬-<-zero (pred-≤-pred q))
+  ... | inr q with-≡ r =
+    _ ≡⟨ cong (λ z -> ⊎.rec _ _ (finSplitAux 1 n (suc m) p z)) r ⟩
+    _ ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+    _ ∎
 
 sumSplit : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
   (n + m , (λ w -> combine (suc n) m xs ys (fsuc w)))
