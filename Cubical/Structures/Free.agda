@@ -23,25 +23,25 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
   ns : Level
   ns = ℓ-max n s
 
-  record Free (h : HLevel) : Type (ℓ-suc (ℓ-max f (ℓ-max a (ℓ-max e ns)))) where
+  record Free {c : Level} (h : HLevel) : Type (ℓ-suc (ℓ-max (ℓ-max f (ℓ-max a (ℓ-max e ns))) c)) where
     field
-      F : (X : Type n) -> Type ns
-      η : {X : Type n} -> X -> F X
-      α : {X : Type n} -> sig σ (F X) -> F X
-      sat : {X : Type n} -> <_,_> {n = ns} (F X) α ⊨ ε
-      isFree : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+      F : (X : Type c) -> Type ns
+      η : {X : Type c} -> X -> F X
+      α : {X : Type c} -> sig σ (F X) -> F X
+      sat : {X : Type c} -> <_,_> {n = ns} (F X) α ⊨ ε
+      isFree : {X : Type c} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
             -> isEquiv (\(f : structHom {x = ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
-    ext : {X : Type n} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+    ext : {X : Type c} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
        -> (hom : X -> 𝔜 .car) -> structHom < F X , α > 𝔜
     ext h ϕ = invIsEq (isFree h ϕ)
 
-    ext-β : {X : Type n} {𝔜 : struct ns σ}
+    ext-β : {X : Type c} {𝔜 : struct ns σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
          -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
     ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
 
-    ext-η : {X : Type n} {𝔜 : struct ns σ}
+    ext-η : {X : Type c} {𝔜 : struct ns σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
          -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
