@@ -40,6 +40,14 @@ tabulate-lookup (x ∷ xs) =
    _ ≡⟨ cong (x ∷_) (tabulate-lookup xs) ⟩
    _ ∎
 
+lookup2≡i : ∀ (i : Arity 2 -> A) -> lookup (i fzero ∷ i fone ∷ []) ≡ i
+lookup2≡i i = funExt lemma
+  where
+  lemma : _
+  lemma (zero , p) = cong i (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc zero , p) = cong i (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+
 ◼ : Arity 0 -> A
 ◼ = ⊥.rec ∘ ¬Fin0
 
