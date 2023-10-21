@@ -38,8 +38,11 @@ finSplit m n (k , k<m+n) with k ≤? m
 finSplit m n (k , k<m+n) | inl k<m = inl (k , k<m)
 finSplit m n (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
 
+combine : ∀ n m -> (Fin n -> A) -> (Fin m -> A) -> (Fin (n + m) -> A)
+combine n m as bs w = ⊎.rec as bs (finSplit n m w)
+
 _⊕_ : Array A -> Array A -> Array A
-(n , as) ⊕ (m , bs) = n + m , λ w -> ⊎.rec as bs (finSplit n m w)
+(n , as) ⊕ (m , bs) = n + m , combine n m as bs
 
 e : Array A
 e = 0 , ⊥.rec ∘ ¬Fin0
@@ -121,47 +124,13 @@ x ∷ (n , xs) = (suc n) , cons x xs
 uncons : (Fin (suc n) -> A) -> A × (Fin n -> A)
 uncons xs = xs fzero , xs ∘ fsuc
 
-cons≡η⊕ : (x : A) -> (xs : Array A) -> x ∷ xs ≡ η x ⊕ xs
-cons≡η⊕ x (n , xs) = ΣPathP (refl , sym (funExt lemma))
-  where
-  lemma : _
-  lemma (zero , p) = refl
-  lemma (suc m , p) with oldInspect (finSplit 1 n (suc m , p)) | oldInspect (suc m ≤? 1)
-  ... | inl q with-≡ eq₁ | inl r with-≡ eq₂ =
-    _ ≡⟨ cong (⊎.rec (λ _ → x) xs) eq₁ ⟩
-    {!   !}
-  ... | inl q with-≡ eq₁ | inr r with-≡ eq₂ =
-    _ ≡⟨ cong (⊎.rec (λ _ → x) xs) eq₁ ⟩
-    {!   !}
-  ... | inr q with-≡ eq₁ | inl r with-≡ eq₂ =
-    _ ≡⟨ cong (⊎.rec (λ _ → x) xs) eq₁ ⟩
-    {!   !}
-  ... | inr q with-≡ eq₁ | inr r with-≡ eq₂ =
-    _ ≡⟨ cong (⊎.rec (λ _ → x) xs) eq₁ ⟩
-    {!   !}
-  
+η+fsuc : (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
+η+fsuc = {!   !}
 
-cons∘uncons : (xs : Fin (suc n) -> A) -> uncurry cons (uncons xs) ≡ xs
-cons∘uncons xs = funExt lemma
-  where
-  lemma : _
-  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (suc n , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-
-uncons∘cons : (x : A) -> (xs : Fin (suc n) -> A) -> uncons (cons x xs) ≡ (x , xs)
-uncons∘cons x xs = cong (x ,_) (funExt λ _ -> cong xs (Σ≡Prop (λ _ -> isProp≤) refl))
-
-uncons∘cons' : (n : ℕ) (xs : Fin (suc n) -> A) -> (suc n , xs) ≡ η (xs fzero) ⊕ (n , xs ∘ fsuc)
-uncons∘cons' n xs = ΣPathP (refl , toPathP (funExt lemma))
-  where
-  lemma : _
-  lemma (zero , p) =
-    _ ≡⟨ sym (transport-filler refl _) ⟩
-    _ ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl ∙ sym (transport-filler refl _)) ⟩
-    _ ∎
-  lemma (suc n , p) =
-    _ ≡⟨ sym (transport-filler refl _) ⟩
-    {!   !}
+sumSplit : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
+  (n + m , (λ w -> combine (suc n) m xs ys (fsuc w)))
+  ≡ ((n , (λ w -> xs (fsuc w))) ⊕ (m , ys))
+sumSplit n m xs = {!   !}
 
 array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
@@ -181,6 +150,14 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     _♯ : Array A -> 𝔜 .car
     (n , xs) ♯ = ♯' n xs -- to aid termination checker
 
+    ♯-η : ∀ (xs : Fin (suc n) -> A) -> f (xs fzero) ≡ (η (xs fzero) ♯)
+    ♯-η xs = {!   !}
+
+    ♯-η∘ : ∀ (xs : Fin (suc n) -> A)
+      -> (η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)
+      ≡  ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯)
+    ♯-η∘ xs = {!   !}
+
     ♯-++' : ∀ n xs m ys -> ((n , xs) ⊕ (m , ys)) ♯ ≡ ((n , xs) ♯) 𝔜.⊕ ((m , ys) ♯)
     ♯-++' zero xs m ys =
       ((zero , xs) ⊕ (m , ys)) ♯ ≡⟨ cong (λ z -> (z ⊕ (m , ys)) ♯) (e-eta (zero , xs) e refl refl) ⟩
@@ -188,13 +165,19 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       (m , ys) ♯ ≡⟨ sym (𝔜.unitl _) ⟩
       𝔜.e 𝔜.⊕ ((m , ys) ♯) ∎
     ♯-++' (suc n) xs m ys =
-      f (xs fzero) 𝔜.⊕ ((n + m , _) ♯) ≡⟨ {!   !} ⟩
-      f (xs fzero) 𝔜.⊕ (((n , xs ∘ fsuc) ⊕ (m , ys)) ♯) ≡⟨ {!   !} ⟩
-      f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) 𝔜.⊕ ((m , ys) ♯) ≡⟨ {!   !} ⟩
-      (f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯) ≡⟨ {!   !} ⟩
-      ((η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯) ≡⟨ {!   !} ⟩
-      ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯) 𝔜.⊕ ((m , ys) ♯) ≡⟨ {!   !} ⟩
-      ((suc n , xs) ♯) 𝔜.⊕ ((m , ys) ♯) ∎
+        f (xs fzero) 𝔜.⊕ ((n + m , _) ♯)
+      ≡⟨ cong (λ z -> f (xs fzero) 𝔜.⊕ (z ♯)) (sumSplit n m xs ys) ⟩
+        f (xs fzero) 𝔜.⊕ (((n , xs ∘ fsuc) ⊕ (m , ys)) ♯)
+      ≡⟨ cong (f (xs fzero) 𝔜.⊕_) (♯-++' n _ m _) ⟩
+        f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) 𝔜.⊕ ((m , ys) ♯)
+      ≡⟨ sym (𝔜.assocr _ _ _) ⟩
+        (f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯)
+      ≡⟨ cong (λ z -> (z 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯) ) (♯-η xs) ⟩
+        ((η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯)
+      ≡⟨ cong (𝔜._⊕ ((m , ys) ♯)) (♯-η∘ xs) ⟩ -- cannot reuse ♯-++' because of termination checker
+        ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯) 𝔜.⊕ ((m , ys) ♯)
+      ≡⟨ cong (λ z -> (z ♯) 𝔜.⊕ ((m , ys) ♯)) (η+fsuc xs) ⟩
+        ((suc n , xs) ♯) 𝔜.⊕ ((m , ys) ♯) ∎
 
     ♯-++ : ∀ xs ys -> (xs ⊕ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
     ♯-++ (n , xs) (m , ys) = ♯-++' n xs m ys
@@ -202,5 +185,5 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     ♯-isMonHom : structHom 𝔄 𝔜
     fst ♯-isMonHom = _♯
     snd ♯-isMonHom M.`e i = 𝔜.e-eta
-    snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym {! λ i₁ → ? !}
+    snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym (♯-++ (i fzero) (i fone))
 
