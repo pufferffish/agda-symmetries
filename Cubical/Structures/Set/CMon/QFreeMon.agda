@@ -20,40 +20,51 @@ open import Cubical.Structures.Arity hiding (_/_)
 open F.Definition M.MonSig M.MonEqSig M.MonSEq
 open F.Definition.Free
 
-record PermRelation {ℓ : Level} : Typeω where
+record PermRelation : Typeω where
   field
     freeMon : Free 2
 
-    R : {A : Type ℓ} -> freeMon .F A -> freeMon .F A -> Type ℓ
+    R : ∀ {ℓ ℓ'} {A : Type ℓ} -> freeMon .F A -> freeMon .F A -> Type ℓ'
 
-    perm-append : {A : Type ℓ} (as bs : freeMon .F A)
-      -> (p : R as bs)
+    perm-append : ∀ {ℓ ℓ'} {A : Type ℓ} (as bs : freeMon .F A)
+      -> (p : R {ℓ' = ℓ'} as bs)
       -> (cs : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ []))) (freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])))
-    perm-prepend : {A : Type ℓ} (bs cs : freeMon .F A) -> (as : freeMon .F A)
-      -> (p : R bs cs)
-      -> R (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ []))) (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
+          (freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])))
+    perm-prepend : ∀ {ℓ ℓ'} {A : Type ℓ} (bs cs : freeMon .F A) -> (as : freeMon .F A)
+      -> (p : R {ℓ' = ℓ'} bs cs)
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])))
+          (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
 
-    ⊕-unitlₚ : {A : Type ℓ}
+    ⊕-unitlₚ : ∀ {ℓ ℓ'} {A : Type ℓ}
       -> (as : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup ((freeMon .α (M.`e , lookup [])) ∷ as ∷ []))) as
-    ⊕-unitrₚ : {A : Type ℓ}
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , lookup ((freeMon .α (M.`e , lookup [])) ∷ as ∷ [])))
+          as
+    ⊕-unitrₚ : ∀ {ℓ ℓ'} {A : Type ℓ}
       -> (as : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup (as ∷ (freeMon .α (M.`e , lookup [])) ∷ []))) as
-    ⊕-assocrₚ : {A : Type ℓ} -> (as bs cs : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])) ∷ cs ∷ [])))
-           (freeMon .α (M.`⊕ , lookup (as ∷ freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])) ∷ [])))
-    ⊕-commₚ : {A : Type ℓ} -> (as bs : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , (lookup (as ∷ bs ∷ []))))
-           (freeMon .α (M.`⊕ , (lookup (bs ∷ as ∷ []))))
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , lookup (as ∷ (freeMon .α (M.`e , lookup [])) ∷ [])))
+          as
+    ⊕-assocrₚ : ∀ {ℓ ℓ'} {A : Type ℓ} -> (as bs cs : freeMon .F A)
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , lookup (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])) ∷ cs ∷ [])))
+          (freeMon .α (M.`⊕ , lookup (as ∷ freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])) ∷ [])))
+    ⊕-commₚ : ∀ {ℓ ℓ'} {A : Type ℓ} -> (as bs : freeMon .F A)
+      -> R {ℓ' = ℓ'}
+          (freeMon .α (M.`⊕ , (lookup (as ∷ bs ∷ []))))
+          (freeMon .α (M.`⊕ , (lookup (bs ∷ as ∷ []))))
 
-    f-≅ₚ : ∀ {ℓB} {A : Type ℓ} {𝔜 : struct ℓB M.MonSig}
+    f-≅ₚ : ∀ {ℓ ℓ' ℓB} {A : Type ℓ} {𝔜 : struct ℓB M.MonSig}
       (𝔜-cmon : 𝔜 ⊨ M.CMonSEq)
       (f : structHom < freeMon .F A , freeMon .α > 𝔜)
       (xs zs : freeMon .F A)
-      -> R xs zs -> (f .fst) xs ≡ (f .fst) zs
+      -> R {ℓ' = ℓ'} xs zs -> (f .fst) xs ≡ (f .fst) zs
 
-module QFreeMon {ℓr} (r : PermRelation {ℓr}) where
+
+module QFreeMon {ℓr} (r : PermRelation) where
   open PermRelation
 
   private
@@ -141,20 +152,19 @@ module QFreeMon {ℓr} (r : PermRelation {ℓr}) where
     qFreeMonEquiv =
       isoToEquiv (iso (λ g -> g .fst ∘ η/) ♯-isMonHom {!   !} {!   !})
 
-  module QFreeMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
   
   qFreeMon-sat : ∀ {X : Type ℓr} -> < QFreeMon X , qFreeMon-α > ⊨ M.CMonSEq
   qFreeMon-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
   qFreeMon-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
   qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
   qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
+ 
+module QFreeMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
   
-  qFreeMonDef : QFreeMonDef.Free 2
-  F.Definition.Free.F qFreeMonDef = QFreeMon
-  F.Definition.Free.η qFreeMonDef = η/
-  F.Definition.Free.α qFreeMonDef = qFreeMon-α
-  F.Definition.Free.sat qFreeMonDef = qFreeMon-sat
-  F.Definition.Free.isFree qFreeMonDef isSet𝔜 satMon = (IsFree.qFreeMonEquiv isSet𝔜 satMon) .snd
-
-
+qFreeMonDef : PermRelation -> QFreeMonDef.Free 2
+F (qFreeMonDef rel) = QFreeMon.QFreeMon rel
+η (qFreeMonDef rel) = QFreeMon.η/ rel
+α (qFreeMonDef rel) = QFreeMon.qFreeMon-α rel
+sat (qFreeMonDef rel) = QFreeMon.qFreeMon-sat rel
+isFree (qFreeMonDef rel) isSet𝔜 satMon = (QFreeMon.IsFree.qFreeMonEquiv rel isSet𝔜 satMon) .snd
  
