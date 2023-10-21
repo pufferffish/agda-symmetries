@@ -64,3 +64,34 @@ Begin work on formalizing free monoids in the new framework
 
 * 07/10/2023 [7 hours]
 Formalizing free monoids with the new universal algebra framework, fixing issues with the framework
+
+* 08/10/2023 [2 hours]
+Attempt to generalize the framework to all h-levels
+
+* 09/10/2023 [2 hours]
+Meeting with Dr. Vikraman Choudhury to discuss tasks for the week
+
+* 11/10/2023 [2 hours]
+Another attempt to generalize the framework to all h-levels, gave up and just proved Tree's h-level instead,
+also work on defining some commutative monoids
+
+* 12/10/2023 [5 hours]
+Complete work on defining SList, CList, FreeCMon, and prove they are all free commutative monoids
+
+* 16/10/2023 [2 hours]
+Meeting with Dr. Vikraman Choudhury to discuss tasks for the week
+
+* 17/10/2023 [5 hours]
+Refactoring the lemmas for Free structures
+
+* 18/10/2023 [3 hours]
+Experimentation with SList for groupoids, meeting with Dr. Vikraman Choudhury and Dr. Simon Gay to catch up on progress
+
+* 19/10/2023 [4 hours]
+Define and prove PList is a free comm monoid, experimentation with free comm monoid as an analytic functor
+
+* 20/10/2023 [4 hours]
+Prove Array's monoidal properties, generalize PList to any relations
+
+
+
