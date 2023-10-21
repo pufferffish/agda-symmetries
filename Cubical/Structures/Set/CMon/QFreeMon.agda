@@ -16,6 +16,7 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity hiding (_/_)
+open import Cubical.Relation.Nullary
 
 open F.Definition M.MonSig M.MonEqSig M.MonSEq
 open F.Definition.Free
@@ -62,7 +63,6 @@ record PermRelation : Typeω where
       (f : structHom < freeMon .F A , freeMon .α > 𝔜)
       (xs zs : freeMon .F A)
       -> R {ℓ' = ℓ'} xs zs -> (f .fst) xs ≡ (f .fst) zs
-
 
 module QFreeMon {ℓr} (r : PermRelation) where
   open PermRelation
@@ -126,8 +126,11 @@ module QFreeMon {ℓr} (r : PermRelation) where
     𝔛 : M.CMonStruct
     𝔛 = < QFreeMon A , qFreeMon-α >
 
+    𝔉 : M.MonStruct
+    𝔉 = < r .freeMon .F A , r .freeMon .α >
+
     module _ (f : A -> 𝔜 .car) where
-      f♯ : structHom < r .freeMon .F A , r .freeMon .α > 𝔜
+      f♯ : structHom 𝔉 𝔜
       f♯ = ext (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
 
       _♯ : QFreeMon A -> 𝔜 .car    
@@ -148,10 +151,24 @@ module QFreeMon {ℓr} (r : PermRelation) where
       snd ♯-isMonHom M.`e i = 𝔜.e-eta ∙ f♯ .snd M.`e (lookup [])
       snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym (♯-++ (i fzero) (i fone))
 
+    private
+      qFreeMonEquivLemma : (g : structHom 𝔛 𝔜) (x : 𝔛 .car) -> g .fst x ≡ ((g .fst ∘ η/) ♯) x
+      qFreeMonEquivLemma g = elimProp (λ _ -> isSet𝔜 _ _) lemma
+        where
+        lemma : (xs : r .freeMon .F A) -> (g .fst) _/_.[ xs ] ≡ f♯ ((g .fst) ∘ η/) .fst xs
+        lemma xs =
+          (g .fst) _/_.[ xs ] ≡⟨ {!   !} ⟩
+          (f♯ ((g .fst) ∘ η/)) .fst xs ∎
+
     qFreeMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .car)
     qFreeMonEquiv =
-      isoToEquiv (iso (λ g -> g .fst ∘ η/) ♯-isMonHom {!   !} {!   !})
-
+      isoToEquiv
+        ( iso
+          (λ g -> g .fst ∘ η/)
+          ♯-isMonHom
+          (ext-η (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon))
+          (λ g -> sym (structHom≡ 𝔛 𝔜 g (♯-isMonHom (g .fst ∘ η/)) isSet𝔜 (funExt (qFreeMonEquivLemma g))))
+        )
   
   qFreeMon-sat : ∀ {X : Type ℓr} -> < QFreeMon X , qFreeMon-α > ⊨ M.CMonSEq
   qFreeMon-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
