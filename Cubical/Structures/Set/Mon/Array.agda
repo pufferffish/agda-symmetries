@@ -158,11 +158,11 @@ uncons xs = xs fzero , xs ∘ fsuc
   lemma : _
   lemma (o , p) with suc o ≤? suc n
   lemma (o , p) | inl q with o ≤? n
-  lemma (o , p) | inl q | inl r = {!   !}
+  lemma (o , p) | inl q | inl r = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
   lemma (o , p) | inl q | inr r = ⊥.rec (<-asym (pred-≤-pred q) r)
   lemma (o , p) | inr q with o ≤? n
   lemma (o , p) | inr q | inl r = ⊥.rec (¬n<m<suc-n r q)
-  lemma (o , p) | inr q | inr r = {!   !}
+  lemma (o , p) | inr q | inr r = cong ys (Σ≡Prop (λ _ -> isProp≤) refl)
 
 array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
