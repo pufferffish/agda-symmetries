@@ -150,9 +150,6 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     _♯ : Array A -> 𝔜 .car
     (n , xs) ♯ = ♯' n xs -- to aid termination checker
 
-    ♯-η : ∀ (xs : Fin (suc n) -> A) -> f (xs fzero) ≡ (η (xs fzero) ♯)
-    ♯-η xs = {!   !}
-
     ♯-η∘ : ∀ (xs : Fin (suc n) -> A)
       -> (η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)
       ≡  ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯)
@@ -172,7 +169,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
         f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) 𝔜.⊕ ((m , ys) ♯)
       ≡⟨ sym (𝔜.assocr _ _ _) ⟩
         (f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯)
-      ≡⟨ cong (λ z -> (z 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯) ) (♯-η xs) ⟩
+      ≡⟨ cong (λ z -> (z 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯) ) (sym (𝔜.unitr _)) ⟩
         ((η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯)
       ≡⟨ cong (𝔜._⊕ ((m , ys) ♯)) (♯-η∘ xs) ⟩ -- cannot reuse ♯-++' because of termination checker
         ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯) 𝔜.⊕ ((m , ys) ♯)
