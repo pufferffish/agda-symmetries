@@ -138,10 +138,31 @@ uncons xs = xs fzero , xs ∘ fsuc
     _ ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
     _ ∎
 
-sumSplit : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
+¬n<m<suc-n : ∀ {n m} -> n < m -> m < suc n -> ⊥.⊥
+¬n<m<suc-n {n} {m} (x , p) (y , q) = znots lemma-β
+  where
+  lemma-α : suc n ≡ (y + suc x) + suc n
+  lemma-α =
+    suc n ≡⟨ sym q ⟩
+    y + suc m ≡⟨ cong (λ z -> y + suc z) (sym p) ⟩
+    y + (suc x + suc n) ≡⟨ +-assoc y (suc x) (suc n) ⟩
+    (y + suc x) + suc n ∎
+  lemma-β : 0 ≡ suc (y + x)
+  lemma-β = (sym (n∸n (suc n))) ∙ cong (_∸ suc n) lemma-α ∙ +∸ (y + suc x) (suc n) ∙ +-suc y x
+
+⊕-split : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
   (n + m , (λ w -> combine (suc n) m xs ys (fsuc w)))
   ≡ ((n , (λ w -> xs (fsuc w))) ⊕ (m , ys))
-sumSplit n m xs = {!   !}
+⊕-split n m xs ys = ΣPathP (refl , funExt lemma)
+  where
+  lemma : _
+  lemma (o , p) with suc o ≤? suc n
+  lemma (o , p) | inl q with o ≤? n
+  lemma (o , p) | inl q | inl r = {!   !}
+  lemma (o , p) | inl q | inr r = ⊥.rec (<-asym (pred-≤-pred q) r)
+  lemma (o , p) | inr q with o ≤? n
+  lemma (o , p) | inr q | inl r = ⊥.rec (¬n<m<suc-n r q)
+  lemma (o , p) | inr q | inr r = {!   !}
 
 array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
@@ -174,7 +195,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       𝔜.e 𝔜.⊕ ((m , ys) ♯) ∎
     ♯-++' (suc n) xs m ys =
         f (xs fzero) 𝔜.⊕ ((n + m , _) ♯)
-      ≡⟨ cong (λ z -> f (xs fzero) 𝔜.⊕ (z ♯)) (sumSplit n m xs ys) ⟩
+      ≡⟨ cong (λ z -> f (xs fzero) 𝔜.⊕ (z ♯)) (⊕-split n m xs ys) ⟩
         f (xs fzero) 𝔜.⊕ (((n , xs ∘ fsuc) ⊕ (m , ys)) ♯)
       ≡⟨ cong (f (xs fzero) 𝔜.⊕_) (♯-++' n _ m _) ⟩
         f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) 𝔜.⊕ ((m , ys) ♯)
@@ -195,3 +216,4 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     snd ♯-isMonHom M.`e i = 𝔜.e-eta
     snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym (♯-++ (i fzero) (i fone))
 
+ 
