@@ -23,27 +23,30 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
   ns : Level
   ns = ℓ-max n s
 
-  record Free {c : Level} (h : HLevel) : Type (ℓ-suc (ℓ-max (ℓ-max f (ℓ-max a (ℓ-max e ns))) c)) where
+  record Free (h : HLevel) : Typeω where
     field
-      F : (X : Type c) -> Type ns
-      η : {X : Type c} -> X -> F X
-      α : {X : Type c} -> sig σ (F X) -> F X
-      sat : {X : Type c} -> <_,_> {n = ns} (F X) α ⊨ ε
-      isFree : {X : Type c} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
-            -> isEquiv (\(f : structHom {x = ns} < F X , α > 𝔜) -> f .fst ∘ η)
+      F : ∀ {ℓ} (X : Type ℓ) -> Type (ℓ-max ℓ ns)
+      η : ∀ {ℓ} {X : Type ℓ} -> X -> F {ℓ = ℓ} X
+      α : ∀ {ℓ} {X : Type ℓ} -> sig σ (F {ℓ = ℓ} X) -> F {ℓ = ℓ} X
+      sat : ∀ {ℓ} {X : Type ℓ} -> <_,_> {n = ℓ-max ℓ ns} (F {ℓ = ℓ} X) α ⊨ ε
+      isFree : ∀ {ℓ ℓ'} {X : Type ℓ}
+            {𝔜 : struct (ℓ-max ℓ' ns) σ}
+            (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+            -> isEquiv (\(f : structHom {x = ℓ-max ℓ ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
-    ext : {X : Type c} {𝔜 : struct ns σ} (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+    ext : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+          (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
        -> (hom : X -> 𝔜 .car) -> structHom < F X , α > 𝔜
-    ext h ϕ = invIsEq (isFree h ϕ)
+    ext {ℓ = ℓ} {ℓ' = ℓ'} h ϕ = invIsEq (isFree {ℓ = ℓ} {ℓ' = ℓ'} h ϕ)
 
-    ext-β : {X : Type c} {𝔜 : struct ns σ}
+    ext-β : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
-         -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
+         -> ext {ℓ = ℓ} {ℓ' = ℓ'} H ϕ (Hom .fst ∘ η) ≡ Hom
     ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
 
-    ext-η : {X : Type c} {𝔜 : struct ns σ}
+    ext-η : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
-         -> (ext H ϕ h .fst) ∘ η ≡ h
+         -> (ext {ℓ = ℓ} {ℓ' = ℓ'} H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
 -- -- constructions of a free structure on a signature and equations
@@ -113,3 +116,4 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
 --   --   private
 --   --     Y = 𝔜 .fst
 --   --     β = 𝔜 .snd
+ 
