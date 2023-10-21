@@ -93,5 +93,6 @@ Define and prove PList is a free comm monoid, experimentation with free comm mon
 * 20/10/2023 [4 hours]
 Prove Array's monoidal properties, generalize PList to any relations
 
-
+* 21/10/2023 [8 hours]
+Prove Array is a free monoid and generalize QList to QFreeMon
 
