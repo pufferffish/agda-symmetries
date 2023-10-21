@@ -6,7 +6,7 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.HITs.PropositionalTruncation as P
 open import Cubical.HITs.SetQuotients as Q
-open import Cubical.Data.List
+open import Cubical.Data.List as L
 
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.CMon.Desc as M
@@ -110,17 +110,51 @@ module QFreeMon {ℓr} (r : PermRelation {ℓr}) where
   qFreeMon-α (M.`⊕ , i) = i fzero ⊕/ i fone
 
   module IsFree {y : Level} {A : Type ℓr} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
-    module 𝔜' = M.CMonSEq 𝔜 𝔜-cmon
+    module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
   
     𝔛 : M.CMonStruct
     𝔛 = < QFreeMon A , qFreeMon-α >
 
     module _ (f : A -> 𝔜 .car) where
-      _♯ₚ : QFreeMon A -> 𝔜 .car    
-      Q.[ as ] ♯ₚ =
-        (ext (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f) .fst as 
-      eq/ as bs p i ♯ₚ =
-        P.rec (isSet𝔜 _ _) (r .f-≅ₚ 𝔜-cmon (ext (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f) as bs) p i
-      squash/ xs ys p q i j ♯ₚ = isSet𝔜 (xs ♯ₚ) (ys ♯ₚ) (cong _♯ₚ p) (cong _♯ₚ q) i j
+      f♯ : structHom < r .freeMon .F A , r .freeMon .α > 𝔜
+      f♯ = ext (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
+
+      _♯ : QFreeMon A -> 𝔜 .car    
+      Q.[ as ] ♯ = f♯ .fst as 
+      eq/ as bs p i ♯ = P.rec (isSet𝔜 _ _) (r .f-≅ₚ 𝔜-cmon f♯ as bs) p i
+      squash/ xs ys p q i j ♯ = isSet𝔜 (xs ♯) (ys ♯) (cong _♯ p) (cong _♯ q) i j
+
+      ♯-++ : ∀ xs ys -> (xs ⊕/ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
+      ♯-++ =
+        elimProp (λ _ -> isPropΠ λ _ -> isSet𝔜 _ _) λ xs ->
+          elimProp (λ _ -> isSet𝔜 _ _) λ ys ->
+            f♯ .fst (xs ⊕ ys) ≡⟨ sym (f♯ .snd M.`⊕ (lookup (xs ∷ ys ∷ []))) ⟩
+            _ ≡⟨ 𝔜.⊕-eta (lookup (xs ∷ ys ∷ [])) (f♯ .fst) ⟩
+            _ ∎
+  
+      ♯-isMonHom : structHom 𝔛 𝔜
+      fst ♯-isMonHom = _♯
+      snd ♯-isMonHom M.`e i = 𝔜.e-eta ∙ f♯ .snd M.`e (lookup [])
+      snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym (♯-++ (i fzero) (i fone))
+
+    qFreeMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .car)
+    qFreeMonEquiv =
+      isoToEquiv (iso (λ g -> g .fst ∘ η/) ♯-isMonHom {!   !} {!   !})
+
+  module QFreeMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
+  
+  qFreeMon-sat : ∀ {X : Type ℓr} -> < QFreeMon X , qFreeMon-α > ⊨ M.CMonSEq
+  qFreeMon-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
+  qFreeMon-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
+  qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+  qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
+  
+  qFreeMonDef : QFreeMonDef.Free 2
+  F.Definition.Free.F qFreeMonDef = QFreeMon
+  F.Definition.Free.η qFreeMonDef = η/
+  F.Definition.Free.α qFreeMonDef = qFreeMon-α
+  F.Definition.Free.sat qFreeMonDef = qFreeMon-sat
+  F.Definition.Free.isFree qFreeMonDef isSet𝔜 satMon = (IsFree.qFreeMonEquiv isSet𝔜 satMon) .snd
 
 
+ 
