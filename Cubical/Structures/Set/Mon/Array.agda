@@ -40,6 +40,29 @@ finSplitAux m n k k<m+n (inr k≥m) = inr (k ∸ m , ∸-<-lemma m n k k<m+n k�
 finSplit : ∀ m n -> Fin (m + n) -> Fin m ⊎ Fin n
 finSplit m n (k , k<m+n) = finSplitAux m n k k<m+n (k ≤? m)
 
+finCombine : ∀ m n -> Fin m ⊎ Fin n -> Fin (m + n)
+finCombine m n (inl (k , p)) = k , o<m→o<m+n m n k p
+finCombine m n (inr (k , p)) = m + k , <-k+ p
+
+finSplit∘finCombine : ∀ m n x -> (finSplit m n ∘ finCombine m n) x ≡ x
+finSplit∘finCombine m n (inl (k , p)) with k ≤? m
+... | inl q = cong inl (Σ≡Prop (λ _ → isProp≤) refl)
+... | inr q = ⊥.rec (¬-<-and-≥ p q)
+finSplit∘finCombine m n (inr (k , p)) with (m + k) ≤? m
+... | inl q = ⊥.rec (¬m+n<m q)
+... | inr q = cong inr (Σ≡Prop (λ _ → isProp≤) lemma)
+  where
+  lemma : m + k ∸ m ≡ k
+  lemma = subst (λ - -> - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
+
+finCombine∘finSplit : ∀ m n x -> (finCombine m n ∘ finSplit m n) x ≡ x
+finCombine∘finSplit m n (o , p) with o ≤? m
+... | inl q = Σ≡Prop (λ _ → isProp≤) refl
+... | inr q = Σ≡Prop (λ _ → isProp≤) (∸-lemma q)
+
+Fin≅Fin+Fin : ∀ m n -> Fin (m + n) ≃ (Fin m ⊎ Fin n)
+Fin≅Fin+Fin m n = isoToEquiv (iso (finSplit m n) (finCombine m n) (finSplit∘finCombine m n) (finCombine∘finSplit m n))
+
 combine : ∀ n m -> (Fin n -> A) -> (Fin m -> A) -> (Fin (n + m) -> A)
 combine n m as bs w = ⊎.rec as bs (finSplit n m w)
 
