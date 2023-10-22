@@ -94,7 +94,7 @@ symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
 
 symm-prepend : ∀ xs {ys zs : Array A} -> SymmAction ys zs -> SymmAction (xs ⊕ ys) (xs ⊕ zs)
 symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
-  isoToEquiv (iso (prepend act) (prepend (invEquiv act)) (to∘from act) (to∘from (invEquiv act))) , {!   !}
+  isoToEquiv (iso (prepend act) (prepend (invEquiv act)) (to∘from act) (to∘from (invEquiv act))) , funExt symActEq
   where
   prepend : ∀ {a b} -> Fin a ≃ Fin b -> Fin (n + a) -> Fin (n + b)
   prepend {a = a} {b = b} f = combine n a (finCombine n b ∘ inl) (finCombine n b ∘ inr ∘ equivFun f)
@@ -120,3 +120,17 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
         (w ∸ n) + n
       ≡⟨ ≤-∸-+-cancel q ⟩
         w ∎
+
+  symActEq : _
+  symActEq (w , p) with w ≤? n
+  symActEq (w , p) | inl q with w ≤? n
+  symActEq (w , p) | inl q | inl r = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+  symActEq (w , p) | inl q | inr r = ⊥.rec (<-asym q r)
+  symActEq (w , p) | inr q with (n + fst (fst act (w ∸ n , ∸-<-lemma n m w p q))) ≤? n
+  symActEq (w , p) | inr q | inl r = ⊥.rec (¬m+n<m r)
+  symActEq (w , p) | inr q | inr r =
+      ys (w ∸ n , ∸-<-lemma n m w p q)
+    ≡⟨ cong (λ f -> f (w ∸ n , ∸-<-lemma n m w p q)) eqn ⟩
+      zs (act .fst (w ∸ n , ∸-<-lemma n m w p q))
+    ≡⟨ cong zs (Σ≡Prop (λ _ -> isProp≤) (sym (∸+ _ n))) ⟩
+      zs (n + fst (act .fst (w ∸ n , ∸-<-lemma n m w p q)) ∸ n , _) ∎
