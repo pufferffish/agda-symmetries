@@ -44,6 +44,9 @@ symmActionLength≡ {n = n} {m = m} (act , eqn) with discreteℕ n m
 equivFun∘invEq : ∀ {n m} (act : Fin n ≃ Fin m) w -> (equivFun act ∘ invEq act) w ≡ w
 equivFun∘invEq act w = invEq≡→equivFun≡ act refl
 
+invEq∘equivFun : ∀ {n m} (act : Fin n ≃ Fin m) w -> (invEq act ∘ equivFun act) w ≡ w
+invEq∘equivFun act w = equivFun∘invEq (invEquiv act) w
+
 symm-append : ∀ {xs ys} -> SymmAction xs ys -> {zs : Array A} -> SymmAction (xs ⊕ zs) (ys ⊕ zs)
 symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
   isoToEquiv (iso to from to∘from from∘to) , {!   !}
@@ -66,8 +69,7 @@ symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
       fst (fst act (snd act .equiv-proof (w , q) .fst .fst)) ≡⟨ cong fst (equivFun∘invEq act (w , q)) ⟩
       w ∎
   to∘from (w , p) | inl q | inr r =
-    let s = snd (invEq act (w , q))
-    in ⊥.rec (<-asym s r)
+    ⊥.rec (<-asym (snd (invEq act (w , q))) r)
   to∘from (w , p) | inr q with (n + (w ∸ m)) ≤? n 
   to∘from (w , p) | inr q | inl r =
     ⊥.rec (¬m+n<m r)
@@ -82,4 +84,28 @@ symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
       w ∎
 
   from∘to : ∀ x -> from (to x) ≡ x
-  from∘to x = {!   !}
+  from∘to (w , p) with w ≤? n
+  from∘to (w , p) | inl q with fst (equivFun act (w , q)) ≤? m
+  from∘to (w , p) | inl q | inl r =
+    ΣPathP (lemma , toPathP (isProp≤ _ p))
+    where
+    lemma : _
+    lemma =
+      fst (snd act .equiv-proof (fst (fst act (w , q)) , r) .fst .fst) ≡⟨ cong (λ z -> fst (snd act .equiv-proof z .fst .fst)) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+      fst (snd act .equiv-proof (fst act (w , q)) .fst .fst) ≡⟨ cong fst (invEq∘equivFun act (w , q)) ⟩
+      w ∎
+  from∘to (w , p) | inl q | inr r =
+    ⊥.rec (<-asym (snd (equivFun act (w , q))) r)
+  from∘to (w , p) | inr q with (m + (w ∸ n)) ≤? m
+  from∘to (w , p) | inr q | inl r =
+    ⊥.rec (¬m+n<m r)
+  from∘to (w , p) | inr q | inr r =
+    ΣPathP (lemma , toPathP (isProp≤ _ p))
+    where
+    lemma : _
+    lemma =
+      n + (m + (w ∸ n) ∸ m) ≡⟨ cong (n +_) (∸+ (w ∸ n) m) ⟩
+      n + (w ∸ n) ≡⟨ +-comm n (w ∸ n) ⟩
+      (w ∸ n) + n ≡⟨ ≤-∸-+-cancel q ⟩
+      w ∎
+
