@@ -49,67 +49,38 @@ invEq∘equivFun act w = equivFun∘invEq (invEquiv act) w
 
 symm-append : ∀ {xs ys} -> SymmAction xs ys -> {zs : Array A} -> SymmAction (xs ⊕ zs) (ys ⊕ zs)
 symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
-  isoToEquiv (iso to from to∘from from∘to) , funExt symActEq
+  isoToEquiv (iso (append act) (append (invEquiv act)) (to∘from act) (to∘from (invEquiv act))) , funExt symActEq
   where
-  to : Fin (n + o) -> Fin (m + o) 
-  to = combine n o (finCombine m o ∘ inl ∘ equivFun act) (finCombine m o ∘ inr)
+  append : ∀ {a b} -> Fin a ≃ Fin b -> Fin (a + o) -> Fin (b + o)
+  append {a = a} {b = b} f = combine a o (finCombine b o ∘ inl ∘ equivFun f) (finCombine b o ∘ inr)
 
-  from : Fin (m + o) -> Fin (n + o)
-  from = combine m o (finCombine n o ∘ inl ∘ invEq act) (finCombine n o ∘ inr)
-
-  to∘from : ∀ x -> to (from x) ≡ x
-  to∘from (w , p) with w ≤? m
-  to∘from (w , p) | inl q with fst (invEq act (w , q)) ≤? n
-  to∘from (w , p) | inl q | inl r =
+  to∘from : ∀ {a b} (f : Fin a ≃ Fin b) x -> append f (append (invEquiv f) x) ≡ x
+  to∘from {a = a} {b = b} f (w , p) with w ≤? b
+  to∘from {a = a} {b = b} f (w , p) | inl q with fst (invEq f (w , q)) ≤? a
+  to∘from {a = a} {b = b} f (w , p) | inl q | inl r =
     ΣPathP (lemma , toPathP (isProp≤ _ p))
     where
     lemma : _
     lemma =
-      fst (fst act (fst (snd act .equiv-proof (w , q) .fst .fst) , r)) ≡⟨ cong (λ z -> fst (fst act z)) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-      fst (fst act (snd act .equiv-proof (w , q) .fst .fst)) ≡⟨ cong fst (equivFun∘invEq act (w , q)) ⟩
+      fst (fst f (fst (snd f .equiv-proof (w , q) .fst .fst) , r)) ≡⟨ cong (λ z -> fst (fst f z)) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+      fst (fst f (snd f .equiv-proof (w , q) .fst .fst)) ≡⟨ cong fst (equivFun∘invEq f (w , q)) ⟩
       w ∎
-  to∘from (w , p) | inl q | inr r =
-    ⊥.rec (<-asym (snd (invEq act (w , q))) r)
-  to∘from (w , p) | inr q with (n + (w ∸ m)) ≤? n 
-  to∘from (w , p) | inr q | inl r =
+  to∘from {a = a} {b = b} f (w , p) | inl q | inr r =
+    ⊥.rec (<-asym (snd (invEq f (w , q))) r)
+  to∘from {a = a} {b = b} f (w , p) | inr q with (a + (w ∸ b)) ≤? a
+  to∘from {a = a} {b = b} f (w , p) | inr q | inl r =
     ⊥.rec (¬m+n<m r)
-  to∘from (w , p) | inr q | inr r =
+  to∘from {a = a} {b = b} f (w , p) | inr q | inr r =
     ΣPathP (lemma , toPathP (isProp≤ _ p))
     where
-    lemma : m + (n + (w ∸ m) ∸ n) ≡ w
+    lemma : b + (a + (w ∸ b) ∸ a) ≡ w
     lemma =
-      m + (n + (w ∸ m) ∸ n) ≡⟨ cong (m +_) (∸+ (w ∸ m) n) ⟩
-      m + (w ∸ m) ≡⟨ +-comm m (w ∸ m) ⟩
-      (w ∸ m) + m ≡⟨ ≤-∸-+-cancel q ⟩
+      b + (a + (w ∸ b) ∸ a) ≡⟨ cong (b +_) (∸+ (w ∸ b) a) ⟩
+      b + (w ∸ b) ≡⟨ +-comm b (w ∸ b) ⟩
+      (w ∸ b) + b ≡⟨ ≤-∸-+-cancel q ⟩
       w ∎
 
-  from∘to : ∀ x -> from (to x) ≡ x
-  from∘to (w , p) with w ≤? n
-  from∘to (w , p) | inl q with fst (equivFun act (w , q)) ≤? m
-  from∘to (w , p) | inl q | inl r =
-    ΣPathP (lemma , toPathP (isProp≤ _ p))
-    where
-    lemma : _
-    lemma =
-      fst (snd act .equiv-proof (fst (fst act (w , q)) , r) .fst .fst) ≡⟨ cong (λ z -> fst (snd act .equiv-proof z .fst .fst)) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-      fst (snd act .equiv-proof (fst act (w , q)) .fst .fst) ≡⟨ cong fst (invEq∘equivFun act (w , q)) ⟩
-      w ∎
-  from∘to (w , p) | inl q | inr r =
-    ⊥.rec (<-asym (snd (equivFun act (w , q))) r)
-  from∘to (w , p) | inr q with (m + (w ∸ n)) ≤? m
-  from∘to (w , p) | inr q | inl r =
-    ⊥.rec (¬m+n<m r)
-  from∘to (w , p) | inr q | inr r =
-    ΣPathP (lemma , toPathP (isProp≤ _ p))
-    where
-    lemma : _
-    lemma =
-      n + (m + (w ∸ n) ∸ m) ≡⟨ cong (n +_) (∸+ (w ∸ n) m) ⟩
-      n + (w ∸ n) ≡⟨ +-comm n (w ∸ n) ⟩
-      (w ∸ n) + n ≡⟨ ≤-∸-+-cancel q ⟩
-      w ∎
-
-  symActEq : (x : Fin (fst ((n , xs) ⊕ (o , zs)))) -> snd ((n , xs) ⊕ (o , zs)) x ≡ snd ((m , ys) ⊕ (o , zs)) (to x)
+  symActEq : (x : Fin (fst ((n , xs) ⊕ (o , zs)))) -> snd ((n , xs) ⊕ (o , zs)) x ≡ snd ((m , ys) ⊕ (o , zs)) (append act x)
   symActEq (w , p) with w ≤? n
   symActEq (w , p) | inl q with fst (equivFun act (w , q)) ≤? m
   symActEq (w , p) | inl q | inl r =
