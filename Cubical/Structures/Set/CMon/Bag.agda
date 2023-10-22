@@ -91,3 +91,32 @@ symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
   symActEq (w , p) | inr q with (m + (w ∸ n)) ≤? m
   symActEq (w , p) | inr q | inl r = ⊥.rec (¬m+n<m r)
   symActEq (w , p) | inr q | inr r = cong zs (Σ≡Prop (λ _ -> isProp≤) (sym (∸+ (w ∸ n) m)))
+
+symm-prepend : ∀ xs {ys zs : Array A} -> SymmAction ys zs -> SymmAction (xs ⊕ ys) (xs ⊕ zs)
+symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
+  isoToEquiv (iso (prepend act) (prepend (invEquiv act)) (to∘from act) (to∘from (invEquiv act))) , {!   !}
+  where
+  prepend : ∀ {a b} -> Fin a ≃ Fin b -> Fin (n + a) -> Fin (n + b)
+  prepend {a = a} {b = b} f = combine n a (finCombine n b ∘ inl) (finCombine n b ∘ inr ∘ equivFun f)
+
+  to∘from : ∀ {a b} (f : Fin a ≃ Fin b) x -> prepend f (prepend (invEquiv f) x) ≡ x
+  to∘from {a = a} {b = b} f (w , p) with w ≤? n
+  to∘from {a = a} {b = b} f (w , p) | inl q with w ≤? n
+  to∘from {a = a} {b = b} f (w , p) | inl q | inl r = Σ≡Prop (λ _ -> isProp≤) refl
+  to∘from {a = a} {b = b} f (w , p) | inl q | inr r = ⊥.rec (<-asym q r)
+  to∘from {a = a} {b = b} f (w , p) | inr q with (n + (invEq f (w ∸ n , ∸-<-lemma n b w p q)) .fst) ≤? n
+  to∘from {a = a} {b = b} f (w , p) | inr q | inl r = ⊥.rec (¬m+n<m r)
+  to∘from {a = a} {b = b} f (w , p) | inr q | inr r =
+    Σ≡Prop (λ _ -> isProp≤) lemma
+    where
+    lemma : _
+    lemma =
+        n + fst (equivFun f (n + fst (invEq f (w ∸ n , ∸-<-lemma n b w p q)) ∸ n , ∸-<-lemma n a _ _ r))
+      ≡⟨ cong (λ z -> n + fst (equivFun f z)) (Σ≡Prop (λ _ -> isProp≤) (∸+ _ n)) ⟩
+        n + fst (equivFun f (invEq f (w ∸ n , ∸-<-lemma n b w p q)))
+      ≡⟨ cong (λ z -> n + fst z) (equivFun∘invEq f (w ∸ n , ∸-<-lemma n b w p q)) ⟩
+        n + (w ∸ n)
+      ≡⟨ +-comm n _ ⟩
+        (w ∸ n) + n
+      ≡⟨ ≤-∸-+-cancel q ⟩
+        w ∎
