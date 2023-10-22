@@ -42,7 +42,7 @@ symmActionLength≡ {n = n} {m = m} (act , eqn) with discreteℕ n m
 ... | no ¬p = ⊥.rec (¬p (Fin-inj n m (ua act)))
 
 equivFun∘invEq : ∀ {n m} (act : Fin n ≃ Fin m) w -> (equivFun act ∘ invEq act) w ≡ w
-equivFun∘invEq act w = {!   !}
+equivFun∘invEq act w = invEq≡→equivFun≡ act refl
 
 symm-append : ∀ {xs ys} -> SymmAction xs ys -> {zs : Array A} -> SymmAction (xs ⊕ zs) (ys ⊕ zs)
 symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
@@ -66,12 +66,20 @@ symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
       fst (fst act (snd act .equiv-proof (w , q) .fst .fst)) ≡⟨ cong fst (equivFun∘invEq act (w , q)) ⟩
       w ∎
   to∘from (w , p) | inl q | inr r =
-    ΣPathP ({!   !} , toPathP {!   !})
+    let s = snd (invEq act (w , q))
+    in ⊥.rec (<-asym s r)
   to∘from (w , p) | inr q with (n + (w ∸ m)) ≤? n 
   to∘from (w , p) | inr q | inl r =
     ⊥.rec (¬m+n<m r)
   to∘from (w , p) | inr q | inr r =
-    ΣPathP ({!   !} , {!   !})
+    ΣPathP (lemma , toPathP (isProp≤ _ p))
+    where
+    lemma : m + (n + (w ∸ m) ∸ n) ≡ w
+    lemma =
+      m + (n + (w ∸ m) ∸ n) ≡⟨ cong (m +_) (∸+ (w ∸ m) n) ⟩
+      m + (w ∸ m) ≡⟨ +-comm m (w ∸ m) ⟩
+      (w ∸ m) + m ≡⟨ ≤-∸-+-cancel q ⟩
+      w ∎
 
   from∘to : ∀ x -> from (to x) ≡ x
   from∘to x = {!   !}
