@@ -35,8 +35,9 @@ private
 SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
 SymmAction (n , v) (m , w) = Σ[ σ ∈ Fin n ≃ Fin m ] v ≡ w ∘ σ .fst
 
-symmActionLength≡ : ∀ {n m : ℕ} -> Fin n ≃ Fin m -> n ≡ m
-symmActionLength≡ {n = n} {m = m} act with discreteℕ n m
+symmActionLength≡ : ∀ {A : Type ℓ} {n m : ℕ} {v : Fin n -> A} {w : Fin m -> A} ->
+  SymmAction (n , v) (m , w) -> n ≡ m
+symmActionLength≡ {n = n} {m = m} (act , eqn) with discreteℕ n m
 ... | yes p = p
 ... | no ¬p = ⊥.rec (¬p (Fin-inj n m (ua act)))
 
@@ -48,16 +49,48 @@ invEq∘equivFun act w = equivFun∘invEq (invEquiv act) w
 
 symm-append : ∀ {xs ys} -> SymmAction xs ys -> {zs : Array A} -> SymmAction (xs ⊕ zs) (ys ⊕ zs)
 symm-append {xs = (n , xs)} {ys = (m , ys)} (act , eqn) {zs = (o , zs)} =
-  ℕ≡→Fin̄≅ (n + o) (m + o) (cong (_+ o) (symmActionLength≡ act)) , funExt lemma
+  isoToEquiv (iso (append act) (append (invEquiv act)) (to∘from act) (to∘from (invEquiv act))) , funExt symActEq
   where
-  lemma : _
-  lemma (w , p) with w ≤? m
-  lemma (w , p) | inl q with w ≤? n
-  lemma (w , p) | inl q | inl r = {!   !}
-  lemma (w , p) | inl q | inr r = {!   !}
-  lemma (w , p) | inr q with w ≤? n
-  lemma (w , p) | inr q | inl r = {!   !}
-  lemma (w , p) | inr q | inr r = {!   !}
+  append : ∀ {a b} -> Fin a ≃ Fin b -> Fin (a + o) -> Fin (b + o)
+  append {a = a} {b = b} f = combine a o (finCombine b o ∘ inl ∘ equivFun f) (finCombine b o ∘ inr)
+
+  to∘from : ∀ {a b} (f : Fin a ≃ Fin b) x -> append f (append (invEquiv f) x) ≡ x
+  to∘from {a = a} {b = b} f (w , p) with w ≤? b
+  to∘from {a = a} {b = b} f (w , p) | inl q with fst (invEq f (w , q)) ≤? a
+  to∘from {a = a} {b = b} f (w , p) | inl q | inl r =
+    ΣPathP (lemma , toPathP (isProp≤ _ p))
+    where
+    lemma : _
+    lemma =
+      fst (fst f (fst (snd f .equiv-proof (w , q) .fst .fst) , r)) ≡⟨ cong (λ z -> fst (fst f z)) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+      fst (fst f (snd f .equiv-proof (w , q) .fst .fst)) ≡⟨ cong fst (equivFun∘invEq f (w , q)) ⟩
+      w ∎
+  to∘from {a = a} {b = b} f (w , p) | inl q | inr r =
+    ⊥.rec (<-asym (snd (invEq f (w , q))) r)
+  to∘from {a = a} {b = b} f (w , p) | inr q with (a + (w ∸ b)) ≤? a
+  to∘from {a = a} {b = b} f (w , p) | inr q | inl r =
+    ⊥.rec (¬m+n<m r)
+  to∘from {a = a} {b = b} f (w , p) | inr q | inr r =
+    ΣPathP (lemma , toPathP (isProp≤ _ p))
+    where
+    lemma : b + (a + (w ∸ b) ∸ a) ≡ w
+    lemma =
+      b + (a + (w ∸ b) ∸ a) ≡⟨ cong (b +_) (∸+ (w ∸ b) a) ⟩
+      b + (w ∸ b) ≡⟨ +-comm b (w ∸ b) ⟩
+      (w ∸ b) + b ≡⟨ ≤-∸-+-cancel q ⟩
+      w ∎
+
+  symActEq : (x : Fin (fst ((n , xs) ⊕ (o , zs)))) -> snd ((n , xs) ⊕ (o , zs)) x ≡ snd ((m , ys) ⊕ (o , zs)) (append act x)
+  symActEq (w , p) with w ≤? n
+  symActEq (w , p) | inl q with fst (equivFun act (w , q)) ≤? m
+  symActEq (w , p) | inl q | inl r =
+    xs (w , q) ≡⟨ cong (λ f -> f (w , q)) eqn ⟩
+    ys (fst act (w , q)) ≡⟨ cong ys (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+    ys (fst (fst act (w , q)) , r) ∎
+  symActEq (w , p) | inl q | inr r = ⊥.rec (<-asym (snd (equivFun act (w , q))) r)
+  symActEq (w , p) | inr q with (m + (w ∸ n)) ≤? m
+  symActEq (w , p) | inr q | inl r = ⊥.rec (¬m+n<m r)
+  symActEq (w , p) | inr q | inr r = cong zs (Σ≡Prop (λ _ -> isProp≤) (sym (∸+ (w ∸ n) m)))
 
 symm-prepend : ∀ xs {ys zs : Array A} -> SymmAction ys zs -> SymmAction (xs ⊕ ys) (xs ⊕ zs)
 symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
@@ -101,6 +134,3 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
       zs (act .fst (w ∸ n , ∸-<-lemma n m w p q))
     ≡⟨ cong zs (Σ≡Prop (λ _ -> isProp≤) (sym (∸+ _ n))) ⟩
       zs (n + fst (act .fst (w ∸ n , ∸-<-lemma n m w p q)) ∸ n , _) ∎
-
-symm-unitl : ∀ (xs : Array A) -> SymmAction (e ⊕ xs) xs
-symm-unitl xs = {!   !} , {!   !}
