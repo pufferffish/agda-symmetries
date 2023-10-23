@@ -12,6 +12,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as EQ
 import Cubical.Data.Empty as ⊥
 
 import Cubical.Structures.Set.Mon.Desc as M
@@ -35,9 +36,8 @@ private
 SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
 SymmAction (n , v) (m , w) = Σ[ σ ∈ Fin n ≃ Fin m ] v ≡ w ∘ σ .fst
 
-symmActionLength≡ : ∀ {A : Type ℓ} {n m : ℕ} {v : Fin n -> A} {w : Fin m -> A} ->
-  SymmAction (n , v) (m , w) -> n ≡ m
-symmActionLength≡ {n = n} {m = m} (act , eqn) with discreteℕ n m
+symmActionLength≡ : {n m : ℕ} -> Fin n ≃ Fin m -> n ≡ m
+symmActionLength≡ {n = n} {m = m} act with discreteℕ n m
 ... | yes p = p
 ... | no ¬p = ⊥.rec (¬p (Fin-inj n m (ua act)))
 
@@ -210,3 +210,72 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
   symActEq (w , p) | inr q with (w ∸ n) ≤? m
   symActEq (w , p) | inr q | inl r = cong ys (Σ≡Prop (λ _ → isProp≤) refl)
   symActEq (w , p) | inr q | inr r = ⊥.rec (<-asym (subst2 _≤_ (sym (≤-∸-suc q)) (∸+ m n) (≤-∸-≤ _ _ n p)) r)
+
+module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) (f-hom : structHom (array-str A) 𝔜) where
+  module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
+
+  f : Array A -> 𝔜 .car
+  f = f-hom .fst
+
+  id-aut : ∀ {n m} -> n ≡ m -> Fin n ≃ Fin m
+  id-aut p = subst Fin p , record
+    { equiv-proof = λ y -> (subst Fin (sym p) y , substSubst⁻ Fin p y) , λ (z , q) -> Σ≡Prop (λ _ -> isSetFin _ _) (lemma y z q)
+    }
+    where
+    lemma : ∀ y z q -> subst Fin (λ i → p (~ i)) y ≡ z
+    lemma y z q =
+      subst Fin (λ i → p (~ i)) y ≡⟨ cong (subst Fin (λ i → p (~ i))) (sym q) ⟩
+      subst Fin (λ i → p (~ i)) (subst Fin p z) ≡⟨ subst⁻Subst Fin p z ⟩
+      z ∎
+
+  -- id-aut≡ : ∀ {n m} (p : n ≡ m) (w : Fin n) -> (equivFun (id-aut p) w) .fst ≡ w .fst
+  -- id-aut≡ p w = refl
+
+  cancel-aut : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) -> f (n , zs ∘ equivFun act) ≡ f (n , zs)
+  cancel-aut = {!   !}
+
+  compose-equiv : ∀ {A B C : Type ℓ} -> A ≃ B -> B ≃ C -> A ≃ C
+  compose-equiv p q = equivFun univalence (ua p ∙ ua q)
+
+  compose-equiv≡ : ∀ {A B C : Type ℓ} (p : A ≃ B) (q : B ≃ C) (x : A)
+                 -> equivFun (compose-equiv p q) x ≡ equivFun q (equivFun p x)
+  compose-equiv≡ {A = A} {B = B} {C = C} p q x =
+    _ ≡⟨ sym (transport-filler _ _) ⟩
+    fst q (transp (λ i → B) i0 (fst p (transp (λ i → A) i0 x))) ≡⟨ cong (fst q) (sym (transport-filler _ _)) ⟩
+    fst q (fst p (transp (λ i → A) i0 x)) ≡⟨ cong (fst q ∘ fst p) (sym (transport-filler _ _)) ⟩
+    fst q (fst p x) ∎
+
+  f-≅ₚ : ∀ {xs zs} -> SymmAction xs zs -> f xs ≡ f zs
+  f-≅ₚ {xs = n , xs} {zs = m , zs} (act , eqn) =
+      f (n , xs)
+    ≡⟨ cong (λ z -> f (n , z)) eqn ⟩
+      f (n , zs ∘ equivFun act)
+    ≡⟨ cong f (ΣPathP (n≡m , toPathP (funExt (λ _ -> sym (transport-filler _ _))))) ⟩
+      f (m , zs ∘ (equivFun act ∘ equivFun (id-aut (sym n≡m))))
+    ≡⟨ cong (λ z -> f (m , zs ∘ z)) (λ i x -> compose-equiv≡ (id-aut (sym n≡m)) act x (~ i)) ⟩
+      f (m , zs ∘ equivFun (compose-equiv (id-aut (sym n≡m)) act))
+    ≡⟨ {!   !} ⟩
+      f (m , zs) ∎
+    where
+    n≡m : n ≡ m
+    n≡m = symmActionLength≡ act
+    
+{-
+zs
+  (fst act
+   (transp (λ j → Σ ℕ (λ k → Σ ℕ (λ k₁ → k₁ + suc k ≡ q (~ j)))) i0
+    (w , p)))
+≡
+zs
+(transp (λ i → Σ ℕ (λ k → Σ ℕ (λ k₁ → k₁ + suc k ≡ m))) i0
+ (fst act
+  (transp
+   (λ j →
+      Σ ℕ
+      (λ k →
+         Σ ℕ
+         (λ k₁ →
+            k₁ + suc k ≡ (symmActionLength≡ act | discreteℕ n m) (~ j))))
+   i0 (w , p))))
+-}
+ 
