@@ -155,3 +155,19 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
     lemma-α = toPathP (isProp≤ _ q)
   lemma (m , p) | inr q = ⊥.rec (<-asym p (subst (_≤ m) (sym (+-zero n)) q))
 
+⊕-assocrₚ : (as bs cs : Array A) -> SymmAction ((as ⊕ bs) ⊕ cs) (as ⊕ (bs ⊕ cs))
+⊕-assocrₚ (n , as) (m , bs) (o , cs) =
+  ℕ≡→Fin̄≅ (sym (+-assoc n m o)) , funExt lemma
+  where
+  lemma : _
+  lemma (w , p) with w ≤? (n + m)
+  lemma (w , p) | inl q with w ≤? n
+  lemma (w , p) | inl q | inl r = refl
+  lemma (w , p) | inl q | inr r with (w ∸ n) ≤? m
+  lemma (w , p) | inl q | inr r | inl s = cong bs (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (w , p) | inl q | inr r | inr s = ⊥.rec (<-asym q (subst (n + m ≤_) (+-comm n (w ∸ n) ∙ ≤-∸-+-cancel r) (≤-k+ s)))
+  lemma (w , p) | inr q with w ≤? n
+  lemma (w , p) | inr q | inl r = {!   !}
+  lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
+  lemma (w , p) | inr q | inr r | inl s = {!   !}
+  lemma (w , p) | inr q | inr r | inr s = cong cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc w n _)))
