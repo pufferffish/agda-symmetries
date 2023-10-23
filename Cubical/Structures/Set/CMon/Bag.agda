@@ -185,4 +185,28 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
   lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
   lemma (w , p) | inr q | inr r | inl s = ⊥.rec (<-asym s (subst (_≤ w ∸ n) (∸+ m n) (≤-∸-≤ _ _ n q)))
   lemma (w , p) | inr q | inr r | inr s = cong cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc w n _)))
- 
+
+⊕-commₚ : (xs ys : Array A) -> SymmAction (xs ⊕ ys) (ys ⊕ xs)
+⊕-commₚ (n , xs) (m , ys) =
+  isoToEquiv (iso (comm n m) (comm m n) (comm∘comm n m) (comm∘comm m n)) , funExt symActEq
+  where
+  comm : ∀ a b -> Fin (a + b) -> Fin (b + a)
+  comm a b = combine a b (finCombine b a ∘ inr) (finCombine b a ∘ inl)
+
+  comm∘comm : ∀ a b x -> comm a b (comm b a x) ≡ x
+  comm∘comm a b (w , p) with w ≤? b
+  comm∘comm a b (w , p) | inl q with (a + w) ≤? a
+  comm∘comm a b (w , p) | inl q | inl r = ⊥.rec (¬m+n<m r)
+  comm∘comm a b (w , p) | inl q | inr r = Σ≡Prop (λ _ -> isProp≤) (∸+ w a)
+  comm∘comm a b (w , p) | inr q with (w ∸ b) ≤? a
+  comm∘comm a b (w , p) | inr q | inl r = Σ≡Prop (λ _ → isProp≤) (+-comm b (w ∸ b) ∙ ≤-∸-+-cancel q)
+  comm∘comm a b (w , p) | inr q | inr r = ⊥.rec (<-asym (subst2 _≤_ (sym (≤-∸-suc q)) (∸+ a b) (≤-∸-≤ _ _ b p)) r)
+
+  symActEq : _
+  symActEq (w , p) with w ≤? n
+  symActEq (w , p) | inl q with (m + w) ≤? m
+  symActEq (w , p) | inl q | inl r = ⊥.rec (¬m+n<m r)
+  symActEq (w , p) | inl q | inr r = cong xs (Σ≡Prop (λ _ → isProp≤) (sym (∸+ w m)))
+  symActEq (w , p) | inr q with (w ∸ n) ≤? m
+  symActEq (w , p) | inr q | inl r = cong ys (Σ≡Prop (λ _ → isProp≤) refl)
+  symActEq (w , p) | inr q | inr r = ⊥.rec (<-asym (subst2 _≤_ (sym (≤-∸-suc q)) (∸+ m n) (≤-∸-≤ _ _ n p)) r)
