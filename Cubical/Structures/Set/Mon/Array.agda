@@ -259,7 +259,10 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
 
 module ArrayDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
 
-array-sat : ∀ {n} {X : Type n} -> < Array X , array-α > ⊨ M.MonSEq
+array-str : ∀ {n} (A : Type n) -> struct n M.MonSig
+array-str A = < Array A , array-α >
+
+array-sat : ∀ {n} {X : Type n} -> array-str X ⊨ M.MonSEq
 array-sat M.`unitl ρ = ⊕-unitl (ρ fzero)
 array-sat M.`unitr ρ = ⊕-unitr (ρ fzero)
 array-sat M.`assocr ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
