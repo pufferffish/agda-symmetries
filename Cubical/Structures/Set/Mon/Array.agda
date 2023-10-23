@@ -33,6 +33,9 @@ private
 Array : Type ℓ -> Type ℓ
 Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 
+ℕ≡→Fin̄≅ : ∀ {n m} -> n ≡ m -> Fin n ≃ Fin m
+ℕ≡→Fin̄≅ {n = n} {m = m} p = univalence .fst (cong Fin p)
+
 finSplitAux : ∀ m n k -> k < m + n -> (k < m) ⊎ (m ≤ k) -> Fin m ⊎ Fin n
 finSplitAux m n k k<m+n (inl k<m) = inl (k , k<m)
 finSplitAux m n k k<m+n (inr k≥m) = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)

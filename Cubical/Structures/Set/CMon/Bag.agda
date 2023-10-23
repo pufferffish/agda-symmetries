@@ -134,3 +134,24 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
       zs (act .fst (w ∸ n , ∸-<-lemma n m w p q))
     ≡⟨ cong zs (Σ≡Prop (λ _ -> isProp≤) (sym (∸+ _ n))) ⟩
       zs (n + fst (act .fst (w ∸ n , ∸-<-lemma n m w p q)) ∸ n , _) ∎
+
+⊕-unitlₚ : (as : Array A) -> SymmAction (e ⊕ as) as
+⊕-unitlₚ (n , as) = ℕ≡→Fin̄≅ refl , funExt lemma
+  where
+  lemma : (x : Fin (fst (e ⊕ (n , as)))) -> snd (e ⊕ (n , as)) x ≡ as (ℕ≡→Fin̄≅ (λ _ → n) .fst x)
+  lemma (m , p) with m ≤? 0
+  lemma (m , p) | inl q = ⊥.rec (¬-<-zero q)
+  lemma (m , p) | inr q = cong as (transport-filler refl (m , p))
+
+⊕-unitrₚ : (as : Array A) -> SymmAction (as ⊕ e) as
+⊕-unitrₚ (n , as) = ℕ≡→Fin̄≅ (+-zero n) , funExt lemma
+  where
+  lemma : (x : Fin (fst ((n , as) ⊕ e))) -> snd ((n , as) ⊕ e) x ≡ as (ℕ≡→Fin̄≅ (+-zero n) .fst x)
+  lemma (m , p) with m ≤? n
+  lemma (m , p) | inl q =
+    cong as (sym (fromPathP λ i → m , lemma-α i))
+    where
+    lemma-α : PathP (λ i -> Σ ℕ (λ k₁ → k₁ + suc m ≡ +-zero n i)) p q
+    lemma-α = toPathP (isProp≤ _ q)
+  lemma (m , p) | inr q = ⊥.rec (<-asym p (subst (_≤ m) (sym (+-zero n)) q))
+
