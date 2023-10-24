@@ -219,12 +219,9 @@ cons x xs (suc n , p) = xs (n , pred-≤-pred p)
 uncons : ∀ {n} -> (Fin (suc n) -> A) -> A × (Fin n -> A)
 uncons xs = xs fzero , xs ∘ fsuc
 
-cons∘uncons : ∀ {n} -> (xs : Fin (suc n) -> A) -> uncurry cons (uncons xs) ≡ xs
-cons∘uncons xs = funExt lemma
-  where
-  lemma : _
-  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (suc n , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+cons∘uncons : ∀ {n} -> (xs : Fin (suc n) -> A) (x : Fin (suc n)) -> cons (xs fzero) (xs ∘ fsuc) x ≡ xs x
+cons∘uncons xs (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+cons∘uncons xs (suc n , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
 
 uncons∘cons : ∀ {n} -> (x : A) -> (xs : Fin (suc n) -> A) -> uncons (cons x xs) ≡ (x , xs)
 uncons∘cons x xs = cong (x ,_) (funExt λ _ -> cong xs (Σ≡Prop (λ _ -> isProp≤) refl))
@@ -249,27 +246,35 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
   -- id-aut≡ : ∀ {n m} (p : n ≡ m) (w : Fin n) -> (equivFun (id-aut p) w) .fst ≡ w .fst
   -- id-aut≡ p w = refl
 
-  cancel-aut : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) -> f (n , zs ∘ equivFun act) ≡ f (n , zs)
-  cancel-aut = {!   !}
+  permuteArray : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> Array A
+  permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
+  permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
 
-  compLehmer : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> (Fin n -> A)
-  compLehmer .zero zs [] = ⊥.rec ∘ ¬Fin0
-  compLehmer .(suc _) zs (x ∷ xs) = cons (zs x) (compLehmer _ (zs ∘ fsuc) xs)
+  permuteInvariant : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> f (n , zs) ≡ f (permuteArray n zs act)
+  permuteInvariant .zero zs [] = cong f (ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0)))
+  permuteInvariant .(suc _) zs (p ∷ ps) =
+    {!   !}
 
-  compLehmer≡ : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) ->
-                  zs ∘ equivFun act ≡ compLehmer n zs (equivFun lehmerEquiv act)
-  compLehmer≡ zero zs act = funExt (⊥.rec ∘ ¬Fin0)
-  compLehmer≡ (suc n) zs act = λ i x -> lemma x (~ i)
-    where
-    lemma : (x : Fin (suc n)) -> cons _ _ x ≡ (zs ∘ equivFun act) x
-    lemma x =
-        cons ((zs ∘ equivFun act) fzero) _ x
-      ≡⟨ cong (λ z -> cons _ z x) (sym (compLehmer≡ n (zs ∘ fsuc) _)) ⟩
-        cons ((zs ∘ equivFun act) fzero) _ x
-      ≡⟨ cong (λ z -> cons ((zs ∘ equivFun act) fzero) z x) (funExt {!   !}) ⟩
-        cons ((zs ∘ equivFun act) fzero) ((zs ∘ equivFun act) ∘ fsuc) x
-      ≡⟨⟩
-        {!   !}
+  -- compLehmer≡ : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) ->
+  --                 zs ∘ equivFun act ≡ compLehmer n zs (equivFun lehmerEquiv act)
+  -- compLehmer≡ zero zs act = funExt (⊥.rec ∘ ¬Fin0)
+  -- compLehmer≡ (suc n) zs act = λ i x -> lemma x (~ i)
+  --   where
+  --   aut-tail : LehmerCode n
+  --   aut-tail = snd (invEq lehmerSucEquiv (equivFun lehmerEquiv act))
+
+  --   lemma-α : (x : Fin n) -> fsuc (equivFun (decode aut-tail) x) ≡ equivFun act (fsuc x)
+  --   lemma-α = {!   !}
+
+  --   lemma : (x : Fin (suc n)) -> cons _ _ x ≡ (zs ∘ equivFun act) x
+  --   lemma x =
+  --       cons ((zs ∘ equivFun act) fzero) _ x
+  --     ≡⟨ cong (λ z -> cons ((zs ∘ equivFun act) fzero) z x) ((sym (compLehmer≡ n (zs ∘ fsuc) _))) ⟩
+  --      cons ((zs ∘ equivFun act) fzero) (zs ∘ fsuc ∘ _) x
+  --     ≡⟨ cong (λ z -> cons ((zs ∘ equivFun act) fzero) (zs ∘ z) x) (funExt lemma-α) ⟩
+  --       cons ((zs ∘ equivFun act) fzero) (zs ∘ equivFun act ∘ fsuc) x
+  --     ≡⟨ cons∘uncons (zs ∘ equivFun act) x ⟩
+  --       (zs ∘ equivFun act) x ∎
 
   compose-equiv : ∀ {A B C : Type ℓ} -> A ≃ B -> B ≃ C -> A ≃ C
   compose-equiv p q = equivFun univalence (ua p ∙ ua q)
@@ -291,6 +296,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
       f (m , zs ∘ (equivFun act ∘ equivFun (id-aut (sym n≡m))))
     ≡⟨ cong (λ z -> f (m , zs ∘ z)) (λ i x -> compose-equiv≡ (id-aut (sym n≡m)) act x (~ i)) ⟩
       f (m , zs ∘ equivFun (compose-equiv (id-aut (sym n≡m)) act))
+    ≡⟨ cong f {!   !} ⟩
+      f (permuteArray m zs (equivFun lehmerEquiv (compose-equiv (id-aut (sym n≡m)) act)))
     ≡⟨ {!   !} ⟩
       f (m , zs) ∎
     where
@@ -298,19 +305,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
     n≡m = symmActionLength≡ act
     
 {-
-cons
-      (zs
-       (fst
-        (Σ-cong-equiv-snd (λ _ → lehmerEquiv) .fst
-         (Σ-cong-equiv-snd (Cubical.Data.Fin.LehmerCode.ii n) .fst
-          (equivFun act fzero ,
-           Cubical.Data.Fin.LehmerCode.equivIn n act)))))
-      (compLehmer n (λ x₁ → zs (fsuc x₁))
        (snd
-        (Σ-cong-equiv-snd (λ _ → lehmerEquiv) .fst
-         (Σ-cong-equiv-snd (Cubical.Data.Fin.LehmerCode.ii n) .fst
-          (equivFun act fzero ,
-           Cubical.Data.Fin.LehmerCode.equivIn n act)))))
-      x
+        (Σ-cong-equiv-snd (Cubical.Data.Fin.LehmerCode.ii n) .fst
+         (equivFun act fzero , Cubical.Data.Fin.LehmerCode.equivIn n act)))
 -}
-   
+    
