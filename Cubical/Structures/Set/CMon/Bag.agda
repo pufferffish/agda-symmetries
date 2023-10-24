@@ -6,10 +6,11 @@ module Cubical.Structures.Set.CMon.Bag where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.List as L
+open import Cubical.Data.List as L renaming (_∷_ to _∷ₗ_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
+open import Cubical.Data.Fin.LehmerCode
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as EQ
@@ -211,6 +212,23 @@ symm-prepend (n , xs) {ys = (m , ys)} {zs = (o , zs)} (act , eqn) =
   symActEq (w , p) | inr q | inl r = cong ys (Σ≡Prop (λ _ → isProp≤) refl)
   symActEq (w , p) | inr q | inr r = ⊥.rec (<-asym (subst2 _≤_ (sym (≤-∸-suc q)) (∸+ m n) (≤-∸-≤ _ _ n p)) r)
 
+cons : ∀ {n} -> A -> (Fin n -> A) -> (Fin (suc n) -> A)
+cons x xs (zero , p) = x
+cons x xs (suc n , p) = xs (n , pred-≤-pred p)
+
+uncons : ∀ {n} -> (Fin (suc n) -> A) -> A × (Fin n -> A)
+uncons xs = xs fzero , xs ∘ fsuc
+
+cons∘uncons : ∀ {n} -> (xs : Fin (suc n) -> A) -> uncurry cons (uncons xs) ≡ xs
+cons∘uncons xs = funExt lemma
+  where
+  lemma : _
+  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc n , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
+
+uncons∘cons : ∀ {n} -> (x : A) -> (xs : Fin (suc n) -> A) -> uncons (cons x xs) ≡ (x , xs)
+uncons∘cons x xs = cong (x ,_) (funExt λ _ -> cong xs (Σ≡Prop (λ _ -> isProp≤) refl))
+
 module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) (f-hom : structHom (array-str A) 𝔜) where
   module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
@@ -233,6 +251,25 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
 
   cancel-aut : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) -> f (n , zs ∘ equivFun act) ≡ f (n , zs)
   cancel-aut = {!   !}
+
+  compLehmer : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> (Fin n -> A)
+  compLehmer .zero zs [] = ⊥.rec ∘ ¬Fin0
+  compLehmer .(suc _) zs (x ∷ xs) = cons (zs x) (compLehmer _ (zs ∘ fsuc) xs)
+
+  compLehmer≡ : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) ->
+                  zs ∘ equivFun act ≡ compLehmer n zs (equivFun lehmerEquiv act)
+  compLehmer≡ zero zs act = funExt (⊥.rec ∘ ¬Fin0)
+  compLehmer≡ (suc n) zs act = λ i x -> lemma x (~ i)
+    where
+    lemma : (x : Fin (suc n)) -> cons _ _ x ≡ (zs ∘ equivFun act) x
+    lemma x =
+        cons ((zs ∘ equivFun act) fzero) _ x
+      ≡⟨ cong (λ z -> cons _ z x) (sym (compLehmer≡ n (zs ∘ fsuc) _)) ⟩
+        cons ((zs ∘ equivFun act) fzero) _ x
+      ≡⟨ cong (λ z -> cons ((zs ∘ equivFun act) fzero) z x) (funExt {!   !}) ⟩
+        cons ((zs ∘ equivFun act) fzero) ((zs ∘ equivFun act) ∘ fsuc) x
+      ≡⟨⟩
+        {!   !}
 
   compose-equiv : ∀ {A B C : Type ℓ} -> A ≃ B -> B ≃ C -> A ≃ C
   compose-equiv p q = equivFun univalence (ua p ∙ ua q)
@@ -261,21 +298,19 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
     n≡m = symmActionLength≡ act
     
 {-
-zs
-  (fst act
-   (transp (λ j → Σ ℕ (λ k → Σ ℕ (λ k₁ → k₁ + suc k ≡ q (~ j)))) i0
-    (w , p)))
-≡
-zs
-(transp (λ i → Σ ℕ (λ k → Σ ℕ (λ k₁ → k₁ + suc k ≡ m))) i0
- (fst act
-  (transp
-   (λ j →
-      Σ ℕ
-      (λ k →
-         Σ ℕ
-         (λ k₁ →
-            k₁ + suc k ≡ (symmActionLength≡ act | discreteℕ n m) (~ j))))
-   i0 (w , p))))
+cons
+      (zs
+       (fst
+        (Σ-cong-equiv-snd (λ _ → lehmerEquiv) .fst
+         (Σ-cong-equiv-snd (Cubical.Data.Fin.LehmerCode.ii n) .fst
+          (equivFun act fzero ,
+           Cubical.Data.Fin.LehmerCode.equivIn n act)))))
+      (compLehmer n (λ x₁ → zs (fsuc x₁))
+       (snd
+        (Σ-cong-equiv-snd (λ _ → lehmerEquiv) .fst
+         (Σ-cong-equiv-snd (Cubical.Data.Fin.LehmerCode.ii n) .fst
+          (equivFun act fzero ,
+           Cubical.Data.Fin.LehmerCode.equivIn n act)))))
+      x
 -}
- 
+   
