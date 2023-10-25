@@ -27,10 +27,6 @@ private
     ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
 
-map++ : {f : A -> B} (xs : List A) {ys : List A} -> L.map f (xs ++ ys) ≡ L.map f xs ++ L.map f ys
-map++ [] = refl
-map++ (x ∷ xs) = cong (_ ∷_) (map++ xs)
-
 infixr 30 _∙ₚ_
 _∙ₚ_ : ∀ {xs ys zs} -> Perm xs ys -> Perm ys zs -> Perm {A = A} xs zs
 perm-refl ∙ₚ q = q
@@ -59,21 +55,6 @@ perm-append (perm-swap {xs = xs} p) _ =
 perm-movehead : (x : A) (xs : List A) {ys : List A} -> Perm (x ∷ xs ++ ys) (xs ++ x ∷ ys)
 perm-movehead x [] = perm-refl
 perm-movehead x (y ∷ xs) = perm-swap {xs = []} (perm-∷ (perm-movehead x xs))
-
-perm-map : (f : A -> B) {xs ys : List A} -> Perm xs ys -> Perm (L.map f xs) (L.map f ys)
-perm-map f perm-refl = perm-refl
-perm-map f (perm-swap {xs = xs} p) = perm-subst (map++ xs) ∙ₚ perm-swap (perm-subst (sym (map++ xs)) ∙ₚ perm-map f p)
-
-⊕-unitlₚ : (as : List A) -> Perm ([] ++ as) as
-⊕-unitlₚ _ = perm-refl
-
-⊕-unitrₚ : (as : List A) -> Perm (as ++ []) as
-⊕-unitrₚ [] = perm-refl
-⊕-unitrₚ (a ∷ as) = perm-∷ (⊕-unitrₚ as)
-
-⊕-assocrₚ : (as bs cs : List A) -> Perm ((as ++ bs) ++ cs) (as ++ (bs ++ cs))
-⊕-assocrₚ [] bs cs = perm-refl
-⊕-assocrₚ (a ∷ as) bs cs = perm-∷ (⊕-assocrₚ as bs cs)
 
 ⊕-commₚ : (xs ys : List A) -> Perm (xs ++ ys) (ys ++ xs)
 ⊕-commₚ xs [] = perm-subst (++-unit-r xs)
@@ -110,18 +91,15 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
   f-≅ₚ perm-refl = refl
   f-≅ₚ (perm-swap {xs = xs} p) = f-≅ₚ-α xs _ ∙ f-≅ₚ p
 
-permRelation : PermRelation
-PermRelation.freeMon permRelation = LM.listDef
+permRelation : ∀ {ℓ ℓ'} -> PermRelation {ℓ} {ℓ'} LM.listDef
 PermRelation.R permRelation = Perm
+PermRelation.perm-refl permRelation as = perm-refl
 PermRelation.perm-append permRelation as bs p cs = perm-append p cs
 PermRelation.perm-prepend permRelation bs cs as p = perm-prepend as p
-PermRelation.⊕-unitlₚ permRelation = ⊕-unitlₚ
-PermRelation.⊕-unitrₚ permRelation = ⊕-unitrₚ
-PermRelation.⊕-assocrₚ permRelation = ⊕-assocrₚ
 PermRelation.⊕-commₚ permRelation = ⊕-commₚ
 PermRelation.f-≅ₚ permRelation 𝔜-cmon f xs zs r = f-≅ₚ 𝔜-cmon f r
 
 module PListDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
-plistFreeDef : PListDef.Free 2
+plistFreeDef : ∀ {ℓ ℓ'} -> PListDef.Free ℓ ℓ' 2
 plistFreeDef = qFreeMonDef permRelation

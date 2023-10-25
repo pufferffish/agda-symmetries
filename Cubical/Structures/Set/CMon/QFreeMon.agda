@@ -16,15 +16,13 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity hiding (_/_)
-open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary hiding (⟪_⟫)
 
 open F.Definition M.MonSig M.MonEqSig M.MonSEq
 open F.Definition.Free
 
-record PermRelation (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+record PermRelation {ℓ ℓ' : Level} (freeMon : Free ℓ ℓ' 2) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field
-    freeMon : Free ℓ ℓ' 2
-
     R : {A : Type ℓ} -> freeMon .F A -> freeMon .F A -> Type ℓ
 
     perm-refl : {A : Type ℓ} -> (as : freeMon .F A) -> R as as
@@ -32,14 +30,10 @@ record PermRelation (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc �
     perm-append : {A : Type ℓ} (as bs : freeMon .F A)
       -> (p : R as bs)
       -> (cs : freeMon .F A)
-      -> R
-          (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
-          (freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])))
+      -> R (freeMon .α (M.`⊕ , ⟪ as ⨾ cs ⟫)) (freeMon .α (M.`⊕ , ⟪ bs ⨾ cs ⟫))
     perm-prepend : {A : Type ℓ} (bs cs : freeMon .F A) -> (as : freeMon .F A)
       -> (p : R bs cs)
-      -> R
-          (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])))
-          (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
+      -> R (freeMon .α (M.`⊕ , ⟪ as ⨾ bs ⟫)) (freeMon .α (M.`⊕ , ⟪ as ⨾ cs ⟫))
 
     ⊕-commₚ : {A : Type ℓ} -> (as bs : freeMon .F A)
       -> R
@@ -52,67 +46,71 @@ record PermRelation (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc �
       (xs zs : freeMon .F A)
       -> R xs zs -> (f .fst) xs ≡ (f .fst) zs
 
-module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
+module QFreeMon {ℓr ℓB} {freeMon : Free ℓr ℓB 2} (r : PermRelation freeMon) where
   open PermRelation
 
-  private
-    variable
-      ℓ : Level
-      A : Type ℓr
-      B : Type ℓ
-
-  _≈ₚ_ : r .freeMon .F A -> r .freeMon .F A -> Type ℓr
+  _≈ₚ_ : ∀ {A : Type ℓr} -> freeMon .F A -> freeMon .F A -> Type ℓr
   xs ≈ₚ ys = ∥ (r .R) xs ys ∥₁
 
   QFreeMon : Type ℓr -> Type ℓr
-  QFreeMon A = r .freeMon .F A / _≈ₚ_
+  QFreeMon A = freeMon .F A / _≈ₚ_
 
-  e : r .freeMon .F A
-  e = r .freeMon .α (M.`e , (lookup []))
+  module _ {A : Type ℓr} where
+    𝔉 : M.MonStruct
+    𝔉 = < freeMon .F A , freeMon .α >
+ 
+    module 𝔉 = M.MonSEq 𝔉 (freeMon .sat)
+
+    e : freeMon .F A
+    e = 𝔉.e
   
-  _⊕_ : r .freeMon .F A -> r .freeMon .F A -> r .freeMon .F A
-  xs ⊕ ys = r .freeMon .α (M.`⊕ , (lookup (xs ∷ ys ∷ [])))
+    _⊕_ : freeMon .F A -> freeMon .F A -> freeMon .F A
+    _⊕_ = 𝔉._⊕_
  
-  e/ : QFreeMon A
-  e/ = Q.[ e ]
+    e/ : QFreeMon A
+    e/ = Q.[ e ]
   
-  η/ : A -> QFreeMon A
-  η/ x = Q.[ r .freeMon .η x ]
+    η/ : A -> QFreeMon A
+    η/ x = Q.[ freeMon .η x ]
  
-  _⊕/_ : QFreeMon A -> QFreeMon A -> QFreeMon A
-  _⊕/_ = Q.rec2 squash/
-    (λ xs ys -> Q.[ xs ⊕ ys ])
-    (λ as bs cs p -> eq/ (as ⊕ cs) (bs ⊕ cs) (P.map (λ p -> r .perm-append as bs p cs) p))
-    (λ as bs cs p -> eq/ (as ⊕ bs) (as ⊕ cs) (P.map (λ p -> r .perm-prepend bs cs as p) p))
+    _⊕/_ : QFreeMon A -> QFreeMon A -> QFreeMon A
+    _⊕/_ = Q.rec2 squash/
+      (λ xs ys -> Q.[ xs ⊕ ys ])
+      (λ as bs cs p -> eq/ (as ⊕ cs) (bs ⊕ cs) (P.map (λ p -> r .perm-append as bs p cs) p))
+      (λ as bs cs p -> eq/ (as ⊕ bs) (as ⊕ cs) (P.map (λ p -> r .perm-prepend bs cs as p) p))
  
-  ⊕-unitl : (as : QFreeMon A) -> e/ ⊕/ as ≡ as
-  ⊕-unitl = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣  {!   !} ∣₁)
+    ⊕-unitl : (as : QFreeMon A) -> e/ ⊕/ as ≡ as
+    ⊕-unitl = elimProp
+      (λ _ -> squash/ _ _)
+      (λ as -> eq/ _ _ ∣ subst (λ z -> r .R z as) (sym (𝔉.unitl as)) (r .perm-refl as) ∣₁)
  
-  ⊕-unitr : (as : QFreeMon A) -> as ⊕/ e/ ≡ as
-  ⊕-unitr = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣ {!   !} ∣₁)
+    ⊕-unitr : (as : QFreeMon A) -> as ⊕/ e/ ≡ as
+    ⊕-unitr = elimProp
+      (λ _ -> squash/ _ _)
+      (λ as -> eq/ _ _ ∣ subst (λ z -> r .R z as) (sym (𝔉.unitr as)) (r .perm-refl as) ∣₁)
  
-  ⊕-assocr : (as bs cs : QFreeMon A) -> (as ⊕/ bs) ⊕/ cs ≡ as ⊕/ (bs ⊕/ cs)
-  ⊕-assocr =
-    elimProp (λ _ -> isPropΠ (λ _ -> isPropΠ (λ _ -> squash/ _ _))) λ xs ->
-      elimProp (λ _ -> isPropΠ λ _ -> squash/ _ _) λ ys ->
-        elimProp (λ _ -> squash/ _ _) λ zs ->
-          eq/ _ _ ∣ {!   !} ∣₁
+    ⊕-assocr : (as bs cs : QFreeMon A) -> (as ⊕/ bs) ⊕/ cs ≡ as ⊕/ (bs ⊕/ cs)
+    ⊕-assocr =
+      elimProp (λ _ -> isPropΠ (λ _ -> isPropΠ (λ _ -> squash/ _ _))) λ xs ->
+        elimProp (λ _ -> isPropΠ λ _ -> squash/ _ _) λ ys ->
+          elimProp (λ _ -> squash/ _ _) λ zs ->
+            eq/ _ _ ∣ subst (r .R ((xs ⊕ ys) ⊕ zs)) (𝔉.assocr xs ys zs) (r .perm-refl ((xs ⊕ ys) ⊕ zs)) ∣₁
   
-  ⊕-comm : (xs ys : QFreeMon A) -> xs ⊕/ ys ≡ ys ⊕/ xs
-  ⊕-comm =
-    elimProp (λ _ -> isPropΠ (λ _ -> squash/ _ _)) λ xs ->
-      elimProp (λ _ -> squash/ _ _) λ ys ->
-        eq/ _ _ ∣ (r .⊕-commₚ) xs ys ∣₁
+    ⊕-comm : (xs ys : QFreeMon A) -> xs ⊕/ ys ≡ ys ⊕/ xs
+    ⊕-comm =
+      elimProp (λ _ -> isPropΠ (λ _ -> squash/ _ _)) λ xs ->
+        elimProp (λ _ -> squash/ _ _) λ ys ->
+          eq/ _ _ ∣ (r .⊕-commₚ) xs ys ∣₁
  
-  qFreeMon-α : {X : Type ℓr} -> sig M.MonSig (QFreeMon X) -> QFreeMon X
-  qFreeMon-α (M.`e , i) = Q.[ e ]
-  qFreeMon-α (M.`⊕ , i) = i fzero ⊕/ i fone
+    qFreeMon-α : sig M.MonSig (QFreeMon A) -> QFreeMon A
+    qFreeMon-α (M.`e , i) = Q.[ e ]
+    qFreeMon-α (M.`⊕ , i) = i fzero ⊕/ i fone
   
-  qFreeMon-sat : ∀ {X : Type ℓr} -> < QFreeMon X , qFreeMon-α > ⊨ M.CMonSEq
-  qFreeMon-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
-  qFreeMon-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
-  qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
-  qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
+    qFreeMon-sat : < QFreeMon A , qFreeMon-α > ⊨ M.CMonSEq
+    qFreeMon-sat (M.`mon M.`unitl) ρ = ⊕-unitl (ρ fzero)
+    qFreeMon-sat (M.`mon M.`unitr) ρ = ⊕-unitr (ρ fzero)
+    qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+    qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
  
   module IsFree {A : Type ℓr} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
     module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
@@ -120,10 +118,6 @@ module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
     𝔛 : M.CMonStruct
     𝔛 = < QFreeMon A , qFreeMon-α >
  
-    𝔉 : M.MonStruct
-    𝔉 = < r .freeMon .F A , r .freeMon .α >
- 
-    module 𝔉 = M.MonSEq 𝔉 (r .freeMon .sat)
     module 𝔛 = M.CMonSEq 𝔛 qFreeMon-sat
  
     [_]-isMonHom : structHom 𝔉 𝔛
@@ -131,12 +125,12 @@ module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
     snd [_]-isMonHom M.`e i = cong _/_.[_] 𝔉.e-eta
     snd [_]-isMonHom M.`⊕ i =
       𝔛 .alg (M.`⊕ , (λ x -> Q.[ i x ])) ≡⟨ 𝔛.⊕-eta i Q.[_] ⟩
-      Q.[ r .freeMon .α (M.`⊕ , _) ] ≡⟨ cong (λ z -> Q.[_] {R = _≈ₚ_} (r .freeMon .α (M.`⊕ , z))) (lookup2≡i i) ⟩
-      Q.[ r .freeMon .α (M.`⊕ , i) ] ∎
+      Q.[ freeMon .α (M.`⊕ , _) ] ≡⟨ cong (λ z -> Q.[_] {R = _≈ₚ_} (freeMon .α (M.`⊕ , z))) (lookup2≡i i) ⟩
+      Q.[ freeMon .α (M.`⊕ , i) ] ∎
  
     module _ (f : A -> 𝔜 .car) where
       f♯ : structHom 𝔉 𝔜
-      f♯ = ext (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
+      f♯ = ext (freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
  
       _♯ : QFreeMon A -> 𝔜 .car    
       Q.[ as ] ♯ = f♯ .fst as 
@@ -160,8 +154,8 @@ module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
       qFreeMonEquivLemma : (g : structHom 𝔛 𝔜) (x : 𝔛 .car) -> g .fst x ≡ ((g .fst ∘ η/) ♯) x
       qFreeMonEquivLemma g = elimProp (λ _ -> isSet𝔜 _ _) λ x i -> lemma (~ i) x
         where
-        lemma : (f♯ (((g .fst) ∘ Q.[_]) ∘ r .freeMon .η)) .fst ≡ (g .fst) ∘ Q.[_]
-        lemma = cong fst (ext-β (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) (structHom∘ 𝔉 𝔛 𝔜 g [_]-isMonHom))
+        lemma : (f♯ (((g .fst) ∘ Q.[_]) ∘ freeMon .η)) .fst ≡ (g .fst) ∘ Q.[_]
+        lemma = cong fst (ext-β (freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon) (structHom∘ 𝔉 𝔛 𝔜 g [_]-isMonHom))
  
     qFreeMonEquiv : structHom 𝔛 𝔜 ≃ (A -> 𝔜 .car)
     qFreeMonEquiv =
@@ -169,15 +163,16 @@ module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
         ( iso
           (λ g -> g .fst ∘ η/)
           ♯-isMonHom
-          (ext-η (r .freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon))
+          (ext-η (freeMon) isSet𝔜 (M.cmonSatMon 𝔜-cmon))
           (λ g -> sym (structHom≡ 𝔛 𝔜 g (♯-isMonHom (g .fst ∘ η/)) isSet𝔜 (funExt (qFreeMonEquivLemma g))))
         )
   
 module QFreeMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
   
-qFreeMonDef : ∀ {ℓ ℓ'} -> PermRelation ℓ ℓ' -> QFreeMonDef.Free ℓ ℓ' 2
+qFreeMonDef : ∀ {ℓ ℓ' : Level} {freeMon : Free ℓ ℓ' 2} -> PermRelation freeMon -> QFreeMonDef.Free ℓ ℓ' 2
 F (qFreeMonDef rel) = QFreeMon.QFreeMon rel
 η (qFreeMonDef rel) = QFreeMon.η/ rel
 α (qFreeMonDef rel) = QFreeMon.qFreeMon-α rel
 sat (qFreeMonDef rel) = QFreeMon.qFreeMon-sat rel
 isFree (qFreeMonDef rel) isSet𝔜 satMon = (QFreeMon.IsFree.qFreeMonEquiv rel isSet𝔜 satMon) .snd
+ 
