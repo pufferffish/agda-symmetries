@@ -37,9 +37,10 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     [] ♯ = 𝔜.e
     (x ∷ xs) ♯ = f x 𝔜.⊕ (xs ♯)
 
-    ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
-    ♯-++ [] ys = sym (𝔜.unitl (ys ♯))
-    ♯-++ (x ∷ xs) ys = cong (f x 𝔜.⊕_) (♯-++ xs ys) ∙ sym (𝔜.assocr (f x) (xs ♯) (ys ♯)) 
+    private
+      ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
+      ♯-++ [] ys = sym (𝔜.unitl (ys ♯))
+      ♯-++ (x ∷ xs) ys = cong (f x 𝔜.⊕_) (♯-++ xs ys) ∙ sym (𝔜.assocr (f x) (xs ♯) (ys ♯)) 
 
     ♯-isMonHom : structHom 𝔏 𝔜
     fst ♯-isMonHom = _♯
