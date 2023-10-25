@@ -21,46 +21,38 @@ open import Cubical.Relation.Nullary
 open F.Definition M.MonSig M.MonEqSig M.MonSEq
 open F.Definition.Free
 
-record PermRelation : Typeω where
+record PermRelation (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field
-    freeMon : Free 2
+    freeMon : Free ℓ ℓ' 2
 
-    R : ∀ {ℓ} {A : Type ℓ} -> freeMon .F A -> freeMon .F A -> Type ℓ
+    R : {A : Type ℓ} -> freeMon .F A -> freeMon .F A -> Type ℓ
 
-    perm-append : ∀ {ℓ} {A : Type ℓ} (as bs : freeMon .F A)
+    perm-refl : {A : Type ℓ} -> (as : freeMon .F A) -> R as as
+
+    perm-append : {A : Type ℓ} (as bs : freeMon .F A)
       -> (p : R as bs)
       -> (cs : freeMon .F A)
       -> R
           (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
           (freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])))
-    perm-prepend : ∀ {ℓ} {A : Type ℓ} (bs cs : freeMon .F A) -> (as : freeMon .F A)
+    perm-prepend : {A : Type ℓ} (bs cs : freeMon .F A) -> (as : freeMon .F A)
       -> (p : R bs cs)
       -> R
           (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])))
           (freeMon .α (M.`⊕ , lookup (as ∷ cs ∷ [])))
 
-    ⊕-unitlₚ : ∀ {ℓ} {A : Type ℓ}
-      -> (as : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup ((freeMon .α (M.`e , lookup [])) ∷ as ∷ []))) as
-    ⊕-unitrₚ : ∀ {ℓ} {A : Type ℓ}
-      -> (as : freeMon .F A)
-      -> R (freeMon .α (M.`⊕ , lookup (as ∷ (freeMon .α (M.`e , lookup [])) ∷ []))) as
-    ⊕-assocrₚ : ∀ {ℓ} {A : Type ℓ} -> (as bs cs : freeMon .F A)
-      -> R
-          (freeMon .α (M.`⊕ , lookup (freeMon .α (M.`⊕ , lookup (as ∷ bs ∷ [])) ∷ cs ∷ [])))
-          (freeMon .α (M.`⊕ , lookup (as ∷ freeMon .α (M.`⊕ , lookup (bs ∷ cs ∷ [])) ∷ [])))
-    ⊕-commₚ : ∀ {ℓ} {A : Type ℓ} -> (as bs : freeMon .F A)
+    ⊕-commₚ : {A : Type ℓ} -> (as bs : freeMon .F A)
       -> R
           (freeMon .α (M.`⊕ , (lookup (as ∷ bs ∷ []))))
           (freeMon .α (M.`⊕ , (lookup (bs ∷ as ∷ []))))
 
-    f-≅ₚ : ∀ {ℓ ℓB} {A : Type ℓ} {𝔜 : struct ℓB M.MonSig}
+    f-≅ₚ : {A : Type ℓ} {𝔜 : struct ℓ' M.MonSig}
       (𝔜-cmon : 𝔜 ⊨ M.CMonSEq)
       (f : structHom < freeMon .F A , freeMon .α > 𝔜)
       (xs zs : freeMon .F A)
       -> R xs zs -> (f .fst) xs ≡ (f .fst) zs
 
-module QFreeMon {ℓr} (r : PermRelation) where
+module QFreeMon {ℓr ℓB} (r : PermRelation ℓr ℓB) where
   open PermRelation
 
   private
@@ -94,17 +86,17 @@ module QFreeMon {ℓr} (r : PermRelation) where
     (λ as bs cs p -> eq/ (as ⊕ bs) (as ⊕ cs) (P.map (λ p -> r .perm-prepend bs cs as p) p))
  
   ⊕-unitl : (as : QFreeMon A) -> e/ ⊕/ as ≡ as
-  ⊕-unitl = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣  (r .⊕-unitlₚ) as ∣₁)
+  ⊕-unitl = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣  {!   !} ∣₁)
  
   ⊕-unitr : (as : QFreeMon A) -> as ⊕/ e/ ≡ as
-  ⊕-unitr = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣ (r .⊕-unitrₚ) as ∣₁)
+  ⊕-unitr = elimProp (λ _ -> squash/ _ _) (λ as -> eq/ _ _ ∣ {!   !} ∣₁)
  
   ⊕-assocr : (as bs cs : QFreeMon A) -> (as ⊕/ bs) ⊕/ cs ≡ as ⊕/ (bs ⊕/ cs)
   ⊕-assocr =
     elimProp (λ _ -> isPropΠ (λ _ -> isPropΠ (λ _ -> squash/ _ _))) λ xs ->
       elimProp (λ _ -> isPropΠ λ _ -> squash/ _ _) λ ys ->
         elimProp (λ _ -> squash/ _ _) λ zs ->
-          eq/ _ _ ∣ (r .⊕-assocrₚ) xs ys zs ∣₁
+          eq/ _ _ ∣ {!   !} ∣₁
   
   ⊕-comm : (xs ys : QFreeMon A) -> xs ⊕/ ys ≡ ys ⊕/ xs
   ⊕-comm =
@@ -122,7 +114,7 @@ module QFreeMon {ℓr} (r : PermRelation) where
   qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
   qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
  
-  module IsFree {y : Level} {A : Type ℓr} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+  module IsFree {A : Type ℓr} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
     module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
   
     𝔛 : M.CMonStruct
@@ -183,7 +175,7 @@ module QFreeMon {ℓr} (r : PermRelation) where
   
 module QFreeMonDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
   
-qFreeMonDef : PermRelation -> QFreeMonDef.Free 2
+qFreeMonDef : ∀ {ℓ ℓ'} -> PermRelation ℓ ℓ' -> QFreeMonDef.Free ℓ ℓ' 2
 F (qFreeMonDef rel) = QFreeMon.QFreeMon rel
 η (qFreeMonDef rel) = QFreeMon.η/ rel
 α (qFreeMonDef rel) = QFreeMon.qFreeMon-α rel

@@ -170,7 +170,7 @@ clist-sat (M.`mon M.`unitr) ρ = ++-unitr (ρ fzero)
 clist-sat (M.`mon M.`assocr) ρ = ++-assocr (ρ fzero) (ρ fone) (ρ ftwo)
 clist-sat M.`comm ρ = ++-comm (ρ fzero) (ρ fone)
 
-clistDef : CListDef.Free 2
+clistDef : ∀ {ℓ ℓ'} -> CListDef.Free ℓ ℓ' 2
 F.Definition.Free.F clistDef = CList
 F.Definition.Free.η clistDef = [_]
 F.Definition.Free.α clistDef = clist-α

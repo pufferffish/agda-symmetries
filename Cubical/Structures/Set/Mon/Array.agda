@@ -267,7 +267,7 @@ array-sat M.`unitl ρ = ⊕-unitl (ρ fzero)
 array-sat M.`unitr ρ = ⊕-unitr (ρ fzero)
 array-sat M.`assocr ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
 
-arrayDef : ArrayDef.Free 2
+arrayDef : ∀ {ℓ ℓ'} -> ArrayDef.Free ℓ ℓ' 2
 F.Definition.Free.F arrayDef = Array
 F.Definition.Free.η arrayDef = η
 F.Definition.Free.α arrayDef = array-α

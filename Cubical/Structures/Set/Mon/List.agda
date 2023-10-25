@@ -70,7 +70,7 @@ list-sat M.`unitl ρ = refl
 list-sat M.`unitr ρ = ++-unit-r (ρ fzero)
 list-sat M.`assocr ρ = ++-assoc (ρ fzero) (ρ fone) (ρ ftwo)
 
-listDef : ListDef.Free 2
+listDef : ∀ {ℓ ℓ'} -> ListDef.Free ℓ ℓ' 2
 F.Definition.Free.F listDef = List
 F.Definition.Free.η listDef = [_]
 F.Definition.Free.α listDef = list-α

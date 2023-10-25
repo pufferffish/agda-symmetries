@@ -23,30 +23,30 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
   ns : Level
   ns = ℓ-max n s
 
-  record Free (h : HLevel) : Typeω where
+  record Free (ℓ ℓ' : Level) (h : HLevel) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
     field
-      F : ∀ {ℓ} (X : Type ℓ) -> Type (ℓ-max ℓ ns)
-      η : ∀ {ℓ} {X : Type ℓ} -> X -> F {ℓ = ℓ} X
-      α : ∀ {ℓ} {X : Type ℓ} -> sig σ (F {ℓ = ℓ} X) -> F {ℓ = ℓ} X
-      sat : ∀ {ℓ} {X : Type ℓ} -> <_,_> {n = ℓ-max ℓ ns} (F {ℓ = ℓ} X) α ⊨ ε
-      isFree : ∀ {ℓ ℓ'} {X : Type ℓ}
+      F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)
+      η : {X : Type ℓ} -> X -> F X
+      α : {X : Type ℓ} -> sig σ (F X) -> F X
+      sat : {X : Type ℓ} -> <_,_> {n = ℓ-max ℓ ns} (F X) α ⊨ ε
+      isFree : {X : Type ℓ}
             {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
             -> isEquiv (\(f : structHom {x = ℓ-max ℓ ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
-    ext : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+    ext : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
           (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
        -> (hom : X -> 𝔜 .car) -> structHom < F X , α > 𝔜
-    ext {ℓ = ℓ} {ℓ' = ℓ'} h ϕ = invIsEq (isFree {ℓ = ℓ} {ℓ' = ℓ'} h ϕ)
+    ext h ϕ = invIsEq (isFree h ϕ)
 
-    ext-β : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+    ext-β : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
-         -> ext {ℓ = ℓ} {ℓ' = ℓ'} H ϕ (Hom .fst ∘ η) ≡ Hom
+         -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
     ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
 
-    ext-η : ∀ {ℓ ℓ'} {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+    ext-η : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
-         -> (ext {ℓ = ℓ} {ℓ' = ℓ'} H ϕ h .fst) ∘ η ≡ h
+         -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
 -- -- constructions of a free structure on a signature and equations

@@ -135,7 +135,7 @@ freeMon-sat M.`unitl ρ = unitl (ρ fzero)
 freeMon-sat M.`unitr ρ = unitr (ρ fzero)
 freeMon-sat M.`assocr ρ = assocr (ρ fzero) (ρ fone) (ρ ftwo)
 
-freeMonDef : FreeMonDef.Free 2
+freeMonDef : ∀ {ℓ ℓ'} -> FreeMonDef.Free ℓ ℓ' 2
 F.Definition.Free.F freeMonDef = FreeMon
 F.Definition.Free.η freeMonDef = η
 F.Definition.Free.α freeMonDef = freeMon-α
