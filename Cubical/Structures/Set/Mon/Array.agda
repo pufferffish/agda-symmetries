@@ -33,6 +33,25 @@ private
 Array : Type ℓ -> Type ℓ
 Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 
+-- TODO: Prove tptLemma using transp, not J
+tptLemma : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (P : A -> Type ℓ'') {a b : A} (p : a ≡ b) (f : P a -> B) (k : P b)
+        -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k)
+tptLemma A B P {a} =
+  J (\b p -> (f : P a -> B) (k : P b)
+        -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k))
+    \f k -> cong (transp (\i -> B) i0 ∘ f) (transportRefl k)
+         ∙ transportRefl (f k)
+         ∙ cong f (sym (transportRefl k))
+
+arrayPathIn : ∀ {ℓ} {A : Type ℓ} {n m} {f : Fin n -> A} {g : Fin m -> A}
+            -> (p : n ≡ m)
+            -> (∀ (k : ℕ) (ϕ : k < m) -> f (k , subst (k <_) (sym p) ϕ) ≡ g (k , ϕ))
+            -> Path (Array A) (n , f) (m , g)
+arrayPathIn {A = A} {n = n} {m} {f} {g} p h = ΣPathP (p , toPathP (funExt lemma))
+  where
+    lemma : (k : Fin m) -> transport (\i -> Fin (p i) -> A) f k ≡ g k
+    lemma k = tptLemma ℕ A Fin p f k ∙ h (k .fst) (k .snd)
+
 ℕ≡→Fin̄≅ : ∀ {n m} -> n ≡ m -> Fin n ≃ Fin m
 ℕ≡→Fin̄≅ {n = n} {m = m} p = univalence .fst (cong Fin p)
 
