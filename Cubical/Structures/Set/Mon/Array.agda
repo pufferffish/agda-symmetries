@@ -359,3 +359,12 @@ F.Definition.Free.η arrayDef = η
 F.Definition.Free.α arrayDef = array-α
 F.Definition.Free.sat arrayDef = array-sat
 F.Definition.Free.isFree arrayDef isSet𝔜 satMon = (Free.arrayEquiv isSet𝔜 satMon) .snd
+
+arrayIsoToList : ∀ {ℓ} {A : Type ℓ} -> Iso (Array A) (List A)
+arrayIsoToList {A = A} = iso (uncurry tabulate) from tabulate-lookup from∘to
+  where
+  from : List A -> Array A
+  from xs = length xs , lookup xs
+
+  from∘to : ∀ xs -> from (uncurry tabulate xs) ≡ xs
+  from∘to (n , xs) = ΣPathP (length-tabulate n xs , lookup-tabulate n xs)
