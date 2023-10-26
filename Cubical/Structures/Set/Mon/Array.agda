@@ -191,20 +191,20 @@ zero-+ m = refl
 
 ⊕-unitl : ∀ {ℓ} {A : Type ℓ} -> (xs : Array A) -> e ⊕ xs ≡ xs
 ⊕-unitl (n , f) = Array≡ (zero-+ n) \k k<n ->
-   ⊎.rec e-fun f (finSplit 0 n (k , subst (k <_) (sym (zero-+ n)) k<n))
-  ≡⟨ congS (⊎.rec e-fun f) (finSplit-beta-inr k (subst (k <_) (zero-+ n) k<n) zero-≤ k<n) ⟩
+    ⊎.rec e-fun f (finSplit 0 n (k , subst (k <_) (sym (zero-+ n)) k<n))
+  ≡⟨ congS (⊎.rec e-fun f) (finSplit-beta-inr k (subst (k <_) (sym (zero-+ n)) k<n) zero-≤ k<n) ⟩
     ⊎.rec e-fun f (inr (k , k<n))
   ≡⟨ ⊎-inr-beta (Fin 0) e-fun f (k , k<n) ⟩
     f (k , k<n)
   ∎
 
 ⊕-unitr : ∀ {ℓ} {A : Type ℓ} -> (xs : Array A) -> xs ⊕ e ≡ xs
-⊕-unitr (n , f) = Array≡ (+-zero n) \k k<n! ->
-    ⊎.rec f e-fun (finSplit n 0 (k , subst (k <_) (sym (+-zero n)) k<n!))
-  ≡⟨ congS (⊎.rec f e-fun) (finSplit-beta-inl k k<n! (subst (k <_) (sym (+-zero n)) k<n!)) ⟩
-    ⊎.rec f e-fun (inl (k , k<n!))
-  ≡⟨ ⊎-inl-beta (Fin 0) f e-fun (k , k<n!) ⟩
-    f (k , k<n!)
+⊕-unitr (n , f) = Array≡ (+-zero n) \k k<n ->
+    ⊎.rec f e-fun (finSplit n 0 (k , subst (k <_) (sym (+-zero n)) k<n))
+  ≡⟨ congS (⊎.rec f e-fun) (finSplit-beta-inl k k<n (subst (k <_) (sym (+-zero n)) k<n)) ⟩
+    ⊎.rec f e-fun (inl (k , k<n))
+  ≡⟨ ⊎-inl-beta (Fin 0) f e-fun (k , k<n) ⟩
+    f (k , k<n)
   ∎
 
 ∸-+-assoc : ∀ m n o → m ∸ n ∸ o ≡ m ∸ (n + o)
