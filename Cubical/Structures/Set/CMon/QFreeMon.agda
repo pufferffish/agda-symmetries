@@ -36,9 +36,7 @@ record PermRelation {ℓ ℓ' : Level} (freeMon : Free ℓ ℓ' 2) : Type (ℓ-m
       -> R (freeMon .α (M.`⊕ , ⟪ as ⨾ bs ⟫)) (freeMon .α (M.`⊕ , ⟪ as ⨾ cs ⟫))
 
     ⊕-commₚ : {A : Type ℓ} -> (as bs : freeMon .F A)
-      -> R
-          (freeMon .α (M.`⊕ , (lookup (as ∷ bs ∷ []))))
-          (freeMon .α (M.`⊕ , (lookup (bs ∷ as ∷ []))))
+      -> R (freeMon .α (M.`⊕ , ⟪ as ⨾ bs ⟫)) (freeMon .α (M.`⊕ , ⟪ bs ⨾ as ⟫))
 
     f-≅ₚ : {A : Type ℓ} {𝔜 : struct ℓ' M.MonSig}
       (𝔜-cmon : 𝔜 ⊨ M.CMonSEq)
@@ -137,13 +135,14 @@ module QFreeMon {ℓr ℓB} {freeMon : Free ℓr ℓB 2} (r : PermRelation freeM
       eq/ as bs p i ♯ = P.rec (isSet𝔜 _ _) (r .f-≅ₚ 𝔜-cmon f♯ as bs) p i
       squash/ xs ys p q i j ♯ = isSet𝔜 (xs ♯) (ys ♯) (cong _♯ p) (cong _♯ q) i j
  
-      ♯-++ : ∀ xs ys -> (xs ⊕/ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
-      ♯-++ =
-        elimProp (λ _ -> isPropΠ λ _ -> isSet𝔜 _ _) λ xs ->
-          elimProp (λ _ -> isSet𝔜 _ _) λ ys ->
-            f♯ .fst (xs ⊕ ys) ≡⟨ sym (f♯ .snd M.`⊕ (lookup (xs ∷ ys ∷ []))) ⟩
-            _ ≡⟨ 𝔜.⊕-eta (lookup (xs ∷ ys ∷ [])) (f♯ .fst) ⟩
-            _ ∎
+      private
+        ♯-++ : ∀ xs ys -> (xs ⊕/ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
+        ♯-++ =
+          elimProp (λ _ -> isPropΠ λ _ -> isSet𝔜 _ _) λ xs ->
+            elimProp (λ _ -> isSet𝔜 _ _) λ ys ->
+              f♯ .fst (xs ⊕ ys) ≡⟨ sym (f♯ .snd M.`⊕ (lookup (xs ∷ ys ∷ []))) ⟩
+              _ ≡⟨ 𝔜.⊕-eta (lookup (xs ∷ ys ∷ [])) (f♯ .fst) ⟩
+              _ ∎
   
       ♯-isMonHom : structHom 𝔛 𝔜
       fst ♯-isMonHom = _♯

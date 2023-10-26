@@ -250,10 +250,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
   permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
   permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
 
-  permuteInvariant : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> f (n , zs) ≡ f (permuteArray n zs act)
-  permuteInvariant .zero zs [] = cong f (ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0)))
-  permuteInvariant .(suc _) zs (p ∷ ps) =
-    {!   !}
+  -- permuteInvariant : ∀ n (zs : Fin n -> A) (act : LehmerCode n) -> f (n , zs) ≡ f (permuteArray n zs act)
+  -- permuteInvariant .zero zs [] = cong f (ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0)))
+  -- permuteInvariant .(suc _) zs (p ∷ ps) =
+  --   {!   !}
 
   -- compLehmer≡ : ∀ n (zs : Fin n -> A) (act : Fin n ≃ Fin n) ->
   --                 zs ∘ equivFun act ≡ compLehmer n zs (equivFun lehmerEquiv act)
@@ -287,22 +287,22 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (𝔜-cmon : 
     fst q (fst p (transp (λ i → A) i0 x)) ≡⟨ cong (fst q ∘ fst p) (sym (transport-filler _ _)) ⟩
     fst q (fst p x) ∎
 
-  f-≅ₚ : ∀ {xs zs} -> SymmAction xs zs -> f xs ≡ f zs
-  f-≅ₚ {xs = n , xs} {zs = m , zs} (act , eqn) =
-      f (n , xs)
-    ≡⟨ cong (λ z -> f (n , z)) eqn ⟩
-      f (n , zs ∘ equivFun act)
-    ≡⟨ cong f (ΣPathP (n≡m , toPathP (funExt (λ _ -> sym (transport-filler _ _))))) ⟩
-      f (m , zs ∘ (equivFun act ∘ equivFun (id-aut (sym n≡m))))
-    ≡⟨ cong (λ z -> f (m , zs ∘ z)) (λ i x -> compose-equiv≡ (id-aut (sym n≡m)) act x (~ i)) ⟩
-      f (m , zs ∘ equivFun (compose-equiv (id-aut (sym n≡m)) act))
-    ≡⟨ cong f {!   !} ⟩
-      f (permuteArray m zs (equivFun lehmerEquiv (compose-equiv (id-aut (sym n≡m)) act)))
-    ≡⟨ {!   !} ⟩
-      f (m , zs) ∎
-    where
-    n≡m : n ≡ m
-    n≡m = symmActionLength≡ act
+  -- f-≅ₚ : ∀ {xs zs} -> SymmAction xs zs -> f xs ≡ f zs
+  -- f-≅ₚ {xs = n , xs} {zs = m , zs} (act , eqn) =
+  --     f (n , xs)
+  --   ≡⟨ cong (λ z -> f (n , z)) eqn ⟩
+  --     f (n , zs ∘ equivFun act)
+  --   ≡⟨ cong f (ΣPathP (n≡m , toPathP (funExt (λ _ -> sym (transport-filler _ _))))) ⟩
+  --     f (m , zs ∘ (equivFun act ∘ equivFun (id-aut (sym n≡m))))
+  --   ≡⟨ cong (λ z -> f (m , zs ∘ z)) (λ i x -> compose-equiv≡ (id-aut (sym n≡m)) act x (~ i)) ⟩
+  --     f (m , zs ∘ equivFun (compose-equiv (id-aut (sym n≡m)) act))
+  --   ≡⟨ cong f {!   !} ⟩
+  --     f (permuteArray m zs (equivFun lehmerEquiv (compose-equiv (id-aut (sym n≡m)) act)))
+  --   ≡⟨ {!   !} ⟩
+  --     f (m , zs) ∎
+  --   where
+  --   n≡m : n ≡ m
+  --   n≡m = symmActionLength≡ act
     
 {-
        (snd
