@@ -43,11 +43,11 @@ tptLemma A B P {a} =
          ∙ transportRefl (f k)
          ∙ cong f (sym (transportRefl k))
 
-arrayPathIn : ∀ {ℓ} {A : Type ℓ} {n m} {f : Fin n -> A} {g : Fin m -> A}
-            -> (p : n ≡ m)
-            -> (∀ (k : ℕ) (ϕ : k < m) -> f (k , subst (k <_) (sym p) ϕ) ≡ g (k , ϕ))
-            -> Path (Array A) (n , f) (m , g)
-arrayPathIn {A = A} {n = n} {m} {f} {g} p h = ΣPathP (p , toPathP (funExt lemma))
+Array≡ : ∀ {ℓ} {A : Type ℓ} {n m} {f : Fin n -> A} {g : Fin m -> A}
+      -> (n=m : n ≡ m)
+      -> (∀ (k : ℕ) (k<m : k < m) -> f (k , subst (k <_) (sym n=m) k<m) ≡ g (k , k<m))
+      -> Path (Array A) (n , f) (m , g)
+Array≡ {A = A} {n = n} {m} {f} {g} p h = ΣPathP (p , toPathP (funExt lemma))
   where
     lemma : (k : Fin m) -> transport (\i -> Fin (p i) -> A) f k ≡ g k
     lemma k = tptLemma ℕ A Fin p f k ∙ h (k .fst) (k .snd)
@@ -77,23 +77,42 @@ finSplitAux m n k k<m+n (inr k≥m) = inr (k ∸ m , ∸-<-lemma m n k k<m+n k�
 finSplit : ∀ m n -> Fin (m + n) -> Fin m ⊎ Fin n
 finSplit m n (k , k<m+n) = finSplitAux m n k k<m+n (k ≤? m)
 
-finSplit-beta-inl : ∀ {m n} (k : ℕ) (k<m : k < m) -> finSplit m n (k , o<m→o<m+n m n k k<m) ≡ inl (k , k<m)
-finSplit-beta-inl {m} {n} k k<m! with k ≤? m
+finSplit-beta-inl-aux : ∀ {m n} (k : ℕ) (k<m : k < m) -> finSplit m n (k , o<m→o<m+n m n k k<m) ≡ inl (k , k<m)
+finSplit-beta-inl-aux {m} {n} k k<m! with k ≤? m
 ... | inl k<m = congS (\p -> inl (k , p)) (isProp≤ k<m k<m!)
 ... | inr m≤k = ⊥.rec (¬-<-and-≥ k<m! m≤k)
 
-finSplit-beta-inr-1 : ∀ {m n} (k : ℕ) (m≤k : m ≤ k) (k∸m<n : k ∸ m < n) -> finSplit m n (k , ∸-<-lemma⁻ m n k m≤k k∸m<n) ≡ inr (k ∸ m , k∸m<n)
-finSplit-beta-inr-1 {m} {n} k m≤k! k∸m<n with k ≤? m
+finSplit-beta-inl : ∀ {m n} (k : ℕ) (k<m : k < m) (k<m+n : k < m + n) -> finSplit m n (k , k<m+n) ≡ inl (k , k<m)
+finSplit-beta-inl {m} {n} k k<m k<m+n =
+  finSplit m n (k , k<m+n) ≡⟨ congS (\ϕ -> finSplit m n (k , ϕ)) (isProp≤ k<m+n (o<m→o<m+n m n k k<m)) ⟩
+  finSplit m n (k , o<m→o<m+n m n k k<m) ≡⟨ finSplit-beta-inl-aux k k<m ⟩
+  inl (k , k<m) ∎
+
+finSplit-beta-inr-aux : ∀ {m n} (k : ℕ) (m≤k : m ≤ k) (k∸m<n : k ∸ m < n) -> finSplit m n (k , ∸-<-lemma⁻ m n k m≤k k∸m<n) ≡ inr (k ∸ m , k∸m<n)
+finSplit-beta-inr-aux {m} {n} k m≤k! k∸m<n with k ≤? m
 ... | inl k<m = ⊥.rec (¬-<-and-≥ k<m m≤k!)
 ... | inr m≤k = congS (\p -> inr (k ∸ m , p)) (isProp≤ (∸-<-lemma m n k (∸-<-lemma⁻ m n k m≤k! k∸m<n) m≤k) k∸m<n)
 
 n+m∸n=m : ∀ n m -> n + m ∸ n ≡ m
 n+m∸n=m n m = congS (_∸ n) (+-comm n m) ∙ m+n∸n=m n m
 
-finSplit-beta-inr-2 : ∀ {m n} (k : ℕ) (k<n : k < n) -> finSplit m n (m + k , <-k+ k<n) ≡ inr (k , k<n)
-finSplit-beta-inr-2 {m} {n} k k<n! with (m + k) ≤? m
-... | inl m+k<m = ⊥.rec (¬m+n<m m+k<m)
-... | inr m≤m+k = congS inr (Σ≡Prop (\_ -> isProp≤) (n+m∸n=m m k))
+finSplit-beta-inr : ∀ {m n} (k : ℕ) (k<m+n : k < m + n) (m≤k : m ≤ k) (k∸m<n : k ∸ m < n) -> finSplit m n (k , k<m+n) ≡ inr (k ∸ m , k∸m<n)
+finSplit-beta-inr {m} {n} k k<m+n m≤k k∸m<n =
+    finSplit m n (k , k<m+n)
+  ≡⟨ congS (\ϕ -> finSplit m n (k , ϕ)) (isProp≤ k<m+n (∸-<-lemma⁻ m n k m≤k k∸m<n)) ⟩
+    finSplit m n (k , ∸-<-lemma⁻ m n k m≤k k∸m<n)
+  ≡⟨ finSplit-beta-inr-aux k m≤k k∸m<n ⟩
+    inr (k ∸ m , k∸m<n)
+  ∎
+
+finSplit-beta-inr-+ : ∀ {m n} (k : ℕ) (k<n : k < n) -> finSplit m n (m + k , <-k+ {k = m} k<n) ≡ inr (k , k<n)
+finSplit-beta-inr-+ {m} {n} k k<n =
+    finSplit m n (m + k , <-k+ {k = m} k<n)
+  ≡⟨ finSplit-beta-inr (m + k) (<-k+ k<n) ≤SumLeft (subst (_< n) (sym (n+m∸n=m m k)) k<n) ⟩
+    inr (m + k ∸ m , subst (_< n) (sym (n+m∸n=m m k)) k<n)
+  ≡⟨ congS inr (Σ≡Prop (\_ -> isProp≤) (n+m∸n=m m k)) ⟩
+     inr (k , k<n)
+  ∎
 
 finCombine-inl : Fin m -> Fin (m + n)
 finCombine-inl {m = m} {n = n} (k , k<m) = k , o<m→o<m+n m n k k<m
@@ -110,14 +129,14 @@ finSplit∘finCombine m n =
               finSplit m n (finCombine m n (inl (k , k<m)))
          ≡⟨ congS (finSplit m n) (⊎-inl-beta (Fin n) finCombine-inl finCombine-inr (k , k<m)) ⟩
               finSplit m n (k , o<m→o<m+n m n k k<m)
-         ≡⟨ finSplit-beta-inl k k<m ⟩
+         ≡⟨ finSplit-beta-inl k k<m (o<m→o<m+n m n k k<m) ⟩
               inl (k , k<m)
          ∎)
          (\(k , k<n) ->
               finSplit m n (finCombine m n (inr (k , k<n)))
          ≡⟨ congS (finSplit m n) (⊎-inr-beta (Fin m) finCombine-inl finCombine-inr (k , k<n)) ⟩
               finSplit m n (m + k , <-k+ k<n)
-         ≡⟨ finSplit-beta-inr-2 k k<n ⟩
+         ≡⟨ finSplit-beta-inr-+ k k<n ⟩
               inr (k , k<n)
          ∎)
 
@@ -125,22 +144,16 @@ finCombine∘finSplit : ∀ m n x -> (finCombine m n ∘ finSplit m n) x ≡ x
 finCombine∘finSplit m n (k , k<m+n) =
   ⊎.rec (\k<m ->
               finCombine m n (finSplit m n (k , k<m+n))
-        ≡⟨ congS (\k<m+n -> finCombine m n (finSplit m n (k , k<m+n))) (isProp≤ k<m+n (o<m→o<m+n m n k k<m)) ⟩
-              finCombine m n (finSplit m n (k , o<m→o<m+n m n k k<m))
-        ≡⟨ congS (finCombine m n) (finSplit-beta-inl k k<m) ⟩
+        ≡⟨ congS (finCombine m n) (finSplit-beta-inl k k<m k<m+n) ⟩
               finCombine m n (inl (k , k<m))
         ≡⟨ ⊎-inl-beta (Fin n) finCombine-inl finCombine-inr (k , k<m) ⟩
-              finCombine-inl (k , k<m)
-        ≡⟨ refl ⟩
               (k , o<m→o<m+n m n k k<m)
         ≡⟨ Σ≡Prop (\_ -> isProp≤) refl ⟩
               (k , k<m+n)
         ∎)
         (\m≤k ->
               finCombine m n (finSplit m n (k , k<m+n))
-        ≡⟨ congS (\k<m+n -> finCombine m n (finSplit m n (k , k<m+n))) (isProp≤ k<m+n (∸-<-lemma⁻ m n k m≤k (∸-<-lemma m n k k<m+n m≤k))) ⟩
-              finCombine m n (finSplit m n (k , ∸-<-lemma⁻ m n k m≤k (∸-<-lemma m n k k<m+n m≤k)))
-        ≡⟨ congS (finCombine m n) (finSplit-beta-inr-1 k m≤k (∸-<-lemma m n k k<m+n m≤k)) ⟩
+        ≡⟨ congS (finCombine m n) (finSplit-beta-inr k k<m+n m≤k (∸-<-lemma m n k k<m+n m≤k)) ⟩
               finCombine m n (inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
         ≡⟨ ⊎-inr-beta (Fin m) finCombine-inl finCombine-inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k) ⟩
               finCombine-inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k)
@@ -158,8 +171,11 @@ combine n m as bs w = ⊎.rec as bs (finSplit n m w)
 _⊕_ : Array A -> Array A -> Array A
 (n , as) ⊕ (m , bs) = n + m , combine n m as bs
 
+e-fun : Fin 0 -> A
+e-fun = ⊥.rec ∘ ¬Fin0
+
 e : Array A
-e = 0 , ⊥.rec ∘ ¬Fin0
+e = 0 , e-fun
 
 e-eta : ∀ (xs ys : Array A) -> xs .fst ≡ 0 -> ys .fst ≡ 0 -> xs ≡ ys
 e-eta (n , xs) (m , ys) p q = ΣPathP (p ∙ sym q , toPathP (funExt lemma))
@@ -170,24 +186,26 @@ e-eta (n , xs) (m , ys) p q = ΣPathP (p ∙ sym q , toPathP (funExt lemma))
 η : A -> Array A
 η x = 1 , λ _ -> x
 
+zero-+ : ∀ m → 0 + m ≡ m
+zero-+ m = refl
+
 ⊕-unitl : ∀ {ℓ} {A : Type ℓ} -> (xs : Array A) -> e ⊕ xs ≡ xs
-⊕-unitl (n , xs) = ΣPathP (refl , funExt lemma)
-  where
-  lemma : (x : Fin (fst (e ⊕ (n , xs)))) -> snd (e ⊕ (n , xs)) x ≡ xs x
-  lemma (n , p) with n ≤? 0
-  ... | inl q = ⊥.rec (¬-<-zero q)
-  ... | inr q = refl
+⊕-unitl (n , f) = Array≡ (zero-+ n) \k k<n ->
+   ⊎.rec e-fun f (finSplit 0 n (k , subst (k <_) (sym (zero-+ n)) k<n))
+  ≡⟨ congS (⊎.rec e-fun f) (finSplit-beta-inr k (subst (k <_) (zero-+ n) k<n) zero-≤ k<n) ⟩
+    ⊎.rec e-fun f (inr (k , k<n))
+  ≡⟨ ⊎-inr-beta (Fin 0) e-fun f (k , k<n) ⟩
+    f (k , k<n)
+  ∎
 
 ⊕-unitr : ∀ {ℓ} {A : Type ℓ} -> (xs : Array A) -> xs ⊕ e ≡ xs
-⊕-unitr {A = A} (n , xs) = ΣPathP (+-zero n , toPathP (funExt lemma))
-  where
-  lemma : _
-  lemma (m , p) with m ≤? n
-  ... | inl q =
-    transport (λ i -> A) (xs (m , q)) ≡⟨ sym (transport-filler refl (xs (m , q))) ⟩
-    xs (m , q) ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-    xs (m , p) ∎
-  ... | inr q = ⊥.rec ((<-asym p) q)
+⊕-unitr (n , f) = Array≡ (+-zero n) \k k<n! ->
+    ⊎.rec f e-fun (finSplit n 0 (k , subst (k <_) (sym (+-zero n)) k<n!))
+  ≡⟨ congS (⊎.rec f e-fun) (finSplit-beta-inl k k<n! (subst (k <_) (sym (+-zero n)) k<n!)) ⟩
+    ⊎.rec f e-fun (inl (k , k<n!))
+  ≡⟨ ⊎-inl-beta (Fin 0) f e-fun (k , k<n!) ⟩
+    f (k , k<n!)
+  ∎
 
 ∸-+-assoc : ∀ m n o → m ∸ n ∸ o ≡ m ∸ (n + o)
 ∸-+-assoc m       n       zero    = cong (m ∸_) (sym (+-zero n))
