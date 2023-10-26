@@ -27,14 +27,48 @@ open Iso
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
     n m : ℕ
 
 Array : Type ℓ -> Type ℓ
 Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 
+-- TODO: Prove tptLemma using transp, not J
+tptLemma : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (P : A -> Type ℓ'') {a b : A} (p : a ≡ b) (f : P a -> B) (k : P b)
+        -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k)
+tptLemma A B P {a} =
+  J (\b p -> (f : P a -> B) (k : P b)
+        -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k))
+    \f k -> cong (transp (\i -> B) i0 ∘ f) (transportRefl k)
+         ∙ transportRefl (f k)
+         ∙ cong f (sym (transportRefl k))
+
+arrayPathIn : ∀ {ℓ} {A : Type ℓ} {n m} {f : Fin n -> A} {g : Fin m -> A}
+            -> (p : n ≡ m)
+            -> (∀ (k : ℕ) (ϕ : k < m) -> f (k , subst (k <_) (sym p) ϕ) ≡ g (k , ϕ))
+            -> Path (Array A) (n , f) (m , g)
+arrayPathIn {A = A} {n = n} {m} {f} {g} p h = ΣPathP (p , toPathP (funExt lemma))
+  where
+    lemma : (k : Fin m) -> transport (\i -> Fin (p i) -> A) f k ≡ g k
+    lemma k = tptLemma ℕ A Fin p f k ∙ h (k .fst) (k .snd)
+
 ℕ≡→Fin̄≅ : ∀ {n m} -> n ≡ m -> Fin n ≃ Fin m
 ℕ≡→Fin̄≅ {n = n} {m = m} p = univalence .fst (cong Fin p)
+
+⊎-inl-beta : (B : Type ℓ) (f : A -> C) (g : B -> C) -> (a : A) -> ⊎.rec f g (inl a) ≡ f a
+⊎-inl-beta B f g a = refl
+
+⊎-inr-beta : (A : Type ℓ) (f : A -> C) (g : B -> C) -> (b : B) -> ⊎.rec f g (inr b) ≡ g b
+⊎-inr-beta A f g b = refl
+
+⊎-eta : {f : A -> C} {g : B -> C} -> (h : A ⊎ B -> C) (h1 : f ≡ h ∘ inl) (h2 : g ≡ h ∘ inr) -> ⊎.rec f g ≡ h
+⊎-eta h h1 h2 i (inl a) = h1 i a
+⊎-eta h h1 h2 i (inr b) = h2 i b
+
+∸-<-lemma⁻ : (m n o : ℕ) -> m ≤ o -> o ∸ m < n -> o < m + n
+∸-<-lemma⁻ zero n o m≤o o∸m<n = o∸m<n
+∸-<-lemma⁻ (suc m) n zero m≤o o∸m<n = suc-≤-suc zero-≤
+∸-<-lemma⁻ (suc m) n (suc o) m≤o o∸m<n = suc-≤-suc (∸-<-lemma⁻ m n o (pred-≤-pred m≤o) o∸m<n)
 
 finSplitAux : ∀ m n k -> k < m + n -> (k < m) ⊎ (m ≤ k) -> Fin m ⊎ Fin n
 finSplitAux m n k k<m+n (inl k<m) = inl (k , k<m)
@@ -43,25 +77,77 @@ finSplitAux m n k k<m+n (inr k≥m) = inr (k ∸ m , ∸-<-lemma m n k k<m+n k�
 finSplit : ∀ m n -> Fin (m + n) -> Fin m ⊎ Fin n
 finSplit m n (k , k<m+n) = finSplitAux m n k k<m+n (k ≤? m)
 
+finSplit-beta-inl : ∀ {m n} (k : ℕ) (k<m : k < m) -> finSplit m n (k , o<m→o<m+n m n k k<m) ≡ inl (k , k<m)
+finSplit-beta-inl {m} {n} k k<m! with k ≤? m
+... | inl k<m = congS (\p -> inl (k , p)) (isProp≤ k<m k<m!)
+... | inr m≤k = ⊥.rec (¬-<-and-≥ k<m! m≤k)
+
+finSplit-beta-inr-1 : ∀ {m n} (k : ℕ) (m≤k : m ≤ k) (k∸m<n : k ∸ m < n) -> finSplit m n (k , ∸-<-lemma⁻ m n k m≤k k∸m<n) ≡ inr (k ∸ m , k∸m<n)
+finSplit-beta-inr-1 {m} {n} k m≤k! k∸m<n with k ≤? m
+... | inl k<m = ⊥.rec (¬-<-and-≥ k<m m≤k!)
+... | inr m≤k = congS (\p -> inr (k ∸ m , p)) (isProp≤ (∸-<-lemma m n k (∸-<-lemma⁻ m n k m≤k! k∸m<n) m≤k) k∸m<n)
+
+n+m∸n=m : ∀ n m -> n + m ∸ n ≡ m
+n+m∸n=m n m = congS (_∸ n) (+-comm n m) ∙ m+n∸n=m n m
+
+finSplit-beta-inr-2 : ∀ {m n} (k : ℕ) (k<n : k < n) -> finSplit m n (m + k , <-k+ k<n) ≡ inr (k , k<n)
+finSplit-beta-inr-2 {m} {n} k k<n! with (m + k) ≤? m
+... | inl m+k<m = ⊥.rec (¬m+n<m m+k<m)
+... | inr m≤m+k = congS inr (Σ≡Prop (\_ -> isProp≤) (n+m∸n=m m k))
+
+finCombine-inl : Fin m -> Fin (m + n)
+finCombine-inl {m = m} {n = n} (k , k<m) = k , o<m→o<m+n m n k k<m
+
+finCombine-inr : Fin n -> Fin (m + n)
+finCombine-inr {n = n} {m = m} (k , k<n) = m + k , <-k+ k<n
+
 finCombine : ∀ m n -> Fin m ⊎ Fin n -> Fin (m + n)
-finCombine m n (inl (k , p)) = k , o<m→o<m+n m n k p
-finCombine m n (inr (k , p)) = m + k , <-k+ p
+finCombine m n = ⊎.rec finCombine-inl finCombine-inr
 
 finSplit∘finCombine : ∀ m n x -> (finSplit m n ∘ finCombine m n) x ≡ x
-finSplit∘finCombine m n (inl (k , p)) with k ≤? m
-... | inl q = cong inl (Σ≡Prop (λ _ → isProp≤) refl)
-... | inr q = ⊥.rec (¬-<-and-≥ p q)
-finSplit∘finCombine m n (inr (k , p)) with (m + k) ≤? m
-... | inl q = ⊥.rec (¬m+n<m q)
-... | inr q = cong inr (Σ≡Prop (λ _ → isProp≤) lemma)
-  where
-  lemma : m + k ∸ m ≡ k
-  lemma = subst (λ - -> - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
+finSplit∘finCombine m n =
+  ⊎.elim (\(k , k<m) ->
+              finSplit m n (finCombine m n (inl (k , k<m)))
+         ≡⟨ congS (finSplit m n) (⊎-inl-beta (Fin n) finCombine-inl finCombine-inr (k , k<m)) ⟩
+              finSplit m n (k , o<m→o<m+n m n k k<m)
+         ≡⟨ finSplit-beta-inl k k<m ⟩
+              inl (k , k<m)
+         ∎)
+         (\(k , k<n) ->
+              finSplit m n (finCombine m n (inr (k , k<n)))
+         ≡⟨ congS (finSplit m n) (⊎-inr-beta (Fin m) finCombine-inl finCombine-inr (k , k<n)) ⟩
+              finSplit m n (m + k , <-k+ k<n)
+         ≡⟨ finSplit-beta-inr-2 k k<n ⟩
+              inr (k , k<n)
+         ∎)
 
 finCombine∘finSplit : ∀ m n x -> (finCombine m n ∘ finSplit m n) x ≡ x
-finCombine∘finSplit m n (o , p) with o ≤? m
-... | inl q = Σ≡Prop (λ _ → isProp≤) refl
-... | inr q = Σ≡Prop (λ _ → isProp≤) (∸-lemma q)
+finCombine∘finSplit m n (k , k<m+n) =
+  ⊎.rec (\k<m ->
+              finCombine m n (finSplit m n (k , k<m+n))
+        ≡⟨ congS (\k<m+n -> finCombine m n (finSplit m n (k , k<m+n))) (isProp≤ k<m+n (o<m→o<m+n m n k k<m)) ⟩
+              finCombine m n (finSplit m n (k , o<m→o<m+n m n k k<m))
+        ≡⟨ congS (finCombine m n) (finSplit-beta-inl k k<m) ⟩
+              finCombine m n (inl (k , k<m))
+        ≡⟨ ⊎-inl-beta (Fin n) finCombine-inl finCombine-inr (k , k<m) ⟩
+              finCombine-inl (k , k<m)
+        ≡⟨ refl ⟩
+              (k , o<m→o<m+n m n k k<m)
+        ≡⟨ Σ≡Prop (\_ -> isProp≤) refl ⟩
+              (k , k<m+n)
+        ∎)
+        (\m≤k ->
+              finCombine m n (finSplit m n (k , k<m+n))
+        ≡⟨ congS (\k<m+n -> finCombine m n (finSplit m n (k , k<m+n))) (isProp≤ k<m+n (∸-<-lemma⁻ m n k m≤k (∸-<-lemma m n k k<m+n m≤k))) ⟩
+              finCombine m n (finSplit m n (k , ∸-<-lemma⁻ m n k m≤k (∸-<-lemma m n k k<m+n m≤k)))
+        ≡⟨ congS (finCombine m n) (finSplit-beta-inr-1 k m≤k (∸-<-lemma m n k k<m+n m≤k)) ⟩
+              finCombine m n (inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
+        ≡⟨ ⊎-inr-beta (Fin m) finCombine-inl finCombine-inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k) ⟩
+              finCombine-inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k)
+        ≡⟨ Σ≡Prop (\_ -> isProp≤) (≤-∸-k m≤k ∙ n+m∸n=m m k) ⟩
+              (k , k<m+n)
+        ∎)
+        (k ≤? m)
 
 Fin≅Fin+Fin : ∀ m n -> Fin (m + n) ≃ (Fin m ⊎ Fin n)
 Fin≅Fin+Fin m n = isoToEquiv (iso (finSplit m n) (finCombine m n) (finSplit∘finCombine m n) (finCombine∘finSplit m n))
