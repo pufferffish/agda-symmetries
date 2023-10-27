@@ -28,11 +28,11 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
       F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)
       η : {X : Type ℓ} -> X -> F X
       α : {X : Type ℓ} -> sig σ (F X) -> F X
-      sat : {X : Type ℓ} -> <_,_> {n = ℓ-max ℓ ns} (F X) α ⊨ ε
+      sat : {X : Type ℓ} -> < F X , α > ⊨ ε
       isFree : {X : Type ℓ}
-            {𝔜 : struct (ℓ-max ℓ' ns) σ}
-            (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
-            -> isEquiv (\(f : structHom {x = ℓ-max ℓ ns} < F X , α > 𝔜) -> f .fst ∘ η)
+        {𝔜 : struct (ℓ-max ℓ' ns) σ}
+        (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+        -> isEquiv (\(f : structHom {x = ℓ-max ℓ ns} < F X , α > 𝔜) -> f .fst ∘ η)
 
     ext : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
           (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
@@ -48,6 +48,35 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
          -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
+
+  -- Alternative definition where F is paramterized, used for transporting Free proofs
+  record FreeAux (ℓ ℓ' : Level) (h : HLevel) (F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
+    field
+      η : {X : Type ℓ} -> X -> F X
+      α : {X : Type ℓ} -> sig σ (F X) -> F X
+      sat : {X : Type ℓ} -> < F X , α > ⊨ ε
+      isFree : {X : Type ℓ}
+        {𝔜 : struct (ℓ-max ℓ' ns) σ}
+        (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+        -> isEquiv (\(f : structHom {x = ℓ-max ℓ ns} < F X , α > 𝔜) -> f .fst ∘ η)
+
+  isoAux : {ℓ ℓ' : Level} {h : HLevel} ->
+           Iso (Σ[ F ∈ ((X : Type ℓ) -> Type (ℓ-max ℓ ns)) ] FreeAux ℓ ℓ' h F) (Free ℓ ℓ' h)
+  isoAux {ℓ = ℓ} {ℓ' = ℓ'} {h = h} = iso to from (λ _ -> refl) (λ _ -> refl)
+    where
+    to : Σ[ F ∈ ((X : Type ℓ) -> Type (ℓ-max ℓ ns)) ] FreeAux ℓ ℓ' h F -> Free ℓ ℓ' h
+    Free.F (to (F , aux)) = F
+    Free.η (to (F , aux)) = FreeAux.η aux
+    Free.α (to (F , aux)) = FreeAux.α aux
+    Free.sat (to (F , aux)) = FreeAux.sat aux
+    Free.isFree (to (F , aux)) = FreeAux.isFree aux
+
+    from : Free ℓ ℓ' h -> Σ[ F ∈ ((X : Type ℓ) -> Type (ℓ-max ℓ ns)) ] FreeAux ℓ ℓ' h F
+    fst (from free) = Free.F free
+    FreeAux.η (snd (from free)) = Free.η free
+    FreeAux.α (snd (from free)) = Free.α free
+    FreeAux.sat (snd (from free)) = Free.sat free
+    FreeAux.isFree (snd (from free)) = Free.isFree free
 
 -- -- constructions of a free structure on a signature and equations
 -- -- TODO: generalise the universe levels!!

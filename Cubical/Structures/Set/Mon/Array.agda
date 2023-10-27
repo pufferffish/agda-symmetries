@@ -386,3 +386,17 @@ arrayIsoToList {A = A} = iso (uncurry tabulate) from tabulate-lookup from∘to
 
   from∘to : ∀ xs -> from (uncurry tabulate xs) ≡ xs
   from∘to (n , xs) = ΣPathP (length-tabulate n xs , lookup-tabulate n xs)
+
+array≡List : ∀ {ℓ} -> Array {ℓ = ℓ} ≡ List 
+array≡List = funExt λ _ -> isoToPath arrayIsoToList
+
+import Cubical.Structures.Set.Mon.List as LM
+
+arrayDef' : ∀ {ℓ ℓ'} -> ArrayDef.Free ℓ ℓ' 2
+arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
+  where
+  listFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 List
+  listFreeAux = (inv ArrayDef.isoAux (LM.listDef {ℓ = ℓ} {ℓ' = ℓ'})) .snd
+
+  arrayFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 Array
+  arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
