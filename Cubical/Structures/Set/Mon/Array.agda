@@ -33,6 +33,9 @@ private
 Array : Type ℓ -> Type ℓ
 Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 
+isSetArray : isSet A -> isSet (Array A)
+isSetArray isSetA = isOfHLevelΣ 2 isSetℕ λ _ -> isOfHLevelΠ 2 λ _ -> isSetA
+
 -- TODO: Prove tptLemma using transp, not J
 tptLemma : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (P : A -> Type ℓ'') {a b : A} (p : a ≡ b) (f : P a -> B) (k : P b)
         -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k)

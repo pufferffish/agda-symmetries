@@ -49,6 +49,8 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
          -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
+    
+
   -- Alternative definition where F is paramterized, used for transporting Free proofs
   record FreeAux (ℓ ℓ' : Level) (h : HLevel) (F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
     field
