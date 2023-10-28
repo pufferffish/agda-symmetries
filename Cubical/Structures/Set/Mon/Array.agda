@@ -225,30 +225,30 @@ assocr-then-∸ k n m o p q = ∸-<-lemma (n + m) o k (subst (k <_) (+-assoc n m
                       -> ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o)) ≡ ⊎.rec as bs (finSplit m n (k , k<m+n))
 ⊕-assocr-left-beta {m = m} {n = n} {o = o} as bs cs k k<m+n k<m+n+o =
   ⊎.rec (\k<m ->
-           ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
+          ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
         ≡⟨ congS (⊎.rec as (⊎.rec bs cs ∘ finSplit n o)) (finSplit-beta-inl k k<m k<m+n+o)  ⟩
-           ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (inl (k , k<m))
+          ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (inl (k , k<m))
         ≡⟨ ⊎-inl-beta (Fin (n + o)) as (⊎.rec bs cs ∘ finSplit n o) (k , k<m) ⟩
-           as (k , k<m)
+          as (k , k<m)
         ≡⟨ ⊎-inl-beta (Fin n) as bs (k , k<m) ⟩
-           ⊎.rec as bs (inl (k , k<m))
+          ⊎.rec as bs (inl (k , k<m))
         ≡⟨ sym (congS (⊎.rec as bs) (finSplit-beta-inl k k<m k<m+n)) ⟩
-           ⊎.rec as bs (finSplit m n (k , k<m+n))
+          ⊎.rec as bs (finSplit m n (k , k<m+n))
         ∎)
         (\m≤k ->
-           ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
+          ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
         ≡⟨ congS (⊎.rec as (⊎.rec bs cs ∘ finSplit n o)) (finSplit-beta-inr k k<m+n+o m≤k (∸-<-lemma m (n + o) k k<m+n+o m≤k))  ⟩
-           ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (inr (k ∸ m , ∸-<-lemma m (n + o) k k<m+n+o m≤k))
+          ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (inr (k ∸ m , ∸-<-lemma m (n + o) k k<m+n+o m≤k))
         ≡⟨ ⊎-inr-beta (Fin m) as (⊎.rec bs cs ∘ finSplit n o) (k ∸ m , ∸-<-lemma m (n + o) k k<m+n+o m≤k) ⟩
-           ⊎.rec bs cs (finSplit n o (k ∸ m , ∸-<-lemma m (n + o) k k<m+n+o m≤k))  
+          ⊎.rec bs cs (finSplit n o (k ∸ m , ∸-<-lemma m (n + o) k k<m+n+o m≤k))  
         ≡⟨ congS (⊎.rec bs cs) (finSplit-beta-inl (k ∸ m) (∸-<-lemma m n k k<m+n m≤k) (∸-<-lemma m (n + o) k k<m+n+o m≤k)) ⟩
-           ⊎.rec bs cs (inl (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
+          ⊎.rec bs cs (inl (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
         ≡⟨ ⊎-inl-beta (Fin o) bs cs (k ∸ m , ∸-<-lemma m n k k<m+n m≤k) ⟩
-           bs (k ∸ m , ∸-<-lemma m n k k<m+n m≤k)
+          bs (k ∸ m , ∸-<-lemma m n k k<m+n m≤k)
         ≡⟨ ⊎-inr-beta (Fin m) as bs (k ∸ m , ∸-<-lemma m n k k<m+n m≤k) ⟩
-           ⊎.rec as bs (inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
+          ⊎.rec as bs (inr (k ∸ m , ∸-<-lemma m n k k<m+n m≤k))
         ≡⟨ sym (congS (⊎.rec as bs) (finSplit-beta-inr k k<m+n m≤k (∸-<-lemma m n k k<m+n m≤k))) ⟩
-           ⊎.rec as bs (finSplit m n (k , k<m+n))
+          ⊎.rec as bs (finSplit m n (k , k<m+n))
         ∎)
   (k ≤? m)
 
@@ -261,26 +261,26 @@ n+m≤k→m≤k∸n n m k p = subst (_≤ k ∸ n) (∸+ m n) (≤-∸-≤ (n + 
 ⊕-assocr : ∀ {ℓ} {A : Type ℓ} (m n o : Array A) -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
 ⊕-assocr (n , as) (m , bs) (o , cs) = Array≡ (sym (+-assoc n m o)) \k k<n+m+o ->
   ⊎.rec (\k<n+m ->
-           ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
+          ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
         ≡⟨ congS (⊎.rec (⊎.rec as bs ∘ finSplit n m) cs) (finSplit-beta-inl k k<n+m (subst (k <_) (+-assoc n m o) k<n+m+o)) ⟩
-           ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (inl (k , k<n+m))
+          ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (inl (k , k<n+m))
         ≡⟨ ⊎-inl-beta (Fin o) (⊎.rec as bs ∘ finSplit n m) cs (k , k<n+m) ⟩
-           ⊎.rec as bs (finSplit n m (k , k<n+m))
+          ⊎.rec as bs (finSplit n m (k , k<n+m))
         ≡⟨ sym (⊕-assocr-left-beta as bs cs k k<n+m k<n+m+o) ⟩
-           ⊎.rec as (⊎.rec bs cs ∘ finSplit m o) (finSplit n (m + o) (k , k<n+m+o))
+          ⊎.rec as (⊎.rec bs cs ∘ finSplit m o) (finSplit n (m + o) (k , k<n+m+o))
         ∎) 
         (\n+m≤k ->
-           ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
+          ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
         ≡⟨ congS (⊎.rec (⊎.rec as bs ∘ finSplit n m) cs) (finSplit-beta-inr k (subst (k <_) (+-assoc n m o) k<n+m+o) n+m≤k (assocr-then-∸ k n m o k<n+m+o n+m≤k)) ⟩
-           ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (inr (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k))
+          ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (inr (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k))
         ≡⟨ ⊎-inr-beta (Fin (n + m)) ((⊎.rec as bs ∘ finSplit n m)) cs (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k) ⟩
-           cs (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k)
+          cs (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k)
         ≡⟨ congS cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc k n m))) ⟩
-           cs (k ∸ n ∸ m , subst (_< o) (sym (∸-+-assoc k n m)) (assocr-then-∸ k n m o k<n+m+o n+m≤k))
+          cs (k ∸ n ∸ m , subst (_< o) (sym (∸-+-assoc k n m)) (assocr-then-∸ k n m o k<n+m+o n+m≤k))
         ≡⟨ ⊎-inr-beta (Fin m) bs cs (k ∸ n ∸ m , subst (_< o) (sym (∸-+-assoc k n m)) (assocr-then-∸ k n m o k<n+m+o n+m≤k)) ⟩
-           ⊎.rec bs cs (inr (k ∸ n ∸ m , subst (_< o) (sym (∸-+-assoc k n m)) (assocr-then-∸ k n m o k<n+m+o n+m≤k)))
+          ⊎.rec bs cs (inr (k ∸ n ∸ m , subst (_< o) (sym (∸-+-assoc k n m)) (assocr-then-∸ k n m o k<n+m+o n+m≤k)))
         ≡⟨ sym (congS (⊎.rec bs cs) (finSplit-beta-inr (k ∸ n) (∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)) (n+m≤k→m≤k∸n n m k n+m≤k) _)) ⟩
-           ⊎.rec bs cs (finSplit m o (k ∸ n , ∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)))
+          ⊎.rec bs cs (finSplit m o (k ∸ n , ∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)))
         ≡⟨ ⊎-inr-beta (Fin n) as (⊎.rec bs cs ∘ finSplit m o) (k ∸ n , ∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)) ⟩
           ⊎.rec as (⊎.rec bs cs ∘ finSplit m o) (inr (k ∸ n , ∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)))
         ≡⟨ sym (congS (⊎.rec as (⊎.rec bs cs ∘ finSplit m o)) (finSplit-beta-inr k k<n+m+o (m+n≤k→m≤k m n k n+m≤k) (∸-<-lemma n (m + o) k k<n+m+o (m+n≤k→m≤k m n k n+m≤k)))) ⟩
