@@ -39,23 +39,17 @@ an-array = 3 , lemma
 
 module MonDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
 
-to-list : structHom < Array ℕ , array-α > < List ℕ , list-α >
-to-list = MonDef.Free.ext arrayDef (isOfHLevelList 0 isSetℕ) list-sat [_]
-
-a-list : List ℕ
-a-list = to-list .fst an-array
-
 want : List ℕ
 want = 5 ∷ₗ 9 ∷ₗ 2 ∷ₗ []
 
-a-list-is-want : a-list ≡ want
-a-list-is-want = refl
+to-list : structHom < Array ℕ , array-α > < List ℕ , list-α >
+to-list = MonDef.Free.ext arrayDef (isOfHLevelList 0 isSetℕ) list-sat [_]
+
+_ : to-list .fst an-array ≡ want
+_ = refl
 
 to-list' : structHom < Array ℕ , MonDef.Free.α (arrayDef' {ℓ' = ℓ-zero}) > < List ℕ , list-α >
 to-list' = MonDef.Free.ext arrayDef' (isOfHLevelList 0 isSetℕ) list-sat [_]
 
-a-list' : List ℕ
-a-list' = to-list' .fst an-array
-
-a-list'-is-want : a-list' ≡ want
-a-list'-is-want = refl
+_ : to-list' .fst an-array ≡ want
+_ = refl
