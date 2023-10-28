@@ -217,37 +217,76 @@ zero-+ m = refl
 ∸-+-assoc (suc m) zero    (suc o) = refl
 ∸-+-assoc (suc m) (suc n) (suc o) = ∸-+-assoc m n (suc o)
 
+assocr-then-∸ : ∀ (k n m o : ℕ) -> k < n + (m + o) -> n + m ≤ k -> k ∸ (n + m) < o
+assocr-then-∸ k n m o p q = ∸-<-lemma (n + m) o k (subst (k <_) (+-assoc n m o) p) q
+
+finSplit-beta-assoc : ∀ {ℓ} {A : Type ℓ} {m n o : ℕ} (as : Fin m -> A) (bs : Fin n -> A) (cs : Fin o -> A)
+                      -> (k : ℕ) (k<m+n : k < m + n) (k<m+n+o : k < m + (n + o))
+                      -> ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o)) ≡ ⊎.rec as bs (finSplit m n (k , k<m+n))
+finSplit-beta-assoc {m = m} {n = n} {o = o} as bs cs k k<m+n k<m+n+o =
+  ⊎.elim (\k<m ->
+            ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
+          ≡⟨ congS (⊎.rec as (⊎.rec bs cs ∘ finSplit n o)) (finSplit-beta-inl k k<m k<m+n+o)  ⟩
+            as (k , k<m)
+          ≡⟨ sym (congS (⊎.rec as bs) (finSplit-beta-inl k k<m k<m+n)) ⟩
+            ⊎.rec as bs (finSplit m n (k , k<m+n))
+         ∎)
+         (\m≤k ->
+            ⊎.rec as (⊎.rec bs cs ∘ finSplit n o) (finSplit m (n + o) (k , k<m+n+o))
+          ≡⟨ congS (⊎.rec as (⊎.rec bs cs ∘ finSplit n o)) (finSplit-beta-inr k k<m+n+o m≤k (∸-<-lemma m (n + o) k k<m+n+o m≤k))  ⟩
+         {!   !})
+  (k ≤? m)
+
 ⊕-assocr : ∀ {ℓ} {A : Type ℓ} (m n o : Array A) -> (m ⊕ n) ⊕ o ≡ m ⊕ (n ⊕ o)
-⊕-assocr (n , as) (m , bs) (o , cs) = ΣPathP (sym (+-assoc n m o) , toPathP (funExt lemma))
-  where
-  lemma : _
-  lemma (w , p) with w ≤? (n + m)
-  lemma (w , p) | inl q with w ≤? n
-  lemma (w , p) | inl q | inl r =
-    sym (transport-filler refl (as (w , r)))
-  lemma (w , p) | inl q | inr r with (w ∸ n) ≤? m
-  lemma (w , p) | inl q | inr r | inl s =
-    _ ≡⟨ sym (transport-filler refl _) ⟩
-    bs (w ∸ n , _) ≡⟨ cong bs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-    bs (w ∸ n , s) ∎
-  lemma (w , p) | inl q | inr r | inr s =
-    ⊥.rec (<-asym q t)
-    where
-    t : n + m ≤ w
-    t = subst (n + m ≤_) (+-comm n (w ∸ n) ∙ ≤-∸-+-cancel r) (≤-k+ s)
-  lemma (w , p) | inr q with w ≤? n
-  lemma (w , p) | inr q | inl r =
-    ⊥.rec (¬m+n<m (≤<-trans q r))
-  lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
-  lemma (w , p) | inr q | inr r | inl s =
-    ⊥.rec (<-asym t q)
-    where
-    t : w < n + m
-    t = subst2 _<_ (≤-∸-+-cancel r) (+-comm m n) (≤-+k s)
-  lemma (w , p) | inr q | inr r | inr s =
-    _ ≡⟨ sym (transport-filler refl _) ⟩
-    cs (w ∸ (n + m) , _) ≡⟨ cong cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc w n m))) ⟩
-    cs (w ∸ n ∸ m , _) ∎
+⊕-assocr (n , as) (m , bs) (o , cs) = Array≡ (sym (+-assoc n m o)) \k k<n+m+o ->
+  ⊎.elim (\k<n+m ->
+            ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
+          ≡⟨ congS (⊎.rec (⊎.rec as bs ∘ finSplit n m) cs) (finSplit-beta-inl k k<n+m (subst (k <_) (+-assoc n m o) k<n+m+o)) ⟩
+            ⊎.rec as bs (finSplit n m (k , k<n+m))
+          ≡⟨ sym (finSplit-beta-assoc as bs cs k k<n+m k<n+m+o) ⟩
+            ⊎.rec as (⊎.rec bs cs ∘ finSplit m o) (finSplit n (m + o) (k , k<n+m+o))
+         ∎) 
+         (\n+m≤k ->
+            ⊎.rec (⊎.rec as bs ∘ finSplit n m) cs (finSplit (n + m) o (k , subst (k <_) (+-assoc n m o) k<n+m+o))
+          ≡⟨ congS (⊎.rec (⊎.rec as bs ∘ finSplit n m) cs) (finSplit-beta-inr k (subst (k <_) (+-assoc n m o) k<n+m+o) n+m≤k (assocr-then-∸ k n m o k<n+m+o n+m≤k)) ⟩
+            cs (k ∸ (n + m) , assocr-then-∸ k n m o k<n+m+o n+m≤k)
+          ≡⟨ {!   !} ⟩
+            ⊎.rec bs cs (finSplit m o (k , {!   !}))
+          ≡⟨ {!   !} ⟩
+            ⊎.rec as (⊎.rec bs cs ∘ finSplit m o) (finSplit n (m + o) (k , k<n+m+o))
+         ∎)
+  (k ≤? (n + m))
+
+-- ⊕-assocr (n , as) (m , bs) (o , cs) = ΣPathP (sym (+-assoc n m o) , toPathP (funExt lemma))
+--   where
+--   lemma : _
+--   lemma (w , p) with w ≤? (n + m)
+--   lemma (w , p) | inl q with w ≤? n
+--   lemma (w , p) | inl q | inl r =
+--     sym (transport-filler refl (as (w , r)))
+--   lemma (w , p) | inl q | inr r with (w ∸ n) ≤? m
+--   lemma (w , p) | inl q | inr r | inl s =
+--     _ ≡⟨ sym (transport-filler refl _) ⟩
+--     bs (w ∸ n , _) ≡⟨ cong bs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+--     bs (w ∸ n , s) ∎
+--   lemma (w , p) | inl q | inr r | inr s =
+--     ⊥.rec (<-asym q t)
+--     where
+--     t : n + m ≤ w
+--     t = subst (n + m ≤_) (+-comm n (w ∸ n) ∙ ≤-∸-+-cancel r) (≤-k+ s)
+--   lemma (w , p) | inr q with w ≤? n
+--   lemma (w , p) | inr q | inl r =
+--     ⊥.rec (¬m+n<m (≤<-trans q r))
+--   lemma (w , p) | inr q | inr r with (w ∸ n) ≤? m
+--   lemma (w , p) | inr q | inr r | inl s =
+--     ⊥.rec (<-asym t q)
+--     where
+--     t : w < n + m
+--     t = subst2 _<_ (≤-∸-+-cancel r) (+-comm m n) (≤-+k s)
+--   lemma (w , p) | inr q | inr r | inr s =
+--     _ ≡⟨ sym (transport-filler refl _) ⟩
+--     cs (w ∸ (n + m) , _) ≡⟨ cong cs (Σ≡Prop (λ _ -> isProp≤) (sym (∸-+-assoc w n m))) ⟩
+--     cs (w ∸ n ∸ m , _) ∎
 
 η+fsuc : ∀ {n} (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
 η+fsuc {n = n} xs = ΣPathP (refl , funExt lemma)
@@ -402,4 +441,4 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
   listFreeAux = (inv ArrayDef.isoAux (LM.listDef {ℓ = ℓ} {ℓ' = ℓ'})) .snd
 
   arrayFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 Array
-  arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
+  arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux 
