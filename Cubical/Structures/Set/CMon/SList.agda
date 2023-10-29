@@ -166,7 +166,7 @@ slist-sat (M.`mon M.`unitr) ρ = ++-unitr (ρ fzero)
 slist-sat (M.`mon M.`assocr) ρ = ++-assocr (ρ fzero) (ρ fone) (ρ ftwo)
 slist-sat M.`comm ρ = ++-comm (ρ fzero) (ρ fone)
 
-slistDef : SListDef.Free 2
+slistDef : ∀ {ℓ ℓ'} -> SListDef.Free ℓ ℓ' 2
 F.Definition.Free.F slistDef = SList
 F.Definition.Free.η slistDef = [_]
 F.Definition.Free.α slistDef = slist-α

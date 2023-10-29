@@ -86,11 +86,9 @@ module CMonSEq {ℓ} (𝔛 : CMonStruct {ℓ}) (ϕ : 𝔛 ⊨ CMonSEq) where
       lemma2 (suc zero , p) = refl
       lemma2 (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
 
-module Examples where
+ℕ-CMonStr : CMonStruct
+ℕ-CMonStr = M.ℕ-MonStr
 
-  ℕ-CMonStr : CMonStruct
-  ℕ-CMonStr = M.Examples.ℕ-MonStr
-
-  ℕ-CMonStr-MonSEq : ℕ-CMonStr ⊨ CMonSEq
-  ℕ-CMonStr-MonSEq (`mon eqn) ρ = M.Examples.ℕ-MonStr-MonSEq eqn ρ
-  ℕ-CMonStr-MonSEq `comm ρ = +-comm (ρ fzero) (ρ fone)
+ℕ-CMonStr-MonSEq : ℕ-CMonStr ⊨ CMonSEq
+ℕ-CMonStr-MonSEq (`mon eqn) ρ = M.ℕ-MonStr-MonSEq eqn ρ
+ℕ-CMonStr-MonSEq `comm ρ = +-comm (ρ fzero) (ρ fone)

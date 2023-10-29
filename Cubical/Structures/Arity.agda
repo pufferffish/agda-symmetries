@@ -40,6 +40,34 @@ tabulate-lookup (x ∷ xs) =
    _ ≡⟨ cong (x ∷_) (tabulate-lookup xs) ⟩
    _ ∎
 
+arity-n≡m : ∀ {n m} -> (a : Arity n) -> (b : Arity m) -> (p : n ≡ m) -> a .fst ≡ b .fst -> PathP (λ i -> Arity (p i)) a b
+arity-n≡m (v , a) (w , b) p q = ΣPathP (q , toPathP (isProp≤ _ _))
+
+lookup-tabulate : ∀ n (^a : Arity n -> A) -> PathP (λ i -> (Arity (length-tabulate n ^a i) -> A)) (lookup (tabulate n ^a)) ^a
+lookup-tabulate zero ^a = funExt (⊥.rec ∘ ¬Fin0)
+lookup-tabulate (suc n) ^a = toPathP (funExt lemma) -- i (zero , p) =  ^a (0 , toPathP {A = λ j -> 0 < suc (length-tabulate n (^a ∘ fsuc) (~ j))} {!   !} i) -- toPathP (sym (transport-filler _ _) ∙ cong ^a (Σ≡Prop (λ _ -> isProp≤) refl)) i -- suc-≤-suc (zero-≤ {n = n}) toPathP {x = suc-≤-suc (zero-≤ {n = n})} {!   !} i
+  where
+  lemma : _
+  lemma (zero , p) = sym (transport-filler _ _) ∙ cong ^a (Σ≡Prop (λ _ -> isProp≤) refl)
+  -- TODO: Cleanup this mess
+  lemma (suc w , p) =
+    _ ≡⟨ sym (transport-filler _ _) ⟩
+    _ ≡⟨ congP (λ i f -> f (arity-n≡m (w ,
+       pred-≤-pred
+       (transp
+        (λ i → suc w < suc (length-tabulate n (λ x → ^a (fsuc x)) (~ i)))
+        i0 p)) (w , pred-≤-pred p) (length-tabulate n (^a ∘ fsuc)) refl i)) (lookup-tabulate n (^a ∘ fsuc)) ⟩
+    _ ≡⟨ cong ^a (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+    _ ∎
+
+lookup2≡i : ∀ (i : Arity 2 -> A) -> lookup (i fzero ∷ i fone ∷ []) ≡ i
+lookup2≡i i = funExt lemma
+  where
+  lemma : _
+  lemma (zero , p) = cong i (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc zero , p) = cong i (Σ≡Prop (λ _ -> isProp≤) refl)
+  lemma (suc (suc n) , p) = ⊥.rec (¬m+n<m {m = 2} p)
+
 ◼ : Arity 0 -> A
 ◼ = ⊥.rec ∘ ¬Fin0
 
@@ -60,3 +88,4 @@ _▸_ {n = suc n} x f i = lookup (x ∷ tabulate (suc n) f) (subst Arity (congS 
 
 ⟪_⨾_⨾_⟫ : (a b c : A) -> Arity 3 -> A
 ⟪ a ⨾ b ⨾ c ⟫ = lookup (a ∷ b ∷ c ∷ [])
+ 

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical #-}
 
 module Cubical.Structures.Set.Mon.Desc where
 
@@ -149,14 +149,12 @@ module MonSEq {ℓ} (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
   --      -> lookup (x ∷ xs) (fsuc a) ≡ sharp MonSig 𝔛 {!!} (lookup {!!} a)
   -- lemma f = {!!}
 
-module Examples where
+ℕ-MonStr : MonStruct
+car ℕ-MonStr = ℕ
+alg ℕ-MonStr (`e , _) = 0
+alg ℕ-MonStr (`⊕ , i) = i fzero + i fone
 
-  ℕ-MonStr : MonStruct
-  car ℕ-MonStr = ℕ
-  alg ℕ-MonStr (`e , _) = 0
-  alg ℕ-MonStr (`⊕ , i) = i fzero + i fone
-
-  ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
-  ℕ-MonStr-MonSEq `unitl ρ = refl
-  ℕ-MonStr-MonSEq `unitr ρ = +-zero (ρ fzero)
-  ℕ-MonStr-MonSEq `assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+ℕ-MonStr-MonSEq : ℕ-MonStr ⊨ MonSEq
+ℕ-MonStr-MonSEq `unitl ρ = refl
+ℕ-MonStr-MonSEq `unitr ρ = +-zero (ρ fzero)
+ℕ-MonStr-MonSEq `assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
