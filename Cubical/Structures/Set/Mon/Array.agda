@@ -337,12 +337,12 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
   𝔄 = < Array A , array-α >
 
   module _ (f : A -> 𝔜 .car) where
-    ♯' : (n : ℕ) -> (Fin n -> A) -> 𝔜 .car
-    ♯' zero    _  = 𝔜.e
-    ♯' (suc n) xs = f (xs fzero) 𝔜.⊕ ♯' n (xs ∘ fsuc)
+    ♯^ : (n : ℕ) -> (Fin n -> A) -> 𝔜 .car
+    ♯^ zero    _  = 𝔜.e
+    ♯^ (suc n) xs = f (xs fzero) 𝔜.⊕ ♯^ n (xs ∘ fsuc)
 
     _♯ : Array A -> 𝔜 .car
-    (n , xs) ♯ = ♯' n xs -- to aid termination checker
+    _♯ = uncurry ♯^
 
     ♯-η∘ : ∀ n (xs : Fin (suc n) -> A)
       -> (η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)
@@ -350,20 +350,20 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
     ♯-η∘ n xs =
       (η (xs fzero) ♯) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) ≡⟨ cong (𝔜._⊕ ((n , xs ∘ fsuc) ♯)) (𝔜.unitr _) ⟩
       f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) ≡⟨⟩
-      (suc n , xs) ♯ ≡⟨ cong (_♯) (sym (η+fsuc xs)) ⟩
+      (suc n , xs) ♯ ≡⟨ cong _♯ (sym (η+fsuc xs)) ⟩
       ((η (xs fzero) ⊕ (n , xs ∘ fsuc)) ♯) ∎
 
-    ♯-++' : ∀ n xs m ys -> ((n , xs) ⊕ (m , ys)) ♯ ≡ ((n , xs) ♯) 𝔜.⊕ ((m , ys) ♯)
-    ♯-++' zero xs m ys =
+    ♯-++^ : ∀ n xs m ys -> ((n , xs) ⊕ (m , ys)) ♯ ≡ ((n , xs) ♯) 𝔜.⊕ ((m , ys) ♯)
+    ♯-++^ zero xs m ys =
       ((zero , xs) ⊕ (m , ys)) ♯ ≡⟨ cong (λ z -> (z ⊕ (m , ys)) ♯) (e-eta (zero , xs) e refl refl) ⟩
       (e ⊕ (m , ys)) ♯ ≡⟨ cong _♯ (⊕-unitl (m , ys)) ⟩
       (m , ys) ♯ ≡⟨ sym (𝔜.unitl _) ⟩
       𝔜.e 𝔜.⊕ ((m , ys) ♯) ∎
-    ♯-++' (suc n) xs m ys =
+    ♯-++^ (suc n) xs m ys =
         f (xs fzero) 𝔜.⊕ ((n + m , _) ♯)
       ≡⟨ cong (λ z -> f (xs fzero) 𝔜.⊕ (z ♯)) (⊕-split n m xs ys) ⟩
         f (xs fzero) 𝔜.⊕ (((n , xs ∘ fsuc) ⊕ (m , ys)) ♯)
-      ≡⟨ cong (f (xs fzero) 𝔜.⊕_) (♯-++' n _ m _) ⟩
+      ≡⟨ cong (f (xs fzero) 𝔜.⊕_) (♯-++^ n _ m _) ⟩
         f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯) 𝔜.⊕ ((m , ys) ♯)
       ≡⟨ sym (𝔜.assocr _ _ _) ⟩
         (f (xs fzero) 𝔜.⊕ ((n , xs ∘ fsuc) ♯)) 𝔜.⊕ ((m , ys) ♯)
@@ -375,7 +375,7 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
         ((suc n , xs) ♯) 𝔜.⊕ ((m , ys) ♯) ∎
 
     ♯-++ : ∀ xs ys -> (xs ⊕ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
-    ♯-++ (n , xs) (m , ys) = ♯-++' n xs m ys
+    ♯-++ (n , xs) (m , ys) = ♯-++^ n xs m ys
 
     ♯-isMonHom : structHom 𝔄 𝔜
     fst ♯-isMonHom = _♯
@@ -420,6 +420,8 @@ F.Definition.Free.α arrayDef = array-α
 F.Definition.Free.sat arrayDef = array-sat
 F.Definition.Free.isFree arrayDef isSet𝔜 satMon = (Free.arrayEquiv isSet𝔜 satMon) .snd
 
+-- direct proof of isomorphism between Array and List
+-- without using the universal property of Array as a free monoid
 arrayIsoToList : ∀ {ℓ} {A : Type ℓ} -> Iso (Array A) (List A)
 arrayIsoToList {A = A} = iso (uncurry tabulate) from tabulate-lookup from∘to
   where
@@ -441,4 +443,4 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
   listFreeAux = (inv ArrayDef.isoAux (LM.listDef {ℓ = ℓ} {ℓ' = ℓ'})) .snd
 
   arrayFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 Array
-  arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux  
+  arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
