@@ -34,7 +34,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
 
 SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
@@ -51,14 +51,11 @@ symm-sym {as = (n , f)} {bs = (m , g)} (aut , eqn) =
              ∙ congS (_∘ aut .inv) (sym eqn)
 
 symm-trans : {as bs cs : Array A} -> SymmAction as bs -> SymmAction bs cs -> SymmAction as cs
-symm-trans {as = as} {bs = bs} {cs = cs} (p-aut , p-eqn) (q-aut , q-eqn) =
-  compIso p-aut q-aut , sym (funExt lemma)
-  where
-  lemma : _
-  lemma w =
-    snd cs (q-aut .fun (p-aut .fun w)) ≡⟨ cong (λ f -> f (p-aut .fun w)) (sym q-eqn)  ⟩
-    snd bs (p-aut .fun w) ≡⟨ cong (λ f -> f w) (sym p-eqn)  ⟩
-    snd as w ∎
+symm-trans {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (p-aut , p-eqn) (q-aut , q-eqn) =
+  compIso p-aut q-aut , sym
+    ((h ∘ q-aut .fun) ∘ p-aut .fun ≡⟨ congS (_∘ p-aut .fun) (sym q-eqn) ⟩
+    g ∘ p-aut .fun ≡⟨ sym p-eqn ⟩
+    f ∎)
 
 Array≡-len : {as bs : Array A} -> as ≡ bs -> as .fst ≡ bs .fst
 Array≡-len {as = (n , f)} {bs = (m , g)} p = cong fst p
@@ -67,18 +64,32 @@ Fin+-cong : {n m n' m' : ℕ} -> Iso (Fin n) (Fin n') -> Iso (Fin m) (Fin m') ->
 Fin+-cong {n} {m} {n'} {m'} σ τ =
   compIso (Fin≅Fin+Fin n m) (compIso (⊎Iso σ τ) (invIso (Fin≅Fin+Fin n' m')))
 
-⊎Iso-eta : {A B A' B' C : Type ℓ} {f : A' -> C} {g : B' -> C}
+⊎Iso-eta : {A B A' B' : Type ℓ} {C : Type ℓ'} (f : A' -> C) (g : B' -> C)
         -> (σ : Iso A A') (τ : Iso B B')
         -> ⊎.rec (f ∘ σ .fun) (g ∘ τ .fun) ≡ ⊎.rec f g ∘ ⊎Iso σ τ .fun
-⊎Iso-eta {f = f} {g = g} σ τ i (inl a) = f (σ .fun a)
-⊎Iso-eta {f = f} {g = g} σ τ i (inr b) = g (τ .fun b)
+⊎Iso-eta f g σ τ i (inl a) = f (σ .fun a)
+⊎Iso-eta f g σ τ i (inr b) = g (τ .fun b)
 
 symm-cong : {as bs cs ds : Array A} -> as ≈ bs -> cs ≈ ds -> (as ⊕ cs) ≈ (bs ⊕ ds)
 symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
   Fin+-cong σ τ ,
-  (combine n m f g ≡⟨ cong₂ (combine n m) p q ⟩
-   combine n m (f' ∘ σ .fun) (g' ∘ τ .fun) ≡⟨ {!!} ⟩
-   combine n' m' f' g' ∘ Fin+-cong σ τ .fun ∎)
+  (
+    combine n m f g
+  ≡⟨ cong₂ (combine n m) p q ⟩
+    combine n m (f' ∘ σ .fun) (g' ∘ τ .fun)
+  ≡⟨⟩
+    ⊎.rec (f' ∘ σ .fun) (g' ∘ τ .fun) ∘ finSplit n m
+  ≡⟨ congS (_∘ finSplit n m) (⊎Iso-eta f' g' σ τ) ⟩
+    ⊎.rec f' g' ∘ ⊎Iso σ τ .fun ∘ finSplit n m
+  ≡⟨⟩
+    ⊎.rec f' g' ∘ idfun _ ∘ ⊎Iso σ τ .fun ∘ finSplit n m
+  ≡⟨ congS (λ f -> ⊎.rec f' g' ∘ f ∘ ⊎Iso σ τ .fun ∘ finSplit n m) (sym (funExt (Fin≅Fin+Fin n' m' .rightInv))) ⟩
+    ⊎.rec f' g' ∘ (Fin≅Fin+Fin n' m' .fun ∘ Fin≅Fin+Fin n' m' .inv) ∘ ⊎Iso σ τ .fun ∘ finSplit n m
+  ≡⟨⟩
+    (⊎.rec f' g' ∘ Fin≅Fin+Fin n' m' .fun) ∘ (Fin≅Fin+Fin n' m' .inv ∘ ⊎Iso σ τ .fun ∘ finSplit n m)
+  ≡⟨⟩
+    combine n' m' f' g' ∘ Fin+-cong σ τ .fun
+  ∎)
 
 symm-comm : {as bs : Array A} -> (as ⊕ bs) ≈ (bs ⊕ as)
 symm-comm = {!!} , {!!}
