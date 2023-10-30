@@ -38,30 +38,26 @@ private
     A : Type ℓ
 
 SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
-SymmAction (n , v) (m , w) = ∃[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fun
+SymmAction (n , v) (m , w) = Σ[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fun
 
 symm-refl : {as : Array A} -> SymmAction as as
-symm-refl {as = as} = ∣ idIso , refl ∣₁
+symm-refl {as = as} = idIso , refl
 
 symm-symm : {as bs : Array A} -> SymmAction as bs -> SymmAction bs as
-symm-symm {as = as} {bs = bs} = PT.map λ (aut , eqn) -> invIso aut , sym (funExt (lemma aut eqn))
+symm-symm {as = as} {bs = bs} (aut , eqn) = invIso aut , sym (funExt lemma)
   where
-  lemma : (aut : Iso (Fin (fst as)) (Fin (fst bs))) -> snd as ≡ snd bs ∘ aut .fun -> (x : Fin (fst bs)) -> _
-  lemma aut eqn w =
+  lemma : _
+  lemma w =
     snd as (inv aut w) ≡⟨ congS (λ f -> f (inv aut w)) eqn ⟩
     snd bs (aut .fun (inv aut w)) ≡⟨ congS (snd bs) (aut .rightInv w) ⟩
     snd bs w ∎
 
 symm-trans : {as bs cs : Array A} -> SymmAction as bs -> SymmAction bs cs -> SymmAction as cs
-symm-trans {as = as} {bs = bs} {cs = cs} =
-  PT.rec (isPropΠ λ _ -> squash₁) λ (p-aut , p-eqn) ->
-    PT.rec squash₁ λ (q-aut , q-eqn) ->
-      ∣ compIso p-aut q-aut , sym (funExt (lemma p-aut q-aut p-eqn q-eqn)) ∣₁
+symm-trans {as = as} {bs = bs} {cs = cs} (p-aut , p-eqn) (q-aut , q-eqn) =
+  compIso p-aut q-aut , sym (funExt lemma)
   where
-  lemma : (p-aut : Iso (Fin (fst as)) (Fin (fst bs))) -> (q-aut : Iso (Fin (fst bs)) (Fin (fst cs)))
-        -> (snd as ≡ snd bs ∘ p-aut .fun) -> (snd bs ≡ snd cs ∘ q-aut .fun)
-        -> (x : Fin (fst as)) -> _
-  lemma p-aut q-aut p-eqn q-eqn w =
+  lemma : _
+  lemma w =
     snd cs (q-aut .fun (p-aut .fun w)) ≡⟨ cong (λ f -> f (p-aut .fun w)) (sym q-eqn)  ⟩
     snd bs (p-aut .fun w) ≡⟨ cong (λ f -> f w) (sym p-eqn)  ⟩
     snd as w ∎
