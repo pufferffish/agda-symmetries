@@ -20,7 +20,7 @@ import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.Mon.List as LM
 import Cubical.Structures.Set.CMon.Desc as M
 import Cubical.Structures.Free as F
-open import Cubical.Structures.Set.Mon.Array
+open import Cubical.Structures.Set.Mon.Array as A
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
@@ -42,19 +42,22 @@ SymmAction (n , v) (m , w) = Σ[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fu
 
 _≈_ = SymmAction
 
+symm-length≡ : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m 
+symm-length≡ {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
+
 symm-refl : {as : Array A} -> SymmAction as as
 symm-refl {as = as} = idIso , refl
 
 symm-sym : {as bs : Array A} -> SymmAction as bs -> SymmAction bs as
-symm-sym {as = (n , f)} {bs = (m , g)} (aut , eqn) =
-  invIso aut , congS (g ∘_) (sym (funExt (aut .rightInv)))
-             ∙ congS (_∘ aut .inv) (sym eqn)
+symm-sym {as = (n , f)} {bs = (m , g)} (σ , p) =
+  invIso σ , congS (g ∘_) (sym (funExt (σ .rightInv)))
+           ∙ congS (_∘ σ .inv) (sym p)
 
 symm-trans : {as bs cs : Array A} -> SymmAction as bs -> SymmAction bs cs -> SymmAction as cs
-symm-trans {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (p-aut , p-eqn) (q-aut , q-eqn) =
-  compIso p-aut q-aut , sym
-    ((h ∘ q-aut .fun) ∘ p-aut .fun ≡⟨ congS (_∘ p-aut .fun) (sym q-eqn) ⟩
-    g ∘ p-aut .fun ≡⟨ sym p-eqn ⟩
+symm-trans {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (σ , p) (τ , q) =
+  compIso σ τ , sym
+    ((h ∘ τ .fun) ∘ σ .fun ≡⟨ congS (_∘ σ .fun) (sym q) ⟩
+    g ∘ σ .fun ≡⟨ sym p ⟩
     f ∎)
 
 Array≡-len : {as bs : Array A} -> as ≡ bs -> as .fst ≡ bs .fst
@@ -75,7 +78,6 @@ Fin+-cong {n} {m} {n'} {m'} σ τ =
         -> ⊎.rec g f ∘ ⊎-swap-Iso .fun ≡ ⊎.rec f g
 ⊎Swap-eta f g i (inl a) = f a
 ⊎Swap-eta f g i (inr b) = g b
-
 
 symm-cong : {as bs cs ds : Array A} -> as ≈ bs -> cs ≈ ds -> (as ⊕ cs) ≈ (bs ⊕ ds)
 symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
@@ -114,6 +116,37 @@ symm-comm {as = n , f} {bs = m , g} =
       ⊎.rec f g ∘ Fin≅Fin+Fin n m .fun
     ∎)
 
+module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) (f : A -> 𝔜 .car) where
+  module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
+
+  f♯-hom = A.Free.♯-isMonHom isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
+
+  f♯ : Array A -> 𝔜 .car
+  f♯ = f♯-hom .fst
+
+  fin-id-iso : ∀ {n m} -> n ≡ m -> Iso (Fin n) (Fin m)
+  fin-id-iso {n = n} {m = m} p =
+    iso
+      (λ (w , q) -> w , subst (w <_) p q)
+      (λ (w , q) -> w , subst (w <_) (sym p) q)
+      (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) p q))
+      (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) (sym p) q))
+
+  symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
+  symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
+    f♯ (n , g) ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
+    f♯ (n , h ∘ σ .fun) ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
+    f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun) ≡⟨⟩
+    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨⟩
+    {!   !}
+    where
+    n≡m : n ≡ m
+    n≡m = symm-length≡ σ
+
+    lemma : _
+    lemma (w , q) =
+      _ ≡⟨ sym (transport-filler _ _) ⟩
+      h (σ .fun (subst Fin (sym n≡m) (w , q))) ∎
 
 module _ {ℓ} (A : Type ℓ) where
   open import Cubical.Relation.Binary
@@ -126,4 +159,5 @@ module _ {ℓ} (A : Type ℓ) where
   P.isEquivRel.transitive (isEquivRel isPermRelPerm) _ _ cs = symm-trans {cs = cs}
   isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
   isCommutative isPermRelPerm = symm-comm
-  resp-♯ isPermRelPerm = {!   !}
+  resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
+ 
