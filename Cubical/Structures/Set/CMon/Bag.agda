@@ -70,6 +70,13 @@ Fin+-cong {n} {m} {n'} {m'} σ τ =
 ⊎Iso-eta f g σ τ i (inl a) = f (σ .fun a)
 ⊎Iso-eta f g σ τ i (inr b) = g (τ .fun b)
 
+
+⊎Swap-eta : {A B : Type ℓ} {C : Type ℓ'} (f : A -> C) (g : B -> C)
+        -> ⊎.rec g f ∘ ⊎-swap-Iso .fun ≡ ⊎.rec f g
+⊎Swap-eta f g i (inl a) = f a
+⊎Swap-eta f g i (inr b) = g b
+
+
 symm-cong : {as bs cs ds : Array A} -> as ≈ bs -> cs ≈ ds -> (as ⊕ cs) ≈ (bs ⊕ ds)
 symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
   Fin+-cong σ τ ,
@@ -91,8 +98,22 @@ symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
     combine n' m' f' g' ∘ Fin+-cong σ τ .fun
   ∎)
 
+Fin+-comm : (n m : ℕ) -> Iso (Fin (n + m)) (Fin (m + n))
+Fin+-comm n m = compIso (Fin≅Fin+Fin n m) (compIso ⊎-swap-Iso (invIso (Fin≅Fin+Fin m n)))
+
 symm-comm : {as bs : Array A} -> (as ⊕ bs) ≈ (bs ⊕ as)
-symm-comm = {!!} , {!!}
+symm-comm {as = n , f} {bs = m , g} =
+  Fin+-comm n m , sym
+    (
+      ⊎.rec g f ∘ finSplit m n ∘ Fin≅Fin+Fin m n .inv ∘ ⊎-swap-Iso .fun ∘ Fin≅Fin+Fin n m .fun
+    ≡⟨⟩
+      ⊎.rec g f ∘ (Fin≅Fin+Fin m n .fun ∘ Fin≅Fin+Fin m n .inv) ∘ ⊎-swap-Iso .fun ∘ Fin≅Fin+Fin n m .fun
+    ≡⟨ congS (λ h -> ⊎.rec g f ∘ h ∘ ⊎-swap-Iso .fun ∘ Fin≅Fin+Fin n m .fun) (funExt (Fin≅Fin+Fin m n .rightInv)) ⟩
+      ⊎.rec g f ∘ ⊎-swap-Iso .fun ∘ Fin≅Fin+Fin n m .fun
+    ≡⟨ congS (_∘ Fin≅Fin+Fin n m .fun) (⊎Swap-eta f g) ⟩
+      ⊎.rec f g ∘ Fin≅Fin+Fin n m .fun
+    ∎)
+
 
 module _ {ℓ} (A : Type ℓ) where
   open import Cubical.Relation.Binary
@@ -103,6 +124,6 @@ module _ {ℓ} (A : Type ℓ) where
   P.isEquivRel.reflexive (isEquivRel isPermRelPerm) _ = symm-refl
   P.isEquivRel.symmetric (isEquivRel isPermRelPerm) _ _ = symm-sym
   P.isEquivRel.transitive (isEquivRel isPermRelPerm) _ _ cs = symm-trans {cs = cs}
-  isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = {!   !}
-  isCommutative isPermRelPerm = {!   !}
+  isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
+  isCommutative isPermRelPerm = symm-comm
   resp-♯ isPermRelPerm = {!   !}
