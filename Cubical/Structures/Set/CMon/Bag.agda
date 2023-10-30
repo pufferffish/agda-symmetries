@@ -30,50 +30,40 @@ open import Cubical.Structures.Set.CMon.QFreeMon
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.PropositionalTruncation as PT
 
+open Iso
+
 private
   variable
     ℓ : Level
     A : Type ℓ
 
 SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
-SymmAction (n , v) (m , w) = ∃[ σ ∈ Fin n ≃ Fin m ] v ≡ w ∘ σ .fst
-
-compose-equiv : ∀ {A B C : Type ℓ} -> A ≃ B -> B ≃ C -> A ≃ C
-compose-equiv p q = equivFun univalence (ua p ∙ ua q)
-
-compose-equiv≡ : ∀ {A B C : Type ℓ} (p : A ≃ B) (q : B ≃ C) (x : A)
-               -> equivFun (compose-equiv p q) x ≡ equivFun q (equivFun p x)
-compose-equiv≡ {A = A} {B = B} {C = C} p q x =
-  _ ≡⟨ sym (transport-filler _ _) ⟩
-  fst q (transp (λ i → B) i0 (fst p (transp (λ i → A) i0 x))) ≡⟨ cong (fst q) (sym (transport-filler _ _)) ⟩
-  fst q (fst p (transp (λ i → A) i0 x)) ≡⟨ cong (fst q ∘ fst p) (sym (transport-filler _ _)) ⟩
-  fst q (fst p x) ∎
+SymmAction (n , v) (m , w) = ∃[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fun
 
 symm-refl : {as : Array A} -> SymmAction as as
-symm-refl {as = as} = ∣ idEquiv _ , refl ∣₁
+symm-refl {as = as} = ∣ idIso , refl ∣₁
 
 symm-symm : {as bs : Array A} -> SymmAction as bs -> SymmAction bs as
-symm-symm {as = as} {bs = bs} =
-  PT.rec squash₁ λ (aut , eqn) -> ∣ invEquiv aut , sym (funExt (lemma aut eqn)) ∣₁
+symm-symm {as = as} {bs = bs} = PT.map λ (aut , eqn) -> invIso aut , sym (funExt (lemma aut eqn))
   where
-  lemma : (aut : Fin (fst as) ≃ Fin (fst bs)) -> snd as ≡ snd bs ∘ aut .fst -> (x : Fin (fst bs)) -> _
+  lemma : (aut : Iso (Fin (fst as)) (Fin (fst bs))) -> snd as ≡ snd bs ∘ aut .fun -> (x : Fin (fst bs)) -> _
   lemma aut eqn w =
-    snd as (invEquiv aut .fst w) ≡⟨ congS (λ f -> f (invEquiv aut .fst w)) eqn ⟩
-    snd bs (aut .fst (invEquiv aut .fst w)) ≡⟨ cong (snd bs) (invEq≡→equivFun≡ aut refl) ⟩
+    snd as (inv aut w) ≡⟨ congS (λ f -> f (inv aut w)) eqn ⟩
+    snd bs (aut .fun (inv aut w)) ≡⟨ congS (snd bs) (aut .rightInv w) ⟩
     snd bs w ∎
 
 symm-trans : {as bs cs : Array A} -> SymmAction as bs -> SymmAction bs cs -> SymmAction as cs
 symm-trans {as = as} {bs = bs} {cs = cs} =
   PT.rec (isPropΠ λ _ -> squash₁) λ (p-aut , p-eqn) ->
     PT.rec squash₁ λ (q-aut , q-eqn) ->
-      ∣ compEquiv p-aut q-aut , sym (funExt (lemma p-aut q-aut p-eqn q-eqn)) ∣₁
+      ∣ compIso p-aut q-aut , sym (funExt (lemma p-aut q-aut p-eqn q-eqn)) ∣₁
   where
-  lemma : (p-aut : Fin (fst as) ≃ Fin (fst bs)) -> (q-aut : Fin (fst bs) ≃ Fin (fst cs))
-          -> snd as ≡ snd bs ∘ p-aut .fst -> snd bs ≡ snd cs ∘ q-aut .fst -> (x : Fin (fst as))
-          -> _
+  lemma : (p-aut : Iso (Fin (fst as)) (Fin (fst bs))) -> (q-aut : Iso (Fin (fst bs)) (Fin (fst cs)))
+        -> (snd as ≡ snd bs ∘ p-aut .fun) -> (snd bs ≡ snd cs ∘ q-aut .fun)
+        -> (x : Fin (fst as)) -> _
   lemma p-aut q-aut p-eqn q-eqn w =
-    snd cs (q-aut .fst (p-aut .fst w)) ≡⟨ cong (λ f -> f (p-aut .fst w)) (sym q-eqn) ⟩
-    snd bs (p-aut .fst w) ≡⟨ cong (λ f -> f w) (sym p-eqn)  ⟩
+    snd cs (q-aut .fun (p-aut .fun w)) ≡⟨ cong (λ f -> f (p-aut .fun w)) (sym q-eqn)  ⟩
+    snd bs (p-aut .fun w) ≡⟨ cong (λ f -> f w) (sym p-eqn)  ⟩
     snd as w ∎
 
 module _ {ℓ} (A : Type ℓ) where
@@ -85,6 +75,6 @@ module _ {ℓ} (A : Type ℓ) where
   P.isEquivRel.reflexive (isEquivRel isPermRelPerm) _ = symm-refl
   P.isEquivRel.symmetric (isEquivRel isPermRelPerm) _ _ = symm-symm
   P.isEquivRel.transitive (isEquivRel isPermRelPerm) _ _ cs = symm-trans {cs = cs}
-  isCongruence isPermRelPerm = {!   !}
+  isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = {!   !}
   isCommutative isPermRelPerm = {!   !}
   resp-♯ isPermRelPerm = {!   !}
