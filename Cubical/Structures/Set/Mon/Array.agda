@@ -165,8 +165,8 @@ finCombine∘finSplit m n (k , k<m+n) =
         ∎)
         (k ≤? m)
 
-Fin≅Fin+Fin : ∀ m n -> Fin (m + n) ≃ (Fin m ⊎ Fin n)
-Fin≅Fin+Fin m n = isoToEquiv (iso (finSplit m n) (finCombine m n) (finSplit∘finCombine m n) (finCombine∘finSplit m n))
+Fin≅Fin+Fin : ∀ m n -> Iso (Fin (m + n)) (Fin m ⊎ Fin n)
+Fin≅Fin+Fin m n = iso (finSplit m n) (finCombine m n) (finSplit∘finCombine m n) (finCombine∘finSplit m n)
 
 combine : ∀ n m -> (Fin n -> A) -> (Fin m -> A) -> (Fin (n + m) -> A)
 combine n m as bs w = ⊎.rec as bs (finSplit n m w)
