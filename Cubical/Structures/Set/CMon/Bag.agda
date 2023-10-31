@@ -73,7 +73,6 @@ Fin+-cong {n} {m} {n'} {m'} σ τ =
 ⊎Iso-eta f g σ τ i (inl a) = f (σ .fun a)
 ⊎Iso-eta f g σ τ i (inr b) = g (τ .fun b)
 
-
 ⊎Swap-eta : {A B : Type ℓ} {C : Type ℓ'} (f : A -> C) (g : B -> C)
         -> ⊎.rec g f ∘ ⊎-swap-Iso .fun ≡ ⊎.rec f g
 ⊎Swap-eta f g i (inl a) = f a
@@ -132,13 +131,36 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) p q))
       (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) (sym p) q))
 
+  permuteArray : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> Array A
+  permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
+  permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
+
+  permuteInvariant : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> f♯ (permuteArray n zs aut) ≡ f♯ (n , zs)
+  permuteInvariant .zero zs [] =
+    congS f♯ (ΣPathP {x = 0 , zs} {y = permuteArray 0 zs []} (refl , funExt (⊥.rec ∘ ¬Fin0)))
+  permuteInvariant .1 zs (x ∷ []) =
+    congS f♯ (ΣPathP {x = permuteArray 1 zs (x ∷ [])} {y = 1 , zs} (refl , funExt lemma))
+    where
+    lemma : _
+    lemma (k , p) =
+      ⊎.rec (λ _ → zs x) _ (finSplit 1 0 (k , p)) ≡⟨ congS (⊎.rec (λ _ → zs x) _) (finSplit-beta-inl k p p) ⟩
+      zs x ≡⟨ congS zs (isContr→isProp isContrFin1 x (k , p)) ⟩
+      zs (k , p) ∎
+  permuteInvariant .(suc (suc _)) zs ((l , p) ∷ y ∷ aut) with l
+  ... | zero =
+          f♯ (η (zs (zero , p)) ⊕ (η (zs (fsuc y)) ⊕ permuteArray _ (zs ∘ fsuc ∘ fsuc) aut))
+        ≡⟨⟩
+          {!   !}
+  ... | suc l' = {!   !}
+
   symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
   symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
     f♯ (n , g) ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
     f♯ (n , h ∘ σ .fun) ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
     f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun) ≡⟨⟩
-    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨⟩
-    {!   !}
+    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨ {!   !} ⟩
+    f♯ (permuteArray m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ)))) ≡⟨⟩
+    {!  !}
     where
     n≡m : n ≡ m
     n≡m = symm-length≡ σ
