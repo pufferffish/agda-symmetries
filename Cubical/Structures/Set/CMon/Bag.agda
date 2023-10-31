@@ -135,6 +135,12 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
   permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
 
+  permuteAut : ∀ n (zs : Fin (suc n) -> A) (aut : Iso (Fin (suc n)) (Fin (suc n))) -> Array A
+  permuteAut n zs aut = goal n (0 , refl) where
+    goal : (m : ℕ) -> m < (suc n) -> Array A
+    goal zero p = 0 , ⊥.rec ∘ ¬Fin0
+    goal (suc m) p = goal m (suc-< p) ⊕ η (zs (aut .fun (suc m , p)))
+
   permuteArray-length≡ : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> permuteArray n zs aut .fst ≡ n
   permuteArray-length≡ .zero zs [] = refl
   permuteArray-length≡ .(suc _) zs (_ ∷ aut) = cong suc (permuteArray-length≡ _ (zs ∘ fsuc) aut)
@@ -156,38 +162,39 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   n<1→n≡0 {n = zero} p = refl
   n<1→n≡0 {n = suc n} p = ⊥.rec (¬-<-zero (pred-≤-pred p))
 
-  autToLehmer : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
-              -> permuteArray n zs (encode (isoToEquiv aut)) ≡ (n , zs ∘ aut .fun)
-  autToLehmer n zs aut with encode (isoToEquiv aut) | inspect encode (isoToEquiv aut)
-  autToLehmer .zero zs aut | [] | _ = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
-  autToLehmer .(suc _) zs aut | p ∷ ps | [ aut-path ]ᵢ =
-    ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
-    where
-    lemma : _
-    lemma (k , q) with k ≤? 1
-    lemma (k , q) | inl r =
-        _
-      ≡⟨ sym (transport-filler _ _) ⟩
-        ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
-      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r (subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q)) ⟩
-        zs p
-      ≡⟨ congS (zs ∘ lehmerHead) (sym aut-path) ⟩
-        zs (lehmerHead (encode (isoToEquiv aut)))
-      ≡⟨ congS zs (autToLehmer-0 _ aut) ⟩
-        zs (aut .fun fzero)
-      ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) (n<1→n≡0 r)) ⟩
-        zs (aut .fun (k , q)) ∎
-    lemma (k , q) | inr r =
-        _
-      ≡⟨ sym (transport-filler _ _) ⟩
-        ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
-      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k k<suc-n r (∸-<-lemma 1 _ k k<suc-n r)) ⟩
-        snd (permuteArray _ (zs ∘ fsuc) ps) (k ∸ 1 , _)
-      ≡⟨⟩
-      {!   !}
-      where
-      k<suc-n : k < suc (fst (permuteArray _ (zs ∘ fsuc) ps))
-      k<suc-n = subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q
+  postulate
+    autToLehmer : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
+                -> permuteArray n zs (encode (isoToEquiv aut)) ≡ (n , zs ∘ aut .fun)
+  -- autToLehmer n zs aut with encode (isoToEquiv aut) | inspect encode (isoToEquiv aut)
+  -- autToLehmer .zero zs aut | [] | _ = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
+  -- autToLehmer .(suc _) zs aut | p ∷ ps | [ aut-path ]ᵢ =
+  --   ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
+  --   where
+  --   lemma : _
+  --   lemma (k , q) with k ≤? 1
+  --   lemma (k , q) | inl r =
+  --       _
+  --     ≡⟨ sym (transport-filler _ _) ⟩
+  --       ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
+  --     ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r (subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q)) ⟩
+  --       zs p
+  --     ≡⟨ congS (zs ∘ lehmerHead) (sym aut-path) ⟩
+  --       zs (lehmerHead (encode (isoToEquiv aut)))
+  --     ≡⟨ congS zs (autToLehmer-0 _ aut) ⟩
+  --       zs (aut .fun fzero)
+  --     ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) (n<1→n≡0 r)) ⟩
+  --       zs (aut .fun (k , q)) ∎
+  --   lemma (k , q) | inr r =
+  --       _
+  --     ≡⟨ sym (transport-filler _ _) ⟩
+  --       ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
+  --     ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k k<suc-n r (∸-<-lemma 1 _ k k<suc-n r)) ⟩
+  --       snd (permuteArray _ (zs ∘ fsuc) ps) (k ∸ 1 , _)
+  --     ≡⟨⟩
+  --     {!   !}
+  --     where
+  --     k<suc-n : k < suc (fst (permuteArray _ (zs ∘ fsuc) ps))
+  --     k<suc-n = subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q
 
   -- TODO: get rid of this TERMINATING pragma
   {-# TERMINATING #-}  
