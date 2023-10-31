@@ -135,6 +135,14 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
   permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
 
+  f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
+  f♯-hom-⊕ as bs =
+    f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ₗ bs ∷ₗ []))) ⟩
+    𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ₗ bs ∷ₗ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ₗ bs ∷ₗ [])) f♯ ⟩
+    _ ∎
+
+  -- TODO: get rid of this TERMINATING pragma
+  {-# TERMINATING #-}  
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> f♯ (permuteArray n zs aut) ≡ f♯ (n , zs)
   permuteInvariant .zero zs [] =
     congS f♯ (ΣPathP {x = 0 , zs} {y = permuteArray 0 zs []} (refl , funExt (⊥.rec ∘ ¬Fin0)))
@@ -149,8 +157,17 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteInvariant .(suc (suc _)) zs ((l , p) ∷ y ∷ aut) with l
   ... | zero =
           f♯ (η (zs (zero , p)) ⊕ (η (zs (fsuc y)) ⊕ permuteArray _ (zs ∘ fsuc ∘ fsuc) aut))
-        ≡⟨⟩
-          {!   !}
+        ≡⟨ f♯-hom-⊕ (η (zs (zero , p))) (η (zs (fsuc y)) ⊕ permuteArray _ (zs ∘ fsuc ∘ fsuc) aut) ⟩
+          f♯ (η (zs (zero , p))) 𝔜.⊕ f♯ (η (zs (fsuc y)) ⊕ permuteArray _ (zs ∘ fsuc ∘ fsuc) aut)
+        ≡⟨ congS (f♯ (η (zs (zero , p))) 𝔜.⊕_) (permuteInvariant (suc _) (zs ∘ fsuc) (y ∷ aut)) ⟩
+          f♯ (η (zs (zero , p))) 𝔜.⊕ f♯ (_ , zs ∘ fsuc)
+        ≡⟨ sym (f♯-hom-⊕ (η (zs (zero , p))) (_ , zs ∘ fsuc)) ⟩
+          f♯ (η (zs (zero , p)) ⊕ (_ , zs ∘ fsuc))
+        ≡⟨ congS (λ z -> f♯ (η (zs z) ⊕ (_ , zs ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+          f♯ (η (zs fzero) ⊕ (_ , zs ∘ fsuc))
+        ≡⟨ congS f♯ (η+fsuc zs) ⟩
+          f♯ (_ , zs)
+        ∎
   ... | suc l' = {!   !}
 
   symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
