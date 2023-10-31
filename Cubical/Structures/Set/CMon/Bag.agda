@@ -145,11 +145,22 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ₗ bs ∷ₗ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ₗ bs ∷ₗ [])) f♯ ⟩
     _ ∎
 
+  lehmerHead : ∀ {n} (aut : LehmerCode (suc n)) -> Fin (suc n)
+  lehmerHead aut = (invEq lehmerSucEquiv aut) .fst
+
+  autToLehmer-0 : ∀ n (aut : Iso (Fin (suc n)) (Fin (suc n)))
+                -> lehmerHead (encode (isoToEquiv aut)) ≡ aut .fun fzero
+  autToLehmer-0 n aut = refl
+
+  n<1→n≡0 : ∀ {n} -> n < 1 -> 0 ≡ n
+  n<1→n≡0 {n = zero} p = refl
+  n<1→n≡0 {n = suc n} p = ⊥.rec (¬-<-zero (pred-≤-pred p))
+
   autToLehmer : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
               -> permuteArray n zs (encode (isoToEquiv aut)) ≡ (n , zs ∘ aut .fun)
-  autToLehmer n zs aut with encode (isoToEquiv aut)
-  autToLehmer .zero zs aut | [] = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
-  autToLehmer .(suc _) zs aut | p ∷ ps =
+  autToLehmer n zs aut with encode (isoToEquiv aut) | inspect encode (isoToEquiv aut)
+  autToLehmer .zero zs aut | [] | _ = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
+  autToLehmer .(suc _) zs aut | p ∷ ps | [ aut-path ]ᵢ =
     ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
     where
     lemma : _
@@ -160,8 +171,12 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
         ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
       ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r (subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q)) ⟩
         zs p
-      ≡⟨⟩
-      {!   !}
+      ≡⟨ congS (zs ∘ lehmerHead) (sym aut-path) ⟩
+        zs (lehmerHead (encode (isoToEquiv aut)))
+      ≡⟨ congS zs (autToLehmer-0 _ aut) ⟩
+        zs (aut .fun fzero)
+      ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) (n<1→n≡0 r)) ⟩
+        zs (aut .fun (k , q)) ∎
     lemma (k , q) | inr r =
         _
       ≡⟨ sym (transport-filler _ _) ⟩
@@ -237,4 +252,4 @@ module _ {ℓ} (A : Type ℓ) where
   isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
   isCommutative isPermRelPerm = symm-comm
   resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
- 
+  
