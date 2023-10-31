@@ -149,7 +149,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
               -> permuteArray n zs (encode (isoToEquiv aut)) ≡ (n , zs ∘ aut .fun)
   autToLehmer n zs aut with encode (isoToEquiv aut)
   autToLehmer .zero zs aut | [] = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
-  autToLehmer .(suc _) zs aut | p ∷ ps = ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
+  autToLehmer .(suc _) zs aut | p ∷ ps =
+    ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
     where
     lemma : _
     lemma (k , q) with k ≤? 1
@@ -161,12 +162,17 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
         zs p
       ≡⟨⟩
       {!   !}
-    lemma (k , q) | inr r = {!   !}
-    --     _
-    --   ≡⟨ sym (transport-filler _ _) ⟩
-    --     ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (w , _))
-    --   ≡⟨⟩
-    --   {!   !}
+    lemma (k , q) | inr r =
+        _
+      ≡⟨ sym (transport-filler _ _) ⟩
+        ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
+      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k k<suc-n r (∸-<-lemma 1 _ k k<suc-n r)) ⟩
+        snd (permuteArray _ (zs ∘ fsuc) ps) (k ∸ 1 , _)
+      ≡⟨⟩
+      {!   !}
+      where
+      k<suc-n : k < suc (fst (permuteArray _ (zs ∘ fsuc) ps))
+      k<suc-n = subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q
 
   -- TODO: get rid of this TERMINATING pragma
   {-# TERMINATING #-}  
