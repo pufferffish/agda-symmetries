@@ -141,6 +141,11 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ₗ bs ∷ₗ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ₗ bs ∷ₗ [])) f♯ ⟩
     _ ∎
 
+  autToLehmer : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
+              -> (n , zs ∘ aut .fun) ≡ permuteArray n zs (encode (isoToEquiv aut))
+  autToLehmer n zs aut =
+    {!   !}
+
   -- TODO: get rid of this TERMINATING pragma
   {-# TERMINATING #-}  
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> f♯ (permuteArray n zs aut) ≡ f♯ (n , zs)
@@ -175,9 +180,9 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     f♯ (n , g) ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
     f♯ (n , h ∘ σ .fun) ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
     f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun) ≡⟨⟩
-    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨ {!   !} ⟩
-    f♯ (permuteArray m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ)))) ≡⟨⟩
-    {!  !}
+    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨ congS f♯ (autToLehmer m h (compIso (fin-id-iso (sym n≡m)) σ)) ⟩
+    f♯ (permuteArray m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ)))) ≡⟨ permuteInvariant m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ))) ⟩
+    f♯ (m , h) ∎
     where
     n≡m : n ≡ m
     n≡m = symm-length≡ σ
