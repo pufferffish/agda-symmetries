@@ -135,6 +135,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteArray .zero zs [] = 0 , ⊥.rec ∘ ¬Fin0
   permuteArray .(suc _) zs (p ∷ ps) = η (zs p) ⊕ permuteArray _ (zs ∘ fsuc) ps
 
+  permuteArray-length≡ : ∀ n (zs : Fin n -> A) (aut : LehmerCode n) -> permuteArray n zs aut .fst ≡ n
+  permuteArray-length≡ .zero zs [] = refl
+  permuteArray-length≡ .(suc _) zs (_ ∷ aut) = cong suc (permuteArray-length≡ _ (zs ∘ fsuc) aut)
+
   f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
   f♯-hom-⊕ as bs =
     f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ₗ bs ∷ₗ []))) ⟩
@@ -142,9 +146,27 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     _ ∎
 
   autToLehmer : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
-              -> (n , zs ∘ aut .fun) ≡ permuteArray n zs (encode (isoToEquiv aut))
-  autToLehmer n zs aut =
-    {!   !}
+              -> permuteArray n zs (encode (isoToEquiv aut)) ≡ (n , zs ∘ aut .fun)
+  autToLehmer n zs aut with encode (isoToEquiv aut)
+  autToLehmer .zero zs aut | [] = ΣPathP (refl , funExt (⊥.rec ∘ ¬Fin0))
+  autToLehmer .(suc _) zs aut | p ∷ ps = ΣPathP ((permuteArray-length≡ _ zs (p ∷ ps)) , toPathP (funExt lemma))
+    where
+    lemma : _
+    lemma (k , q) with k ≤? 1
+    lemma (k , q) | inl r =
+        _
+      ≡⟨ sym (transport-filler _ _) ⟩
+        ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (k , _))
+      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r (subst (k <_) (congS suc (sym (permuteArray-length≡ _ (zs ∘ fsuc) ps))) q)) ⟩
+        zs p
+      ≡⟨⟩
+      {!   !}
+    lemma (k , q) | inr r = {!   !}
+    --     _
+    --   ≡⟨ sym (transport-filler _ _) ⟩
+    --     ⊎.rec (λ _ → zs p) (snd (permuteArray _ (zs ∘ fsuc) ps)) (finSplit 1 (fst (permuteArray _ (zs ∘ fsuc) ps)) (w , _))
+    --   ≡⟨⟩
+    --   {!   !}
 
   -- TODO: get rid of this TERMINATING pragma
   {-# TERMINATING #-}  
@@ -177,12 +199,17 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
 
   symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
   symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
-    f♯ (n , g) ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
-    f♯ (n , h ∘ σ .fun) ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
-    f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun) ≡⟨⟩
-    f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun) ≡⟨ congS f♯ (autToLehmer m h (compIso (fin-id-iso (sym n≡m)) σ)) ⟩
-    f♯ (permuteArray m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ)))) ≡⟨ permuteInvariant m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ))) ⟩
-    f♯ (m , h) ∎
+      f♯ (n , g)
+    ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
+      f♯ (n , h ∘ σ .fun)
+    ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
+      f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun)
+    ≡⟨⟩
+      f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun)
+    ≡⟨ congS f♯ (sym (autToLehmer m h (compIso (fin-id-iso (sym n≡m)) σ))) ⟩
+      f♯ (permuteArray m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ))))
+    ≡⟨ permuteInvariant m h (encode (isoToEquiv (compIso (fin-id-iso (sym n≡m)) σ))) ⟩
+      f♯ (m , h) ∎
     where
     n≡m : n ≡ m
     n≡m = symm-length≡ σ
