@@ -152,42 +152,45 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   fpred∘fsuc : ∀ {n} -> (x : Fin (suc n)) -> fpred (fsuc x) ≡ x
   fpred∘fsuc (k , p) = Σ≡Prop (λ _ -> isProp≤) refl
 
+  autInvIs0 : ∀ {n} -> (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+            -> aut .fun fzero ≡ fzero
+            -> inv aut fzero ≡ fzero
+  autInvIs0 aut q =
+    inv aut fzero ≡⟨ congS (inv aut) (sym q) ⟩
+    inv aut (aut .fun fzero) ≡⟨ aut .leftInv fzero ⟩
+    fzero ∎
+
+  autSucNot0 : ∀ {n} -> (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+            -> (x : Fin (suc n))
+            -> aut .fun fzero ≡ fzero
+            -> ¬ aut .fun (fsuc x) ≡ fzero
+  autSucNot0 aut x p q =
+    let r = isoFunInjective aut _ _ (p ∙ sym q)
+    in znots (cong fst r)
+
   punchOutZero : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> aut .fun fzero ≡ fzero
                 -> Iso (Fin (suc n)) (Fin (suc n))
   punchOutZero {n = n} aut p =
-    iso (punch aut) (punch (invIso aut)) (punch∘punch aut p) (punch∘punch (invIso aut) (actInvIs0 aut p)) 
+    iso (punch aut) (punch (invIso aut)) (punch∘punch aut p) (punch∘punch (invIso aut) (autInvIs0 aut p)) 
     where
-    actInvIs0 : (act : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-              -> act .fun fzero ≡ fzero
-              -> inv act fzero ≡ fzero
-    actInvIs0 act q =
-      inv act fzero ≡⟨ congS (inv act) (sym q) ⟩
-      inv act (act .fun fzero) ≡⟨ act .leftInv fzero ⟩
-      fzero ∎
-    actSucNot0 : (act : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-              -> (x : Fin (suc n))
-              -> act .fun fzero ≡ fzero
-              -> ¬ act .fun (fsuc x) ≡ fzero
-    actSucNot0 act x p q =
-      let r = isoFunInjective act _ _ (p ∙ sym q)
-      in znots (cong fst r)
     punch : Iso (Fin (suc (suc n))) (Fin (suc (suc n))) -> _
-    punch act = fpred ∘ act .fun ∘ fsuc
-    punch∘punch : (act : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-                -> act .fun fzero ≡ fzero
+    punch aut = fpred ∘ aut .fun ∘ fsuc
+    punch∘punch : (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+                -> aut .fun fzero ≡ fzero
                 -> (x : Fin (suc n))
-                -> punch act (punch (invIso act) x) ≡ x
-    punch∘punch act p x =
-        punch act (punch (invIso act) x)
+                -> punch aut (punch (invIso aut) x) ≡ x
+    punch∘punch aut p x =
+        punch aut (punch (invIso aut) x)
       ≡⟨⟩
-        (fpred (act .fun ((fsuc ∘ fpred) (act .inv (fsuc x)))))
-      ≡⟨ congS (fpred ∘ act .fun) (fsuc∘fpred (act .inv (fsuc x)) (actSucNot0 (invIso act) x (actInvIs0 act p))) ⟩
-        (fpred (act .fun (act .inv (fsuc x))))
-      ≡⟨ congS fpred (act .rightInv (fsuc x)) ⟩
+        (fpred (aut .fun ((fsuc ∘ fpred) (aut .inv (fsuc x)))))
+      ≡⟨ congS (fpred ∘ aut .fun) (fsuc∘fpred (aut .inv (fsuc x)) (autSucNot0 (invIso aut) x (autInvIs0 aut p))) ⟩
+        (fpred (aut .fun (aut .inv (fsuc x))))
+      ≡⟨ congS fpred (aut .rightInv (fsuc x)) ⟩
         (fpred (fsuc x))
       ≡⟨ fpred∘fsuc x ⟩
         x ∎
 
+  {-# TERMINATING #-} -- TODO: Get rid of this TERMINATING prgama
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n)) -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
   permuteInvariant zero zs aut =
     congS f♯ (ΣPathP {x = 0 , zs ∘ aut .fun} {y = 0 , zs} (refl , funExt (⊥.rec ∘ ¬Fin0)))
@@ -199,18 +202,48 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       zs ∘ aut .fun ≡⟨ congS (zs ∘_) (isContr→isProp (isContrΠ (λ _ -> isContrFin1)) (aut .fun) (idfun _)) ⟩
       zs ∘ idfun _ ≡⟨⟩
       zs ∎
-  permuteInvariant (suc (suc n)) zs aut with aut .fun fzero
-  ... | zero , p =
+  permuteInvariant (suc (suc n)) zs aut with aut .fun fzero | inspect (aut .fun) fzero
+  ... | zero , p | [ aut-path ]ᵢ  =
       f (zs (zero , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
     ≡⟨ congS (λ z -> f (zs (zero , p)) 𝔜.⊕ (z 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (sym (𝔜.unitr _)) ⟩
       f (zs (zero , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _))))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
     ≡⟨ congS (f (zs (zero , p)) 𝔜.⊕_) (sym (f♯-hom-⊕ (η (zs (aut .fun (1 , (n , _))))) ((n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))) ⟩
       f (zs (zero , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))
-    ≡⟨ {!   !} ⟩
-      f (zs (zero , p)) 𝔜.⊕ f♯ ((suc n) , {! zs ∘ f  !})
-    ≡⟨⟩
-    {!   !}
-  ... | suc k , p = {!   !}
+    ≡⟨ congS (λ z -> f (zs (zero , p)) 𝔜.⊕ (f♯ z)) (ΣPathP {x = pattern0} {y = (suc n) , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun} (refl , toPathP (funExt lemma))) ⟩
+      f (zs (zero , p)) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun)
+    ≡⟨ cong₂ 𝔜._⊕_ (sym (𝔜.unitr _)) (permuteInvariant (suc n) (zs ∘ fsuc) (punchOutZero aut aut-0≡0)) ⟩
+      f♯ (η (zs (zero , p))) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc)
+    ≡⟨ sym (f♯-hom-⊕ (η (zs (zero , p))) ((suc n) , zs ∘ fsuc)) ⟩
+      f♯ (η (zs (zero , p)) ⊕ ((suc n) , zs ∘ fsuc))
+    ≡⟨ congS (λ z -> f♯ (η (zs z) ⊕ ((suc n) , zs ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+      f♯ (η (zs fzero) ⊕ ((suc n) , zs ∘ fsuc))
+    ≡⟨ congS f♯ (η+fsuc zs) ⟩
+      f♯ (suc (suc n) , zs) ∎
+    where
+    aut-0≡0 : aut .fun fzero ≡ fzero
+    aut-0≡0 =
+      aut .fun fzero ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
+      aut .fun (0 , _) ≡⟨ aut-path ⟩
+      (0 , p) ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
+      fzero ∎
+    pattern0 : _
+    pattern0 = (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+    lemma : _
+    lemma (k , q) with k ≤? 1
+    ... | inl r =
+        _
+      ≡⟨ sym (transport-filler _ _) ⟩
+        ⊎.rec _ _ (finSplit 1 n (k , _))
+      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r _) ⟩
+        zs (aut .fun (1 , _))
+      ≡⟨ congS zs (sym (fsuc∘fpred (aut .fun fone) (autSucNot0 aut fzero aut-0≡0))) ⟩
+        zs (fsuc (fpred (aut .fun fone)))
+      ≡⟨ congS (zs ∘ fsuc ∘ fpred ∘ aut .fun ∘ fsuc) (Σ≡Prop (λ _ -> isProp≤) (n<1→n≡0 r)) ⟩
+        zs (fsuc (fpred (aut .fun (fsuc (k , q)))))
+      ≡⟨⟩
+        zs (fsuc (punchOutZero aut aut-0≡0 .fun (k , q))) ∎
+    ... | inr r = {!   !}
+  ... | suc k , p | lol = {!   !}
 
   symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
   symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
