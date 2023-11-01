@@ -219,22 +219,15 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
       m ∎
 
-  private -- TODO: Remove this
-    exampleCode : LehmerCode 4
-    exampleCode = (2 , (1 , refl)) ∷ fzero ∷ (1 , (0 , refl)) ∷ fzero ∷ []
-
-    example : Iso (Fin 4) (Fin 4)
-    example = swapAut (equivToIso (decode exampleCode))
-
-    test : ℕ
-    test = (example .fun ftwo) .fst
-
-    _ : (example .fun fzero) .fst ≡ 0
-    _ = refl
-
-  swapAut0≡0 : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> ¬ aut .fun fzero ≡ fzero -> swapAut aut .fun fzero ≡ fzero
-  swapAut0≡0 {n = n} aut p =
-    {!   !}
+  swapAut0≡0 : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> swapAut aut .fun fzero ≡ fzero
+  swapAut0≡0 {n = n} aut =
+      aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (0 , _)))))
+    ≡⟨ congS (λ z -> aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) (finCombine-inr {m = cutoff}) (fun ⊎-swap-Iso z)))) (finSplit-beta-inl 0 0<m-cutoff _) ⟩
+      aut .fun (aut .inv (0 , _) .fst + 0 , _)
+    ≡⟨ congS (aut .fun) (Σ≡Prop (λ _ -> isProp≤) (+-zero (aut .inv (0 , suc-≤-suc zero-≤) .fst) ∙ congS (fst ∘ aut .inv) (Σ≡Prop (λ _ -> isProp≤) refl))) ⟩
+      aut .fun (aut .inv fzero)
+    ≡⟨ aut .rightInv fzero ⟩
+      fzero ∎
     where
     m : ℕ
     m = suc (suc n)
@@ -251,6 +244,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
       m ∎
 
+    0<m-cutoff : 0 < m ∸ cutoff
+    0<m-cutoff = n∸l>0 m cutoff cutoff<
 
   permuteInvariant' : ∀ n tag -> n ≡ tag -- to help termination checker
                   -> (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
@@ -384,4 +379,4 @@ module _ {ℓ} (A : Type ℓ) where
   isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
   isCommutative isPermRelPerm = symm-comm
   resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
-     
+      
