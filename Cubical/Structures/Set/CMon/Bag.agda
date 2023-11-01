@@ -242,8 +242,27 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
         zs (fsuc (fpred (aut .fun (fsuc (k , q)))))
       ≡⟨⟩
         zs (fsuc (punchOutZero aut aut-0≡0 .fun (k , q))) ∎
-    ... | inr r = {!   !}
-  ... | suc k , p | lol = {!   !}
+    ... | inr r =
+        _
+      ≡⟨ sym (transport-filler _ _) ⟩
+        ⊎.rec _ _ (finSplit 1 n (k , _))
+      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k _ r k-1<n) ⟩
+        zs (aut .fun (suc (suc (k ∸ 1)) , _))
+      ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) (congS suc suck-1<k)) ⟩
+        zs (aut .fun (fsuc (k , q)))
+      ≡⟨ congS zs (sym (fsuc∘fpred (aut .fun (fsuc (k , q))) (autSucNot0 aut (k , q) aut-0≡0))) ⟩
+        zs (fsuc (fpred (aut .fun (fsuc (k , q)))))
+      ≡⟨⟩
+        zs (fsuc (punchOutZero aut aut-0≡0 .fun (k , q))) ∎
+      where
+      k-1<n : k ∸ 1 < n
+      k-1<n = ∸-<-lemma 1 n k q r
+      suck-1<k : suc (k ∸ 1) ≡ k
+      suck-1<k =
+        suc (k ∸ 1) ≡⟨ +-comm 1 _ ⟩
+        (k ∸ 1) + 1 ≡⟨ ≤-∸-+-cancel r ⟩
+        k ∎
+  ... | suc k , p | [ aut-path ]ᵢ = {!   !}
 
   symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
   symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
