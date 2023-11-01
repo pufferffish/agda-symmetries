@@ -202,7 +202,7 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
 
   swapAut : ∀ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) -> Iso (Fin (suc n)) (Fin (suc n))
   swapAut {n = n} aut =
-    compIso (finIso (sym cutoff+-)) (compIso (Fin+-comm cutoff (m ∸ cutoff)) (finIso (+-comm (m ∸ cutoff) cutoff ∙ cutoff+-)))
+    compIso (finIso (sym cutoff+- ∙ +-comm cutoff _)) (compIso (Fin+-comm (m ∸ cutoff) cutoff) (compIso (finIso cutoff+-) aut))
     where
     m : ℕ
     m = suc n
@@ -219,9 +219,38 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
       m ∎
 
-  swapAut0≡0 : ∀ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) -> swapAut aut .fun fzero ≡ fzero
-  swapAut0≡0 aut =
+  private -- TODO: Remove this
+    exampleCode : LehmerCode 4
+    exampleCode = (2 , (1 , refl)) ∷ fzero ∷ (1 , (0 , refl)) ∷ fzero ∷ []
+
+    example : Iso (Fin 4) (Fin 4)
+    example = swapAut (equivToIso (decode exampleCode))
+
+    test : ℕ
+    test = (example .fun ftwo) .fst
+
+    _ : (example .fun fzero) .fst ≡ 0
+    _ = refl
+
+  swapAut0≡0 : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> ¬ aut .fun fzero ≡ fzero -> swapAut aut .fun fzero ≡ fzero
+  swapAut0≡0 {n = n} aut p =
     {!   !}
+    where
+    m : ℕ
+    m = suc (suc n)
+
+    cutoff : ℕ
+    cutoff = (aut .inv fzero) .fst
+
+    cutoff< : cutoff < m
+    cutoff< = (aut .inv fzero) .snd
+
+    cutoff+- : cutoff + (m ∸ cutoff) ≡ m
+    cutoff+- =
+      cutoff + (m ∸ cutoff) ≡⟨ +-comm cutoff _ ⟩
+      (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
+      m ∎
+
 
   permuteInvariant' : ∀ n tag -> n ≡ tag -- to help termination checker
                   -> (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
