@@ -193,20 +193,13 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteInvariant' : ∀ n tag -> n ≡ tag -- to help termination checker
                   -> (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
                   -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
-  permuteInvariant' (suc (suc n)) zero tag≡  zs aut =
-    ⊥.rec (snotz tag≡)
-  permuteInvariant' zero _ _ zs aut =
-    congS f♯ (ΣPathP {x = 0 , zs ∘ aut .fun} {y = 0 , zs} (refl , funExt (⊥.rec ∘ ¬Fin0)))
-  permuteInvariant' (suc zero) _ _ zs aut =
-    congS f♯ (ΣPathP {x = 1 , zs ∘ aut .fun} {y = 1 , zs} (refl , lemma))
-    where
-    lemma : _
-    lemma =
-      zs ∘ aut .fun ≡⟨ congS (zs ∘_) (isContr→isProp (isContrΠ (λ _ -> isContrFin1)) (aut .fun) (idfun _)) ⟩
-      zs ∘ idfun _ ≡⟨⟩
-      zs ∎
-  permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut with aut .fun fzero | inspect (aut .fun) fzero
-  ... | zero , p | [ aut-path ]ᵢ  =
+
+  permuteInvariantOnZero : ∀ n tag -> suc (suc n) ≡ suc tag
+                  -> (zs : Fin (suc (suc n)) -> A) (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+                  -> aut .fun fzero ≡ fzero
+                  -> f♯ (suc (suc n) , zs ∘ aut .fun) ≡ f♯ (suc (suc n) , zs)
+  permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0' with aut .fun fzero | inspect (aut .fun) fzero
+  ... | zero , p | [ aut-path ]ᵢ =
       f (zs (zero , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
     ≡⟨ congS (λ z -> f (zs (zero , p)) 𝔜.⊕ (z 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (sym (𝔜.unitr _)) ⟩
       f (zs (zero , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _))))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
@@ -265,7 +258,42 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
         suc (k ∸ 1) ≡⟨ +-comm 1 _ ⟩
         (k ∸ 1) + 1 ≡⟨ ≤-∸-+-cancel r ⟩
         k ∎
-  ... | suc k , p | [ aut-path ]ᵢ = {!   !}
+  ... | suc k , p | [ aut-path ]ᵢ = ⊥.rec (snotz (congS fst aut-0≡0'))
+
+  permuteInvariant' (suc (suc n)) zero tag≡ zs aut =
+    ⊥.rec (snotz tag≡)
+  permuteInvariant' zero _ _ zs aut =
+    congS f♯ (ΣPathP {x = 0 , zs ∘ aut .fun} {y = 0 , zs} (refl , funExt (⊥.rec ∘ ¬Fin0)))
+  permuteInvariant' (suc zero) _ _ zs aut =
+    congS f♯ (ΣPathP {x = 1 , zs ∘ aut .fun} {y = 1 , zs} (refl , lemma))
+    where
+    lemma : _
+    lemma =
+      zs ∘ aut .fun ≡⟨ congS (zs ∘_) (isContr→isProp (isContrΠ (λ _ -> isContrFin1)) (aut .fun) (idfun _)) ⟩
+      zs ∘ idfun _ ≡⟨⟩
+      zs ∎
+  permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut with aut .fun fzero | inspect (aut .fun) fzero
+  ... | zero , p | [ aut-path ]ᵢ =
+      f (zs (zero , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (Σ≡Prop (λ _ -> isProp≤) (congS fst (sym aut-0≡0))) ⟩
+      f (zs (aut .fun fzero)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+    ≡⟨ permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0 ⟩
+      f♯ (suc (suc n) , zs) ∎
+    where
+    aut-0≡0 : aut .fun fzero ≡ fzero
+    aut-0≡0 =
+      aut .fun fzero ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
+      aut .fun (0 , _) ≡⟨ aut-path ⟩
+      (0 , p) ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
+      fzero ∎
+  ... | suc k , p | [ aut-path ]ᵢ =
+      f (zs (suc k , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+    ≡⟨ congS (λ z -> _ 𝔜.⊕ (z 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (sym (𝔜.unitr _)) ⟩
+      f (zs (suc k , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _))))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+    ≡⟨ congS (_ 𝔜.⊕_) (sym (f♯-hom-⊕ (η (zs (aut .fun (1 , (n , _))))) ((n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))) ⟩
+      f (zs (suc k , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))
+    ≡⟨⟩
+    {!   !}
 
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n)) -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
   permuteInvariant n = permuteInvariant' n n refl
@@ -302,4 +330,4 @@ module _ {ℓ} (A : Type ℓ) where
   isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
   isCommutative isPermRelPerm = symm-comm
   resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
-    
+     
