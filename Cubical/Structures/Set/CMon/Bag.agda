@@ -190,6 +190,39 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       ≡⟨ fpred∘fsuc x ⟩
         x ∎
 
+  finSubst : ∀ {n m} -> n ≡ m -> Fin n -> Fin m
+  finSubst {n = n} {m = m} p (k , q) = k , (subst (k <_) p q)
+
+  finIso : ∀ {n m} -> n ≡ m -> Iso (Fin n) (Fin m)
+  finIso {n = n} {m = m} p = iso
+    (finSubst p)
+    (finSubst (sym p))
+    (λ (k , q) -> Σ≡Prop (λ _ -> isProp≤) refl)
+    (λ (k , q) -> Σ≡Prop (λ _ -> isProp≤) refl)
+
+  swapAut : ∀ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) -> Iso (Fin (suc n)) (Fin (suc n))
+  swapAut {n = n} aut =
+    compIso (finIso (sym cutoff+-)) (compIso (Fin+-comm cutoff (m ∸ cutoff)) (finIso (+-comm (m ∸ cutoff) cutoff ∙ cutoff+-)))
+    where
+    m : ℕ
+    m = suc n
+
+    cutoff : ℕ
+    cutoff = (aut .inv fzero) .fst
+
+    cutoff< : cutoff < m
+    cutoff< = (aut .inv fzero) .snd
+
+    cutoff+- : cutoff + (m ∸ cutoff) ≡ m
+    cutoff+- =
+      cutoff + (m ∸ cutoff) ≡⟨ +-comm cutoff _ ⟩
+      (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
+      m ∎
+
+  swapAut0≡0 : ∀ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) -> swapAut aut .fun fzero ≡ fzero
+  swapAut0≡0 aut =
+    {!   !}
+
   permuteInvariant' : ∀ n tag -> n ≡ tag -- to help termination checker
                   -> (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
                   -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
