@@ -301,22 +301,34 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       zs ∘ aut .fun ≡⟨ congS (zs ∘_) (isContr→isProp (isContrΠ (λ _ -> isContrFin1)) (aut .fun) (idfun _)) ⟩
       zs ∘ idfun _ ≡⟨⟩
       zs ∎
-  permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut with aut .fun fzero | inspect (aut .fun) fzero
-  ... | zero , p | [ aut-path ]ᵢ =
-      f (zs (zero , p)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
-    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) (congS fst (sym aut-0≡0))) ⟩
-      f (zs (aut .fun fzero)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
-    ≡⟨ permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0 ⟩
-      f♯ (suc (suc n) , zs) ∎
+  permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut =
+      f♯ (m , zs ∘ aut .fun)
+    ≡⟨ {!   !} ⟩
+      f♯ (cutoff + (m ∸ cutoff) , zs ∘ aut .fun ∘ finSubst cutoff+-)
+    ≡⟨ {!   !} ⟩
+      f♯ ((cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl) ⊕ ((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inr)))
+    ≡⟨ f♯-comm (cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl) _ ⟩
+      f♯ (((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inr)) ⊕ (cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl))
+    ≡⟨ {!   !} ⟩
+      f♯ (m , zs ∘ swapAut aut .fun)
+    ≡⟨ permuteInvariantOnZero n tag tag≡ zs (swapAut aut) (swapAut0≡0 aut) ⟩
+      f♯ (m , zs) ∎
     where
-    aut-0≡0 : aut .fun fzero ≡ fzero
-    aut-0≡0 =
-      aut .fun fzero ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
-      aut .fun (0 , _) ≡⟨ aut-path ⟩
-      (0 , p) ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
-      fzero ∎
-  ... | suc k , p | [ aut-path ]ᵢ =
-    {!   !}
+    m : ℕ
+    m = suc (suc n)
+
+    cutoff : ℕ
+    cutoff = (aut .inv fzero) .fst
+
+    cutoff< : cutoff < m
+    cutoff< = (aut .inv fzero) .snd
+
+    cutoff+- : cutoff + (m ∸ cutoff) ≡ m
+    cutoff+- =
+      cutoff + (m ∸ cutoff) ≡⟨ +-comm cutoff _ ⟩
+      (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
+      m ∎
+
 
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n)) -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
   permuteInvariant n = permuteInvariant' n n refl
