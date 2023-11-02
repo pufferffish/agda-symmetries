@@ -6,18 +6,15 @@ module Cubical.Structures.Set.CMon.Bag where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.List as L renaming (_∷_ to _∷ₗ_)
+open import Cubical.Data.List
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
-open import Cubical.Data.Fin.LehmerCode
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
-import Cubical.Data.Equality as EQ
 import Cubical.Data.Empty as ⊥
 
 import Cubical.Structures.Set.Mon.Desc as M
-import Cubical.Structures.Set.Mon.List as LM
 import Cubical.Structures.Set.CMon.Desc as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Set.Mon.Array as A
@@ -28,7 +25,6 @@ open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity hiding (_/_)
 open import Cubical.Structures.Set.CMon.QFreeMon
 open import Cubical.Relation.Nullary
-open import Cubical.HITs.PropositionalTruncation as PT
 
 open Iso
 
@@ -133,8 +129,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
 
   f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
   f♯-hom-⊕ as bs =
-    f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ₗ bs ∷ₗ []))) ⟩
-    𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ₗ bs ∷ₗ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ₗ bs ∷ₗ [])) f♯ ⟩
+    f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ bs ∷ []))) ⟩
+    𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ bs ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ bs ∷ [])) f♯ ⟩
     _ ∎
 
   f♯-comm : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ (bs ⊕ as)
