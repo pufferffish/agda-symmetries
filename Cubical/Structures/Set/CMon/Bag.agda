@@ -119,19 +119,11 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   f♯ : Array A -> 𝔜 .car
   f♯ = f♯-hom .fst
 
-  fin-id-iso : ∀ {n m} -> n ≡ m -> Iso (Fin n) (Fin m)
-  fin-id-iso {n = n} {m = m} p =
-    iso
-      (λ (w , q) -> w , subst (w <_) p q)
-      (λ (w , q) -> w , subst (w <_) (sym p) q)
-      (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) p q))
-      (λ (w , q) -> ΣPathP (refl , substSubst⁻ (w <_) (sym p) q))
-
   f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
   f♯-hom-⊕ as bs =
     f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ bs ∷ []))) ⟩
     𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ bs ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ bs ∷ [])) f♯ ⟩
-    _ ∎
+    f♯ as 𝔜.⊕ f♯ bs ∎
 
   f♯-comm : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ (bs ⊕ as)
   f♯-comm as bs =
@@ -139,10 +131,6 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     f♯ as 𝔜.⊕ f♯ bs ≡⟨ 𝔜.comm (f♯ as) (f♯ bs) ⟩
     f♯ bs 𝔜.⊕ f♯ as ≡⟨ sym (f♯-hom-⊕ bs as) ⟩
     f♯ (bs ⊕ as) ∎
-
-  n<1→n≡0 : ∀ {n} -> n < 1 -> 0 ≡ n
-  n<1→n≡0 {n = zero} p = refl
-  n<1→n≡0 {n = suc n} p = ⊥.rec (¬-<-zero (pred-≤-pred p))
 
   fpred : ∀ {n} -> Fin (suc (suc n)) -> Fin (suc n)
   fpred (zero , p) = fzero
@@ -167,9 +155,7 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
             -> (x : Fin (suc n))
             -> aut .fun fzero ≡ fzero
             -> ¬ aut .fun (fsuc x) ≡ fzero
-  autSucNot0 aut x p q =
-    let r = isoFunInjective aut _ _ (p ∙ sym q)
-    in znots (cong fst r)
+  autSucNot0 aut x p q = znots (cong fst (isoFunInjective aut _ _ (p ∙ sym q)))
 
   punchOutZero : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> aut .fun fzero ≡ fzero
                 -> Iso (Fin (suc n)) (Fin (suc n))
@@ -230,7 +216,7 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   swapAut0≡0 {n = n} aut =
       aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (0 , _)))))
     ≡⟨ congS (λ z -> aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) (finCombine-inr {m = cutoff}) (fun ⊎-swap-Iso z)))) (finSplit-beta-inl 0 0<m-cutoff _) ⟩
-      aut .fun (aut .inv (0 , _) .fst + 0 , _)
+      aut .fun (aut .inv fzero .fst + 0 , _)
     ≡⟨ congS (aut .fun) (Σ≡Prop (λ _ -> isProp≤) (+-zero (aut .inv (0 , suc-≤-suc zero-≤) .fst) ∙ congS (fst ∘ aut .inv) (Σ≡Prop (λ _ -> isProp≤) refl))) ⟩
       aut .fun (aut .inv fzero)
     ≡⟨ aut .rightInv fzero ⟩
@@ -416,10 +402,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
       f♯ (n , h ∘ σ .fun)
     ≡⟨ congS f♯ (ΣPathP (n≡m , toPathP (funExt lemma))) ⟩
-      f♯ (m , h ∘ σ .fun ∘ (fin-id-iso (sym n≡m)) .fun)
+      f♯ (m , h ∘ σ .fun ∘ (finIso (sym n≡m)) .fun)
     ≡⟨⟩
-      f♯ (m , h ∘ (compIso (fin-id-iso (sym n≡m)) σ) .fun)
-    ≡⟨ permuteInvariant m h (compIso (fin-id-iso (sym n≡m)) σ) ⟩
+      f♯ (m , h ∘ (compIso (finIso (sym n≡m)) σ) .fun)
+    ≡⟨ permuteInvariant m h (compIso (finIso (sym n≡m)) σ) ⟩
       f♯ (m , h) ∎
     where
     n≡m : n ≡ m
