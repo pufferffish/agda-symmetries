@@ -258,6 +258,63 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     0<m-cutoff : 0 < m ∸ cutoff
     0<m-cutoff = n∸l>0 m cutoff cutoff<
 
+  swapAutToAut : ∀ {n} (zs : Fin (suc (suc n)) -> A) (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+               -> f♯ (suc (suc n) , zs ∘ swapAut aut .fun) ≡ f♯ (suc (suc n) , zs ∘ aut .fun)
+  swapAutToAut {n = n} zs aut =
+      f♯ (suc (suc n) , zs ∘ swapAut aut .fun)
+    ≡⟨ congS f♯ (ΣPathP {x = m , zs ∘ swapAut aut .fun} (sym cutoff+- ∙ +-comm cutoff _ , toPathP (funExt lemma-α))) ⟩
+      f♯ (((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr))
+       ⊕ (cutoff , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inl)))
+    ≡⟨⟩
+    {!   !}
+    where
+    m : ℕ
+    m = suc (suc n)
+
+    cutoff : ℕ
+    cutoff = (aut .inv fzero) .fst
+
+    cutoff< : cutoff < m
+    cutoff< = (aut .inv fzero) .snd
+
+    cutoff+- : cutoff + (m ∸ cutoff) ≡ m
+    cutoff+- =
+      cutoff + (m ∸ cutoff) ≡⟨ +-comm cutoff _ ⟩
+      (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
+      m ∎
+
+    0<m-cutoff : 0 < m ∸ cutoff
+    0<m-cutoff = n∸l>0 m cutoff cutoff<
+
+    lemma-α : _
+    lemma-α (k , p) = ⊎.rec
+      (λ k<m∸cutoff ->
+          _
+        ≡⟨ sym (transport-filler _ _) ⟩  
+          zs (aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (k , _))))))
+        ≡⟨ congS (λ z -> zs (aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) finCombine-inr (fun ⊎-swap-Iso z))))) (finSplit-beta-inl k k<m∸cutoff _) ⟩
+          zs (aut .fun (cutoff + k , _))
+        ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
+          zs (aut .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inr (k , k<m∸cutoff)))))
+        ≡⟨⟩
+          ⊎.rec
+            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (inl (k , k<m∸cutoff))
+        ≡⟨ congS (⊎.rec _ _) (sym (finSplit-beta-inl k k<m∸cutoff p)) ⟩
+          ⊎.rec
+            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (finSplit (m ∸ cutoff) cutoff (k , p))
+      ∎)
+      {!   !}
+      (k ≤? (m ∸ cutoff))
+    -- with k ≤? (m ∸ cutoff)
+    -- lemma-α (k , p) | inl q =
+    --   _ ≡⟨ sym (transport-filler _ _) ⟩
+    --   {!   !}
+    -- lemma-α (k , p) | inr q = {!   !}
+
   permuteInvariant' : ∀ n tag -> n ≡ tag -- to help termination checker
                   -> (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n))
                   -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
@@ -303,13 +360,7 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       zs ∎
   permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut =
       f♯ (m , zs ∘ aut .fun)
-    ≡⟨ {!   !} ⟩
-      f♯ (cutoff + (m ∸ cutoff) , zs ∘ aut .fun ∘ finSubst cutoff+-)
-    ≡⟨ {!   !} ⟩
-      f♯ ((cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl) ⊕ ((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inr)))
-    ≡⟨ f♯-comm (cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl) _ ⟩
-      f♯ (((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inr)) ⊕ (cutoff , zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine _ _ ∘ inl))
-    ≡⟨ {!   !} ⟩
+    ≡⟨ sym (swapAutToAut zs aut) ⟩
       f♯ (m , zs ∘ swapAut aut .fun)
     ≡⟨ permuteInvariantOnZero n tag tag≡ zs (swapAut aut) (swapAut0≡0 aut) ⟩
       f♯ (m , zs) ∎
@@ -328,7 +379,6 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       cutoff + (m ∸ cutoff) ≡⟨ +-comm cutoff _ ⟩
       (m ∸ cutoff) + cutoff ≡⟨ ≤-∸-+-cancel (<-weaken cutoff<) ⟩
       m ∎
-
 
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n)) -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
   permuteInvariant n = permuteInvariant' n n refl
