@@ -6,7 +6,7 @@ module Cubical.Structures.Set.CMon.Bag where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.List
+open import Cubical.Data.List renaming (_∷_ to _∷ₗ_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
@@ -121,8 +121,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
 
   f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
   f♯-hom-⊕ as bs =
-    f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ (lookup (as ∷ bs ∷ []))) ⟩
-    𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ bs ∷ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ bs ∷ [])) f♯ ⟩
+    f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ ⟪ as ⨾ bs ⟫) ⟩
+    𝔜 .alg (M.`⊕ , (λ w -> f♯ (⟪ as ⨾ bs ⟫ w))) ≡⟨ 𝔜.⊕-eta ⟪ as ⨾ bs ⟫ f♯ ⟩
     f♯ as 𝔜.⊕ f♯ bs ∎
 
   f♯-comm : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ (bs ⊕ as)
@@ -428,4 +428,35 @@ module _ {ℓ} (A : Type ℓ) where
   isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
   isCommutative isPermRelPerm = symm-comm
   resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
-      
+
+  PermRel : PermRelation arrayDef A
+  PermRel = SymmAction , isPermRelPerm
+
+module BagDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
+
+bagFreeDef : ∀ {ℓ} -> BagDef.Free ℓ ℓ 2
+bagFreeDef = qFreeMonDef (PermRel _)
+
+Bag : Type ℓ -> Type ℓ
+Bag A = BagDef.Free.F bagFreeDef A
+
+module IsoToCList {ℓ} (A : Type ℓ) where
+  open import Cubical.Structures.Set.CMon.CList as CL
+  open import Cubical.HITs.SetQuotients as Q
+
+  module 𝔅 = M.CMonSEq < Bag A , BagDef.Free.α bagFreeDef > (BagDef.Free.sat bagFreeDef)
+  module ℭ = M.CMonSEq < CList A , clist-α > clist-sat
+
+  fromCList : CList A -> Bag A
+  fromCList = elimCListSet.f _
+    𝔅.e
+    (λ a as -> Q.[ η a ] 𝔅.⊕ as)
+    (λ a b {ab} {bs} {cs} {as*} {bs*} cs* bp bq ->
+      Q.[ η a ] 𝔅.⊕ as* ≡⟨ congS (Q.[ η a ] 𝔅.⊕_) bp ⟩
+      Q.[ η a ] 𝔅.⊕ Q.[ η b ] 𝔅.⊕ cs* ≡⟨ sym (𝔅.assocr Q.[ η a ] Q.[ η b ] cs*) ⟩
+      (Q.[ η a ] 𝔅.⊕ Q.[ η b ]) 𝔅.⊕ cs* ≡⟨ congS (𝔅._⊕ cs*) (𝔅.comm Q.[ η a ] Q.[ η b ]) ⟩
+      (Q.[ η b ] 𝔅.⊕ Q.[ η a ]) 𝔅.⊕ cs* ≡⟨ 𝔅.assocr Q.[ η b ] Q.[ η a ] cs* ⟩
+      Q.[ η b ] 𝔅.⊕ Q.[ η a ] 𝔅.⊕ cs* ≡⟨ congS (Q.[ η b ] 𝔅.⊕_) (sym bq) ⟩
+      Q.[ η b ] 𝔅.⊕ bs*
+    ∎)
+    squash/
