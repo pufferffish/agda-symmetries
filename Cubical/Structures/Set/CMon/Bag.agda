@@ -270,12 +270,12 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       f (zs (aut .fun fzero)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
     ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) (congS fst aut-0≡0)) ⟩
       f (zs fzero) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
-    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (f♯ z)) (ΣPathP {x = suc n , zs ∘ aut .fun ∘ fsuc} {y = suc n , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun} (refl , toPathP (funExt lemma))) ⟩
-      f (zs fzero) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun)
+    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (f♯ z)) (ΣPathP {x = suc n , zs ∘ aut .fun ∘ fsuc} (refl , toPathP (funExt lemma))) ⟩
+      f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun)
     ≡⟨ cong₂ 𝔜._⊕_ (sym (𝔜.unitr _)) (permuteInvariant' (suc n) tag (injSuc tag≡) (zs ∘ fsuc) (punchOutZero aut aut-0≡0)) ⟩
-      f♯ (η (zs fzero)) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc)
-    ≡⟨ sym (f♯-hom-⊕ (η (zs fzero)) ((suc n) , zs ∘ fsuc)) ⟩
-      f♯ (η (zs fzero) ⊕ ((suc n) , zs ∘ fsuc))
+      f♯ (η (zs fzero)) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc)
+    ≡⟨ sym (f♯-hom-⊕ (η (zs fzero)) (suc n , zs ∘ fsuc)) ⟩
+      f♯ (η (zs fzero) ⊕ (suc n , zs ∘ fsuc))
     ≡⟨ congS f♯ (η+fsuc zs) ⟩
       f♯ (suc (suc n) , zs) ∎
     where
