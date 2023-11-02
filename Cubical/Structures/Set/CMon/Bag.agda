@@ -137,6 +137,13 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     𝔜 .alg (M.`⊕ , (λ w -> f♯ (lookup (as ∷ₗ bs ∷ₗ []) w))) ≡⟨ 𝔜.⊕-eta (lookup (as ∷ₗ bs ∷ₗ [])) f♯ ⟩
     _ ∎
 
+  f♯-comm : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ (bs ⊕ as)
+  f♯-comm as bs =
+    f♯ (as ⊕ bs) ≡⟨ f♯-hom-⊕ as bs ⟩
+    f♯ as 𝔜.⊕ f♯ bs ≡⟨ 𝔜.comm (f♯ as) (f♯ bs) ⟩
+    f♯ bs 𝔜.⊕ f♯ as ≡⟨ sym (f♯-hom-⊕ bs as) ⟩
+    f♯ (bs ⊕ as) ∎
+
   n<1→n≡0 : ∀ {n} -> n < 1 -> 0 ≡ n
   n<1→n≡0 {n = zero} p = refl
   n<1→n≡0 {n = suc n} p = ⊥.rec (¬-<-zero (pred-≤-pred p))
@@ -189,6 +196,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
         (fpred (fsuc x))
       ≡⟨ fpred∘fsuc x ⟩
         x ∎
+
+  punchOutZero≡fsuc : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> (aut-0≡0 : aut .fun fzero ≡ fzero)
+                    -> (w : Fin (suc n)) -> aut .fun (fsuc w) ≡ fsuc (punchOutZero aut aut-0≡0 .fun w)
+  punchOutZero≡fsuc aut aut-0≡0 w = sym (fsuc∘fpred _ (autSucNot0 aut w aut-0≡0))
 
   finSubst : ∀ {n m} -> n ≡ m -> Fin n -> Fin m
   finSubst {n = n} {m = m} p (k , q) = k , (subst (k <_) p q)
@@ -256,14 +267,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
                   -> aut .fun fzero ≡ fzero
                   -> f♯ (suc (suc n) , zs ∘ aut .fun) ≡ f♯ (suc (suc n) , zs)
   permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0 =
-      f (zs (aut .fun fzero)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (Σ≡Prop (λ _ -> isProp≤) (congS fst aut-0≡0)) ⟩
-      f (zs fzero) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (z 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (sym (𝔜.unitr _)) ⟩
-      f (zs fzero) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _))))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (f (zs fzero) 𝔜.⊕_) (sym (f♯-hom-⊕ (η (zs (aut .fun (1 , (n , _))))) ((n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))) ⟩
-      f (zs fzero) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))
-    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (f♯ z)) (ΣPathP {x = pattern0} {y = (suc n) , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun} (refl , toPathP (funExt lemma))) ⟩
+      f (zs (aut .fun fzero)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
+    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) (congS fst aut-0≡0)) ⟩
+      f (zs fzero) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
+    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (f♯ z)) (ΣPathP {x = suc n , zs ∘ aut .fun ∘ fsuc} {y = suc n , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun} (refl , toPathP (funExt lemma))) ⟩
       f (zs fzero) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun)
     ≡⟨ cong₂ 𝔜._⊕_ (sym (𝔜.unitr _)) (permuteInvariant' (suc n) tag (injSuc tag≡) (zs ∘ fsuc) (punchOutZero aut aut-0≡0)) ⟩
       f♯ (η (zs fzero)) 𝔜.⊕ f♯ ((suc n) , zs ∘ fsuc)
@@ -272,42 +279,15 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     ≡⟨ congS f♯ (η+fsuc zs) ⟩
       f♯ (suc (suc n) , zs) ∎
     where
-    pattern0 : _
-    pattern0 = (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
     lemma : _
-    lemma (k , q) with k ≤? 1
-    ... | inl r =
-        _
+    lemma w =
+        transport (λ _ -> A) (zs (aut .fun (fsuc (transport (λ _ → Fin (suc n)) w))))
       ≡⟨ sym (transport-filler _ _) ⟩
-        ⊎.rec _ _ (finSplit 1 n (k , _))
-      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k r _) ⟩
-        zs (aut .fun (1 , _))
-      ≡⟨ congS zs (sym (fsuc∘fpred (aut .fun fone) (autSucNot0 aut fzero aut-0≡0))) ⟩
-        zs (fsuc (fpred (aut .fun fone)))
-      ≡⟨ congS (zs ∘ fsuc ∘ fpred ∘ aut .fun ∘ fsuc) (Σ≡Prop (λ _ -> isProp≤) (n<1→n≡0 r)) ⟩
-        zs (fsuc (fpred (aut .fun (fsuc (k , q)))))
-      ≡⟨⟩
-        zs (fsuc (punchOutZero aut aut-0≡0 .fun (k , q))) ∎
-    ... | inr r =
-        _
-      ≡⟨ sym (transport-filler _ _) ⟩
-        ⊎.rec _ _ (finSplit 1 n (k , _))
-      ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k _ r k-1<n) ⟩
-        zs (aut .fun (suc (suc (k ∸ 1)) , _))
-      ≡⟨ congS (zs ∘ aut .fun) (Σ≡Prop (λ _ -> isProp≤) (congS suc suck-1<k)) ⟩
-        zs (aut .fun (fsuc (k , q)))
-      ≡⟨ congS zs (sym (fsuc∘fpred (aut .fun (fsuc (k , q))) (autSucNot0 aut (k , q) aut-0≡0))) ⟩
-        zs (fsuc (fpred (aut .fun (fsuc (k , q)))))
-      ≡⟨⟩
-        zs (fsuc (punchOutZero aut aut-0≡0 .fun (k , q))) ∎
-      where
-      k-1<n : k ∸ 1 < n
-      k-1<n = ∸-<-lemma 1 n k q r
-      suck-1<k : suc (k ∸ 1) ≡ k
-      suck-1<k =
-        suc (k ∸ 1) ≡⟨ +-comm 1 _ ⟩
-        (k ∸ 1) + 1 ≡⟨ ≤-∸-+-cancel r ⟩
-        k ∎
+        zs (aut .fun (fsuc (transport (λ _ → Fin (suc n)) w)))
+      ≡⟨ congS (λ z -> zs (aut .fun (fsuc z))) (sym (transport-filler _ _)) ⟩
+        zs (aut .fun (fsuc w))
+      ≡⟨ congS zs (punchOutZero≡fsuc aut aut-0≡0 w) ⟩
+        zs (fsuc (punchOutZero aut aut-0≡0 .fun w)) ∎
 
   permuteInvariant' (suc (suc n)) zero tag≡ zs aut =
     ⊥.rec (snotz tag≡)
@@ -323,9 +303,9 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       zs ∎
   permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut with aut .fun fzero | inspect (aut .fun) fzero
   ... | zero , p | [ aut-path ]ᵢ =
-      f (zs (zero , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (Σ≡Prop (λ _ -> isProp≤) (congS fst (sym aut-0≡0))) ⟩
-      f (zs (aut .fun fzero)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
+      f (zs (zero , p)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
+    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))) (Σ≡Prop (λ _ -> isProp≤) (congS fst (sym aut-0≡0))) ⟩
+      f (zs (aut .fun fzero)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
     ≡⟨ permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0 ⟩
       f♯ (suc (suc n) , zs) ∎
     where
@@ -336,12 +316,6 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       (0 , p) ≡⟨ Σ≡Prop (λ _ -> isProp≤) refl ⟩
       fzero ∎
   ... | suc k , p | [ aut-path ]ᵢ =
-      f (zs (suc k , p)) 𝔜.⊕ (f (zs (aut .fun (1 , (n , _)))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (λ z -> _ 𝔜.⊕ (z 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))) (sym (𝔜.unitr _)) ⟩
-      f (zs (suc k , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _))))) 𝔜.⊕ f♯ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _)))))
-    ≡⟨ congS (_ 𝔜.⊕_) (sym (f♯-hom-⊕ (η (zs (aut .fun (1 , (n , _))))) ((n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))) ⟩
-      f (zs (suc k , p)) 𝔜.⊕ (f♯ (η (zs (aut .fun (1 , (n , _)))) ⊕ (n , (λ x → zs (aut .fun (suc (suc (fst x)) , fst (snd x) , _))))))
-    ≡⟨⟩
     {!   !}
 
   permuteInvariant : ∀ n (zs : Fin n -> A) (aut : Iso (Fin n) (Fin n)) -> f♯ (n , zs ∘ aut .fun) ≡ f♯ (n , zs)
