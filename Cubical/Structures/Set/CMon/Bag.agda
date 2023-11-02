@@ -440,6 +440,7 @@ bagFreeDef = qFreeMonDef (PermRel _)
 Bag : Type ℓ -> Type ℓ
 Bag A = BagDef.Free.F bagFreeDef A
 
+-- Proof taken from https://arxiv.org/pdf/2110.05412.pdf
 module IsoToCList {ℓ} (A : Type ℓ) where
   open import Cubical.Structures.Set.CMon.CList as CL
   open import Cubical.HITs.SetQuotients as Q
@@ -460,3 +461,30 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       Q.[ η b ] 𝔅.⊕ bs*
     ∎)
     squash/
+
+  tabulate' : ∀ n -> (Fin n -> A) -> CList A
+  tabulate' zero ^a = []
+  tabulate' (suc n) ^a = ^a fzero ∷ tabulate' n (^a ∘ fsuc)
+
+  toCList-eq : ∀ n m
+             -> (f : Fin n -> A) (g : Fin m -> A) (r : SymmAction (n , f) (m , g))
+             -> tabulate' n f ≡ tabulate' m g
+  toCList-eq (suc n) zero f g (σ , p) = ⊥.rec (snotz (symm-length≡ σ))
+  toCList-eq zero (suc zero) f g (σ , p) = ⊥.rec (znots (symm-length≡ σ))
+  toCList-eq (suc (suc n)) (suc zero) f g (σ , p) = ⊥.rec (snotz (injSuc (symm-length≡ σ)))
+  toCList-eq zero (suc (suc m)) f g (σ , p) = ⊥.rec (znots (symm-length≡ σ))
+  toCList-eq (suc zero) (suc (suc m)) f g (σ , p) = ⊥.rec (znots (injSuc (symm-length≡ σ))) 
+
+  toCList-eq zero zero f g (σ , p) = refl
+  toCList-eq (suc zero) (suc zero) f g (σ , p) =
+    f fzero ∷ [] ≡⟨ congS (λ h -> h fzero ∷ []) p ⟩
+    g (σ .fun fzero) ∷ [] ≡⟨ congS (λ z -> g z ∷ []) (isContr→isProp isContrFin1 _ _) ⟩
+    g fzero ∷ [] ∎
+  toCList-eq (suc (suc n)) (suc (suc m)) f g (σ , p) =
+    {!   !}
+
+  toCList : Bag A -> CList A
+  toCList Q.[ (n , f) ] = tabulate' n f
+  toCList (eq/ (n , f) (m , g) r i) = toCList-eq n m f g r i
+  toCList (squash/ xs ys p q i j) =
+    isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j 
