@@ -540,12 +540,19 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     aut' : SymmAction (suc n , f ∘ fsuc) (suc m , g ∘ except (σ .fun fzero))
     aut' = {!   !}
 
+    lemma-α-γ : ∀ x (r : x < n)
+              -> fst (except (k , pred-≤-pred q) (x , subst (_<_ x) n≡m r))
+               ≡ fst (except (k , k<sucn) (x , r))
+    lemma-α-γ x r with x ≤? k
+    ... | inl s = refl
+    ... | inr s = refl
+
     lemma-α-β : _
     lemma-α-β (x , r) =
         _
       ≡⟨ sym (transport-filler _ _) ⟩
         g (fsuc (except (k , pred-≤-pred q) (finSubst n≡m (x , r))))
-      ≡⟨ congS (g ∘ fsuc) (Σ≡Prop (λ _ -> isProp≤) {!   !}) ⟩
+      ≡⟨ congS (g ∘ fsuc) (Σ≡Prop (λ _ -> isProp≤) (lemma-α-γ x r)) ⟩
         g (fsuc (finSubst (λ i → suc (n≡m i)) (except (k , k<sucn) (x , r)))) ∎
 
     lemma-α : tabulate' (suc n) (f ∘ fsuc) ≡ g fzero ∷ tail
