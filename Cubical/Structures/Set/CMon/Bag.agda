@@ -526,7 +526,7 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     σ-zero : σ .fun fzero ≡ fzero
     σ-zero = σ-path ∙ Σ≡Prop (λ _ -> isProp≤) refl
   ... | suc k , q | [ σ-path ]ᵢ =
-    comm (f fzero) (g fzero) tail lemma-α {!   !}
+    comm (f fzero) (g fzero) tail lemma-α lemma-β
     where
     n≡m : n ≡ m
     n≡m = injSuc (injSuc (symm-length≡ σ))
@@ -537,8 +537,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     tail : CList A
     tail = tabulate' n (g ∘ fsuc ∘ finSubst (congS suc n≡m) ∘ except (k , k<sucn))
 
-    aut' : SymmAction (suc n , f ∘ fsuc) (suc m , g ∘ except (σ .fun fzero))
-    aut' = {!   !}
+    aut-α : SymmAction (suc n , f ∘ fsuc) (suc m , g ∘ except (σ .fun fzero))
+    aut-α = {!   !}
 
     lemma-α-γ : ∀ x (r : x < n)
               -> fst (except (k , pred-≤-pred q) (x , subst (_<_ x) n≡m r))
@@ -547,8 +547,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     ... | inl s = refl
     ... | inr s = refl
 
-    lemma-α-β : _
-    lemma-α-β (x , r) =
+    lemma-γ : _
+    lemma-γ (x , r) =
         _
       ≡⟨ sym (transport-filler _ _) ⟩
         g (fsuc (except (k , pred-≤-pred q) (finSubst n≡m (x , r))))
@@ -558,14 +558,43 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     lemma-α : tabulate' (suc n) (f ∘ fsuc) ≡ g fzero ∷ tail
     lemma-α =
         tabulate' (suc n) (f ∘ fsuc)
-      ≡⟨ toCList-eq (suc n) (suc m) (f ∘ fsuc) (g ∘ except (σ .fun fzero)) aut' ⟩
+      ≡⟨ toCList-eq (suc n) (suc m) (f ∘ fsuc) (g ∘ except (σ .fun fzero)) aut-α ⟩
         g (except (σ .fun fzero) fzero) ∷ tabulate' m (g ∘ except (σ .fun fzero) ∘ fsuc)
       ≡⟨ congS (λ z -> g (except z fzero) ∷ tabulate' m (g ∘ except z ∘ fsuc)) σ-path ⟩
         g (zero , _) ∷ tabulate' m (g ∘ except (suc k , q) ∘ fsuc)
       ≡⟨ cong₂ (λ y z -> g y ∷ tabulate' m (g ∘ z)) (Σ≡Prop (λ _ -> isProp≤) refl) (funExt (except-suc≡ q)) ⟩
         g fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
-      ≡⟨ cong₂ (λ y z -> g fzero ∷ tabulate' y z) (sym n≡m) (toPathP (funExt lemma-α-β)) ⟩
+      ≡⟨ cong₂ (λ y z -> g fzero ∷ tabulate' y z) (sym n≡m) (toPathP (funExt lemma-γ)) ⟩
         g fzero ∷ tail ∎    
+
+    apply-β-α : Fin (suc m) -> A
+    apply-β-α (zero , r) = g (σ .fun fzero)
+    apply-β-α (suc x , r) = g (fsuc (except (k , pred-≤-pred q) (x , pred-≤-pred r)))
+
+    transform-β-α : Fin m -> Fin m
+    transform-β-α (x , r) = x , pred-≤-pred (snd (fsuc (x , r)))
+
+    transform-β-α≡id : transform-β-α ≡ idfun _
+    transform-β-α≡id = funExt (λ _ -> Σ≡Prop (λ _ -> isProp≤) refl)
+
+    aut-β : SymmAction (suc m , g ∘ fsuc) (suc m , apply-β-α)
+    aut-β = {!   !}
+
+    lemma-β : tabulate' (suc m) (g ∘ fsuc) ≡ f fzero ∷ tail
+    lemma-β =
+        tabulate' (suc m) (g ∘ fsuc)
+      ≡⟨ toCList-eq (suc m) (suc m) (g ∘ fsuc) apply-β-α aut-β ⟩
+        tabulate' (suc m) apply-β-α
+      ≡⟨⟩
+        g (σ .fun fzero) ∷ tabulate' m (λ x → g (fsuc (except (k , pred-≤-pred q) (fst x , pred-≤-pred (snd (fsuc x))))))
+      ≡⟨⟩
+        g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q) ∘ transform-β-α)
+      ≡⟨ congS (λ z -> g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q) ∘ z)) transform-β-α≡id ⟩
+        g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
+      ≡⟨ congS (λ h -> h fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))) (sym p) ⟩
+        f fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
+      ≡⟨ cong₂ (λ y z -> f fzero ∷ tabulate' y z) (sym n≡m) (toPathP (funExt lemma-γ)) ⟩
+        f fzero ∷ tail ∎    
 
   toCList : Bag A -> CList A
   toCList Q.[ (n , f) ] = tabulate' n f
