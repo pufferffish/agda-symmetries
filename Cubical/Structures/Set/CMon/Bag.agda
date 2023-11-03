@@ -236,6 +236,9 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   f♯ : Array A -> 𝔜 .car
   f♯ = f♯-hom .fst
 
+  f♯-η : (a : A) -> f♯ (η a) ≡ f a
+  f♯-η a i = ArrayDef.Free.ext-η arrayDef isSet𝔜 (M.cmonSatMon 𝔜-cmon) f i a
+
   f♯-hom-⊕ : (as bs : Array A) -> f♯ (as ⊕ bs) ≡ f♯ as 𝔜.⊕ f♯ bs
   f♯-hom-⊕ as bs =
     f♯ (as ⊕ bs) ≡⟨ sym ((f♯-hom .snd) M.`⊕ ⟪ as ⨾ bs ⟫) ⟩
@@ -350,12 +353,12 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
                   -> aut .fun fzero ≡ fzero
                   -> f♯ (suc (suc n) , zs ∘ aut .fun) ≡ f♯ (suc (suc n) , zs)
   permuteInvariantOnZero n tag tag≡ zs aut aut-0≡0 =
-      f (zs (aut .fun fzero)) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
-    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))) (Fin-fst-≡ (congS fst aut-0≡0)) ⟩
-      f (zs fzero) 𝔜.⊕ (f♯ (suc n , zs ∘ aut .fun ∘ fsuc))
-    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ (f♯ z)) lemma ⟩
+      f (zs (aut .fun fzero)) 𝔜.⊕ f♯ (suc n , zs ∘ aut .fun ∘ fsuc)
+    ≡⟨ congS (λ z -> f (zs z) 𝔜.⊕ f♯ (suc n , zs ∘ aut .fun ∘ fsuc)) (Fin-fst-≡ (congS fst aut-0≡0)) ⟩
+      f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ aut .fun ∘ fsuc)
+    ≡⟨ congS (λ z -> f (zs fzero) 𝔜.⊕ f♯ z) lemma ⟩
       f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc ∘ punchOutZero aut aut-0≡0 .fun)
-    ≡⟨ cong₂ 𝔜._⊕_ (sym (𝔜.unitr _)) (permuteInvariant' (suc n) tag (injSuc tag≡) (zs ∘ fsuc) (punchOutZero aut aut-0≡0)) ⟩
+    ≡⟨ cong₂ 𝔜._⊕_ (sym (f♯-η (zs fzero))) (permuteInvariant' (suc n) tag (injSuc tag≡) (zs ∘ fsuc) (punchOutZero aut aut-0≡0)) ⟩
       f♯ (η (zs fzero)) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc)
     ≡⟨ sym (f♯-hom-⊕ (η (zs fzero)) (suc n , zs ∘ fsuc)) ⟩
       f♯ (η (zs fzero) ⊕ (suc n , zs ∘ fsuc))
