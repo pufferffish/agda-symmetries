@@ -373,15 +373,9 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteInvariant' (suc (suc n)) zero tag≡ zs aut =
     ⊥.rec (snotz tag≡)
   permuteInvariant' zero _ _ zs aut =
-    congS f♯ (ΣPathP {x = 0 , zs ∘ aut .fun} {y = 0 , zs} (refl , funExt (⊥.rec ∘ ¬Fin0)))
+    congS f♯ (Array≡ {f = zs ∘ aut .fun} {g = zs} refl \k k<0 -> ⊥.rec (¬-<-zero k<0))
   permuteInvariant' (suc zero) _ _ zs aut =
-    congS f♯ (ΣPathP {x = 1 , zs ∘ aut .fun} {y = 1 , zs} (refl , lemma))
-    where
-    lemma : _
-    lemma =
-      zs ∘ aut .fun ≡⟨ congS (zs ∘_) (isContr→isProp (isContrΠ (λ _ -> isContrFin1)) (aut .fun) (idfun _)) ⟩
-      zs ∘ idfun _ ≡⟨⟩
-      zs ∎
+    congS f♯ (Array≡ {f = zs ∘ aut .fun} {g = zs} refl \k k<1 -> congS zs (isContr→isProp isContrFin1 _ _))
   permuteInvariant' (suc (suc n)) (suc tag) tag≡ zs aut =
       f♯ (suc (suc n) , zs ∘ aut .fun)
     ≡⟨ sym (swapAutToAut zs aut) ⟩
@@ -430,4 +424,3 @@ bagFreeDef = qFreeMonDef (PermRel _)
 
 Bag : Type ℓ -> Type ℓ
 Bag A = BagDef.Free.F bagFreeDef A
- 
