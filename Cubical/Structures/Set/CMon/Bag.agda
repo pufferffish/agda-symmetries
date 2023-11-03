@@ -33,24 +33,21 @@ private
     ℓ ℓ' ℓ'' : Level
     A : Type ℓ
 
-SymmAction : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
-SymmAction (n , v) (m , w) = Σ[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fun
+_≈_ : ∀ {A : Type ℓ} -> Array A -> Array A -> Type ℓ
+_≈_ (n , v) (m , w) = Σ[ σ ∈ Iso (Fin n) (Fin m) ] v ≡ w ∘ σ .fun
 
-_≈_ = SymmAction
+Bag≈ = _≈_
 
-symm-length≡ : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m 
-symm-length≡ {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
+refl≈ : {as : Array A} -> as ≈ as
+refl≈ {as = as} = idIso , refl
 
-symm-refl : {as : Array A} -> SymmAction as as
-symm-refl {as = as} = idIso , refl
-
-symm-sym : {as bs : Array A} -> SymmAction as bs -> SymmAction bs as
-symm-sym {as = (n , f)} {bs = (m , g)} (σ , p) =
+sym≈ : {as bs : Array A} -> as ≈ bs -> bs ≈ as
+sym≈ {as = (n , f)} {bs = (m , g)} (σ , p) =
   invIso σ , congS (g ∘_) (sym (funExt (σ .rightInv)))
            ∙ congS (_∘ σ .inv) (sym p)
 
-symm-trans : {as bs cs : Array A} -> SymmAction as bs -> SymmAction bs cs -> SymmAction as cs
-symm-trans {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (σ , p) (τ , q) =
+trans≈ : {as bs cs : Array A} -> as ≈ bs -> bs ≈ cs -> as ≈ cs
+trans≈ {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (σ , p) (τ , q) =
   compIso σ τ , sym
     ((h ∘ τ .fun) ∘ σ .fun ≡⟨ congS (_∘ σ .fun) (sym q) ⟩
     g ∘ σ .fun ≡⟨ sym p ⟩
@@ -72,8 +69,8 @@ Fin+-cong {n} {m} {n'} {m'} σ τ =
         -> ⊎.rec f g ≡ ⊎.rec g f ∘ ⊎-swap-Iso .fun
 ⊎Swap-eta f g = ⊎-eta (⊎.rec g f ∘ ⊎-swap-Iso .fun) refl refl
 
-symm-cong : {as bs cs ds : Array A} -> as ≈ bs -> cs ≈ ds -> (as ⊕ cs) ≈ (bs ⊕ ds)
-symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
+cong≈ : {as bs cs ds : Array A} -> as ≈ bs -> cs ≈ ds -> (as ⊕ cs) ≈ (bs ⊕ ds)
+cong≈ {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
   Fin+-cong σ τ ,
   (
     combine n m f g
@@ -96,8 +93,8 @@ symm-cong {as = n , f} {bs = n' , f'} {m , g} {m' , g'} (σ , p) (τ , q) =
 Fin+-comm : (n m : ℕ) -> Iso (Fin (n + m)) (Fin (m + n))
 Fin+-comm n m = compIso (Fin≅Fin+Fin n m) (compIso ⊎-swap-Iso (invIso (Fin≅Fin+Fin m n)))
 
-symm-comm : {as bs : Array A} -> (as ⊕ bs) ≈ (bs ⊕ as)
-symm-comm {as = n , f} {bs = m , g} =
+comm≈ : {as bs : Array A} -> (as ⊕ bs) ≈ (bs ⊕ as)
+comm≈ {as = n , f} {bs = m , g} =
   Fin+-comm n m , sym
     (
       ⊎.rec g f ∘ finSplit m n ∘ Fin≅Fin+Fin m n .inv ∘ ⊎-swap-Iso .fun ∘ Fin≅Fin+Fin n m .fun
@@ -170,25 +167,28 @@ finIso {n = n} {m = m} p = iso
   (λ (k , q) -> Fin-fst-≡ refl)
   (λ (k , q) -> Fin-fst-≡ refl)
 
-symm-fsuc-on-0 : ∀ n m
+Fin≅-inj : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m
+Fin≅-inj {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
+
+≈-fsuc-on-0 : ∀ n m
           -> (f : Fin (suc (suc n)) -> A) (g : Fin (suc (suc m)) -> A)
-          -> (r : SymmAction (suc (suc n) , f) (suc (suc m) , g))
+          -> (r : (suc (suc n) , f) ≈ (suc (suc m) , g))
           -> (r .fst) .fun fzero ≡ fzero
-          -> SymmAction (suc n , f ∘ fsuc) (suc m , g ∘ fsuc)
-symm-fsuc-on-0 n m f g (σ , p) q =
-  compIso (finIso (injSuc (symm-length≡ σ))) (punchOutZero τ lemma-α) , sym (funExt lemma-β)
+          -> (suc n , f ∘ fsuc) ≈ (suc m , g ∘ fsuc)
+≈-fsuc-on-0 n m f g (σ , p) q =
+  compIso (finIso (injSuc (Fin≅-inj σ))) (punchOutZero τ lemma-α) , sym (funExt lemma-β)
   where
   τ : _
-  τ = compIso (finIso (sym (symm-length≡ σ))) σ
+  τ = compIso (finIso (sym (Fin≅-inj σ))) σ
   lemma-α : _
   lemma-α =
-    σ .fun (finSubst (sym (symm-length≡ σ)) fzero) ≡⟨⟩
+    σ .fun (finSubst (sym (Fin≅-inj σ)) fzero) ≡⟨⟩
     σ .fun (0 , _) ≡⟨ congS (σ .fun) (Fin-fst-≡ refl) ⟩
     σ .fun fzero ≡⟨ q ⟩
     fzero ∎
   lemma-β : _
   lemma-β (k , r) =
-      g (fsuc ((punchOutZero τ lemma-α) .fun ((finIso (injSuc (symm-length≡ σ))) .fun (k , r))))
+      g (fsuc ((punchOutZero τ lemma-α) .fun ((finIso (injSuc (Fin≅-inj σ))) .fun (k , r))))
     ≡⟨⟩
       g (fsuc ((punchOutZero τ lemma-α) .fun (k , _)))
     ≡⟨ congS g (sym (punchOutZero≡fsuc τ lemma-α (k , _))) ⟩
@@ -379,8 +379,8 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
             f♯ (suc (suc n) , zs)
           ∎
 
-  symm-resp-f♯ : {as bs : Array A} -> SymmAction as bs -> f♯ as ≡ f♯ bs
-  symm-resp-f♯ {as = n , g} {bs = m , h} (σ , p) =
+  ≈-resp-♯ : {as bs : Array A} -> as ≈ bs -> f♯ as ≡ f♯ bs
+  ≈-resp-♯ {as = n , g} {bs = m , h} (σ , p) =
       f♯ (n , g)
     ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
       f♯ (n , h ∘ σ .fun)
@@ -392,23 +392,23 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
       f♯ (m , h) ∎
     where
     n≡m : n ≡ m
-    n≡m = symm-length≡ σ
+    n≡m = Fin≅-inj σ
 
 module _ {ℓ} (A : Type ℓ) where
   open import Cubical.Relation.Binary
-  module P = BinaryRelation {A = Array A} SymmAction
-  open isPermRel
+  module P = BinaryRelation {A = Array A} _≈_
+  module R = isPermRel
 
-  isPermRelPerm : isPermRel arrayDef (SymmAction {A = A})
-  P.isEquivRel.reflexive (isEquivRel isPermRelPerm) _ = symm-refl
-  P.isEquivRel.symmetric (isEquivRel isPermRelPerm) _ _ = symm-sym
-  P.isEquivRel.transitive (isEquivRel isPermRelPerm) _ _ cs = symm-trans {cs = cs}
-  isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = symm-cong p q
-  isCommutative isPermRelPerm = symm-comm
-  resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = symm-resp-f♯ isSet𝔜 𝔜-cmon f p
+  isPermRelPerm : isPermRel arrayDef (_≈_ {A = A})
+  P.isEquivRel.reflexive (R.isEquivRel isPermRelPerm) _ = refl≈
+  P.isEquivRel.symmetric (R.isEquivRel isPermRelPerm) _ _ = sym≈
+  P.isEquivRel.transitive (R.isEquivRel isPermRelPerm) _ _ cs = trans≈ {cs = cs}
+  R.isCongruence isPermRelPerm {as} {bs} {cs} {ds} p q = cong≈ p q
+  R.isCommutative isPermRelPerm = comm≈
+  R.resp-♯ isPermRelPerm {isSet𝔜 = isSet𝔜} 𝔜-cmon f p = ≈-resp-♯ isSet𝔜 𝔜-cmon f p
 
   PermRel : PermRelation arrayDef A
-  PermRel = SymmAction , isPermRelPerm
+  PermRel = _≈_ , isPermRelPerm
 
 module BagDef = F.Definition M.MonSig M.CMonEqSig M.CMonSEq
 
