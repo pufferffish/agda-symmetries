@@ -18,43 +18,48 @@ open import Cubical.Structures.Arity
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 empty-α : ∀ (A : Type ℓ) -> sig emptySig A -> A
 empty-α _ (x , _) = ⊥.rec x
+
+emptyHomDegen : (𝔜 : struct ℓ' emptySig) -> structHom < A , empty-α A > 𝔜 ≃ (A -> 𝔜 .car)
+emptyHomDegen _ = Σ-contractSnd λ _ -> isContrΠ⊥
 
 module EmptyDef = F.Definition emptySig emptyEqSig emptySEq
 
 empty-sat : ∀ (A : Type ℓ) -> < A , empty-α A > ⊨ emptySEq
 empty-sat _ eqn ρ = ⊥.rec eqn
 
-module TreeFree {x y : Level} {A : Type x} {𝔜 : struct y emptySig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-empty : 𝔜 ⊨ emptySEq) where  
-  𝔗 : struct x emptySig
-  𝔗 = < Tree emptySig A , empty-α (Tree emptySig A) >
+treeEmpty≃  : Tree emptySig A ≃ A
+treeEmpty≃ = isoToEquiv (iso from leaf (λ _ -> refl) leaf∘from)
+  where
+  from : Tree emptySig A -> A
+  from (leaf x) = x
 
-  module _ (f : A -> 𝔜 .car) where
-    _♯ : Tree emptySig A -> 𝔜 .car
-    leaf x ♯ = f x
-
-    ♯-isHom : structHom 𝔗 𝔜
-    fst ♯-isHom = _♯
-    snd ♯-isHom x = ⊥.rec x
-
-  treeEquiv : structHom 𝔗 𝔜 ≃ (A -> 𝔜 .car)
-  treeEquiv = isoToEquiv
-    ( iso
-      (λ g -> g .fst ∘ leaf)
-      ♯-isHom (λ g -> refl)
-      (λ g -> structHom≡ 𝔗 𝔜 (♯-isHom (g .fst ∘ leaf)) g isSet𝔜 (funExt λ x -> lemma g x))
-    )
-    where
-    lemma : (g : structHom 𝔗 𝔜) (x : Tree emptySig A) -> _
-    lemma g (leaf x) = refl
+  leaf∘from : retract from leaf
+  leaf∘from (leaf x) = refl
 
 treeDef : ∀ {ℓ ℓ'} -> EmptyDef.Free ℓ ℓ' 2
 F.Definition.Free.F treeDef = Tree emptySig
 F.Definition.Free.η treeDef = leaf
 F.Definition.Free.α treeDef = empty-α (Tree emptySig _)
 F.Definition.Free.sat treeDef = empty-sat (Tree emptySig _)
-F.Definition.Free.isFree treeDef H ϕ = TreeFree.treeEquiv H ϕ .snd
+F.Definition.Free.isFree (treeDef {ℓ = ℓ}) {X = A} {𝔜 = 𝔜} H ϕ = lemma .snd
+  where
+  𝔗 : struct ℓ emptySig
+  𝔗 = < Tree emptySig A , empty-α (Tree emptySig A) >
+
+  lemma : structHom 𝔗 𝔜 ≃ (A -> 𝔜 .car)
+  lemma =
+    structHom 𝔗 𝔜 ≃⟨ emptyHomDegen 𝔜 ⟩
+    (𝔗 .car -> 𝔜 .car) ≃⟨ equiv→ treeEmpty≃ (idEquiv (𝔜 .car)) ⟩
+    (A -> 𝔜 .car) ■
+    
+anyDef : ∀ {ℓ ℓ'} -> EmptyDef.Free ℓ ℓ' 2
+F.Definition.Free.F anyDef A = A
+F.Definition.Free.η anyDef a = a
+F.Definition.Free.α anyDef = empty-α _
+F.Definition.Free.sat anyDef = empty-sat _
+F.Definition.Free.isFree anyDef {𝔜 = 𝔜} _ _ = emptyHomDegen 𝔜 .snd 
