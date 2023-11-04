@@ -36,15 +36,9 @@ Array A = Σ[ n ∈ ℕ ] (Fin n -> A)
 isSetArray : isSet A -> isSet (Array A)
 isSetArray isSetA = isOfHLevelΣ 2 isSetℕ λ _ -> isOfHLevelΠ 2 λ _ -> isSetA
 
--- TODO: Prove tptLemma using transp, not J
 tptLemma : ∀ {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (P : A -> Type ℓ'') {a b : A} (p : a ≡ b) (f : P a -> B) (k : P b)
         -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k)
-tptLemma A B P {a} =
-  J (\b p -> (f : P a -> B) (k : P b)
-        -> transport (\i -> P (p i) -> B) f k ≡ f (transport (\i -> P (p (~ i))) k))
-    \f k -> cong (transp (\i -> B) i0 ∘ f) (transportRefl k)
-         ∙ transportRefl (f k)
-         ∙ cong f (sym (transportRefl k))
+tptLemma A B P {a} p f k = sym (transport-filler (λ _ -> B) (f (transport (\i -> P (p (~ i))) k)))
 
 Array≡ : ∀ {ℓ} {A : Type ℓ} {n m} {f : Fin n -> A} {g : Fin m -> A}
       -> (n=m : n ≡ m)
