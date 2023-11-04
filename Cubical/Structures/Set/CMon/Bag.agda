@@ -53,9 +53,6 @@ trans≈ {as = (n , f)} {bs = (m , g)} {cs = (o , h)} (σ , p) (τ , q) =
     g ∘ σ .fun ≡⟨ sym p ⟩
     f ∎)
 
-Array≡-len : {as bs : Array A} -> as ≡ bs -> as .fst ≡ bs .fst
-Array≡-len {as = (n , f)} {bs = (m , g)} p = cong fst p
-
 Fin+-cong : {n m n' m' : ℕ} -> Iso (Fin n) (Fin n') -> Iso (Fin m) (Fin m') -> Iso (Fin (n + m)) (Fin (n' + m'))
 Fin+-cong {n} {m} {n'} {m'} σ τ =
   compIso (Fin≅Fin+Fin n m) (compIso (⊎Iso σ τ) (invIso (Fin≅Fin+Fin n' m')))
@@ -123,45 +120,45 @@ isoFunInv σ p = congS (σ .inv) (sym p) ∙ σ .leftInv _
 isoFunInvContra : ∀ {A B : Type ℓ} {x y z} -> (σ : Iso A B) -> σ .fun x ≡ y -> ¬ (z ≡ y) -> ¬ (σ .inv z ≡ x)
 isoFunInvContra σ p z≠y q = z≠y (sym (σ .rightInv _) ∙ congS (σ .fun) q ∙ p)
 
-autInvIs0 : ∀ {n} -> (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-          -> aut .fun fzero ≡ fzero -> aut .inv fzero ≡ fzero
+autInvIs0 : ∀ {n} -> (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+          -> σ .fun fzero ≡ fzero -> σ .inv fzero ≡ fzero
 autInvIs0 = isoFunInv
 
-autSucNot0 : ∀ {n} -> (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-          -> (x : Fin (suc n)) -> aut .fun fzero ≡ fzero -> ¬ aut .fun (fsuc x) ≡ fzero
-autSucNot0 aut x p = isoFunInvContra (invIso aut) (isoFunInv aut p) (snotz ∘ congS fst)
+autSucNot0 : ∀ {n} -> (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+          -> (x : Fin (suc n)) -> σ .fun fzero ≡ fzero -> ¬ σ .fun (fsuc x) ≡ fzero
+autSucNot0 σ x p = isoFunInvContra (invIso σ) (isoFunInv σ p) (snotz ∘ congS fst)
 
-punchOutZero : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> aut .fun fzero ≡ fzero
+punchOutZero : ∀ {n} (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> σ .fun fzero ≡ fzero
               -> Iso (Fin (suc n)) (Fin (suc n))
-punchOutZero {n = n} aut p =
-  iso (punch aut) (punch (invIso aut)) (punch∘punch aut p) (punch∘punch (invIso aut) (autInvIs0 aut p)) 
+punchOutZero {n = n} σ p =
+  iso (punch σ) (punch (invIso σ)) (punch∘punch σ p) (punch∘punch (invIso σ) (autInvIs0 σ p))
   where
   punch : Iso (Fin (suc (suc n))) (Fin (suc (suc n))) -> Fin (suc n) -> Fin (suc n)
-  punch aut = fpred ∘ aut .fun ∘ fsuc
-  punch∘punch : (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-              -> aut .fun fzero ≡ fzero
+  punch σ = fpred ∘ σ .fun ∘ fsuc
+  punch∘punch : (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+              -> σ .fun fzero ≡ fzero
               -> (x : Fin (suc n))
-              -> punch aut (punch (invIso aut) x) ≡ x
-  punch∘punch aut p x =
-      punch aut (punch (invIso aut) x)
+              -> punch σ (punch (invIso σ) x) ≡ x
+  punch∘punch σ p x =
+      punch σ (punch (invIso σ) x)
     ≡⟨⟩
-      (fpred (aut .fun ((fsuc ∘ fpred) (aut .inv (fsuc x)))))
-    ≡⟨ congS (fpred ∘ aut .fun) (fsuc∘fpred (aut .inv (fsuc x)) (autSucNot0 (invIso aut) x (autInvIs0 aut p))) ⟩
-      (fpred (aut .fun (aut .inv (fsuc x))))
-    ≡⟨ congS fpred (aut .rightInv (fsuc x)) ⟩
-      (fpred (fsuc x))
+      fpred (σ .fun ((fsuc ∘ fpred) (σ .inv (fsuc x))))
+    ≡⟨ congS (fpred ∘ σ .fun) (fsuc∘fpred (σ .inv (fsuc x)) (autSucNot0 (invIso σ) x (autInvIs0 σ p))) ⟩
+      fpred (σ .fun (σ .inv (fsuc x)))
+    ≡⟨ congS fpred (σ .rightInv (fsuc x)) ⟩
+      fpred (fsuc x)
     ≡⟨ fpred∘fsuc x ⟩
       x ∎
 
-punchOutZero≡fsuc : ∀ {n} (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> (aut-0≡0 : aut .fun fzero ≡ fzero)
-                  -> (w : Fin (suc n)) -> aut .fun (fsuc w) ≡ fsuc (punchOutZero aut aut-0≡0 .fun w)
-punchOutZero≡fsuc aut aut-0≡0 w = sym (fsuc∘fpred _ (autSucNot0 aut w aut-0≡0))
+punchOutZero≡fsuc : ∀ {n} (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> (σ-0≡0 : σ .fun fzero ≡ fzero)
+                  -> (w : Fin (suc n)) -> σ .fun (fsuc w) ≡ fsuc (punchOutZero σ σ-0≡0 .fun w)
+punchOutZero≡fsuc σ σ-0≡0 w = sym (fsuc∘fpred _ (autSucNot0 σ w σ-0≡0))
 
 finSubst : ∀ {n m} -> n ≡ m -> Fin n -> Fin m
 finSubst {n = n} {m = m} p (k , q) = k , (subst (k <_) p q)
 
-finIso : ∀ {n m} -> n ≡ m -> Iso (Fin n) (Fin m)
-finIso {n = n} {m = m} p = iso
+Fin≅ : ∀ {n m} -> n ≡ m -> Iso (Fin n) (Fin m)
+Fin≅ {n = n} {m = m} p = iso
   (finSubst p)
   (finSubst (sym p))
   (λ (k , q) -> Fin-fst-≡ refl)
@@ -170,16 +167,17 @@ finIso {n = n} {m = m} p = iso
 Fin≅-inj : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m
 Fin≅-inj {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
 
+-- TODO: Unused lemma
 ≈-fsuc-on-0 : ∀ n m
           -> (f : Fin (suc (suc n)) -> A) (g : Fin (suc (suc m)) -> A)
           -> (r : (suc (suc n) , f) ≈ (suc (suc m) , g))
           -> (r .fst) .fun fzero ≡ fzero
           -> (suc n , f ∘ fsuc) ≈ (suc m , g ∘ fsuc)
 ≈-fsuc-on-0 n m f g (σ , p) q =
-  compIso (finIso (injSuc (Fin≅-inj σ))) (punchOutZero τ lemma-α) , sym (funExt lemma-β)
+  compIso (Fin≅ (injSuc (Fin≅-inj σ))) (punchOutZero τ lemma-α) , sym (funExt lemma-β)
   where
   τ : _
-  τ = compIso (finIso (sym (Fin≅-inj σ))) σ
+  τ = compIso (Fin≅ (sym (Fin≅-inj σ))) σ
   lemma-α : _
   lemma-α =
     σ .fun (finSubst (sym (Fin≅-inj σ)) fzero) ≡⟨⟩
@@ -188,7 +186,7 @@ Fin≅-inj {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
     fzero ∎
   lemma-β : _
   lemma-β (k , r) =
-      g (fsuc ((punchOutZero τ lemma-α) .fun ((finIso (injSuc (Fin≅-inj σ))) .fun (k , r))))
+      g (fsuc ((punchOutZero τ lemma-α) .fun ((Fin≅ (injSuc (Fin≅-inj σ))) .fun (k , r))))
     ≡⟨⟩
       g (fsuc ((punchOutZero τ lemma-α) .fun (k , _)))
     ≡⟨ congS g (sym (punchOutZero≡fsuc τ lemma-α (k , _))) ⟩
@@ -198,16 +196,16 @@ Fin≅-inj {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
     ≡⟨ congS (λ h -> h (fsuc (k , r))) (sym p) ⟩
       f (fsuc (k , r)) ∎
 
-module _ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) where
+module _ {n} (σ : Iso (Fin (suc n)) (Fin (suc n))) where
   private
     m : ℕ
     m = suc n
 
     cutoff : ℕ
-    cutoff = (aut .inv fzero) .fst
+    cutoff = (σ .inv fzero) .fst
 
     cutoff< : cutoff < m
-    cutoff< = (aut .inv fzero) .snd
+    cutoff< = (σ .inv fzero) .snd
 
     cutoff+- : cutoff + (m ∸ cutoff) ≡ m
     cutoff+- = ∸-lemma (<-weaken cutoff<)
@@ -216,22 +214,22 @@ module _ {n} (aut : Iso (Fin (suc n)) (Fin (suc n))) where
     0<m-cutoff = n∸l>0 m cutoff cutoff<
 
   swapAut : Iso (Fin (suc n)) (Fin (suc n))
-  swapAut = compIso (finIso (sym cutoff+- ∙ +-comm cutoff _)) (compIso (Fin+-comm (m ∸ cutoff) cutoff) (compIso (finIso cutoff+-) aut))
+  swapAut = compIso (Fin≅ (sym cutoff+- ∙ +-comm cutoff _)) (compIso (Fin+-comm (m ∸ cutoff) cutoff) (compIso (Fin≅ cutoff+-) σ))
 
   swapAut0≡0 : swapAut .fun fzero ≡ fzero
   swapAut0≡0 =
-      aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (0 , _)))))
-    ≡⟨ congS (λ z -> aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) (finCombine-inr {m = cutoff}) (fun ⊎-swap-Iso z)))) (finSplit-beta-inl 0 0<m-cutoff _) ⟩
-      aut .fun (aut .inv fzero .fst + 0 , _)
-    ≡⟨ congS (aut .fun) (Fin-fst-≡ (+-zero (aut .inv (0 , suc-≤-suc zero-≤) .fst) ∙ congS (fst ∘ aut .inv) (Fin-fst-≡ refl))) ⟩
-      aut .fun (aut .inv fzero)
-    ≡⟨ aut .rightInv fzero ⟩
+      σ .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (0 , _)))))
+    ≡⟨ congS (λ z -> σ .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) (finCombine-inr {m = cutoff}) (fun ⊎-swap-Iso z)))) (finSplit-beta-inl 0 0<m-cutoff _) ⟩
+      σ .fun (σ .inv fzero .fst + 0 , _)
+    ≡⟨ congS (σ .fun) (Fin-fst-≡ (+-zero (σ .inv (0 , suc-≤-suc zero-≤) .fst) ∙ congS (fst ∘ σ .inv) (Fin-fst-≡ refl))) ⟩
+      σ .fun (σ .inv fzero)
+    ≡⟨ σ .rightInv fzero ⟩
       fzero ∎
 
 module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) (f : A -> 𝔜 .car) where
   module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
-  f♯-hom = A.Free.♯-isMonHom isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
+  f♯-hom = ArrayDef.Free.ext arrayDef isSet𝔜 (M.cmonSatMon 𝔜-cmon) f
 
   f♯ : Array A -> 𝔜 .car
   f♯ = f♯-hom .fst
@@ -252,95 +250,95 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     f♯ bs 𝔜.⊕ f♯ as ≡⟨ sym (f♯-hom-⊕ bs as) ⟩
     f♯ (bs ⊕ as) ∎
 
-  swapAutToAut : ∀ {n} (zs : Fin (suc (suc n)) -> A) (aut : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
-               -> f♯ (suc (suc n) , zs ∘ swapAut aut .fun) ≡ f♯ (suc (suc n) , zs ∘ aut .fun)
-  swapAutToAut {n = n} zs aut =
-      f♯ (m , zs ∘ swapAut aut .fun)
+  swapAutToAut : ∀ {n} (zs : Fin (suc (suc n)) -> A) (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n))))
+               -> f♯ (suc (suc n) , zs ∘ swapAut σ .fun) ≡ f♯ (suc (suc n) , zs ∘ σ .fun)
+  swapAutToAut {n = n} zs σ =
+      f♯ (m , zs ∘ swapAut σ .fun)
     ≡⟨ congS f♯ lemma-α ⟩
-      f♯ (((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr))
-        ⊕ (cutoff , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inl)))
-    ≡⟨ f♯-comm ((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr)) _ ⟩
-      f♯ ((cutoff , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inl))
-        ⊕ ((m ∸ cutoff) , (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr)))
+      f♯ (((m ∸ cutoff) , (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr))
+        ⊕ (cutoff , (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inl)))
+    ≡⟨ f♯-comm ((m ∸ cutoff) , (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr)) _ ⟩
+      f♯ ((cutoff , (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inl))
+        ⊕ ((m ∸ cutoff) , (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff _ ∘ inr)))
     ≡⟨ congS f♯ lemma-β ⟩
-      f♯ (m , zs ∘ aut .fun) ∎
+      f♯ (m , zs ∘ σ .fun) ∎
     where
     m : ℕ
     m = suc (suc n)
 
     cutoff : ℕ
-    cutoff = (aut .inv fzero) .fst
+    cutoff = (σ .inv fzero) .fst
 
     cutoff< : cutoff < m
-    cutoff< = (aut .inv fzero) .snd
+    cutoff< = (σ .inv fzero) .snd
 
     cutoff+- : cutoff + (m ∸ cutoff) ≡ m
     cutoff+- = ∸-lemma (<-weaken cutoff<)
 
-    lemma-α : Path (Array A) (m , zs ∘ swapAut aut .fun) ((m ∸ cutoff) + cutoff , _)
+    lemma-α : Path (Array A) (m , zs ∘ swapAut σ .fun) ((m ∸ cutoff) + cutoff , _)
     lemma-α = Array≡ (sym cutoff+- ∙ +-comm cutoff _) λ k k<m∸cutoff+cutoff -> ⊎.rec
       (λ k<m∸cutoff ->
-          zs (aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (k , _))))))
-        ≡⟨ congS (λ z -> zs (aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) finCombine-inr (fun ⊎-swap-Iso z))))) (finSplit-beta-inl k k<m∸cutoff _) ⟩
-          zs (aut .fun (cutoff + k , _))
-        ≡⟨ congS (zs ∘ aut .fun) (Fin-fst-≡ refl) ⟩
-          zs (aut .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inr (k , k<m∸cutoff)))))
+          zs (σ .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (k , _))))))
+        ≡⟨ congS (λ z -> zs (σ .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) finCombine-inr (fun ⊎-swap-Iso z))))) (finSplit-beta-inl k k<m∸cutoff _) ⟩
+          zs (σ .fun (cutoff + k , _))
+        ≡⟨ congS (zs ∘ σ .fun) (Fin-fst-≡ refl) ⟩
+          zs (σ .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inr (k , k<m∸cutoff)))))
         ≡⟨⟩
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
             (inl (k , k<m∸cutoff))
         ≡⟨ congS (⊎.rec _ _) (sym (finSplit-beta-inl k k<m∸cutoff k<m∸cutoff+cutoff)) ⟩
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
             (finSplit (m ∸ cutoff) cutoff (k , k<m∸cutoff+cutoff))
       ∎)
       (λ m∸cutoff≤k ->
-          zs (aut .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (k , _))))))
-        ≡⟨ congS (λ z -> zs (aut .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) finCombine-inr (fun ⊎-swap-Iso z))))) (finSplit-beta-inr k _ m∸cutoff≤k (∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k)) ⟩
-          zs (aut .fun (finSubst cutoff+- (finCombine-inl (k ∸ (m ∸ cutoff) , ∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k))))  
-        ≡⟨ congS (zs ∘ aut .fun ∘ finSubst cutoff+-) (Fin-fst-≡ refl) ⟩
-          zs (aut .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inl (k ∸ (m ∸ cutoff) , ∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k)))))
+          zs (σ .fun (finSubst cutoff+- (⊎.rec finCombine-inl finCombine-inr (fun ⊎-swap-Iso (finSplit (m ∸ cutoff) cutoff (k , _))))))
+        ≡⟨ congS (λ z -> zs (σ .fun (finSubst cutoff+- (⊎.rec (finCombine-inl {m = cutoff}) finCombine-inr (fun ⊎-swap-Iso z))))) (finSplit-beta-inr k _ m∸cutoff≤k (∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k)) ⟩
+          zs (σ .fun (finSubst cutoff+- (finCombine-inl (k ∸ (m ∸ cutoff) , ∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k))))
+        ≡⟨ congS (zs ∘ σ .fun ∘ finSubst cutoff+-) (Fin-fst-≡ refl) ⟩
+          zs (σ .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inl (k ∸ (m ∸ cutoff) , ∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k)))))
         ≡⟨ congS (⊎.rec _ _) (sym (finSplit-beta-inr k k<m∸cutoff+cutoff m∸cutoff≤k (∸-<-lemma (m ∸ cutoff) cutoff k k<m∸cutoff+cutoff m∸cutoff≤k))) ⟩
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
             (finSplit (m ∸ cutoff) cutoff (k , k<m∸cutoff+cutoff))
       ∎)
       (k ≤? (m ∸ cutoff))
     
-    lemma-β : Path (Array A) (cutoff + (m ∸ cutoff) , _) (m , zs ∘ aut .fun)
+    lemma-β : Path (Array A) (cutoff + (m ∸ cutoff) , _) (m , zs ∘ σ .fun)
     lemma-β = Array≡ cutoff+- λ k k<m -> ⊎.rec
       (λ k<cutoff ->
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
             (finSplit cutoff (m ∸ cutoff) (k , _))
         ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k k<cutoff _) ⟩
           ⊎.rec  
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
             (inl (k , _))
         ≡⟨⟩
-          zs (aut .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inl (k , _)))))
-        ≡⟨ congS (zs ∘ aut .fun) (Fin-fst-≡ refl) ⟩
-          zs (aut .fun (k , k<m))  
+          zs (σ .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inl (k , _)))))
+        ≡⟨ congS (zs ∘ σ .fun) (Fin-fst-≡ refl) ⟩
+          zs (σ .fun (k , k<m))
       ∎)
       (λ cutoff≤k ->
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
             (finSplit cutoff (m ∸ cutoff) (k , _))
         ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k _ cutoff≤k (<-∸-< k m cutoff k<m cutoff<)) ⟩
           ⊎.rec
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
-            (zs ∘ aut .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inl)
+            (zs ∘ σ .fun ∘ finSubst cutoff+- ∘ finCombine cutoff (m ∸ cutoff) ∘ inr)
             (inr (k ∸ cutoff , _))
         ≡⟨⟩
-          zs (aut .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inr (k ∸ cutoff , _)))))
-        ≡⟨ congS (zs ∘ aut .fun) (Fin-fst-≡ (+-comm cutoff (k ∸ cutoff) ∙ ≤-∸-+-cancel cutoff≤k)) ⟩
-          zs (aut .fun (k , k<m))  
+          zs (σ .fun (finSubst cutoff+- (finCombine cutoff (m ∸ cutoff) (inr (k ∸ cutoff , _)))))
+        ≡⟨ congS (zs ∘ σ .fun) (Fin-fst-≡ (+-comm cutoff (k ∸ cutoff) ∙ ≤-∸-+-cancel cutoff≤k)) ⟩
+          zs (σ .fun (k , k<m))
       ∎)
       (k ≤? cutoff)
 
@@ -350,27 +348,27 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
   permuteInvariant (suc zero) zs σ =
     congS f♯ (Array≡ {f = zs ∘ σ .fun} {g = zs} refl \k k<1 -> congS zs (isContr→isProp isContrFin1 _ _))
   permuteInvariant (suc (suc n)) zs σ =
-    let τ = swapAut σ ; τ0≡0 = swapAut0≡0 σ
-        IH = permuteInvariant (suc n) (zs ∘ fsuc) (punchOutZero τ τ0≡0)
+    let τ = swapAut σ ; τ-0≡0 = swapAut0≡0 σ
+        IH = permuteInvariant (suc n) (zs ∘ fsuc) (punchOutZero τ τ-0≡0)
     in
       f♯ (suc (suc n) , zs ∘ σ .fun)
     ≡⟨ sym (swapAutToAut zs σ) ⟩
       f♯ (suc (suc n) , zs ∘ τ .fun)
-    ≡⟨ permuteInvariantOnZero τ τ0≡0 IH ⟩
+    ≡⟨ permuteInvariantOnZero τ τ-0≡0 IH ⟩
       f♯ (suc (suc n) , zs) ∎
       where
-        permuteInvariantOnZero : (τ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) (τ0≡0 : τ .fun fzero ≡ fzero) -> (IH : _)
+        permuteInvariantOnZero : (τ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) (τ-0≡0 : τ .fun fzero ≡ fzero) -> (IH : _)
                               -> f♯ (suc (suc n) , zs ∘ τ .fun) ≡ f♯ (suc (suc n) , zs)
-        permuteInvariantOnZero τ τ0≡0 IH =
+        permuteInvariantOnZero τ τ-0≡0 IH =
             f♯ (suc (suc n) , zs ∘ τ .fun)
           ≡⟨⟩
             f (zs (τ .fun fzero)) 𝔜.⊕ f♯ (suc n , zs ∘ τ .fun ∘ fsuc)
-          ≡⟨ congS (\z -> f (zs z) 𝔜.⊕ f♯ (suc n , zs ∘ τ .fun ∘ fsuc)) (Fin-fst-≡ (congS fst τ0≡0)) ⟩
+          ≡⟨ congS (\z -> f (zs z) 𝔜.⊕ f♯ (suc n , zs ∘ τ .fun ∘ fsuc)) (Fin-fst-≡ (congS fst τ-0≡0)) ⟩
             f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ τ .fun ∘ fsuc)
           ≡⟨ congS (\z -> f (zs fzero) 𝔜.⊕ f♯ z)
                    (Array≡ {f = zs ∘ τ .fun ∘ fsuc} refl \k k≤n ->
-                           congS (zs ∘ τ .fun ∘ fsuc) (Fin-fst-≡ refl) ∙ congS zs (punchOutZero≡fsuc τ τ0≡0 (k , k≤n))) ⟩
-            f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc ∘ punchOutZero τ τ0≡0 .fun)
+                           congS (zs ∘ τ .fun ∘ fsuc) (Fin-fst-≡ refl) ∙ congS zs (punchOutZero≡fsuc τ τ-0≡0 (k , k≤n))) ⟩
+            f (zs fzero) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc ∘ punchOutZero τ τ-0≡0 .fun)
           ≡⟨ cong₂ 𝔜._⊕_ (sym (f♯-η (zs fzero))) IH ⟩
             f♯ (η (zs fzero)) 𝔜.⊕ f♯ (suc n , zs ∘ fsuc)
           ≡⟨ sym (f♯-hom-⊕ (η (zs fzero)) (suc n , zs ∘ fsuc)) ⟩
@@ -385,10 +383,10 @@ module _ {ℓA ℓB} {A : Type ℓA} {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : 
     ≡⟨ congS (λ z -> f♯ (n , z)) p ⟩
       f♯ (n , h ∘ σ .fun)
     ≡⟨ congS f♯ (Array≡ n≡m λ _ _ -> refl) ⟩
-      f♯ (m , h ∘ σ .fun ∘ (finIso (sym n≡m)) .fun)
+      f♯ (m , h ∘ σ .fun ∘ (Fin≅ (sym n≡m)) .fun)
     ≡⟨⟩
-      f♯ (m , h ∘ (compIso (finIso (sym n≡m)) σ) .fun)
-    ≡⟨ permuteInvariant m h (compIso (finIso (sym n≡m)) σ) ⟩
+      f♯ (m , h ∘ (compIso (Fin≅ (sym n≡m)) σ) .fun)
+    ≡⟨ permuteInvariant m h (compIso (Fin≅ (sym n≡m)) σ) ⟩
       f♯ (m , h) ∎
     where
     n≡m : n ≡ m
