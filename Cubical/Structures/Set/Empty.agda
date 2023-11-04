@@ -21,17 +21,17 @@ private
     ℓ : Level
     A : Type ℓ
 
-tree-α : sig emptySig (Tree emptySig A) -> Tree emptySig A
-tree-α (x , _) = ⊥.rec x
+empty-α : ∀ (A : Type ℓ) -> sig emptySig A -> A
+empty-α _ (x , _) = ⊥.rec x
 
-module TreeDef = F.Definition emptySig emptyEqSig emptySEq
+module EmptyDef = F.Definition emptySig emptyEqSig emptySEq
 
-tree-sat : < Tree emptySig A , tree-α > ⊨ emptySEq
-tree-sat eqn ρ = ⊥.rec eqn
+empty-sat : ∀ (A : Type ℓ) -> < A , empty-α A > ⊨ emptySEq
+empty-sat _ eqn ρ = ⊥.rec eqn
 
 module TreeFree {x y : Level} {A : Type x} {𝔜 : struct y emptySig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-empty : 𝔜 ⊨ emptySEq) where  
   𝔗 : struct x emptySig
-  𝔗 = < Tree emptySig A , tree-α >
+  𝔗 = < Tree emptySig A , empty-α (Tree emptySig A) >
 
   module _ (f : A -> 𝔜 .car) where
     _♯ : Tree emptySig A -> 𝔜 .car
@@ -52,9 +52,9 @@ module TreeFree {x y : Level} {A : Type x} {𝔜 : struct y emptySig} (isSet𝔜
     lemma : (g : structHom 𝔗 𝔜) (x : Tree emptySig A) -> _
     lemma g (leaf x) = refl
 
-treeDef : ∀ {ℓ ℓ'} -> TreeDef.Free ℓ ℓ' 2
+treeDef : ∀ {ℓ ℓ'} -> EmptyDef.Free ℓ ℓ' 2
 F.Definition.Free.F treeDef = Tree emptySig
 F.Definition.Free.η treeDef = leaf
-F.Definition.Free.α treeDef = tree-α
-F.Definition.Free.sat treeDef = tree-sat
+F.Definition.Free.α treeDef = empty-α (Tree emptySig _)
+F.Definition.Free.sat treeDef = empty-sat (Tree emptySig _)
 F.Definition.Free.isFree treeDef H ϕ = TreeFree.treeEquiv H ϕ .snd
