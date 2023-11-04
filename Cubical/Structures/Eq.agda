@@ -11,6 +11,7 @@ open import Cubical.Data.Fin
 open import Cubical.Data.List as L
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
@@ -35,6 +36,11 @@ free (finEqSig σ) = Fin ∘ σ .snd
 emptyEqSig : EqSig ℓ-zero ℓ-zero
 name emptyEqSig = ⊥.⊥
 free emptyEqSig = ⊥.rec
+
+sumEqSig : {e n e' n' : Level} -> EqSig e n -> EqSig e' n' -> EqSig (ℓ-max e e') (ℓ-max n n')
+name (sumEqSig σ τ) = (name σ) ⊎ (name τ)
+free (sumEqSig {n' = n} σ τ) (inl x) = Lift {j = n} ((free σ) x)
+free (sumEqSig {n = n} σ τ) (inr x) = Lift {j = n} ((free τ) x)
 
 module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
   -- TODO: refactor as (Tree σ Unit -> Tree σ X) × (Tree σ Unit -> Tree σ X) ?
