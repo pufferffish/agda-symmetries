@@ -49,7 +49,12 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
          -> (ext H ϕ h .fst) ∘ η ≡ h
     ext-η H ϕ h = secIsEq (isFree H ϕ) h
 
-    
+    hom≡ : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+        -> (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+        -> (H1 H2 : structHom < F X , α > 𝔜)
+        -> H1 .fst ∘ η ≡ H2 .fst ∘ η
+        -> H1 ≡ H2
+    hom≡ H ϕ H1 H2 α = sym (ext-β H ϕ H1) ∙ cong (ext H ϕ) α ∙ ext-β H ϕ H2
 
   -- Alternative definition where F is paramterized, used for transporting Free proofs
   record FreeAux (ℓ ℓ' : Level) (h : HLevel) (F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
@@ -79,6 +84,7 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
     FreeAux.α (snd (from free)) = Free.α free
     FreeAux.sat (snd (from free)) = Free.sat free
     FreeAux.isFree (snd (from free)) = Free.isFree free
+
 
 -- -- constructions of a free structure on a signature and equations
 -- -- TODO: generalise the universe levels!!
@@ -147,4 +153,3 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
 --   --   private
 --   --     Y = 𝔜 .fst
 --   --     β = 𝔜 .snd
- 
