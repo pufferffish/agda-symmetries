@@ -10,6 +10,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Fin
 open import Cubical.Data.List as L
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.HITs.SetQuotients as Q
 open import Agda.Primitive
@@ -26,6 +27,10 @@ FinSig f = Σ (Type f) \sym -> sym -> ℕ
 finSig : {f : Level} -> FinSig f -> Sig f ℓ-zero
 symbol (finSig σ) = σ .fst
 arity (finSig σ) = Fin ∘ σ .snd
+
+emptySig : Sig ℓ-zero ℓ-zero
+symbol emptySig = ⊥.⊥
+arity emptySig = ⊥.rec
 
 -- signature functor
 module _ {f a n : Level} (σ : Sig f a) where
