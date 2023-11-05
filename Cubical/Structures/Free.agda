@@ -76,38 +76,26 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
     ϕ2∘ϕ1 : structHom str𝔛 str𝔛
     ϕ2∘ϕ1 = structHom∘ str𝔛 str𝔜 str𝔛 ϕ2 ϕ1
 
-    ϕ1∘ϕ2≡ : ϕ1∘ϕ2 ≡ idHom str𝔜
+    ϕ1∘ϕ2≡ : ϕ1∘ϕ2 .fst ∘ 𝔜 .η ≡ idHom str𝔜 .fst ∘ 𝔜 .η
     ϕ1∘ϕ2≡ =
-      ϕ1∘ϕ2 ≡⟨ sym (ext-β 𝔜 isSet𝔜 (𝔜 .sat) ϕ1∘ϕ2) ⟩
-      ext 𝔜 isSet𝔜 (𝔜 .sat) (ϕ1∘ϕ2 .fst ∘ η 𝔜) ≡⟨ congS (ext 𝔜 isSet𝔜 (𝔜 .sat)) lemma ⟩
-      ext 𝔜 isSet𝔜 (𝔜 .sat) (idHom str𝔜 .fst ∘ 𝔜 .η) ≡⟨ ext-β 𝔜 isSet𝔜 (𝔜 .sat) (idHom str𝔜) ⟩
-      idHom str𝔜 ∎
-      where
-      lemma : ϕ1∘ϕ2 .fst ∘ 𝔜 .η ≡ idHom str𝔜 .fst ∘ 𝔜 .η
-      lemma =
-          ϕ1 .fst ∘ ((ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst) ∘ 𝔜 .η)
-        ≡⟨ congS (ϕ1 .fst ∘_) (ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)) ⟩
-          ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst ∘ 𝔛 .η
-        ≡⟨ ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) ⟩
-          𝔜 .η ∎
+        ϕ1 .fst ∘ ((ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst) ∘ 𝔜 .η)
+      ≡⟨ congS (ϕ1 .fst ∘_) (ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)) ⟩
+        ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst ∘ 𝔛 .η
+      ≡⟨ ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) ⟩
+        𝔜 .η ∎
 
-    ϕ2∘ϕ1≡ : ϕ2∘ϕ1 ≡ idHom str𝔛
+    ϕ2∘ϕ1≡ : ϕ2∘ϕ1 .fst ∘ 𝔛 .η ≡ idHom str𝔛 .fst ∘ 𝔛 .η
     ϕ2∘ϕ1≡ =
-      ϕ2∘ϕ1 ≡⟨ sym (ext-β 𝔛 isSet𝔛 (𝔛 .sat) ϕ2∘ϕ1) ⟩
-      ext 𝔛 isSet𝔛 (𝔛 .sat) (ϕ2∘ϕ1 .fst ∘ η 𝔛) ≡⟨ congS (ext 𝔛 isSet𝔛 (𝔛 .sat)) lemma ⟩
-      ext 𝔛 isSet𝔛 (𝔛 .sat) (idHom str𝔛 .fst ∘ 𝔛 .η) ≡⟨ ext-β 𝔛 isSet𝔛 (𝔛 .sat) (idHom str𝔛) ⟩
-      idHom str𝔛 ∎
-      where
-      lemma : ϕ2∘ϕ1 .fst ∘ 𝔛 .η ≡ idHom str𝔛 .fst ∘ 𝔛 .η
-      lemma =
-          ϕ2 .fst ∘ ((ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst) ∘ 𝔛 .η)
-        ≡⟨ congS (ϕ2 .fst ∘_) (ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)) ⟩
-          ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst ∘ 𝔜 .η
-        ≡⟨ ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) ⟩
-          𝔛 .η ∎
+        ϕ2 .fst ∘ ((ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst) ∘ 𝔛 .η)
+      ≡⟨ congS (ϕ2 .fst ∘_) (ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)) ⟩
+        ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst ∘ 𝔜 .η
+      ≡⟨ ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) ⟩
+        𝔛 .η ∎
 
     freeIso : Iso (𝔛 .F A) (𝔜 .F A)
-    freeIso = iso (ϕ1 .fst) (ϕ2 .fst) (λ x -> congS (λ f -> f .fst x) (ϕ1∘ϕ2≡)) (λ x -> congS (λ f -> f .fst x) (ϕ2∘ϕ1≡))
+    freeIso = iso (ϕ1 .fst) (ϕ2 .fst)
+      (λ x -> congS (λ f -> f .fst x) (hom≡ 𝔜 isSet𝔜 (𝔜 .sat) ϕ1∘ϕ2 (idHom str𝔜) ϕ1∘ϕ2≡))
+      (λ x -> congS (λ f -> f .fst x) (hom≡ 𝔛 isSet𝔛 (𝔛 .sat) ϕ2∘ϕ1 (idHom str𝔛) ϕ2∘ϕ1≡))
 
   -- Alternative definition where F is paramterized, used for transporting Free proofs
   record FreeAux (ℓ ℓ' : Level) (h : HLevel) (F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
