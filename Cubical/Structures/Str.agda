@@ -35,10 +35,9 @@ module _ {f a x y : Level} {σ : Sig f a} (𝔛 : struct x σ) (𝔜 : struct y 
   structHom≡ (g-f , g-hom) (h-f , h-hom) isSetY =
     Σ≡Prop (\fun -> isPropΠ \f -> isPropΠ \o -> isSetY (𝔜 .alg (f , fun ∘ o)) (fun (𝔛 .alg (f , o))))
 
-module _ {f a x : Level} {σ : Sig f a} (𝔛 : struct x σ) where
+module _  {f a x : Level} {σ : Sig f a} (𝔛 : struct x σ) where
   idHom : structHom 𝔛 𝔛
-  fst idHom = idfun _
-  snd idHom sym i = refl
+  idHom = idfun _ , \f i -> refl
 
 module _  {f a x y z : Level} {σ : Sig f a} (𝔛 : struct x σ) (𝔜 : struct y σ) (ℨ : struct z σ) where
   structHom∘ : (g : structHom 𝔜 ℨ) -> (h : structHom 𝔛 𝔜) -> structHom 𝔛 ℨ
