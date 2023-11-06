@@ -37,19 +37,66 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
     ext : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
           (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
        -> (hom : X -> 𝔜 .car) -> structHom < F X , α > 𝔜
-    ext h ϕ = invIsEq (isFree h ϕ)
+    ext H ϕ = invIsEq (isFree H ϕ)
 
     ext-β : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (Hom : structHom < F X , α > 𝔜)
          -> ext H ϕ (Hom .fst ∘ η) ≡ Hom
-    ext-β h ϕ Hom = retIsEq (isFree h ϕ) Hom
+    ext-β H ϕ = retIsEq (isFree H ϕ)
 
     ext-η : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
             (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε) (h : X -> 𝔜 .car)
          -> (ext H ϕ h .fst) ∘ η ≡ h
-    ext-η H ϕ h = secIsEq (isFree H ϕ) h
+    ext-η H ϕ = secIsEq (isFree H ϕ)
 
+    hom≡ : {X : Type ℓ} {𝔜 : struct (ℓ-max ℓ' ns) σ}
+        -> (H : isOfHLevel h (𝔜 .car)) (ϕ : 𝔜 ⊨ ε)
+        -> (H1 H2 : structHom < F X , α > 𝔜)
+        -> H1 .fst ∘ η ≡ H2 .fst ∘ η
+        -> H1 ≡ H2
+    hom≡ H ϕ H1 H2 α = sym (ext-β H ϕ H1) ∙ cong (ext H ϕ) α ∙ ext-β H ϕ H2
+
+  open Free
+  module _ {ℓ} {A : Type ℓ} (𝔛 : Free ℓ ℓ 2) (𝔜 : Free ℓ ℓ 2) (isSet𝔛 : isSet (𝔛 .F A)) (isSet𝔜 : isSet (𝔜 .F A)) where
+    private
+      str𝔛 : struct (ℓ-max (ℓ-max n s) ℓ) σ
+      str𝔛 = < 𝔛 .F A , 𝔛 .α >
+
+      str𝔜 : struct (ℓ-max (ℓ-max n s) ℓ) σ
+      str𝔜 = < 𝔜 .F A , 𝔜 .α >
     
+      ϕ1 : structHom str𝔛 str𝔜
+      ϕ1 = ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)
+
+      ϕ2 : structHom str𝔜 str𝔛
+      ϕ2 = ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)
+
+      ϕ1∘ϕ2 : structHom str𝔜 str𝔜
+      ϕ1∘ϕ2 = structHom∘ str𝔜 str𝔛 str𝔜 ϕ1 ϕ2
+
+      ϕ2∘ϕ1 : structHom str𝔛 str𝔛
+      ϕ2∘ϕ1 = structHom∘ str𝔛 str𝔜 str𝔛 ϕ2 ϕ1
+
+      ϕ1∘ϕ2≡ : ϕ1∘ϕ2 .fst ∘ 𝔜 .η ≡ idHom str𝔜 .fst ∘ 𝔜 .η
+      ϕ1∘ϕ2≡ =
+          ϕ1 .fst ∘ ((ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst) ∘ 𝔜 .η)
+        ≡⟨ congS (ϕ1 .fst ∘_) (ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)) ⟩
+          ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst ∘ 𝔛 .η
+        ≡⟨ ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) ⟩
+          𝔜 .η ∎
+
+      ϕ2∘ϕ1≡ : ϕ2∘ϕ1 .fst ∘ 𝔛 .η ≡ idHom str𝔛 .fst ∘ 𝔛 .η
+      ϕ2∘ϕ1≡ =
+          ϕ2 .fst ∘ ((ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst) ∘ 𝔛 .η)
+        ≡⟨ congS (ϕ2 .fst ∘_) (ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)) ⟩
+          ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst ∘ 𝔜 .η
+        ≡⟨ ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) ⟩
+          𝔛 .η ∎
+
+    freeIso : Iso (𝔛 .F A) (𝔜 .F A)
+    freeIso = iso (ϕ1 .fst) (ϕ2 .fst)
+      (λ x -> congS (λ f -> f .fst x) (hom≡ 𝔜 isSet𝔜 (𝔜 .sat) ϕ1∘ϕ2 (idHom str𝔜) ϕ1∘ϕ2≡))
+      (λ x -> congS (λ f -> f .fst x) (hom≡ 𝔛 isSet𝔛 (𝔛 .sat) ϕ2∘ϕ1 (idHom str𝔛) ϕ2∘ϕ1≡))
 
   -- Alternative definition where F is paramterized, used for transporting Free proofs
   record FreeAux (ℓ ℓ' : Level) (h : HLevel) (F : (X : Type ℓ) -> Type (ℓ-max ℓ ns)) : Type (ℓ-suc (ℓ-max ℓ' (ℓ-max ℓ (ℓ-max f (ℓ-max a (ℓ-max e ns)))))) where
@@ -79,6 +126,7 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
     FreeAux.α (snd (from free)) = Free.α free
     FreeAux.sat (snd (from free)) = Free.sat free
     FreeAux.isFree (snd (from free)) = Free.isFree free
+
 
 -- -- constructions of a free structure on a signature and equations
 -- -- TODO: generalise the universe levels!!
@@ -147,4 +195,3 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
 --   --   private
 --   --     Y = 𝔜 .fst
 --   --     β = 𝔜 .snd
- 
