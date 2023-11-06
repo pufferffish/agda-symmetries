@@ -23,6 +23,8 @@ open import Cubical.Structures.Arity
 open import Cubical.Structures.Set.Mon.Array
 open import Cubical.Structures.Set.Mon.List
 
+open Iso
+
 private
   variable
     ℓ : Level
@@ -52,4 +54,10 @@ to-list' : structHom < Array ℕ , MonDef.Free.α (arrayDef' {ℓ' = ℓ-zero}) 
 to-list' = MonDef.Free.ext arrayDef' (isOfHLevelList 0 isSetℕ) list-sat [_]
 
 _ : to-list' .fst an-array ≡ want
+_ = refl
+
+to-list'' : Array ℕ -> List ℕ
+to-list'' = MonDef.freeIso arrayDef listDef (isSetArray isSetℕ) (isOfHLevelList 0 isSetℕ) .fun
+
+_ : to-list'' an-array ≡ want
 _ = refl

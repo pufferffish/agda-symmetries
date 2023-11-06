@@ -57,40 +57,41 @@ module Definition {f a e n s : Level} (σ : Sig f a) (τ : EqSig e (ℓ-max n s)
     hom≡ H ϕ H1 H2 α = sym (ext-β H ϕ H1) ∙ cong (ext H ϕ) α ∙ ext-β H ϕ H2
 
   open Free
-  module FreeIso {ℓ} {A : Type ℓ} (𝔛 : Free ℓ ℓ 2) (𝔜 : Free ℓ ℓ 2) (isSet𝔛 : isSet (𝔛 .F A)) (isSet𝔜 : isSet (𝔜 .F A)) where
-    str𝔛 : struct (ℓ-max (ℓ-max n s) ℓ) σ
-    str𝔛 = < 𝔛 .F A , 𝔛 .α >
+  module _ {ℓ} {A : Type ℓ} (𝔛 : Free ℓ ℓ 2) (𝔜 : Free ℓ ℓ 2) (isSet𝔛 : isSet (𝔛 .F A)) (isSet𝔜 : isSet (𝔜 .F A)) where
+    private
+      str𝔛 : struct (ℓ-max (ℓ-max n s) ℓ) σ
+      str𝔛 = < 𝔛 .F A , 𝔛 .α >
 
-    str𝔜 : struct (ℓ-max (ℓ-max n s) ℓ) σ
-    str𝔜 = < 𝔜 .F A , 𝔜 .α >
+      str𝔜 : struct (ℓ-max (ℓ-max n s) ℓ) σ
+      str𝔜 = < 𝔜 .F A , 𝔜 .α >
     
-    ϕ1 : structHom str𝔛 str𝔜
-    ϕ1 = ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)
+      ϕ1 : structHom str𝔛 str𝔜
+      ϕ1 = ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)
 
-    ϕ2 : structHom str𝔜 str𝔛
-    ϕ2 = ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)
+      ϕ2 : structHom str𝔜 str𝔛
+      ϕ2 = ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)
 
-    ϕ1∘ϕ2 : structHom str𝔜 str𝔜
-    ϕ1∘ϕ2 = structHom∘ str𝔜 str𝔛 str𝔜 ϕ1 ϕ2
+      ϕ1∘ϕ2 : structHom str𝔜 str𝔜
+      ϕ1∘ϕ2 = structHom∘ str𝔜 str𝔛 str𝔜 ϕ1 ϕ2
 
-    ϕ2∘ϕ1 : structHom str𝔛 str𝔛
-    ϕ2∘ϕ1 = structHom∘ str𝔛 str𝔜 str𝔛 ϕ2 ϕ1
+      ϕ2∘ϕ1 : structHom str𝔛 str𝔛
+      ϕ2∘ϕ1 = structHom∘ str𝔛 str𝔜 str𝔛 ϕ2 ϕ1
 
-    ϕ1∘ϕ2≡ : ϕ1∘ϕ2 .fst ∘ 𝔜 .η ≡ idHom str𝔜 .fst ∘ 𝔜 .η
-    ϕ1∘ϕ2≡ =
-        ϕ1 .fst ∘ ((ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst) ∘ 𝔜 .η)
-      ≡⟨ congS (ϕ1 .fst ∘_) (ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)) ⟩
-        ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst ∘ 𝔛 .η
-      ≡⟨ ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) ⟩
-        𝔜 .η ∎
+      ϕ1∘ϕ2≡ : ϕ1∘ϕ2 .fst ∘ 𝔜 .η ≡ idHom str𝔜 .fst ∘ 𝔜 .η
+      ϕ1∘ϕ2≡ =
+          ϕ1 .fst ∘ ((ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst) ∘ 𝔜 .η)
+        ≡⟨ congS (ϕ1 .fst ∘_) (ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η)) ⟩
+          ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst ∘ 𝔛 .η
+        ≡⟨ ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) ⟩
+          𝔜 .η ∎
 
-    ϕ2∘ϕ1≡ : ϕ2∘ϕ1 .fst ∘ 𝔛 .η ≡ idHom str𝔛 .fst ∘ 𝔛 .η
-    ϕ2∘ϕ1≡ =
-        ϕ2 .fst ∘ ((ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst) ∘ 𝔛 .η)
-      ≡⟨ congS (ϕ2 .fst ∘_) (ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)) ⟩
-        ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst ∘ 𝔜 .η
-      ≡⟨ ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) ⟩
-        𝔛 .η ∎
+      ϕ2∘ϕ1≡ : ϕ2∘ϕ1 .fst ∘ 𝔛 .η ≡ idHom str𝔛 .fst ∘ 𝔛 .η
+      ϕ2∘ϕ1≡ =
+          ϕ2 .fst ∘ ((ext 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η) .fst) ∘ 𝔛 .η)
+        ≡⟨ congS (ϕ2 .fst ∘_) (ext-η 𝔛 isSet𝔜 (𝔜 .sat) (𝔜 .η)) ⟩
+          ext 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) .fst ∘ 𝔜 .η
+        ≡⟨ ext-η 𝔜 isSet𝔛 (𝔛 .sat) (𝔛 .η) ⟩
+          𝔛 .η ∎
 
     freeIso : Iso (𝔛 .F A) (𝔜 .F A)
     freeIso = iso (ϕ1 .fst) (ϕ2 .fst)
