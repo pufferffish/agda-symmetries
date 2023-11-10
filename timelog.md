@@ -96,3 +96,47 @@ Prove Array's monoidal properties, generalize PList to any relations
 * 21/10/2023 [8 hours]
 Prove Array is a free monoid and generalize QList to QFreeMon
 
+* 22/10/2023 [5 hours]
+Refactor PList in terms of QFreeMon, defining symmetric action on array and attempt to prove it satisfies permutation relation
+
+* 23/10/2023 [4 hours]
+Prove all lemmas needed to show SymmAction is a permutation relation except `f-≅ₚ`, got stuck on `f-≅ₚ`
+
+* 24/10/2023 [2 hours]
+Experiments with Lehmer Codes to attempt to prove `f-≅ₚ`
+
+* 25/10/2023 [6 hours]
+Meeting with Dr. Vikraman Choudhury to discuss tasks for the week, and also the `f-≅ₚ` proof
+
+* 26/10/2023 [2 hours]
+Prove Array is isomorphic to List
+
+* 27/10/2023 [2 hours]
+Transport List's Free proof to Array by isomorphism and create experiments to see if Agda can compute it
+
+* 28/10/2023 [3 hours]
+Clean up Array's proof to make it more translatable to paper
+
+* 30/10/2023 [6 hours]
+Meeting with Dr. Vikraman Choudhury to discuss strategies to prove SymmAction is a permutation relation, clean up and simplify the existing proofs in Bag
+
+* 31/10/2023 [6 hours]
+Prove `f-≅ₚ` when `aut 0 = 0`, also experiment with Lehmer Codes
+
+* 01/11/2023 [6 hours]
+Get rid of Lehmer Codes, refactor `permuteInvariant`, worked out a strategy to prove cases where `aut 0 != 0`, and defined `swapAut`
+
+* 02/11/2023 [6 hours]
+Refactor, simplify, and complete `permuteInvariant`. Also minor clean up in the rest of `Bag`
+
+* 03/11/2023 [3 hours]
+Refactor `Bag` lemmas to use existing helper lemmas instead, attempt to define isomorphism from `Bag` to `CList`
+
+* 04/11/2023 [4 hours]
+Prove some trivial theorems about algebras with no structures, prove two free objects on the same set are isomorphic
+
+* 05/11/2023 [30 minutes]
+Slight refactor on the free object isomorphism proof
+
+* 06/11/2023 [10 minutes]
+Another slight refactor on the free object isomorphism proof
