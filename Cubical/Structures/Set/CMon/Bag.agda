@@ -467,7 +467,23 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     let q : σ ≡ idIso
         q = isContr→isProp isContrFin1≅ σ idIso
     in congS (tab 1) (p ∙ congS (g ∘_) (congS Iso.fun q))
-  toCList-eq (suc (suc n)) f g σ p = {!!}
+  toCList-eq (suc (suc n)) f g σ p =
+    decRec case1 case2 (discreteFin (σ .fun fzero) fzero)
+    where
+      case1 : σ .fun fzero ≡ fzero -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      case1 ϕ =
+        tab (suc (suc n)) f ≡⟨⟩
+        f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (_∷ tab (suc n) (f ∘ fsuc)) (funExt⁻ p fzero) ⟩
+        g (σ .fun fzero) ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\k -> g k ∷ tab (suc n) (f ∘ fsuc)) ϕ ⟩
+        g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\h -> g fzero ∷ tab (suc n) (h ∘ fsuc)) p ⟩
+        g fzero ∷ tab (suc n) (g ∘ σ .fun ∘ fsuc) ≡⟨ TODO ⟩
+        g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
+        tab (suc (suc n)) g ∎
+      case2 : ¬ σ .fun fzero ≡ fzero -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      case2 ϕ =
+        tab (suc (suc n)) f ≡⟨⟩
+        f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ TODO ⟩
+        tab (suc (suc n)) g ∎
 
   -- toCList : Bag A -> CList A
   -- toCList Q.[ (n , f) ] = tab n f
