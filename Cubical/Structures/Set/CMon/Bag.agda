@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 -- Definition taken from https://drops.dagstuhl.de/opus/volltexte/2023/18395/pdf/LIPIcs-ITP-2023-20.pdf
 module Cubical.Structures.Set.CMon.Bag where
@@ -449,16 +449,31 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   tab : ∀ n -> (Fin n -> A) -> CList A
   tab = curry (ListToCList ∘ arrayIsoToList .fun)
 
+  isContr≅ : ∀ {ℓ} {A : Type ℓ} -> isContr A -> isContr (Iso A A)
+  isContr≅ ϕ = inhProp→isContr idIso \σ1 σ2 ->
+    SetsIso≡ (isContr→isOfHLevel 2 ϕ) (isContr→isOfHLevel 2 ϕ)
+             (funExt \x -> isContr→isProp ϕ (σ1 .fun x) (σ2 .fun x))
+             (funExt \x -> isContr→isProp ϕ (σ1 .inv x) (σ2 .inv x))
+
+  isContrFin1≅ : isContr (Iso (Fin 1) (Fin 1))
+  isContrFin1≅ = isContr≅ isContrFin1
+
   toCList-eq : ∀ n
-             -> (f : Fin n -> A) (g : Fin n -> A) (σ : Iso (Fin n) (Fin n)) (r : g ≡ f ∘ σ .fun) 
+             -> (f : Fin n -> A) (g : Fin n -> A) (σ : Iso (Fin n) (Fin n)) (p : f ≡ g ∘ σ .fun)
              -> tab n f ≡ tab n g
-  toCList-eq = {!!}
+  toCList-eq zero f g σ p =
+    refl
+  toCList-eq (suc zero) f g σ p =
+    let q : σ ≡ idIso
+        q = isContr→isProp isContrFin1≅ σ idIso
+    in congS (tab 1) (p ∙ congS (g ∘_) (congS Iso.fun q))
+  toCList-eq (suc (suc n)) f g σ p = {!!}
 
-  toCList : Bag A -> CList A
-  toCList Q.[ (n , f) ] = tab n f
-  toCList (eq/ (n , f) (m , g) r i) = {!!}
-  toCList (squash/ xs ys p q i j) =
-    isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j  
+  -- toCList : Bag A -> CList A
+  -- toCList Q.[ (n , f) ] = tab n f
+  -- toCList (eq/ (n , f) (m , g) r i) = {!!}
+  -- toCList (squash/ xs ys p q i j) =
+  --   isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
 
-  toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
-  toCList-fromCList x = {!`  !}
+  -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
+  -- toCList-fromCList x = {!`  !}
