@@ -18,6 +18,7 @@ import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.CMon.Desc as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Set.Mon.Array as A
+open import Cubical.Structures.Set.Mon.List as L
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
@@ -430,7 +431,6 @@ Bag A = BagDef.Free.F bagFreeDef A
 postulate
   TODO : ∀ {ℓ} {A : Type ℓ} -> A
 
-
 -- Proof taken from https://arxiv.org/pdf/2110.05412.pdf
 module IsoToCList {ℓ} (A : Type ℓ) where
   open import Cubical.Structures.Set.CMon.CList as CL
@@ -442,152 +442,21 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   fromCList : CList A -> Bag A
   fromCList = CL.Free._♯ squash/ (BagDef.Free.sat bagFreeDef) (BagDef.Free.η bagFreeDef)
 
-  tabulate' : ∀ n -> (Fin n -> A) -> CList A
-  tabulate' zero ^a = []
-  tabulate' (suc n) ^a = ^a fzero ∷ tabulate' n (^a ∘ fsuc)
+  ListToCList : List A -> CList A
+  ListToCList = (_∷ []) ♯
+    where _♯ = (L.Free._♯ isSetCList) (M.cmonSatMon CL.clist-sat)
 
-  except : ∀ {o} -> Fin (suc o) -> (Fin o -> Fin (suc o))
-  except (t , r) (j , s) with j ≤? t
-  ... | inl _ = j , <-trans s (0 , refl)
-  ... | inr _ = fsuc (j , s)
-
-  except-suc≡ : ∀ {t o : ℕ} (p : suc t < suc (suc o))
-              -> (x : Fin o)
-              -> except ((suc t , p)) (fsuc x) ≡ fsuc (except (t , pred-≤-pred p) x)
-  except-suc≡ {t = t} _ (k , p) with suc k ≤? suc t | k ≤? t
-  ... | inl q | inl r = Σ≡Prop (λ _ -> isProp≤) refl
-  ... | inr q | inr r = Σ≡Prop (λ _ -> isProp≤) refl
-  ... | inr q | inl r = ⊥.rec (<-asym q r)
-  ... | inl q | inr r = ⊥.rec (<-asym q (suc-≤-suc r))
-
-
-  postulate
-    isFinZero : ∀ {n} -> (k : Fin (suc n)) -> (k ≡ fzero) ⊎ (Σ[ w ∈ Fin n ] (k ≡ fsuc w))
+  tab : ∀ n -> (Fin n -> A) -> CList A
+  tab = curry (ListToCList ∘ arrayIsoToList .fun)
 
   toCList-eq : ∀ n
              -> (f : Fin n -> A) (g : Fin n -> A) (σ : Iso (Fin n) (Fin n)) (r : g ≡ f ∘ σ .fun) 
-             -> tabulate' n f ≡ tabulate' n g
-  toCList-eq zero f g σ r = refl
-  toCList-eq (suc n) f g σ r = ⊎.rec
-    (λ σ0≡0 ->
-      f fzero ∷ tabulate' n (λ x → f (fsuc x))
-    ≡⟨ congS (λ z -> f z ∷ tabulate' n (λ x → f (fsuc x))) (sym σ0≡0) ⟩
-      f (σ .fun fzero) ∷ tabulate' n (λ x → f (fsuc x))
-    ≡⟨ congS (λ z -> z fzero ∷ tabulate' n (λ x → f (fsuc x))) (sym r) ⟩
-      g fzero ∷ tabulate' n (λ x → f (fsuc x))
-    ≡⟨ congS (g fzero ∷_) (toCList-eq n (f ∘ fsuc) (g ∘ fsuc) (punchOutZero' σ σ0≡0) TODO) ⟩ 
-      g fzero ∷ tabulate' n (λ x → g (fsuc x))
-    ≡⟨⟩
-      tabulate' (suc n) g ∎
-    ) 
-    (λ (k , σ0≡sk) ->
-      comm (f fzero) (g fzero) {!tabulate' n (g ∘ fsuc ∘ except k) !} {!   !} {!   !}
-    )
-    (isFinZero (σ .fun fzero))
-
-
-  -- {-# TERMINATING #-}
-  -- toCList-eq : ∀ n m
-  --            -> (f : Fin n -> A) (g : Fin m -> A) (r : (n , f) ≈ (m , g))
-  --            -> tabulate' n f ≡ tabulate' m g
-  -- toCList-eq (suc n) zero f g (σ , p) = ⊥.rec (snotz (≈-length σ))
-  -- toCList-eq zero (suc zero) f g (σ , p) = ⊥.rec (znots (≈-length σ))
-  -- toCList-eq (suc (suc n)) (suc zero) f g (σ , p) = ⊥.rec (snotz (injSuc (≈-length σ)))
-  -- toCList-eq zero (suc (suc m)) f g (σ , p) = ⊥.rec (znots (≈-length σ))
-  -- toCList-eq (suc zero) (suc (suc m)) f g (σ , p) = ⊥.rec (znots (injSuc (≈-length σ))) 
-  -- toCList-eq zero zero f g (σ , p) = refl
-  -- toCList-eq (suc zero) (suc zero) f g (σ , p) =
-  --   f fzero ∷ [] ≡⟨ congS (λ h -> h fzero ∷ []) p ⟩
-  --   g (σ .fun fzero) ∷ [] ≡⟨ congS (λ z -> g z ∷ []) (isContr→isProp isContrFin1 _ _) ⟩
-  --   g fzero ∷ [] ∎
-  -- toCList-eq (suc (suc n)) (suc (suc m)) f g (σ , p) with σ .fun fzero | inspect (σ .fun) fzero
-  -- ... | zero , q | [ σ-path ]ᵢ =
-  --     f fzero ∷ tabulate' (suc n) (f ∘ fsuc)
-  --   ≡⟨ congS (λ h -> h fzero ∷ tabulate' (suc n) (f ∘ fsuc)) p ⟩
-  --     g (σ .fun fzero) ∷ tabulate' (suc n) (f ∘ fsuc)
-  --   ≡⟨ congS (λ z -> g z ∷ tabulate' (suc n) (f ∘ fsuc)) σ-path ⟩
-  --     g (zero , q) ∷ tabulate' (suc n) (f ∘ fsuc)
-  --   ≡⟨ cong₂ _∷_ (congS g (Σ≡Prop (λ _ -> isProp≤) refl)) (toCList-eq (suc n) (suc m) (f ∘ fsuc) (g ∘ fsuc) (≈-fsuc-on-0 n m f g (σ , p) σ-zero)) ⟩
-  --     g fzero ∷ tabulate' (suc m) (g ∘ fsuc)
-  --   ≡⟨⟩
-  --     tabulate' (suc (suc m)) g ∎
-  --   where
-  --   σ-zero : σ .fun fzero ≡ fzero
-  --   σ-zero = σ-path ∙ Σ≡Prop (λ _ -> isProp≤) refl
-  -- ... | suc k , q | [ σ-path ]ᵢ =
-  --   comm (f fzero) (g fzero) tail lemma-α lemma-β
-  --   where
-  --   n≡m : n ≡ m
-  --   n≡m = injSuc (injSuc (≈-length σ))
-
-  --   k<sucn : k < suc n
-  --   k<sucn = subst (k <_) (congS suc (sym n≡m)) (pred-≤-pred q)
-
-  --   tail : CList A
-  --   tail = tabulate' n (g ∘ fsuc ∘ finSubst (congS suc n≡m) ∘ except (k , k<sucn))
-
-  --   aut-α : (suc n , f ∘ fsuc) ≈ (suc m , g ∘ except (σ .fun fzero))
-  --   aut-α = {!   !}
-
-  --   lemma-α-γ : ∀ x (r : x < n)
-  --             -> fst (except (k , pred-≤-pred q) (x , subst (_<_ x) n≡m r))
-  --              ≡ fst (except (k , k<sucn) (x , r))
-  --   lemma-α-γ x r with x ≤? k
-  --   ... | inl s = refl
-  --   ... | inr s = refl
-
-  --   lemma-γ : _
-  --   lemma-γ (x , r) =
-  --       _
-  --     ≡⟨ sym (transport-filler _ _) ⟩
-  --       g (fsuc (except (k , pred-≤-pred q) (finSubst n≡m (x , r))))
-  --     ≡⟨ congS (g ∘ fsuc) (Σ≡Prop (λ _ -> isProp≤) (lemma-α-γ x r)) ⟩
-  --       g (fsuc (finSubst (λ i → suc (n≡m i)) (except (k , k<sucn) (x , r)))) ∎
-
-  --   lemma-α : tabulate' (suc n) (f ∘ fsuc) ≡ g fzero ∷ tail
-  --   lemma-α =
-  --       tabulate' (suc n) (f ∘ fsuc)
-  --     ≡⟨ toCList-eq (suc n) (suc m) (f ∘ fsuc) (g ∘ except (σ .fun fzero)) aut-α ⟩
-  --       g (except (σ .fun fzero) fzero) ∷ tabulate' m (g ∘ except (σ .fun fzero) ∘ fsuc)
-  --     ≡⟨ congS (λ z -> g (except z fzero) ∷ tabulate' m (g ∘ except z ∘ fsuc)) σ-path ⟩
-  --       g (zero , _) ∷ tabulate' m (g ∘ except (suc k , q) ∘ fsuc)
-  --     ≡⟨ cong₂ (λ y z -> g y ∷ tabulate' m (g ∘ z)) (Σ≡Prop (λ _ -> isProp≤) refl) (funExt (except-suc≡ q)) ⟩
-  --       g fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
-  --     ≡⟨ cong₂ (λ y z -> g fzero ∷ tabulate' y z) (sym n≡m) (toPathP (funExt lemma-γ)) ⟩
-  --       g fzero ∷ tail ∎    
-
-  --   apply-β-α : Fin (suc m) -> A
-  --   apply-β-α (zero , r) = g (σ .fun fzero)
-  --   apply-β-α (suc x , r) = g (fsuc (except (k , pred-≤-pred q) (x , pred-≤-pred r)))
-
-  --   transform-β-α : Fin m -> Fin m
-  --   transform-β-α (x , r) = x , pred-≤-pred (snd (fsuc (x , r)))
-
-  --   transform-β-α≡id : transform-β-α ≡ idfun _
-  --   transform-β-α≡id = funExt (λ _ -> Σ≡Prop (λ _ -> isProp≤) refl)
-
-  --   aut-β : (suc m , g ∘ fsuc) ≈ (suc m , apply-β-α)
-  --   aut-β = {!   !}
-
-  --   lemma-β : tabulate' (suc m) (g ∘ fsuc) ≡ f fzero ∷ tail
-  --   lemma-β =
-  --       tabulate' (suc m) (g ∘ fsuc)
-  --     ≡⟨ toCList-eq (suc m) (suc m) (g ∘ fsuc) apply-β-α aut-β ⟩
-  --       tabulate' (suc m) apply-β-α
-  --     ≡⟨⟩
-  --       g (σ .fun fzero) ∷ tabulate' m (λ x → g (fsuc (except (k , pred-≤-pred q) (fst x , pred-≤-pred (snd (fsuc x))))))
-  --     ≡⟨⟩
-  --       g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q) ∘ transform-β-α)
-  --     ≡⟨ congS (λ z -> g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q) ∘ z)) transform-β-α≡id ⟩
-  --       g (σ .fun fzero) ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
-  --     ≡⟨ congS (λ h -> h fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))) (sym p) ⟩
-  --       f fzero ∷ tabulate' m (g ∘ fsuc ∘ except (k , pred-≤-pred q))
-  --     ≡⟨ cong₂ (λ y z -> f fzero ∷ tabulate' y z) (sym n≡m) (toPathP (funExt lemma-γ)) ⟩
-  --       f fzero ∷ tail ∎    
+             -> tab n f ≡ tab n g
+  toCList-eq = {!!}
 
   toCList : Bag A -> CList A
-  toCList Q.[ (n , f) ] = tabulate' n f
-  toCList (eq/ (n , f) (m , g) r i) = {!   !}
+  toCList Q.[ (n , f) ] = tab n f
+  toCList (eq/ (n , f) (m , g) r i) = {!!}
   toCList (squash/ xs ys p q i j) =
     isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j  
 
