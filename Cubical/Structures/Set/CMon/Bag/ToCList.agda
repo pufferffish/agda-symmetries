@@ -38,6 +38,53 @@ private
     A : Type ℓ
     n : ℕ
 
+-- Copied out from LehmerCode because there are hidden inside a where clause
+module _ {n : ℕ} where
+  equivIn : (f : Fin (suc n) ≃ Fin (suc n))
+          → FinExcept fzero ≃ FinExcept (equivFun f fzero)
+  equivIn f =
+    FinExcept fzero
+      ≃⟨ Σ-cong-equiv-snd (λ _ → preCompEquiv (invEquiv (congEquiv f))) ⟩
+    (Σ[ x ∈ Fin (suc n) ] ¬ ffun fzero ≡ ffun x)
+      ≃⟨ Σ-cong-equiv-fst f ⟩
+    FinExcept (ffun fzero)
+      ■ where ffun = equivFun f
+
+  equivOut : ∀ {k} → FinExcept (fzero {k = n}) ≃ FinExcept k
+           → Fin (suc n) ≃ Fin (suc n)
+  equivOut {k = k} f =
+    Fin (suc n)
+      ≃⟨ invEquiv projectionEquiv ⟩
+    Unit ⊎ FinExcept fzero
+      ≃⟨ isoToEquiv (⊎.⊎Iso idIso (equivToIso f)) ⟩
+    Unit ⊎ FinExcept k
+      ≃⟨ projectionEquiv ⟩
+    Fin (suc n)
+      ■
+
+  equivOutChar : ∀ {k} {f} (x : FinExcept fzero) → equivFun (equivOut {k = k} f) (fst x) ≡ fst (equivFun f x)
+  equivOutChar {f = f} x with discreteFin fzero (fst x)
+  ... | (yes y) = ⊥.rec (x .snd y)
+  ... | (no n) = cong (λ x′ → fst (equivFun f x′)) (toℕExc-injective refl)
+
+  i : Iso (Fin (suc n) ≃ Fin (suc n))
+          (Σ[ k ∈ Fin (suc n) ] (FinExcept (fzero {k = n}) ≃ FinExcept k))
+  Iso.fun i f = equivFun f fzero , equivIn f
+  Iso.inv i (k , f) = equivOut f
+  Iso.rightInv i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
+     toℕExc-injective (cong toℕ (equivOutChar {f = f} x))))
+  Iso.leftInv i f = equivEq (funExt goal) where
+    goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
+    goal x = case fsplit x return (λ _ → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) of λ
+      { (inl xz) → subst (λ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) xz refl
+      ; (inr (_ , xn)) → equivOutChar {f = equivIn f} (x , fznotfs ∘ (_∙ sym xn))
+      }
+
+  ii : ∀ k → (FinExcept fzero ≃ FinExcept k) ≃ (Fin n ≃ Fin n)
+  ii k = (FinExcept fzero ≃ FinExcept k) ≃⟨ cong≃ (λ R → FinExcept (fzero {k = n}) ≃ R) punchOutEquiv ⟩
+         (FinExcept fzero ≃ Fin n)       ≃⟨ cong≃ (λ L → L ≃ Fin n) punchOutEquiv  ⟩
+         (Fin n ≃ Fin n)                 ■
+
 fsuc≡punchIn : (k : Fin n) -> fsuc k ≡ fst (punchIn fzero k)
 fsuc≡punchIn k = refl
 
@@ -149,4 +196,4 @@ module IsoToCList {ℓ} (A : Type ℓ) where
 
   -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
   -- toCList-fromCList x = {!`  !}
- 
+   
