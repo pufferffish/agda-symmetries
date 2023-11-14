@@ -155,11 +155,6 @@ punchOutZero {n = n} σ p =
     ≡⟨ fpred∘fsuc x ⟩
       x ∎
 
-postulate
-  punchOutZero' : ∀ {n} (σ : Iso (Fin (suc n)) (Fin (suc n))) -> σ .fun fzero ≡ fzero
-                -> Iso (Fin n) (Fin n)
-
-
 punchOutZero≡fsuc : ∀ {n} (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) -> (σ-0≡0 : σ .fun fzero ≡ fzero)
                   -> (w : Fin (suc n)) -> σ .fun (fsuc w) ≡ fsuc (punchOutZero σ σ-0≡0 .fun w)
 punchOutZero≡fsuc σ σ-0≡0 w = sym (fsuc∘fpred _ (autSucNot0 σ w σ-0≡0))
@@ -177,33 +172,15 @@ Fin≅ {n = n} {m = m} p = iso
 Fin≅-inj : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m
 Fin≅-inj {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
 
-≈-fsuc-on-0 : ∀ n m
-          -> (f : Fin (suc (suc n)) -> A) (g : Fin (suc (suc m)) -> A)
-          -> (r : (suc (suc n) , f) ≈ (suc (suc m) , g))
-          -> (r .fst) .fun fzero ≡ fzero
-          -> (suc n , f ∘ fsuc) ≈ (suc m , g ∘ fsuc)
-≈-fsuc-on-0 n m f g (σ , p) q =
-  compIso (Fin≅ (injSuc (Fin≅-inj σ))) (punchOutZero τ lemma-α) , sym (funExt lemma-β)
-  where
-  τ : _
-  τ = compIso (Fin≅ (sym (Fin≅-inj σ))) σ
-  lemma-α : _
-  lemma-α =
-    σ .fun (finSubst (sym (Fin≅-inj σ)) fzero) ≡⟨⟩
-    σ .fun (0 , _) ≡⟨ congS (σ .fun) (Fin-fst-≡ refl) ⟩
-    σ .fun fzero ≡⟨ q ⟩
-    fzero ∎
-  lemma-β : _
-  lemma-β (k , r) =
-      g (fsuc ((punchOutZero τ lemma-α) .fun ((Fin≅ (injSuc (Fin≅-inj σ))) .fun (k , r))))
-    ≡⟨⟩
-      g (fsuc ((punchOutZero τ lemma-α) .fun (k , _)))
-    ≡⟨ congS g (sym (punchOutZero≡fsuc τ lemma-α (k , _))) ⟩
-      g (τ .fun (fsuc (k , _)))
-    ≡⟨ congS (g ∘ σ .fun) (Fin-fst-≡ refl) ⟩
-      g (σ .fun (fsuc (k , r)))
-    ≡⟨ congS (λ h -> h (fsuc (k , r))) (sym p) ⟩
-      f (fsuc (k , r)) ∎
+fsuc∘punchOutZero≡ : ∀ {n}
+          -> (f g : Fin (suc (suc n)) -> A)
+          -> (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) (p : f ≡ g ∘ σ .fun)
+          -> (q : σ .fun fzero ≡ fzero)
+          -> f ∘ fsuc ≡ g ∘ fsuc ∘ punchOutZero σ q .fun
+fsuc∘punchOutZero≡ f g σ p q =
+  f ∘ fsuc ≡⟨ congS (_∘ fsuc) p ⟩
+  g ∘ σ .fun ∘ fsuc ≡⟨ congS (g ∘_) (funExt (punchOutZero≡fsuc σ q)) ⟩
+  g ∘ fsuc ∘ punchOutZero σ q .fun ∎
 
 ≈-length : {n m : ℕ} -> Iso (Fin n) (Fin m) -> n ≡ m 
 ≈-length {n = n} {m = m} σ = Fin-inj n m (isoToPath σ)
@@ -428,9 +405,6 @@ bagFreeDef = qFreeMonDef (PermRel _)
 Bag : Type ℓ -> Type ℓ
 Bag A = BagDef.Free.F bagFreeDef A
 
-postulate
-  TODO : ∀ {ℓ} {A : Type ℓ} -> A
-
 -- Proof taken from https://arxiv.org/pdf/2110.05412.pdf
 module IsoToCList {ℓ} (A : Type ℓ) where
   open import Cubical.Structures.Set.CMon.CList as CL
@@ -468,21 +442,28 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         q = isContr→isProp isContrFin1≅ σ idIso
     in congS (tab 1) (p ∙ congS (g ∘_) (congS Iso.fun q))
   toCList-eq (suc (suc n)) f g σ p =
-    decRec case1 case2 (discreteFin (σ .fun fzero) fzero)
+    decRec
+      (λ q ->
+        let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ q) (fsuc∘punchOutZero≡ f g σ p q)
+        in case1 IH q
+      )
+      case2
+      (discreteFin (σ .fun fzero) fzero)
     where
-      case1 : σ .fun fzero ≡ fzero -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case1 ϕ =
+      case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
+            -> σ .fun fzero ≡ fzero
+            -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      case1 IH ϕ =
         tab (suc (suc n)) f ≡⟨⟩
         f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (_∷ tab (suc n) (f ∘ fsuc)) (funExt⁻ p fzero) ⟩
         g (σ .fun fzero) ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\k -> g k ∷ tab (suc n) (f ∘ fsuc)) ϕ ⟩
-        g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\h -> g fzero ∷ tab (suc n) (h ∘ fsuc)) p ⟩
-        g fzero ∷ tab (suc n) (g ∘ σ .fun ∘ fsuc) ≡⟨ TODO ⟩
+        g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (g fzero ∷_) IH ⟩
         g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
         tab (suc (suc n)) g ∎
       case2 : ¬ σ .fun fzero ≡ fzero -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
       case2 ϕ =
         tab (suc (suc n)) f ≡⟨⟩
-        f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ TODO ⟩
+        f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ {!   !} ⟩
         tab (suc (suc n)) g ∎
 
   -- toCList : Bag A -> CList A
