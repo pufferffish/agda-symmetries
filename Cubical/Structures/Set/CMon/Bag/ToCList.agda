@@ -38,6 +38,12 @@ private
     A : Type ℓ
     n : ℕ
 
+fsuc≡punchIn : (k : Fin n) -> fsuc k ≡ fst (punchIn fzero k)
+fsuc≡punchIn k = refl
+
+except : (t : Fin (suc n)) -> Fin n -> Fin (suc n)
+except t k = fst (punchIn t k)
+
 -- Copied out from LehmerCode because there are hidden inside a where clause
 module _ {n : ℕ} where
   equivIn : (f : Fin (suc n) ≃ Fin (suc n))
@@ -85,11 +91,16 @@ module _ {n : ℕ} where
          (FinExcept fzero ≃ Fin n)       ≃⟨ cong≃ (λ L → L ≃ Fin n) punchOutEquiv  ⟩
          (Fin n ≃ Fin n)                 ■
 
-fsuc≡punchIn : (k : Fin n) -> fsuc k ≡ fst (punchIn fzero k)
-fsuc≡punchIn k = refl
+  abstract
+    i-ii : Iso (Fin (suc n)) (Fin (suc n)) -> Iso (Fin n) (Fin n)
+    i-ii σ =
+      let (k , τ) = i .fun (isoToEquiv σ)
+      in equivToIso (equivFun (ii k) τ)
 
-except : (t : Fin (suc n)) -> Fin n -> Fin (suc n)
-except t k = fst (punchIn t k)
+    i-ii≡ : (σ : Iso (Fin (suc n)) (Fin (suc n)))
+          -> (x : Fin n)
+          -> σ .fun (except fzero x) ≡ except (σ .fun fzero) (i-ii σ .fun x)
+    i-ii≡ σ x = {!   !}
 
 fsuc∘punchOutZero≡ : ∀ {n}
           -> (f g : Fin (suc (suc n)) -> A)
@@ -157,7 +168,9 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       )
       (λ (k , q) ->
         let
-          IH1 = toCList-eq (suc n) (f ∘ fsuc) (g ∘ except (σ .fun fzero)) {!   !} {!   !}
+          IH1 = toCList-eq (suc n) (f ∘ fsuc)
+            (g ∘ except (σ .fun fzero))
+            (i-ii σ) (funExt λ x -> congS (λ h → h (fsuc x)) p ∙ congS g (i-ii≡ σ x))
         in case2 k q IH1
       )
       (finZOrS (σ .fun fzero))
