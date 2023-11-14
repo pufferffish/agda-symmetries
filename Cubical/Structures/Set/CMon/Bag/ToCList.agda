@@ -28,6 +28,7 @@ open import Cubical.Structures.Set.CMon.QFreeMon
 open import Cubical.Structures.Set.CMon.Bag.Base
 open import Cubical.Structures.Set.CMon.Bag.Free
 open import Cubical.Relation.Nullary
+open import Cubical.Data.Fin.LehmerCode hiding (LehmerCode; _∷_; [])
 
 open Iso
 
@@ -35,6 +36,13 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
     A : Type ℓ
+    n : ℕ
+
+fsuc≡punchIn : (k : Fin n) -> fsuc k ≡ fst (punchIn fzero k)
+fsuc≡punchIn k = refl
+
+except : (t : Fin (suc n)) -> Fin n -> Fin (suc n)
+except t k = fst (punchIn t k)
 
 fsuc∘punchOutZero≡ : ∀ {n}
           -> (f g : Fin (suc (suc n)) -> A)
@@ -45,6 +53,18 @@ fsuc∘punchOutZero≡ f g σ p q =
   f ∘ fsuc ≡⟨ congS (_∘ fsuc) p ⟩
   g ∘ σ .fun ∘ fsuc ≡⟨ congS (g ∘_) (funExt (punchOutZero≡fsuc σ q)) ⟩
   g ∘ fsuc ∘ punchOutZero σ q .fun ∎
+
+finNotZIsS : ∀ {n} -> (k : Fin (suc n)) -> ¬ k ≡ fzero -> Σ[ w ∈ Fin n ] (k ≡ fsuc w)
+finNotZIsS (zero , p) q = ⊥.rec (q (Fin-fst-≡ refl))
+finNotZIsS (suc k , p) q = (k , pred-≤-pred p) , Fin-fst-≡ refl
+
+finZOrS : ∀ {n} -> (k : Fin (suc n)) -> (k ≡ fzero) ⊎ (Σ[ w ∈ Fin n ] (k ≡ fsuc w))
+finZOrS k = decRec inl (inr ∘ finNotZIsS k) (discreteFin k fzero)
+
+exceptSuc≡ : (k : Fin (suc n)) -> (x : Fin n) -> except (fsuc k) (fsuc x) ≡ fsuc (except k x)
+exceptSuc≡ k x =
+  fst (punchIn (fsuc k) (fsuc x)) ≡⟨⟩
+  {!   !}
 
 -- Proof taken from https://arxiv.org/pdf/2110.05412.pdf
 module IsoToCList {ℓ} (A : Type ℓ) where
@@ -83,13 +103,17 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         q = isContr→isProp isContrFin1≅ σ idIso
     in congS (tab 1) (p ∙ congS (g ∘_) (congS Iso.fun q))
   toCList-eq (suc (suc n)) f g σ p =
-    decRec
+    ⊎.rec
       (λ q ->
         let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ q) (fsuc∘punchOutZero≡ f g σ p q)
         in case1 IH q
       )
-      case2
-      (discreteFin (σ .fun fzero) fzero)
+      (λ (k , q) ->
+        let
+          IH1 = toCList-eq (suc n) (f ∘ fsuc) (g ∘ except (σ .fun fzero)) {!   !} {!   !}
+        in case2 k q IH1
+      )
+      (finZOrS (σ .fun fzero))
     where
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
@@ -101,11 +125,21 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (g fzero ∷_) IH ⟩
         g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
         tab (suc (suc n)) g ∎
-      case2 : ¬ σ .fun fzero ≡ fzero -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case2 ϕ =
-        tab (suc (suc n)) f ≡⟨⟩
-        f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ {!toCList-eq   !} ⟩
-        tab (suc (suc n)) g ∎
+      case2 : (w : Fin (suc n))
+            -> σ .fun fzero ≡ fsuc w
+            -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ except (σ .fun fzero))
+            -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      case2 k ϕ IH1 =
+        comm (f fzero) (g fzero) (tab n (g ∘ fsuc ∘ except k)) eqn1 {!   !}
+        where
+        eqn1 : tab (suc n) (f ∘ fsuc) ≡ g fzero ∷ tab n (g ∘ fsuc ∘ except k)
+        eqn1 =
+          tab (suc n) (f ∘ fsuc) ≡⟨ IH1 ⟩
+          tab (suc n) (g ∘ except (σ .fun fzero)) ≡⟨⟩
+          g (except (σ .fun fzero) fzero) ∷ tab n (g ∘ except (σ .fun fzero) ∘ fsuc) ≡⟨ congS (λ r -> g (except r fzero) ∷ tab n (g ∘ except r ∘ fsuc)) ϕ ⟩
+          g (except (fsuc k) fzero) ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨⟩
+          g fzero ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨ congS (λ h -> g fzero ∷ tab n (g ∘ h)) (funExt (exceptSuc≡ k)) ⟩
+          g fzero ∷ tab n (g ∘ fsuc ∘ except k) ∎
 
   -- toCList : Bag A -> CList A
   -- toCList Q.[ (n , f) ] = tab n f
@@ -115,3 +149,4 @@ module IsoToCList {ℓ} (A : Type ℓ) where
 
   -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
   -- toCList-fromCList x = {!`  !}
+ 
