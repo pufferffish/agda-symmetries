@@ -98,9 +98,15 @@ pOut {n} (k , p) ((j , q) , r) =
 pIn : (k : Fin (suc n)) -> Fin n -> FinExcept k
 pIn (k , p) (j , q) =
   ⊎.rec
-    (λ j<k -> (j , ≤-suc q) , <→≢ j<k ∘ sym ∘ congS fst)
-    (λ k≤j -> fsuc (j , q) , λ r -> ¬m<m (subst (_≤ j) (congS fst r) k≤j))
+    (λ j<k -> (j , ≤-suc q) , except1 j<k)
+    (λ k≤j -> fsuc (j , q) , except2 k≤j)
     (j ≤? k)
+  where
+    abstract
+      except1 : j < k -> ¬ (k , p) ≡ (j , ≤-suc q)
+      except1 j<k r = <→≢ j<k (sym (congS fst r))
+      except2 : k ≤ j -> ¬ (k , p) ≡ fsuc (j , q)
+      except2 k≤j r = ¬m<m (subst (_≤ j) (congS fst r) k≤j)
 
 _∼ : {k : Fin n} -> (Fin n -> A) -> FinExcept k -> A
 f ∼ = f ∘ toFinExc
@@ -108,8 +114,8 @@ f ∼ = f ∘ toFinExc
 1+_ : {k : Fin n} -> FinExcept k -> FinExcept (fsuc k)
 1+_ = fsucExc
 
-punchIn∘Out : (k : Fin (suc n)) -> ∀ j -> pIn k (pOut k j) ≡ j
-punchIn∘Out (k , p) ((j , q) , r) =
+pIn∘Out : (k : Fin (suc n)) -> ∀ j -> pIn k (pOut k j) ≡ j
+pIn∘Out (k , p) ((j , q) , r) =
   ⊎.rec
     (λ j<k ->
         pIn (k , p) (pOut (k , p) ((j , q) , r))
@@ -118,8 +124,8 @@ punchIn∘Out (k , p) ((j , q) , r) =
       ≡⟨ congS (pIn (k , p) ∘ ⊎.rec _ _) (<?-beta-inl j k _ j<k) ⟩
         pIn (k , p) (j , <-not-dense j<k p)
       ≡⟨⟩
-        ⊎.rec (λ j<k -> (j , _) , <→≢ j<k ∘ sym ∘ congS fst) _ (j ≤? k)
-      ≡⟨ congS (⊎.rec (λ j<k -> (j , _) , <→≢ j<k ∘ sym ∘ congS fst) _) (≤?-beta-inl j k j<k) ⟩
+        ⊎.rec (λ j<k -> (j , _) , _) _ (j ≤? k)
+      ≡⟨ congS (⊎.rec (λ j<k -> (j , _) , _) _) (≤?-beta-inl j k j<k) ⟩
         (j , ≤-suc (<-not-dense j<k p)) , _
       ≡⟨ FinExcept≡ _ _ refl ⟩
         ((j , q) , r)
@@ -131,7 +137,7 @@ punchIn∘Out (k , p) ((j , q) , r) =
       ≡⟨ congS (pIn (k , p) ∘ ⊎.rec _ _) (<?-beta-inr j k _ k<j) ⟩
         pIn (k , p) (predℕ j , predℕa<b q k<j)
       ≡⟨⟩
-        ⊎.rec _ (λ k≤j -> fsuc (predℕ j , predℕa<b q k<j) , _) (predℕ j ≤? k)
+        ⊎.rec _ (λ k≤predℕj -> fsuc (predℕ j , _) , _) (predℕ j ≤? k)
       ≡⟨ congS (⊎.rec _ _) (≤?-beta-inr (predℕ j) k (predℕ-≤-predℕ k<j)) ⟩
         (fsuc (predℕ j , predℕa<b q k<j) , _)
       ≡⟨ FinExcept≡ _ _ (sym (suc-predℕ j (a>b→a≠0 k<j))) ⟩
@@ -139,13 +145,44 @@ punchIn∘Out (k , p) ((j , q) , r) =
     )
     (j <? k on (r ∘ Fin-fst-≡ ∘ sym))
 
--- -- module _ {k : Fin (suc n)} where
--- --   pIso : Iso (FinExcept k) (Fin n)
--- --   Iso.fun pIso = pOut k
--- --   Iso.inv pIso = pIn k
--- --   Iso.rightInv pIso = punchOut∘In k
--- --   Iso.leftInv pIso = punchIn∘Out k
--- 
+pOut∘In : (k : Fin (suc n)) -> ∀ j -> pOut k (pIn k j) ≡ j
+pOut∘In (k , p) (j , q) =
+  ⊎.rec
+    (λ j<k ->
+        pOut (k , p) (pIn (k , p) (j , q))
+      ≡⟨⟩
+        pOut (k , p) (⊎.rec (λ j<k -> (j , ≤-suc q) , _) _ (j ≤? k))
+      ≡⟨ congS (pOut (k , p) ∘ ⊎.rec _ _) (≤?-beta-inl j k j<k) ⟩
+        pOut (k , p) ((j , ≤-suc q) , _)
+      ≡⟨⟩
+        ⊎.rec (λ j<k -> j , <-not-dense j<k p) _ (j <? k on _)
+      ≡⟨ congS (⊎.rec _ _) (<?-beta-inl j k _ j<k) ⟩
+        (j , <-not-dense j<k p)
+      ≡⟨ Fin-fst-≡ refl ⟩
+         (j , q)
+    ∎)
+    (λ k≤j ->
+        pOut (k , p) (pIn (k , p) (j , q))
+      ≡⟨⟩
+        pOut (k , p) (⊎.rec _ (λ k≤j -> fsuc (j , q) , _) (j ≤? k))
+      ≡⟨ congS (pOut (k , p) ∘ ⊎.rec _ _) (≤?-beta-inr j k k≤j) ⟩
+        pOut (k , p) (fsuc (j , q) , _)
+      ≡⟨⟩
+        ⊎.rec _ (λ k<sucj -> predℕ (suc j) , _) (suc j <? k on _)
+      ≡⟨ congS (⊎.rec _ _) (<?-beta-inr (suc j) k _ (suc-≤-suc k≤j)) ⟩
+        (j , predℕa<b (snd (fsuc (j , q))) (suc-≤-suc k≤j))
+      ≡⟨ Fin-fst-≡ refl ⟩
+        (j , q)
+    ∎)
+    (j ≤? k)
+
+module _ {k : Fin (suc n)} where
+  pIso : Iso (FinExcept k) (Fin n)
+  Iso.fun pIso = pOut k
+  Iso.inv pIso = pIn k
+  Iso.rightInv pIso = pOut∘In k
+  Iso.leftInv pIso = pIn∘Out k
+
 -- module _ (n : ℕ) (k : Fin (suc n)) where
 --   pIso : Iso (FinExcept k) (Fin n)
 --   pIso = equivToIso E.punchOutEquiv
