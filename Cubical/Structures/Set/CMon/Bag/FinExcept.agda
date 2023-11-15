@@ -183,20 +183,22 @@ module _ {k : Fin (suc n)} where
   Iso.rightInv pIso = pOut∘In k
   Iso.leftInv pIso = pIn∘Out k
 
--- module _ (n : ℕ) (k : Fin (suc n)) where
---   pIso : Iso (FinExcept k) (Fin n)
---   pIso = equivToIso E.punchOutEquiv
--- 
 -- pIn-fsuc-nat : {k : Fin (suc n)} -> 1+_ ∘ pIn k ≡ pIn (fsuc k) ∘ fsuc
 -- pIn-fsuc-nat {n = zero} {k = k} = funExt \j -> ⊥.rec (¬Fin0 j)
 -- pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
 --   where
---     pIn-fsuc-nat-htpy : (k : Fin (suc (suc n))) (j : Fin (suc n)) -> 1+ (pIn k j) ≡ pIn (fsuc k) (fsuc j)
---     pIn-fsuc-nat-htpy k j =
---       ⊎.rec (\z≡j -> TODO)
---             TODO
---             (fsplit j)
--- 
+--     pIn-fsuc-nat-htpy : (k : Fin (suc (suc n))) (j : Fin (suc n))
+--                       -> 1+ (pIn k j) ≡ pIn (fsuc k) (fsuc j)
+--     pIn-fsuc-nat-htpy (k , p) (j , q) =
+--       ⊎.rec
+--         (λ k<j ->
+--             (1+ pIn (k , p) (j , q))
+--           ≡⟨⟩
+--           {!   !}
+--         )
+--         {!   !}
+--         (k ≤? j)
+
 -- ϕ : Iso (Fin (suc n)) (Unit ⊎ Fin n)
 -- ϕ = TODO
 -- 

@@ -67,6 +67,16 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   isContrFin1≅ : isContr (Iso (Fin 1) (Fin 1))
   isContrFin1≅ = isContr≅ isContrFin1
 
+  fsuc∘punchOutZero≡ : ∀ {n}
+          -> (f g : Fin (suc (suc n)) -> A)
+          -> (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) (p : f ≡ g ∘ σ .fun)
+          -> (q : σ .fun fzero ≡ fzero)
+          -> f ∘ fsuc ≡ g ∘ fsuc ∘ punchOutZero σ q .fun
+  fsuc∘punchOutZero≡ f g σ p q =
+    f ∘ fsuc ≡⟨ congS (_∘ fsuc) p ⟩
+    g ∘ σ .fun ∘ fsuc ≡⟨ congS (g ∘_) (funExt (punchOutZero≡fsuc σ q)) ⟩
+    g ∘ fsuc ∘ punchOutZero σ q .fun ∎
+
   toCList-eq : ∀ n
              -> (f : Fin n -> A) (g : Fin n -> A) (σ : Iso (Fin n) (Fin n)) (p : f ≡ g ∘ σ .fun)
              -> tab n f ≡ tab n g
@@ -79,17 +89,13 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   toCList-eq (suc (suc n)) f g σ p =
     ⊎.rec
       (λ q ->
-        let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ q) (fsuc∘punchOutZero≡ f g σ p q)
-        in case1 IH q
+        let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ (sym q)) (fsuc∘punchOutZero≡ f g σ p (sym q))
+        in case1 IH (sym q)
       )
       (λ (k , q) ->
-        let
-          IH1 = toCList-eq (suc n) (f ∘ fsuc)
-            (g ∘ except (σ .fun fzero))
-            (i-ii σ) (funExt λ x -> congS (λ h → h (fsuc x)) p ∙ congS g (i-ii≡ σ x))
-        in case2 k q IH1
+        {!   !}
       )
-      (finZOrS (σ .fun fzero))
+      (fsplit (σ .fun fzero))
     where
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
