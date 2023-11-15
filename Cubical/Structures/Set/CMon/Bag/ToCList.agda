@@ -30,6 +30,8 @@ open import Cubical.Structures.Set.CMon.Bag.Free
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Fin.LehmerCode hiding (LehmerCode; _∷_; [])
 
+open import Cubical.Structures.Set.CMon.Bag.FinExcept
+
 open Iso
 
 private
@@ -37,92 +39,6 @@ private
     ℓ ℓ' ℓ'' : Level
     A : Type ℓ
     n : ℕ
-
-fsuc≡punchIn : (k : Fin n) -> fsuc k ≡ fst (punchIn fzero k)
-fsuc≡punchIn k = refl
-
-except : (t : Fin (suc n)) -> Fin n -> Fin (suc n)
-except t k = fst (punchIn t k)
-
--- Copied out from LehmerCode because there are hidden inside a where clause
-module _ {n : ℕ} where
-  equivIn : (f : Fin (suc n) ≃ Fin (suc n))
-          → FinExcept fzero ≃ FinExcept (equivFun f fzero)
-  equivIn f =
-    FinExcept fzero
-      ≃⟨ Σ-cong-equiv-snd (λ _ → preCompEquiv (invEquiv (congEquiv f))) ⟩
-    (Σ[ x ∈ Fin (suc n) ] ¬ ffun fzero ≡ ffun x)
-      ≃⟨ Σ-cong-equiv-fst f ⟩
-    FinExcept (ffun fzero)
-      ■ where ffun = equivFun f
-
-  equivOut : ∀ {k} → FinExcept (fzero {k = n}) ≃ FinExcept k
-           → Fin (suc n) ≃ Fin (suc n)
-  equivOut {k = k} f =
-    Fin (suc n)
-      ≃⟨ invEquiv projectionEquiv ⟩
-    Unit ⊎ FinExcept fzero
-      ≃⟨ isoToEquiv (⊎.⊎Iso idIso (equivToIso f)) ⟩
-    Unit ⊎ FinExcept k
-      ≃⟨ projectionEquiv ⟩
-    Fin (suc n)
-      ■
-
-  equivOutChar : ∀ {k} {f} (x : FinExcept fzero) → equivFun (equivOut {k = k} f) (fst x) ≡ fst (equivFun f x)
-  equivOutChar {f = f} x with discreteFin fzero (fst x)
-  ... | (yes y) = ⊥.rec (x .snd y)
-  ... | (no n) = cong (λ x′ → fst (equivFun f x′)) (toℕExc-injective refl)
-
-  i : Iso (Fin (suc n) ≃ Fin (suc n))
-          (Σ[ k ∈ Fin (suc n) ] (FinExcept (fzero {k = n}) ≃ FinExcept k))
-  Iso.fun i f = equivFun f fzero , equivIn f
-  Iso.inv i (k , f) = equivOut f
-  Iso.rightInv i (k , f) = ΣPathP (refl , equivEq (funExt λ x →
-     toℕExc-injective (cong toℕ (equivOutChar {f = f} x))))
-  Iso.leftInv i f = equivEq (funExt goal) where
-    goal : ∀ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x
-    goal x = case fsplit x return (λ _ → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) of λ
-      { (inl xz) → subst (λ x → equivFun (equivOut (equivIn f)) x ≡ equivFun f x) xz refl
-      ; (inr (_ , xn)) → equivOutChar {f = equivIn f} (x , fznotfs ∘ (_∙ sym xn))
-      }
-
-  ii : ∀ k → (FinExcept fzero ≃ FinExcept k) ≃ (Fin n ≃ Fin n)
-  ii k = (FinExcept fzero ≃ FinExcept k) ≃⟨ cong≃ (λ R → FinExcept (fzero {k = n}) ≃ R) punchOutEquiv ⟩
-         (FinExcept fzero ≃ Fin n)       ≃⟨ cong≃ (λ L → L ≃ Fin n) punchOutEquiv  ⟩
-         (Fin n ≃ Fin n)                 ■
-
-  abstract
-    i-ii : Iso (Fin (suc n)) (Fin (suc n)) -> Iso (Fin n) (Fin n)
-    i-ii σ =
-      let (k , τ) = i .fun (isoToEquiv σ)
-      in equivToIso (equivFun (ii k) τ)
-
-    i-ii≡ : (σ : Iso (Fin (suc n)) (Fin (suc n)))
-          -> (x : Fin n)
-          -> σ .fun (except fzero x) ≡ except (σ .fun fzero) (i-ii σ .fun x)
-    i-ii≡ σ x = {!   !}
-
-fsuc∘punchOutZero≡ : ∀ {n}
-          -> (f g : Fin (suc (suc n)) -> A)
-          -> (σ : Iso (Fin (suc (suc n))) (Fin (suc (suc n)))) (p : f ≡ g ∘ σ .fun)
-          -> (q : σ .fun fzero ≡ fzero)
-          -> f ∘ fsuc ≡ g ∘ fsuc ∘ punchOutZero σ q .fun
-fsuc∘punchOutZero≡ f g σ p q =
-  f ∘ fsuc ≡⟨ congS (_∘ fsuc) p ⟩
-  g ∘ σ .fun ∘ fsuc ≡⟨ congS (g ∘_) (funExt (punchOutZero≡fsuc σ q)) ⟩
-  g ∘ fsuc ∘ punchOutZero σ q .fun ∎
-
-finNotZIsS : ∀ {n} -> (k : Fin (suc n)) -> ¬ k ≡ fzero -> Σ[ w ∈ Fin n ] (k ≡ fsuc w)
-finNotZIsS (zero , p) q = ⊥.rec (q (Fin-fst-≡ refl))
-finNotZIsS (suc k , p) q = (k , pred-≤-pred p) , Fin-fst-≡ refl
-
-finZOrS : ∀ {n} -> (k : Fin (suc n)) -> (k ≡ fzero) ⊎ (Σ[ w ∈ Fin n ] (k ≡ fsuc w))
-finZOrS k = decRec inl (inr ∘ finNotZIsS k) (discreteFin k fzero)
-
-exceptSuc≡ : (k : Fin (suc n)) -> (x : Fin n) -> except (fsuc k) (fsuc x) ≡ fsuc (except k x)
-exceptSuc≡ k x =
-  fst (punchIn (fsuc k) (fsuc x)) ≡⟨⟩
-  {!   !}
 
 -- Proof taken from https://arxiv.org/pdf/2110.05412.pdf
 module IsoToCList {ℓ} (A : Type ℓ) where
@@ -185,21 +101,21 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (g fzero ∷_) IH ⟩
         g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
         tab (suc (suc n)) g ∎
-      case2 : (w : Fin (suc n))
-            -> σ .fun fzero ≡ fsuc w
-            -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ except (σ .fun fzero))
-            -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case2 k ϕ IH1 =
-        comm (f fzero) (g fzero) (tab n (g ∘ fsuc ∘ except k)) eqn1 {!   !}
-        where
-        eqn1 : tab (suc n) (f ∘ fsuc) ≡ g fzero ∷ tab n (g ∘ fsuc ∘ except k)
-        eqn1 =
-          tab (suc n) (f ∘ fsuc) ≡⟨ IH1 ⟩
-          tab (suc n) (g ∘ except (σ .fun fzero)) ≡⟨⟩
-          g (except (σ .fun fzero) fzero) ∷ tab n (g ∘ except (σ .fun fzero) ∘ fsuc) ≡⟨ congS (λ r -> g (except r fzero) ∷ tab n (g ∘ except r ∘ fsuc)) ϕ ⟩
-          g (except (fsuc k) fzero) ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨⟩
-          g fzero ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨ congS (λ h -> g fzero ∷ tab n (g ∘ h)) (funExt (exceptSuc≡ k)) ⟩
-          g fzero ∷ tab n (g ∘ fsuc ∘ except k) ∎
+      -- case2 : (k : Fin (suc n))
+      --       -> σ .fun fzero ≡ fsuc k
+      --       -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ except (σ .fun fzero))
+      --       -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      -- case2 k ϕ IH1 =
+      --   comm (f fzero) (g fzero) (tab n {!!}) eqn1 {!   !}
+      --   where
+      --   eqn1 : tab (suc n) (f ∘ fsuc) ≡ g fzero ∷ tab n (g ∘ fsuc ∘ except k)
+      --   eqn1 =
+      --     tab (suc n) (f ∘ fsuc) ≡⟨ IH1 ⟩
+      --     tab (suc n) (g ∘ except (σ .fun fzero)) ≡⟨⟩
+      --     g (except (σ .fun fzero) fzero) ∷ tab n (g ∘ except (σ .fun fzero) ∘ fsuc) ≡⟨ congS (λ r -> g (except r fzero) ∷ tab n (g ∘ except r ∘ fsuc)) ϕ ⟩
+      --     g (except (fsuc k) fzero) ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨⟩
+      --     g fzero ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨ congS (λ h -> g fzero ∷ tab n (g ∘ h)) (funExt (exceptSuc≡ k)) ⟩
+      --     g fzero ∷ tab n (g ∘ fsuc ∘ except k) ∎
 
   -- toCList : Bag A -> CList A
   -- toCList Q.[ (n , f) ] = tab n f
@@ -209,4 +125,3 @@ module IsoToCList {ℓ} (A : Type ℓ) where
 
   -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
   -- toCList-fromCList x = {!`  !}
-   
