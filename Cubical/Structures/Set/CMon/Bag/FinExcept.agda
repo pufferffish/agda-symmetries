@@ -59,19 +59,61 @@ abstract
   ... | gt q = inr q
   ... | eq q = ⊥.rec (p q)
 
-pOut : (k : Fin (suc n)) -> FinExcept k -> Fin n
-pOut (k , p) ((j , q) , r) =
+  <?-beta-inl : ∀ (a b : ℕ) -> (p : ¬ a ≡ b) -> (q : a < b) -> a <? b on p ≡ inl q
+  <?-beta-inl a b p q with a ≟ b
+  ... | lt r = congS inl (isProp≤ _ _)
+  ... | eq r = ⊥.rec (p r)
+  ... | gt r = ⊥.rec (<-asym r (<-weaken q))
+
+  <?-beta-inr : ∀ (a b : ℕ) -> (p : ¬ a ≡ b) -> (q : a > b) -> a <? b on p ≡ inr q
+  <?-beta-inr a b p q with a ≟ b
+  ... | lt r = ⊥.rec (<-asym r (<-weaken q))
+  ... | eq r = ⊥.rec (p r)
+  ... | gt r = congS inr (isProp≤ _ _)
+
+  ≤?-beta-inl : ∀ (a b : ℕ) -> (p : a < b) -> a ≤? b ≡ inl p
+  ≤?-beta-inl a b p with a ≤? b
+  ... | inl q = congS inl (isProp≤ _ _)
+  ... | inr q = ⊥.rec (<-asym p q)
+
+  ≤?-beta-inr : ∀ (a b : ℕ) -> (p : b ≤ a) -> a ≤? b ≡ inr p
+  ≤?-beta-inr a b p with a ≤? b
+  ... | inl q = ⊥.rec (<-asym q p)
+  ... | inr q = congS inr (isProp≤ _ _)
+
+pOut : ∀ {n} -> (k : Fin (suc n)) -> FinExcept k -> Fin n
+pOut {n} (k , p) ((j , q) , r) =
   ⊎.rec
-    (λ j<k -> j , <-not-dense j<k p)
-    (λ k<j -> predℕ j , predℕa<b q k<j)
+    (λ j<k -> j , get-j<n j<k)
+    (λ k<j -> predℕ j , get-predℕj<n k<j)
     (j <? k on (r ∘ Fin-fst-≡ ∘ sym))
+  where
+    postulate
+      get-j<n : j < k -> j < n
+      get-predℕj<n : k < j -> predℕ j < n
+
+    -- abstract
+    --   get-j<n : j < k -> j < n
+    --   get-j<n j<k = <-not-dense j<k p
+    --   get-predℕj<n : k < j -> predℕ j < n
+    --   get-predℕj<n k<j = predℕa<b q k<j
 
 pIn : (k : Fin (suc n)) -> Fin n -> FinExcept k
 pIn (k , p) (j , q) =
   ⊎.rec
-    (λ j<k -> (j , ≤-suc q) , λ r -> <→≢ j<k (sym (congS fst r)))
-    (λ k≤j -> fsuc (j , q) , λ r -> ¬m<m (subst (_≤ j) (congS fst r) k≤j))
+    (λ j<k -> (j , ≤-suc q) , except1 j<k)
+    (λ k≤j -> fsuc (j , q) , except2 k≤j)
     (j ≤? k)
+  where
+    postulate 
+      except1 : j < k -> ¬ (k , p) ≡ (j , ≤-suc q)
+      except2 : k ≤ j -> ¬ (k , p) ≡ fsuc (j , q)
+
+    -- abstract
+    --   except1 : j < k -> ¬ (k , p) ≡ (j , ≤-suc q)
+    --   except1 j<k r = <→≢ j<k (sym (congS fst r))
+    --   except2 : k ≤ j -> ¬ (k , p) ≡ fsuc (j , q)
+    --   except2 k≤j r = ¬m<m (subst (_≤ j) (congS fst r) k≤j)
 
 _∼ : {k : Fin n} -> (Fin n -> A) -> FinExcept k -> A
 f ∼ = f ∘ toFinExc
@@ -79,9 +121,17 @@ f ∼ = f ∘ toFinExc
 1+_ : {k : Fin n} -> FinExcept k -> FinExcept (fsuc k)
 1+_ = fsucExc
 
--- postulate
---   punchIn∘Out : (k : Fin (suc n)) → ∀ j → E.punchIn k (E.punchOut k j) ≡ j
--- 
+punchIn∘Out : (k : Fin (suc n)) -> ∀ j -> pIn k (pOut k j) ≡ j
+punchIn∘Out (k , p) ((j , q) , r) =
+  ⊎.rec
+    (λ j<k ->
+      {!   !}
+    )
+    (λ k<j ->
+      {!   !}
+    )
+    (j <? k on (r ∘ Fin-fst-≡ ∘ sym))
+
 -- -- module _ {k : Fin (suc n)} where
 -- --   pIso : Iso (FinExcept k) (Fin n)
 -- --   Iso.fun pIso = pOut k
