@@ -112,7 +112,11 @@ _∼ : {k : Fin n} -> (Fin n -> A) -> FinExcept k -> A
 f ∼ = f ∘ toFinExc
 
 1+_ : {k : Fin n} -> FinExcept k -> FinExcept (fsuc k)
-1+_ = fsucExc
+1+_ {k = k} (j , p) = (fsuc j) , fsuc≠
+  where
+    abstract
+      fsuc≠ : ¬ fsuc k ≡ fsuc j
+      fsuc≠ r = p (fsuc-inj r)
 
 pIn∘Out : (k : Fin (suc n)) -> ∀ j -> pIn k (pOut k j) ≡ j
 pIn∘Out (k , p) ((j , q) , r) =
@@ -141,8 +145,8 @@ pIn∘Out (k , p) ((j , q) , r) =
       ≡⟨ congS (⊎.rec _ _) (≤?-beta-inr (predℕ j) k (predℕ-≤-predℕ k<j)) ⟩
         (fsuc (predℕ j , predℕa<b q k<j) , _)
       ≡⟨ FinExcept≡ _ _ (sym (suc-predℕ j (a>b→a≠0 k<j))) ⟩
-        ((j , q) , r) ∎
-    )
+        ((j , q) , r)
+    ∎)
     (j <? k on (r ∘ Fin-fst-≡ ∘ sym))
 
 pOut∘In : (k : Fin (suc n)) -> ∀ j -> pOut k (pIn k j) ≡ j
@@ -183,21 +187,55 @@ module _ {k : Fin (suc n)} where
   Iso.rightInv pIso = pOut∘In k
   Iso.leftInv pIso = pIn∘Out k
 
--- pIn-fsuc-nat : {k : Fin (suc n)} -> 1+_ ∘ pIn k ≡ pIn (fsuc k) ∘ fsuc
--- pIn-fsuc-nat {n = zero} {k = k} = funExt \j -> ⊥.rec (¬Fin0 j)
--- pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
---   where
---     pIn-fsuc-nat-htpy : (k : Fin (suc (suc n))) (j : Fin (suc n))
---                       -> 1+ (pIn k j) ≡ pIn (fsuc k) (fsuc j)
---     pIn-fsuc-nat-htpy (k , p) (j , q) =
---       ⊎.rec
---         (λ k<j ->
---             (1+ pIn (k , p) (j , q))
---           ≡⟨⟩
---           {!   !}
---         )
---         {!   !}
---         (k ≤? j)
+pIn-fsuc-nat : {k : Fin (suc n)} -> 1+_ ∘ pIn k ≡ pIn (fsuc k) ∘ fsuc
+pIn-fsuc-nat {n = zero} {k = k} = funExt \j -> ⊥.rec (¬Fin0 j)
+pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
+  where
+    pIn-fsuc-nat-htpy : (k : Fin (suc (suc n))) (j : Fin (suc n))
+                      -> 1+ (pIn k j) ≡ pIn (fsuc k) (fsuc j)
+    pIn-fsuc-nat-htpy (k , p) (j , q) =
+      ⊎.rec
+        (λ j<k ->
+          let
+            r =
+                1+ pIn (k , p) (j , q)
+              ≡⟨⟩
+                1+ (⊎.rec (λ j<k -> (j , ≤-suc q) , _) _ (j ≤? k))
+              ≡⟨ congS (1+_ ∘ ⊎.rec _ _) (≤?-beta-inl j k j<k) ⟩
+                1+ ((j , ≤-suc q) , _)
+              ≡⟨⟩
+                fsuc (j , ≤-suc q) , _ ∎
+            s =
+                pIn (fsuc (k , p)) (fsuc (j , q))
+              ≡⟨⟩
+                ⊎.rec (λ sj<sk -> fsuc (j , _) , _) _ (suc j ≤? suc k)
+              ≡⟨ congS (⊎.rec _ _) (≤?-beta-inl (suc j) (suc k) (suc-≤-suc j<k)) ⟩
+                fsuc (j , _) , _
+              ≡⟨ FinExcept≡ _ _ refl ⟩
+                fsuc (j , ≤-suc q) , _ ∎
+          in r ∙ (sym s)
+        )
+        (λ k≤j ->
+          let
+            r =
+                1+ pIn (k , p) (j , q)
+              ≡⟨⟩
+                1+ (⊎.rec _ (λ k≤j -> fsuc (j , q) , _) (j ≤? k))
+              ≡⟨ congS (1+_ ∘ ⊎.rec _ _) (≤?-beta-inr j k k≤j) ⟩
+                1+ (fsuc (j , q) , _)
+              ≡⟨⟩
+                fsuc (fsuc (j , q)) , _ ∎
+            s =
+                pIn (fsuc (k , p)) (fsuc (j , q))
+              ≡⟨⟩
+                ⊎.rec _ (λ sk≤sj -> fsuc (fsuc (j , q)) , _) (suc j ≤? suc k)
+              ≡⟨ congS (⊎.rec _ _) (≤?-beta-inr (suc j) (suc k) (suc-≤-suc k≤j)) ⟩
+                fsuc (fsuc (j , q)) , _
+              ≡⟨ FinExcept≡ _ _ refl ⟩
+                fsuc (fsuc (j , q)) , _ ∎
+          in r ∙ (sym s)
+        )
+        (j ≤? k)
 
 -- ϕ : Iso (Fin (suc n)) (Unit ⊎ Fin n)
 -- ϕ = TODO
