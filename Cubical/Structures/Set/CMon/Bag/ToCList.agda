@@ -188,8 +188,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     toCList-eq' : ∀ n m f g -> (r : (n , f) ≈ (m , g)) -> tab n f ≡ tab m g
     toCList-eq' n m f g (σ , p) =
       tab n f ≡⟨ toCList-eq n f (g ∘ (finSubst n≡m)) (compIso σ (Fin≅ (sym n≡m))) (sym lemma-α) ⟩
-      tab n (g ∘ finSubst n≡m) ≡⟨ cong₂ tab n≡m (toPathP (funExt lemma-β)) ⟩
-      tab m g ∎
+      (uncurry tab) (n , g ∘ finSubst n≡m) ≡⟨ congS (uncurry tab) (Array≡ n≡m λ _ _ -> congS g (Fin-fst-≡ refl)) ⟩
+      (uncurry tab) (m , g) ∎
       where
       n≡m : n ≡ m
       n≡m = ≈-length σ
@@ -200,11 +200,6 @@ module IsoToCList {ℓ} (A : Type ℓ) where
           g ∘ σ .fun
         ≡⟨ sym p ⟩
           f ∎
-      lemma-β : (x : Fin m) -> transport (λ i -> Fin (n≡m i) -> A) (g ∘ finSubst n≡m) x ≡ g x
-      lemma-β x =
-        _ ≡⟨ sym (transport-filler _ _) ⟩
-        (g ∘ finSubst n≡m) (transport (λ j -> Fin (n≡m (~ j))) x) ≡⟨ congS g (Fin-fst-≡ refl) ⟩
-        g x ∎
 
   toCList : Bag A -> CList A
   toCList Q.[ (n , f) ] = tab n f
