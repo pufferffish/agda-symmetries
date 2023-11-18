@@ -184,11 +184,33 @@ module IsoToCList {ℓ} (A : Type ℓ) where
           ≡⟨ IH2 ⟩
             tab (suc n) (g ∘ fsuc) ∎
 
-  -- toCList : Bag A -> CList A
-  -- toCList Q.[ (n , f) ] = tab n f
-  -- toCList (eq/ (n , f) (m , g) r i) = {!!}
-  -- toCList (squash/ xs ys p q i j) =
-  --   isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
+  abstract
+    toCList-eq' : ∀ n m f g -> (r : (n , f) ≈ (m , g)) -> tab n f ≡ tab m g
+    toCList-eq' n m f g (σ , p) =
+      tab n f ≡⟨ toCList-eq n f (g ∘ (finSubst n≡m)) (compIso σ (Fin≅ (sym n≡m))) (sym lemma-α) ⟩
+      tab n (g ∘ finSubst n≡m) ≡⟨ cong₂ tab n≡m (toPathP (funExt lemma-β)) ⟩
+      tab m g ∎
+      where
+      n≡m : n ≡ m
+      n≡m = ≈-length σ
+      lemma-α : g ∘ finSubst n≡m ∘ (Fin≅ (sym n≡m)) .fun ∘ σ .fun ≡ f
+      lemma-α =
+          g ∘ finSubst n≡m ∘ finSubst (sym n≡m) ∘ σ .fun
+        ≡⟨ congS {x = finSubst n≡m ∘ finSubst (sym n≡m)} {y = idfun _} (λ h -> g ∘ h ∘ σ .fun) (funExt (λ x -> Fin-fst-≡ refl)) ⟩
+          g ∘ σ .fun
+        ≡⟨ sym p ⟩
+          f ∎
+      lemma-β : (x : Fin m) -> transport (λ i -> Fin (n≡m i) -> A) (g ∘ finSubst n≡m) x ≡ g x
+      lemma-β x =
+        _ ≡⟨ sym (transport-filler _ _) ⟩
+        (g ∘ finSubst n≡m) (transport (λ j -> Fin (n≡m (~ j))) x) ≡⟨ congS g (Fin-fst-≡ refl) ⟩
+        g x ∎
+
+  toCList : Bag A -> CList A
+  toCList Q.[ (n , f) ] = tab n f
+  toCList (eq/ (n , f) (m , g) r i) = toCList-eq' n m f g r i
+  toCList (squash/ xs ys p q i j) =
+    isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
 
   -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
   -- toCList-fromCList x = {!`  !}
