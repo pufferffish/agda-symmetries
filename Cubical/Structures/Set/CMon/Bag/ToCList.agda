@@ -93,13 +93,50 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         in case1 IH (sym q)
       )
       (λ (k , q) ->
-        let
-          IH1 = toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) (punch-σ σ)
-            (sym (punch-σ≡ f g σ p) ∙ congS (λ z → (g ∼) ∘ pIn z ∘ punch-σ σ .fun) (sym q))
-        in case2 k (sym q) IH1
+        case2 k (sym q)
+          (toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) (punch-σ σ) (sym (IH1-lemma k q)))
+          (toCList-eq (suc n) (g-σ k) (g ∘ fsuc) (fill-σ k) (sym (funExt (IH2-lemma k q))))
       )
       (fsplit (σ .fun fzero))
     where
+      g-σ : ∀ k -> Fin (suc n) -> A
+      g-σ k (zero , p) = g (σ .fun fzero)
+      g-σ k (suc j , p) = (g ∼) (1+ (pIn k (j , predℕ-≤-predℕ p)))
+
+      IH1-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (g ∼) ∘ pIn (fsuc k) ∘ punch-σ σ .fun ≡ f ∘ fsuc
+      IH1-lemma k q =
+          (g ∼) ∘ pIn (fsuc k) ∘ punch-σ σ .fun
+        ≡⟨ congS (λ z -> (g ∼) ∘ pIn z ∘ punch-σ σ .fun) q ⟩
+          (g ∼) ∘ pIn (σ .fun fzero) ∘ punch-σ σ .fun
+        ≡⟨⟩
+          (g ∼) ∘ pIn (σ .fun fzero) ∘ pOut (σ .fun fzero) ∘ ((G .fun σ) .snd) .fun ∘ pIn fzero
+        ≡⟨ congS (λ h -> (g ∼) ∘ h ∘ ((G .fun σ) .snd) .fun ∘ (invIso pIso) .fun) (funExt (pIn∘Out (σ .fun fzero))) ⟩
+          (g ∼) ∘ equivIn σ .fun ∘ pIn fzero
+        ≡⟨⟩
+          g ∘ σ .fun ∘ fst ∘ pIn fzero
+        ≡⟨ congS (_∘ fst ∘ pIn fzero) (sym p) ⟩
+          f ∘ fst ∘ pIn fzero
+        ≡⟨ congS (f ∘_) (funExt pInZ≡fsuc) ⟩
+          f ∘ fsuc ∎
+
+      IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
+      IH2-lemma k q (zero , r) = congS g q
+      IH2-lemma k q (suc j , r) =
+          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
+        ≡⟨⟩
+          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
+        ≡⟨ congS (g ∘ fsuc) (equivOut-beta-α {σ = compIso pIso (invIso pIso)} j') ⟩
+          g (fsuc (fst (pIn k (pOut fzero j'))))
+        ≡⟨⟩
+          g (fsuc (fst (pIn k (⊎.rec _ (λ k<j -> predℕ (suc j) , _) (suc j <? 0 on _)))))
+        ≡⟨ congS (g ∘ fsuc ∘ fst ∘ pIn k ∘ ⊎.rec _ _) (<?-beta-inr (suc j) 0 _ (suc-≤-suc zero-≤)) ⟩
+          (g ∘ fsuc ∘ fst ∘ pIn k) (predℕ (suc j) , _)
+        ≡⟨ congS {x = predℕ (suc j) , _} {y = j , predℕ-≤-predℕ r} (g ∘ fsuc ∘ fst ∘ pIn k) (Fin-fst-≡ refl) ⟩
+          (g ∘ fsuc ∘ fst ∘ pIn k) (j , predℕ-≤-predℕ r) ∎
+        where
+        j' : FinExcept fzero
+        j' = (suc j , r) , znots ∘ (congS fst)
+
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
             -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
@@ -113,17 +150,39 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       case2 : (k : Fin (suc n))
             -> σ .fun fzero ≡ fsuc k
             -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
+            -> tab (suc n) (g-σ k) ≡ tab (suc n) (g ∘ fsuc)
             -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case2 k ϕ IH1 =
-        comm (f fzero) (g fzero) (tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (sym (eqn1 IH1)) {!   !}
+      case2 k ϕ IH1 IH2 =
+        comm (f fzero) (g fzero) (tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc))
+          (sym (eqn1 IH1)) (sym (eqn2 IH2))
         where
         eqn1 : tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
               -> g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡ tab (suc n) (f ∘ fsuc)
         eqn1 IH =
-          g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨ congS (λ z -> g z ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (Fin-fst-≡ refl) ⟩
-          ((g ∼) ∘ pIn (fsuc k)) fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨⟩
-          tab (suc n) ((g ∼) ∘ pIn (fsuc k)) ≡⟨ sym IH ⟩
-          tab (suc n) (f ∘ fsuc) ∎
+            g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)
+          ≡⟨ congS (λ z -> g z ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (Fin-fst-≡ refl) ⟩
+            ((g ∼) ∘ pIn (fsuc k)) fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)
+          ≡⟨⟩
+            tab (suc n) ((g ∼) ∘ pIn (fsuc k))
+          ≡⟨ sym IH ⟩
+            tab (suc n) (f ∘ fsuc) ∎
+
+        g-σ≡ : tab (suc n) (g-σ k) ≡ g (σ .fun fzero) ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k)
+        g-σ≡ = congS (λ z -> g (σ .fun fzero) ∷ tab n z)
+          (funExt λ z -> congS {x = (fst z , pred-≤-pred (snd (fsuc z)))} ((g ∼) ∘ 1+_ ∘ pIn k) (Fin-fst-≡ refl))
+
+        eqn2 : tab (suc n) (g-σ k) ≡ tab (suc n) (g ∘ fsuc)
+            -> f fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc)
+        eqn2 IH2 =
+            f fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)
+          ≡⟨ congS (λ h -> h fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) p ⟩
+            g (σ .fun fzero) ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)
+          ≡⟨ congS (λ h -> g (σ .fun fzero) ∷ tab n ((g ∼) ∘ h)) (sym pIn-fsuc-nat) ⟩
+            g (σ .fun fzero) ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k)
+          ≡⟨ sym g-σ≡ ⟩
+            tab (suc n) (g-σ k)
+          ≡⟨ IH2 ⟩
+            tab (suc n) (g ∘ fsuc) ∎
 
   -- toCList : Bag A -> CList A
   -- toCList Q.[ (n , f) ] = tab n f

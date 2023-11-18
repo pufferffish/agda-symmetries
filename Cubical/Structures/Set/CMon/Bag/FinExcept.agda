@@ -98,15 +98,9 @@ pOut {n} (k , p) ((j , q) , r) =
 pIn : (k : Fin (suc n)) -> Fin n -> FinExcept k
 pIn (k , p) (j , q) =
   ⊎.rec
-    (λ j<k -> (j , ≤-suc q) , except1 j<k)
-    (λ k≤j -> fsuc (j , q) , except2 k≤j)
+    (λ j<k -> (j , ≤-suc q) , <→≢ j<k ∘ sym ∘ congS fst)
+    (λ k≤j -> fsuc (j , q) , λ r -> ¬m<m (subst (_≤ j) (congS fst r) k≤j))
     (j ≤? k)
-  where
-    abstract
-      except1 : j < k -> ¬ (k , p) ≡ (j , ≤-suc q)
-      except1 j<k r = <→≢ j<k (sym (congS fst r))
-      except2 : k ≤ j -> ¬ (k , p) ≡ fsuc (j , q)
-      except2 k≤j r = ¬m<m (subst (_≤ j) (congS fst r) k≤j)
 
 _∼ : {k : Fin n} -> (Fin n -> A) -> FinExcept k -> A
 f ∼ = f ∘ toFinExc
@@ -314,16 +308,5 @@ module _ {n : ℕ} where
     FinExcept (σ .fun fzero) Iso⟨ pIso ⟩
     Fin n ∎Iso
 
-  punch-σ≡ : ∀ (f g : Fin (suc n) -> A) (σ : Aut (Fin (suc n)))
-            -> f ≡ g ∘ σ .fun
-            -> (g ∼) ∘ pIn (σ .fun fzero) ∘ punch-σ σ .fun ≡ f ∘ fsuc
-  punch-σ≡ f g σ p =
-      (g ∼) ∘ pIn (σ .fun fzero) ∘ pOut (σ .fun fzero) ∘ ((G .fun σ) .snd) .fun ∘ pIn fzero
-    ≡⟨ congS (λ h -> (g ∼) ∘ h ∘ ((G .fun σ) .snd) .fun ∘ (invIso pIso) .fun) (funExt (pIn∘Out (σ .fun fzero))) ⟩
-      (g ∼) ∘ equivIn σ .fun ∘ pIn fzero
-    ≡⟨⟩
-      g ∘ σ .fun ∘ fst ∘ pIn fzero
-    ≡⟨ congS (_∘ fst ∘ pIn fzero) (sym p) ⟩
-      f ∘ fst ∘ pIn fzero
-    ≡⟨ congS (f ∘_) (funExt pInZ≡fsuc) ⟩
-      f ∘ fsuc ∎
+  fill-σ : ∀ k -> Aut (Fin (suc n))
+  fill-σ k = equivOut {k = k} (compIso pIso (invIso pIso))
