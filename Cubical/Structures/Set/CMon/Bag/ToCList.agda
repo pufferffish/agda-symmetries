@@ -94,7 +94,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       )
       (λ (k , q) ->
         let
-          IH1 = toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) {!   !} {!   !}
+          IH1 = toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) (punch-σ σ)
+            (sym (punch-σ≡ f g σ p) ∙ congS (λ z → (g ∼) ∘ pIn z ∘ punch-σ σ .fun) (sym q))
         in case2 k (sym q) IH1
       )
       (fsplit (σ .fun fzero))
@@ -114,12 +115,11 @@ module IsoToCList {ℓ} (A : Type ℓ) where
             -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
             -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
       case2 k ϕ IH1 =
-        comm (f fzero) (g fzero) (tab n ((g ∼) ∘ 1+_ ∘ pIn k)) (sym (eqn1 IH1)) {!   !}
+        comm (f fzero) (g fzero) (tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (sym (eqn1 IH1)) {!   !}
         where
         eqn1 : tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
-              -> g fzero ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k) ≡ tab (suc n) (f ∘ fsuc)
+              -> g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡ tab (suc n) (f ∘ fsuc)
         eqn1 IH =
-          g fzero ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k) ≡⟨ congS (λ z -> g fzero ∷ tab n ((g ∼) ∘ z)) pIn-fsuc-nat ⟩
           g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨ congS (λ z -> g z ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (Fin-fst-≡ refl) ⟩
           ((g ∼) ∘ pIn (fsuc k)) fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨⟩
           tab (suc n) ((g ∼) ∘ pIn (fsuc k)) ≡⟨ sym IH ⟩

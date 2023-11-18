@@ -187,6 +187,9 @@ module _ {k : Fin (suc n)} where
   Iso.rightInv pIso = pOut∘In k
   Iso.leftInv pIso = pIn∘Out k
 
+pInZ≡fsuc : (k : Fin n) -> fst (pIn fzero k) ≡ fsuc k
+pInZ≡fsuc k = congS (fst ∘ ⊎.rec _ _) (≤?-beta-inr (fst k) 0 zero-≤)
+
 pIn-fsuc-nat : {k : Fin (suc n)} -> 1+_ ∘ pIn k ≡ pIn (fsuc k) ∘ fsuc
 pIn-fsuc-nat {n = zero} {k = k} = funExt \j -> ⊥.rec (¬Fin0 j)
 pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
@@ -310,3 +313,17 @@ module _ {n : ℕ} where
     FinExcept (fzero {k = n}) Iso⟨ (G .fun σ) .snd ⟩
     FinExcept (σ .fun fzero) Iso⟨ pIso ⟩
     Fin n ∎Iso
+
+  punch-σ≡ : ∀ (f g : Fin (suc n) -> A) (σ : Aut (Fin (suc n)))
+            -> f ≡ g ∘ σ .fun
+            -> (g ∼) ∘ pIn (σ .fun fzero) ∘ punch-σ σ .fun ≡ f ∘ fsuc
+  punch-σ≡ f g σ p =
+      (g ∼) ∘ pIn (σ .fun fzero) ∘ pOut (σ .fun fzero) ∘ ((G .fun σ) .snd) .fun ∘ pIn fzero
+    ≡⟨ congS (λ h -> (g ∼) ∘ h ∘ ((G .fun σ) .snd) .fun ∘ (invIso pIso) .fun) (funExt (pIn∘Out (σ .fun fzero))) ⟩
+      (g ∼) ∘ equivIn σ .fun ∘ pIn fzero
+    ≡⟨⟩
+      g ∘ σ .fun ∘ fst ∘ pIn fzero
+    ≡⟨ congS (_∘ fst ∘ pIn fzero) (sym p) ⟩
+      f ∘ fst ∘ pIn fzero
+    ≡⟨ congS (f ∘_) (funExt pInZ≡fsuc) ⟩
+      f ∘ fsuc ∎
