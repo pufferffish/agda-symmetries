@@ -303,3 +303,10 @@ module _ {n : ℕ} where
   inv G (k , τ) = equivOut τ
   rightInv G (k , τ) = ΣPathP (refl , equivIn∘Out τ)
   leftInv G = equivOut∘In 
+
+  punch-σ : (σ : Aut (Fin (suc n))) -> Aut (Fin n)
+  punch-σ σ =
+    Fin n Iso⟨ invIso pIso ⟩
+    FinExcept (fzero {k = n}) Iso⟨ (G .fun σ) .snd ⟩
+    FinExcept (σ .fun fzero) Iso⟨ pIso ⟩
+    Fin n ∎Iso
