@@ -81,8 +81,8 @@ abstract
   ... | inl q = ⊥.rec (<-asym q p)
   ... | inr q = congS inr (isProp≤ _ _)
 
-  FinExcept≡ : ∀ {n k} -> (a b : FinExcept {n = n} k) -> a .fst .fst ≡ b .fst .fst -> a ≡ b
-  FinExcept≡ a b p = Σ≡Prop (λ _ -> isProp¬ _) (Fin-fst-≡ p)
+  FinExcept≡ : ∀ {n k} -> {a b : FinExcept {n = n} k} -> a .fst .fst ≡ b .fst .fst -> a ≡ b
+  FinExcept≡ p = Σ≡Prop (λ _ -> isProp¬ _) (Fin-fst-≡ p)
 
 pOut : ∀ {n} -> (k : Fin (suc n)) -> FinExcept k -> Fin n
 pOut {n} (k , p) ((j , q) , r) =
@@ -131,7 +131,7 @@ pIn∘Out (k , p) ((j , q) , r) =
         ⊎.rec (λ j<k -> (j , _) , _) _ (j ≤? k)
       ≡⟨ congS (⊎.rec (λ j<k -> (j , _) , _) _) (≤?-beta-inl j k j<k) ⟩
         (j , ≤-suc (<-not-dense j<k p)) , _
-      ≡⟨ FinExcept≡ _ _ refl ⟩
+      ≡⟨ FinExcept≡ refl ⟩
         ((j , q) , r)
     ∎)
     (λ k<j ->
@@ -144,7 +144,7 @@ pIn∘Out (k , p) ((j , q) , r) =
         ⊎.rec _ (λ k≤predℕj -> fsuc (predℕ j , _) , _) (predℕ j ≤? k)
       ≡⟨ congS (⊎.rec _ _) (≤?-beta-inr (predℕ j) k (predℕ-≤-predℕ k<j)) ⟩
         (fsuc (predℕ j , predℕa<b q k<j) , _)
-      ≡⟨ FinExcept≡ _ _ (sym (suc-predℕ j (a>b→a≠0 k<j))) ⟩
+      ≡⟨ FinExcept≡ (sym (suc-predℕ j (a>b→a≠0 k<j))) ⟩
         ((j , q) , r)
     ∎)
     (j <? k on (r ∘ Fin-fst-≡ ∘ sym))
@@ -211,7 +211,7 @@ pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
                 ⊎.rec (λ sj<sk -> fsuc (j , _) , _) _ (suc j ≤? suc k)
               ≡⟨ congS (⊎.rec _ _) (≤?-beta-inl (suc j) (suc k) (suc-≤-suc j<k)) ⟩
                 fsuc (j , _) , _
-              ≡⟨ FinExcept≡ _ _ refl ⟩
+              ≡⟨ FinExcept≡ refl ⟩
                 fsuc (j , ≤-suc q) , _ ∎
           in r ∙ (sym s)
         )
@@ -231,28 +231,75 @@ pIn-fsuc-nat {n = suc n} {k = k} = funExt (pIn-fsuc-nat-htpy k)
                 ⊎.rec _ (λ sk≤sj -> fsuc (fsuc (j , q)) , _) (suc j ≤? suc k)
               ≡⟨ congS (⊎.rec _ _) (≤?-beta-inr (suc j) (suc k) (suc-≤-suc k≤j)) ⟩
                 fsuc (fsuc (j , q)) , _
-              ≡⟨ FinExcept≡ _ _ refl ⟩
+              ≡⟨ FinExcept≡ refl ⟩
                 fsuc (fsuc (j , q)) , _ ∎
           in r ∙ (sym s)
         )
         (j ≤? k)
 
--- ϕ : Iso (Fin (suc n)) (Unit ⊎ Fin n)
--- ϕ = TODO
--- 
--- H : ∀ {X Y : Type ℓ} -> Iso (Unit ⊎ X) (Unit ⊎ Y) -> Iso X Y
--- H = TODO
--- 
--- module _ {n : ℕ} where
---   G0 : (σ : Iso (Fin (suc n)) (Fin (suc n)))
---     -> Iso (FinExcept {n = suc n} (fzero {k = n})) (FinExcept {n = suc n} (σ .fun fzero))
---   G0 σ = compIso (pIso n fzero)
---                  (compIso (H (compIso (invIso ϕ) (compIso σ ϕ)))
---                           (invIso (pIso n (σ .fun fzero))))
--- 
---   G : Iso (Iso (Fin (suc n)) (Fin (suc n))) (Σ[ k ∈ Fin (suc n) ] Iso (FinExcept {n = suc n} (fzero {k = n})) (FinExcept {n = suc n} k))
---   Iso.fun G σ = σ .fun fzero , G0 σ
---   Iso.inv G = TODO
---   Iso.rightInv G = TODO
---   Iso.leftInv G = TODO
---  
+
+Aut : (A : Type ℓ) -> Type ℓ
+Aut A = Iso A A
+
+projectIso : {i : Fin n} -> Iso (Unit ⊎ FinExcept i) (Fin n)
+fun (projectIso {i = i}) (inl _) = i
+fun (projectIso {i = i}) (inr m) = fst m
+inv (projectIso {i = i}) m =
+  decRec (λ i≡m -> inl tt) (λ i≠m -> inr (m , i≠m)) (discreteFin i m)
+rightInv (projectIso {i = i}) m with discreteFin i m
+... | yes i≡m = i≡m
+... | no ¬i≡m = refl
+leftInv (projectIso {i = i}) (inl _) with discreteFin i i
+... | yes i≡m = refl
+... | no ¬i≡m = ⊥.rec (¬i≡m refl)
+leftInv (projectIso {i = i}) (inr m) with discreteFin i (fst m)
+... | yes i≡m = ⊥.rec (m .snd i≡m)
+... | no ¬i≡m = congS inr (FinExcept≡ refl)
+
+module _ {n : ℕ} where
+  equivIn : (σ : Aut (Fin (suc n))) -> Iso (FinExcept fzero) (FinExcept (σ .fun fzero))
+  Iso.fun (equivIn σ) (k , p) = σ .fun k , p ∘ isoFunInjective σ _ _
+  Iso.inv (equivIn σ) (k , p) = σ .inv k , p ∘ isoInvInjective σ _ _ ∘ σ .leftInv fzero ∙_
+  Iso.rightInv (equivIn σ) (k , p) = FinExcept≡ (congS fst (σ .rightInv k))
+  Iso.leftInv (equivIn σ) (k , p) = FinExcept≡ (congS fst (σ .leftInv k))
+
+  equivOut : ∀ {k} -> Iso (FinExcept fzero) (FinExcept k) -> Aut (Fin (suc n))
+  equivOut {k = k} σ =
+    Fin (suc n) Iso⟨ invIso projectIso ⟩
+    Unit ⊎ FinExcept fzero Iso⟨ ⊎Iso idIso σ ⟩
+    Unit ⊎ FinExcept k Iso⟨ projectIso ⟩
+    Fin (suc n) ∎Iso
+
+  equivOut-beta-α : ∀ {k} {σ} (x : FinExcept fzero) -> (equivOut {k = k} σ) .fun (fst x) ≡ fst (σ .fun x)
+  equivOut-beta-α {σ = σ} x with discreteFin fzero (fst x)
+  ... | yes p = ⊥.rec (x .snd p)
+  ... | no ¬p = congS (fst ∘ σ .fun) (FinExcept≡ refl)
+
+  equivOut-beta-β : ∀ {k} {σ} (x : FinExcept (equivOut {k = k} σ .fun fzero)) -> equivOut σ .inv (fst x) ≡ σ .inv x .fst
+  equivOut-beta-β {k = k} {σ = σ} x with discreteFin k (fst x)
+  ... | yes p = ⊥.rec (x .snd p)
+  ... | no ¬p = congS (fst ∘ σ .inv) (FinExcept≡ refl)
+
+  equivIn∘Out : ∀ {k} -> (τ : Iso (FinExcept fzero) (FinExcept k)) -> equivIn (equivOut τ) ≡ τ
+  equivIn∘Out τ =
+    Iso≡Set isSetFinExcept isSetFinExcept _ _
+      (FinExcept≡ ∘ congS fst ∘ equivOut-beta-α)
+      (FinExcept≡ ∘ congS fst ∘ equivOut-beta-β)
+
+  equivOut∘In : (σ : Aut (Fin (suc n))) -> equivOut (equivIn σ) ≡ σ
+  equivOut∘In σ = Iso≡Set isSetFin isSetFin _ _ lemma-α lemma-β
+    where
+    lemma-α : (x : Fin (suc n)) -> equivOut (equivIn σ) .fun x ≡ σ .fun x
+    lemma-α x with discreteFin fzero x
+    ... | yes p = congS (σ .fun) p
+    ... | no ¬p = refl
+    lemma-β : (x : Fin (suc n)) -> equivOut (equivIn σ) .inv x ≡ σ .inv x
+    lemma-β x with discreteFin (σ .fun fzero) x
+    ... | yes p = sym (σ .leftInv fzero) ∙ congS (σ .inv) p
+    ... | no ¬p = refl
+
+  G : Iso (Aut (Fin (suc n))) (Σ[ k ∈ Fin (suc n) ] (Iso (FinExcept (fzero {k = n})) (FinExcept k)))
+  fun G σ = σ .fun fzero , equivIn σ
+  inv G (k , τ) = equivOut τ
+  rightInv G (k , τ) = ΣPathP (refl , equivIn∘Out τ)
+  leftInv G = equivOut∘In 

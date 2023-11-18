@@ -93,7 +93,9 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         in case1 IH (sym q)
       )
       (λ (k , q) ->
-        {!   !}
+        let
+          IH1 = toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) {!   !} {!   !}
+        in case2 k (sym q) IH1
       )
       (fsplit (σ .fun fzero))
     where
@@ -107,21 +109,21 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (g fzero ∷_) IH ⟩
         g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
         tab (suc (suc n)) g ∎
-      -- case2 : (k : Fin (suc n))
-      --       -> σ .fun fzero ≡ fsuc k
-      --       -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ except (σ .fun fzero))
-      --       -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      -- case2 k ϕ IH1 =
-      --   comm (f fzero) (g fzero) (tab n {!!}) eqn1 {!   !}
-      --   where
-      --   eqn1 : tab (suc n) (f ∘ fsuc) ≡ g fzero ∷ tab n (g ∘ fsuc ∘ except k)
-      --   eqn1 =
-      --     tab (suc n) (f ∘ fsuc) ≡⟨ IH1 ⟩
-      --     tab (suc n) (g ∘ except (σ .fun fzero)) ≡⟨⟩
-      --     g (except (σ .fun fzero) fzero) ∷ tab n (g ∘ except (σ .fun fzero) ∘ fsuc) ≡⟨ congS (λ r -> g (except r fzero) ∷ tab n (g ∘ except r ∘ fsuc)) ϕ ⟩
-      --     g (except (fsuc k) fzero) ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨⟩
-      --     g fzero ∷ tab n (g ∘ except (fsuc k) ∘ fsuc) ≡⟨ congS (λ h -> g fzero ∷ tab n (g ∘ h)) (funExt (exceptSuc≡ k)) ⟩
-      --     g fzero ∷ tab n (g ∘ fsuc ∘ except k) ∎
+      case2 : (k : Fin (suc n))
+            -> σ .fun fzero ≡ fsuc k
+            -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
+            -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
+      case2 k ϕ IH1 =
+        comm (f fzero) (g fzero) (tab n ((g ∼) ∘ 1+_ ∘ pIn k)) (sym (eqn1 IH1)) {!   !}
+        where
+        eqn1 : tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
+              -> g fzero ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k) ≡ tab (suc n) (f ∘ fsuc)
+        eqn1 IH =
+          g fzero ∷ tab n ((g ∼) ∘ 1+_ ∘ pIn k) ≡⟨ congS (λ z -> g fzero ∷ tab n ((g ∼) ∘ z)) pIn-fsuc-nat ⟩
+          g fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨ congS (λ z -> g z ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc)) (Fin-fst-≡ refl) ⟩
+          ((g ∼) ∘ pIn (fsuc k)) fzero ∷ tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc) ≡⟨⟩
+          tab (suc n) ((g ∼) ∘ pIn (fsuc k)) ≡⟨ sym IH ⟩
+          tab (suc n) (f ∘ fsuc) ∎
 
   -- toCList : Bag A -> CList A
   -- toCList Q.[ (n , f) ] = tab n f
