@@ -62,6 +62,15 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     fromCList-e : fromCList [] ≡ 𝔅.e
     fromCList-e = refl
 
+    fromCList-++ : ∀ xs ys -> fromCList (xs ℭ.⊕ ys) ≡ fromCList xs 𝔅.⊕ fromCList ys
+    fromCList-++ xs ys =
+      fromCList (xs ℭ.⊕ ys) ≡⟨ sym (fromCListIsHom M.`⊕ (lookup (xs List.∷ ys List.∷ List.[]))) ⟩
+      _ ≡⟨ 𝔅.⊕-eta (lookup (xs List.∷ ys List.∷ List.[])) fromCList ⟩
+      _ ∎
+
+    fromCList-η : ∀ x -> fromCList (CL.[ x ]) ≡ Q.[ A.η x ]
+    fromCList-η x = {!   !}
+
   ListToCList : List A -> CList A
   ListToCList = (_∷ []) ♯
     where _♯ = (L.Free._♯ isSetCList) (M.cmonSatMon CL.clist-sat)
@@ -249,10 +258,15 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     elimCListProp.f _
       (congS toCList fromCList-e ∙ toCList-e) 
       (λ x {xs} p ->
-        toCList (fromCList (x ∷ xs)) ≡⟨ {!   !} ⟩
-        toCList (fromCList CL.[ x ] 𝔅.⊕ fromCList xs) ≡⟨ {!   !} ⟩
+        toCList (fromCList (x ∷ xs)) ≡⟨ congS toCList (fromCList-++ CL.[ x ] xs) ⟩
+        toCList (fromCList CL.[ x ] 𝔅.⊕ fromCList xs) ≡⟨ toCList-++ (fromCList CL.[ x ]) (fromCList xs) ⟩
         toCList (fromCList CL.[ x ]) ℭ.⊕ toCList (fromCList xs) ≡⟨ congS (toCList (fromCList CL.[ x ]) ℭ.⊕_) p ⟩
         toCList (fromCList CL.[ x ]) ℭ.⊕ xs ≡⟨ congS {x = toCList (fromCList CL.[ x ])} {y = CL.[ x ]} (ℭ._⊕ xs) {!   !} ⟩
         CL.[ x ] ℭ.⊕ xs
       ∎)
       (isSetCList _ _)
+
+  fromCList-toCList : ∀ xs -> fromCList (toCList xs) ≡ xs
+  fromCList-toCList =
+    elimProp (λ _ -> squash/ _ _) λ xs ->
+      {!   !}  
