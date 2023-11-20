@@ -45,18 +45,32 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   open import Cubical.Structures.Set.CMon.CList as CL
   open import Cubical.HITs.SetQuotients as Q
 
+  module 𝔄 = M.MonSEq < Array A , array-α > array-sat
   module 𝔅 = M.CMonSEq < Bag A , BagDef.Free.α bagFreeDef > (BagDef.Free.sat bagFreeDef)
   module ℭ = M.CMonSEq < CList A , clist-α > clist-sat
 
-  fromCList : CList A -> Bag A
-  fromCList = CL.Free._♯ squash/ (BagDef.Free.sat bagFreeDef) (BagDef.Free.η bagFreeDef)
+  abstract -- needed so Agda wouldn't get stuck
+    fromCListHom : structHom < CList A , clist-α > < Bag A , BagDef.Free.α bagFreeDef >
+    fromCListHom = CListDef.Free.ext clistDef squash/ (BagDef.Free.sat bagFreeDef) (BagDef.Free.η bagFreeDef)
+
+    fromCList : CList A -> Bag A
+    fromCList = fromCListHom .fst
+
+    fromCListIsHom : structIsHom < CList A , clist-α > < Bag A , BagDef.Free.α bagFreeDef > fromCList
+    fromCListIsHom = fromCListHom .snd
+
+    fromCList-e : fromCList [] ≡ 𝔅.e
+    fromCList-e = refl
 
   ListToCList : List A -> CList A
   ListToCList = (_∷ []) ♯
     where _♯ = (L.Free._♯ isSetCList) (M.cmonSatMon CL.clist-sat)
 
+  -- tab : ∀ n -> (Fin n -> A) -> CList A
+  -- tab = curry (ListToCList ∘ arrayIsoToList .fun)
   tab : ∀ n -> (Fin n -> A) -> CList A
-  tab = curry (ListToCList ∘ arrayIsoToList .fun)
+  tab zero ^a = []
+  tab (suc n) ^a = ^a fzero ∷ tab n (^a ∘ fsuc)
 
   isContr≅ : ∀ {ℓ} {A : Type ℓ} -> isContr A -> isContr (Iso A A)
   isContr≅ ϕ = inhProp→isContr idIso \σ1 σ2 ->
@@ -119,23 +133,24 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         ≡⟨ congS (f ∘_) (funExt pInZ≡fsuc) ⟩
           f ∘ fsuc ∎
 
-      IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
-      IH2-lemma k q (zero , r) = congS g q
-      IH2-lemma k q (suc j , r) =
-          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
-        ≡⟨⟩
-          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
-        ≡⟨ congS (g ∘ fsuc) (equivOut-beta-α {σ = compIso pIso (invIso pIso)} j') ⟩
-          g (fsuc (fst (pIn k (pOut fzero j'))))
-        ≡⟨⟩
-          g (fsuc (fst (pIn k (⊎.rec _ (λ k<j -> predℕ (suc j) , _) (suc j <? 0 on _)))))
-        ≡⟨ congS (g ∘ fsuc ∘ fst ∘ pIn k ∘ ⊎.rec _ _) (<?-beta-inr (suc j) 0 _ (suc-≤-suc zero-≤)) ⟩
-          (g ∘ fsuc ∘ fst ∘ pIn k) (predℕ (suc j) , _)
-        ≡⟨ congS {x = predℕ (suc j) , _} {y = j , predℕ-≤-predℕ r} (g ∘ fsuc ∘ fst ∘ pIn k) (Fin-fst-≡ refl) ⟩
-          (g ∘ fsuc ∘ fst ∘ pIn k) (j , predℕ-≤-predℕ r) ∎
-        where
-        j' : FinExcept fzero
-        j' = (suc j , r) , znots ∘ (congS fst)
+      postulate
+        IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
+      -- IH2-lemma k q (zero , r) = congS g q
+      -- IH2-lemma k q (suc j , r) =
+      --     g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
+      --   ≡⟨⟩
+      --     g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
+      --   ≡⟨ congS (g ∘ fsuc) (equivOut-beta-α {σ = compIso pIso (invIso pIso)} j') ⟩
+      --     g (fsuc (fst (pIn k (pOut fzero j'))))
+      --   ≡⟨⟩
+      --     g (fsuc (fst (pIn k (⊎.rec _ (λ k<j -> predℕ (suc j) , _) (suc j <? 0 on _)))))
+      --   ≡⟨ congS (g ∘ fsuc ∘ fst ∘ pIn k ∘ ⊎.rec _ _) (<?-beta-inr (suc j) 0 _ (suc-≤-suc zero-≤)) ⟩
+      --     (g ∘ fsuc ∘ fst ∘ pIn k) (predℕ (suc j) , _)
+      --   ≡⟨ congS {x = predℕ (suc j) , _} {y = j , predℕ-≤-predℕ r} (g ∘ fsuc ∘ fst ∘ pIn k) (Fin-fst-≡ refl) ⟩
+      --     (g ∘ fsuc ∘ fst ∘ pIn k) (j , predℕ-≤-predℕ r) ∎
+      --   where
+      --   j' : FinExcept fzero
+      --   j' = (suc j , r) , znots ∘ (congS fst)
 
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
@@ -201,11 +216,43 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         ≡⟨ sym p ⟩
           f ∎
 
-  toCList : Bag A -> CList A
-  toCList Q.[ (n , f) ] = tab n f
-  toCList (eq/ (n , f) (m , g) r i) = toCList-eq' n m f g r i
-  toCList (squash/ xs ys p q i j) =
-    isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
+  abstract
+    toCList : Bag A -> CList A
+    toCList Q.[ (n , f) ] = tab n f
+    toCList (eq/ (n , f) (m , g) r i) = toCList-eq' n m f g r i
+    toCList (squash/ xs ys p q i j) =
+      isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
 
-  -- toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
-  -- toCList-fromCList x = {!`  !}
+    toCList-e : toCList 𝔅.e ≡ CL.[]
+    toCList-e = refl
+
+    toCList-++ : ∀ xs ys -> toCList (xs 𝔅.⊕ ys) ≡ toCList xs ℭ.⊕ toCList ys
+    toCList-++ =
+      elimProp (λ _ -> isPropΠ (λ _ -> isSetCList _ _)) λ (n , f) ->
+        elimProp (λ _ -> isSetCList _ _) λ ys ->
+          lemma n f ys
+      where
+      lemma : ∀ n (f : Fin n -> A) (ys : Array A)
+            -> toCList (Q.[ (n , f) ] 𝔅.⊕ Q.[ ys ]) ≡ toCList Q.[ (n , f) ] ℭ.⊕ toCList Q.[ ys ]
+      lemma zero f ys =
+        toCList (Q.[ (zero , f) ] 𝔅.⊕ Q.[ ys ]) ≡⟨ congS (λ z -> toCList (Q.[ z ] 𝔅.⊕ Q.[ ys ])) (e-eta (zero , f) _ refl refl) ⟩
+        toCList (𝔅.e 𝔅.⊕ Q.[ ys ]) ≡⟨ congS toCList (𝔅.unitl Q.[ ys ]) ⟩
+        toCList Q.[ ys ] ≡⟨ ℭ.unitl (toCList Q.[ ys ]) ⟩
+        toCList Q.[ (zero , f) ] ℭ.⊕ toCList Q.[ ys ] ∎
+      lemma (suc n) f ys =
+        toCList (Q.[ (suc n , f) ] 𝔅.⊕ Q.[ ys ]) ≡⟨⟩
+        {!   !}
+
+
+  toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
+  toCList-fromCList =
+    elimCListProp.f _
+      (congS toCList fromCList-e ∙ toCList-e) 
+      (λ x {xs} p ->
+        toCList (fromCList (x ∷ xs)) ≡⟨ {!   !} ⟩
+        toCList (fromCList CL.[ x ] 𝔅.⊕ fromCList xs) ≡⟨ {!   !} ⟩
+        toCList (fromCList CL.[ x ]) ℭ.⊕ toCList (fromCList xs) ≡⟨ congS (toCList (fromCList CL.[ x ]) ℭ.⊕_) p ⟩
+        toCList (fromCList CL.[ x ]) ℭ.⊕ xs ≡⟨ congS {x = toCList (fromCList CL.[ x ])} {y = CL.[ x ]} (ℭ._⊕ xs) {!   !} ⟩
+        CL.[ x ] ℭ.⊕ xs
+      ∎)
+      (isSetCList _ _)
