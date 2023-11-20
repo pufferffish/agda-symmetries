@@ -69,7 +69,20 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       _ ∎
 
     fromCList-η : ∀ x -> fromCList (CL.[ x ]) ≡ Q.[ A.η x ]
-    fromCList-η x = {!   !}
+    fromCList-η x = congS (λ f -> Q.[ suc zero , f ]) (funExt λ w -> lemma w)
+      where
+      lemma : (w : Fin 1) -> ⊎.rec (λ _ → x)
+        (λ x₁ →
+           ⊥.rec
+           (transport
+            (λ i →
+               caseNat ⊥.⊥ ℕ
+               (hcomp
+                (doubleComp-faces (λ _ → suc (fst (snd x₁) + fst x₁))
+                 (snd (snd x₁)) i)
+                (+-suc (fst (snd x₁)) (fst x₁) (~ i)))) 0))
+        (finSplit 1 0 w) ≡ x
+      lemma (k , p) = congS (⊎.rec _ _) (finSplit-beta-inl k p p)
 
   ListToCList : List A -> CList A
   ListToCList = (_∷ []) ♯
@@ -252,6 +265,11 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         toCList (Q.[ (suc n , f) ] 𝔅.⊕ Q.[ ys ]) ≡⟨⟩
         {!   !}
 
+    toCList∘fromCList-η : ∀ x -> toCList (fromCList CL.[ x ]) ≡ CL.[ x ]
+    toCList∘fromCList-η x = refl
+
+    fromCList∘toCList-η : ∀ x -> fromCList (toCList Q.[ A.η x ]) ≡ Q.[ A.η x ]
+    fromCList∘toCList-η x = fromCList-η x
 
   toCList-fromCList : ∀ xs -> toCList (fromCList xs) ≡ xs
   toCList-fromCList =
@@ -261,12 +279,7 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         toCList (fromCList (x ∷ xs)) ≡⟨ congS toCList (fromCList-++ CL.[ x ] xs) ⟩
         toCList (fromCList CL.[ x ] 𝔅.⊕ fromCList xs) ≡⟨ toCList-++ (fromCList CL.[ x ]) (fromCList xs) ⟩
         toCList (fromCList CL.[ x ]) ℭ.⊕ toCList (fromCList xs) ≡⟨ congS (toCList (fromCList CL.[ x ]) ℭ.⊕_) p ⟩
-        toCList (fromCList CL.[ x ]) ℭ.⊕ xs ≡⟨ congS {x = toCList (fromCList CL.[ x ])} {y = CL.[ x ]} (ℭ._⊕ xs) {!   !} ⟩
+        toCList (fromCList CL.[ x ]) ℭ.⊕ xs ≡⟨ congS {x = toCList (fromCList CL.[ x ])} {y = CL.[ x ]} (ℭ._⊕ xs) (toCList∘fromCList-η x) ⟩
         CL.[ x ] ℭ.⊕ xs
       ∎)
       (isSetCList _ _)
-
-  fromCList-toCList : ∀ xs -> fromCList (toCList xs) ≡ xs
-  fromCList-toCList =
-    elimProp (λ _ -> squash/ _ _) λ xs ->
-      {!   !}  
