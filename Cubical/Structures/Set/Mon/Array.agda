@@ -9,7 +9,6 @@ open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Induction.WellFounded
 import Cubical.Data.Empty as ⊥
 
 import Cubical.Structures.Set.Mon.Desc as M
@@ -447,7 +446,7 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
 arrayIsoToListHom : ∀ {ℓ} {A : Type ℓ} -> structIsHom < Array A , ArrayDef.Free.α {ℓ' = ℓ} arrayDef' > < List A , LM.list-α > (arrayIsoToList .fun)
 arrayIsoToListHom M.`e i = refl
 arrayIsoToListHom {A = A} M.`⊕ index with index fzero | inspect index fzero
-... | zero , f | [ p ]ᵢ = congS (uncurry tabulate) (Array≡ (sym lemma-α) {!   !})
+... | zero , f | [ p ]ᵢ = congS (uncurry tabulate) (Array≡ (sym lemma-α) lemma-β)
   where
   lemma-α : _
   lemma-α =
@@ -466,7 +465,42 @@ arrayIsoToListHom {A = A} M.`⊕ index with index fzero | inspect index fzero
       length (((uncurry tabulate) (index fone)))
     ≡⟨ length-tabulate (fst (index fone)) (snd (index fone)) ⟩
       fst (index fone) ∎
+  lemma-β : _
+  lemma-β k k<m = sym $
+      lookup (transport (λ i → List A) (transport (λ i → List A) ((uncurry tabulate) (index fzero)) ++ transport (λ i → List A) ((uncurry tabulate) (index fone)))) (k , k<m)
+    ≡⟨ cong₂ {y = ((transport (λ i → List A) ((uncurry tabulate) (index fzero)) ++ transport (λ i → List A) ((uncurry tabulate) (index fone))))} lookup (transportRefl _) (ΣPathP (refl , transport-filler _ _)) ⟩
+      lookup ((transport (λ i → List A) ((uncurry tabulate) (index fzero)) ++ transport (λ i → List A) ((uncurry tabulate) (index fone)))) (k , _)
+    ≡⟨ cong₂ (λ y z -> lookup ((transport (λ i → List A) ((uncurry tabulate) y) ++ transport (λ i → List A) ((uncurry tabulate) (index fone)))) (k , z)) p (transport-filler _ _) ⟩
+      lookup (transport (λ i → List A) ((uncurry tabulate) (index fone))) (k , _)
+    ≡⟨ cong₂ lookup (transportRefl ((uncurry tabulate) (index fone))) (ΣPathP (refl , (transport-filler _ _))) ⟩ 
+      (lookup ((uncurry tabulate) (index fone))) (k , _)
+    ≡⟨ congP₂ (λ i y z -> y z) (lookup-tabulate (fst (index fone)) (snd (index fone))) (ΣPathPProp (λ _ -> isProp≤) refl) ⟩
+      snd (index fone) (k , subst (k <_) lemma-α k<m) ∎
 ... | suc n , f | p = {!   !}
 
 -- arrayIsoToList .fun (i fzero) ++ arrayIsoToList .fun (i fone) ≡ arrayIsoToList .fun (F.Definition.Free.α arrayDef' (M.`⊕ , i))
- 
+{-
+
+PathP
+      (λ i → k < length-tabulate (fst (index fone)) (snd (index fone)) i)
+      (transport
+       (λ i →
+          k < length (transportRefl (uncurry tabulate (index fone)) i))
+       (transport
+        (λ i →
+           k <
+           length
+           (transport (λ i₁ → List A) (uncurry tabulate (p i)) ++
+            transport (λ i₁ → List A) (uncurry tabulate (index fone))))
+        (transport
+         (λ i →
+            k <
+            length
+            (transportRefl
+             (transport (λ i₁ → List A) (uncurry tabulate (index fzero)) ++
+              transport (λ i₁ → List A) (uncurry tabulate (index fone)))
+             i))
+         k<m)))
+      (subst (_<_ k) lemma-α k<m)
+
+-}
