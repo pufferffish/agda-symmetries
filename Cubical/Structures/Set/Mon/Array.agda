@@ -443,10 +443,29 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
   arrayFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 Array
   arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
 
+-- TODO: Investigate using a regularization tactic to simplify this
 arrayIsoToListHom : ∀ {ℓ} {A : Type ℓ} -> structIsHom < Array A , ArrayDef.Free.α {ℓ' = ℓ} arrayDef' > < List A , LM.list-α > (arrayIsoToList .fun)
 arrayIsoToListHom M.`e i = refl
 arrayIsoToListHom {A = A} M.`⊕ index with index fzero | inspect index fzero
-... | zero , f | [ p ]ᵢ = {!   !}
+... | zero , f | [ p ]ᵢ = congS (uncurry tabulate) (Array≡ (sym lemma-α) {!   !})
+  where
+  lemma-α : _
+  lemma-α =
+      length (transport (λ i → List A) (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))))
+    ≡⟨ congS {y = transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))} length (transportRefl _) ⟩
+      length (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
+    ≡⟨ congS {y = (uncurry tabulate) (index (transport (λ j → Fin 2) fzero))} (λ z -> length (z ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) (transportRefl _) ⟩
+      length (((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
+    ≡⟨ congS (λ z -> length (((uncurry tabulate) (index z)) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) (transportRefl _) ⟩
+      length (((uncurry tabulate) (index fzero)) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
+    ≡⟨ congS (λ z -> length (((uncurry tabulate) z) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) p ⟩
+      length (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
+    ≡⟨ congS {y = ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))} length (transportRefl _) ⟩
+      length (((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
+    ≡⟨ congS (λ z -> length (((uncurry tabulate) (index z)))) (transportRefl _) ⟩
+      length (((uncurry tabulate) (index fone)))
+    ≡⟨ length-tabulate (fst (index fone)) (snd (index fone)) ⟩
+      fst (index fone) ∎
 ... | suc n , f | p = {!   !}
 
 -- arrayIsoToList .fun (i fzero) ++ arrayIsoToList .fun (i fone) ≡ arrayIsoToList .fun (F.Definition.Free.α arrayDef' (M.`⊕ , i))
