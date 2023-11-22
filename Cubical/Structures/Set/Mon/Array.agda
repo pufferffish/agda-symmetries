@@ -20,8 +20,6 @@ open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
 
-open import Cubical.Structures.Inspect
-
 open Iso
 
 private
@@ -283,16 +281,22 @@ n+m≤k→m≤k∸n n m k p = subst (_≤ k ∸ n) (∸+ m n) (≤-∸-≤ (n + 
   (k ≤? (n + m))
 
 η+fsuc : ∀ {n} (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
-η+fsuc {n = n} xs = ΣPathP (refl , funExt lemma)
-  where
-  lemma : _
-  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (suc m , p) with oldInspect (suc m ≤? 1)
-  ... | inl q with-≡ r = ⊥.rec (¬-<-zero (pred-≤-pred q))
-  ... | inr q with-≡ r =
-    _ ≡⟨ cong (λ z -> ⊎.rec _ _ (finSplitAux 1 n (suc m) p z)) r ⟩
-    _ ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-    _ ∎
+η+fsuc {n = n} xs = Array≡ refl λ k k<sucn -> ⊎.rec 
+  (λ k<1 ->
+      ⊎.rec (λ _ -> xs fzero) _ (finSplit 1 n (k , _))
+    ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k k<1 _) ⟩
+      xs fzero  
+    ≡⟨ congS xs (Σ≡Prop (λ _ -> isProp≤) (sym (≤0→≡0 (pred-≤-pred k<1)))) ⟩
+      xs (k , k<sucn) ∎
+  )
+  (λ 1≤k ->
+      ⊎.rec _ (xs ∘ fsuc) (finSplit 1 n (k , _))
+    ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k _ 1≤k (<-∸-< k (suc n) 1 k<sucn (≤<-trans 1≤k k<sucn))) ⟩
+      xs (suc (k ∸ 1) , _)
+    ≡⟨ congS xs (Fin-fst-≡ (≤-∸-suc 1≤k)) ⟩
+      xs (k , k<sucn) ∎
+  )
+  (k ≤? 1)
 
 ¬n<m<suc-n : ∀ {n m} -> n < m -> m < suc n -> ⊥.⊥
 ¬n<m<suc-n {n} {m} (x , p) (y , q) = znots lemma-β
@@ -442,25 +446,7 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
 arrayIsoToListHom : ∀ {ℓ} {A : Type ℓ} -> structIsHom < Array A , ArrayDef.Free.α {ℓ' = ℓ} arrayDef' > < List A , LM.list-α > (arrayIsoToList .fun)
 arrayIsoToListHom M.`e i = refl
 arrayIsoToListHom {A = A} M.`⊕ index with index fzero | inspect index fzero
-... | zero , f | [ p ]ᵢ = congS (uncurry tabulate) (Array≡ (sym lemma-α) {!   !})
-  where
-  lemma-α : _
-  lemma-α =
-      length (transport (λ i → List A) (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))))
-    ≡⟨ congS {y = transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))} length (transportRefl _) ⟩
-      length (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
-    ≡⟨ congS {y = (uncurry tabulate) (index (transport (λ j → Fin 2) fzero))} (λ z -> length (z ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) (transportRefl _) ⟩
-      length (((uncurry tabulate) (index (transport (λ j → Fin 2) fzero))) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
-    ≡⟨ congS (λ z -> length (((uncurry tabulate) (index z)) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) (transportRefl _) ⟩
-      length (((uncurry tabulate) (index fzero)) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
-    ≡⟨ congS (λ z -> length (((uncurry tabulate) z) ++ transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))) p ⟩
-      length (transport (λ i → List A) ((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
-    ≡⟨ congS {y = ((uncurry tabulate) (index (transport (λ j → Fin 2) fone)))} length (transportRefl _) ⟩
-      length (((uncurry tabulate) (index (transport (λ j → Fin 2) fone))))
-    ≡⟨ congS (λ z -> length (((uncurry tabulate) (index z)))) (transportRefl _) ⟩
-      length (((uncurry tabulate) (index fone)))
-    ≡⟨ length-tabulate (fst (index fone)) (snd (index fone)) ⟩
-      fst (index fone) ∎
+... | zero , f | [ p ]ᵢ = {!   !}
 ... | suc n , f | p = {!   !}
 
 -- arrayIsoToList .fun (i fzero) ++ arrayIsoToList .fun (i fone) ≡ arrayIsoToList .fun (F.Definition.Free.α arrayDef' (M.`⊕ , i))
