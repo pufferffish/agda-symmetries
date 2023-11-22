@@ -73,9 +73,11 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     fromCList-η x = congS (λ f -> f x)
       (ext-η clistDef squash/ (bagFreeDef .sat) (BagDef.Free.η bagFreeDef))
 
+  ListToCListHom : structHom < List A , list-α > < CList A , clist-α >
+  ListToCListHom = ListDef.Free.ext listDef isSetCList (M.cmonSatMon clist-sat) CL.[_]
+
   ListToCList : List A -> CList A
-  ListToCList = (_∷ []) ♯
-    where _♯ = (L.Free._♯ isSetCList) (M.cmonSatMon CL.clist-sat)
+  ListToCList = ListToCListHom .fst
 
   tab : ∀ n -> (Fin n -> A) -> CList A
   tab = curry (ListToCList ∘ arrayIsoToList .fun)
