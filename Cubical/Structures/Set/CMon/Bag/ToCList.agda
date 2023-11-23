@@ -65,8 +65,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
 
     fromCList-++ : ∀ xs ys -> fromCList (xs ℭ.⊕ ys) ≡ fromCList xs 𝔅.⊕ fromCList ys
     fromCList-++ xs ys =
-      fromCList (xs ℭ.⊕ ys) ≡⟨ sym (fromCListIsHom M.`⊕ (lookup (xs List.∷ ys List.∷ List.[]))) ⟩
-      _ ≡⟨ 𝔅.⊕-eta (lookup (xs List.∷ ys List.∷ List.[])) fromCList ⟩
+      fromCList (xs ℭ.⊕ ys) ≡⟨ sym (fromCListIsHom M.`⊕ ⟪ xs ⨾ ys ⟫) ⟩
+      _ ≡⟨ 𝔅.⊕-eta ⟪ xs ⨾ ys ⟫ fromCList ⟩
       _ ∎
 
     fromCList-η : ∀ x -> fromCList (CL.[ x ]) ≡ Q.[ A.η x ]
@@ -79,8 +79,15 @@ module IsoToCList {ℓ} (A : Type ℓ) where
   ListToCList : List A -> CList A
   ListToCList = ListToCListHom .fst
 
+  ArrayToCListHom : structHom < Array A , array-α > < CList A , clist-α >
+  ArrayToCListHom = structHom∘ < Array A , array-α > < List A , list-α > < CList A , clist-α >
+    ListToCListHom ((arrayIsoToList .fun) , arrayIsoToListHom)
+
+  ArrayToCList : Array A -> CList A
+  ArrayToCList = ArrayToCListHom .fst
+
   tab : ∀ n -> (Fin n -> A) -> CList A
-  tab = curry (ListToCList ∘ arrayIsoToList .fun)
+  tab = curry ArrayToCList
 
   isContr≅ : ∀ {ℓ} {A : Type ℓ} -> isContr A -> isContr (Iso A A)
   isContr≅ ϕ = inhProp→isContr idIso \σ1 σ2 ->
@@ -240,8 +247,7 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     toCList-++ =
       elimProp (λ _ -> isPropΠ (λ _ -> isSetCList _ _)) λ xs ->
         elimProp (λ _ -> isSetCList _ _) λ ys ->
-          {!   !}
-          -- xs ys : Array A -> toCList Q.[ xs ] ++ toCList Q.[ ys ] = toCList Q.[ xs ++ ys ] 
+          sym (ArrayToCListHom .snd M.`⊕ ⟪ xs ⨾ ys ⟫)
 
     toCList∘fromCList-η : ∀ x -> toCList (fromCList CL.[ x ]) ≡ CL.[ x ]
     toCList∘fromCList-η x = refl

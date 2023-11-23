@@ -474,7 +474,8 @@ private
 
 module _ {ℓ} {A : Type ℓ} where
   open ArrayDef.Free
-  module 𝔄 = M.MonSEq < Array A , array-α > array-sat
+  private
+    module 𝔄 = M.MonSEq < Array A , array-α > array-sat
 
   arrayIsoToListHom : structIsHom < Array A , array-α > < List A , LM.list-α > (arrayIsoToList .fun)
   arrayIsoToListHom M.`e i = refl
