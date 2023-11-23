@@ -37,9 +37,6 @@ private
     A : Type ℓ
     n : ℕ
 
-postulate
-  TODO : A
-
 abstract
   <-not-dense : ∀ {a b c} -> a < b -> b < suc c -> a < c
   <-not-dense {a} {b} {c} p q with a ≟ c
