@@ -443,16 +443,39 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
   arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
 
 private
+  arrayIsoToList+η : ∀ {ℓ} {A : Type ℓ} -> (x : A) (ys : Array A)
+                  -> arrayIsoToList .fun (η x ⊕ ys) ≡ arrayIsoToList .fun (η x) ++ arrayIsoToList .fun ys
+  arrayIsoToList+η x ys =
+    congS (λ z -> x ∷ₗ (uncurry tabulate) z) $ Array≡ refl $ λ k k<m ->
+      congS (⊎.rec _ _) (finSplit-beta-inr (suc k) (suc-≤-suc _) (suc-≤-suc zero-≤) k<m)
+
   arrayIsoToList++ : ∀ {ℓ} {A : Type ℓ} n -> (f : Fin n -> A) (ys : Array A)
                   -> arrayIsoToList .fun (n , f) ++ arrayIsoToList .fun ys ≡ arrayIsoToList .fun ((n , f) ⊕ ys)
-  arrayIsoToList++ zero f ys = congS (uncurry tabulate) $ Array≡ refl λ k k<m -> {!   !}
-  arrayIsoToList++ (suc n) f ys = {!   !}
+  arrayIsoToList++ zero f ys = congS (arrayIsoToList .fun) $ sym $
+    (zero , f) ⊕ ys ≡⟨ congS (_⊕ ys) (e-eta (zero , f) e refl refl) ⟩
+    e ⊕ ys ≡⟨ ⊕-unitl ys ⟩
+    ys ∎
+  arrayIsoToList++ (suc n) f ys =
+      arrayIsoToList .fun (suc n , f) ++ arrayIsoToList .fun ys
+    ≡⟨ congS (λ z -> arrayIsoToList .fun z ++ arrayIsoToList .fun ys) $ sym (η+fsuc f) ⟩
+      arrayIsoToList .fun (η (f fzero) ⊕ (n , f ∘ fsuc)) ++ arrayIsoToList .fun ys
+    ≡⟨ congS (_++ arrayIsoToList .fun ys) (arrayIsoToList+η (f fzero) (n , f ∘ fsuc)) ⟩
+      (arrayIsoToList .fun (η (f fzero)) ++ arrayIsoToList .fun (n , f ∘ fsuc)) ++ arrayIsoToList .fun ys
+    ≡⟨ ++-assoc (arrayIsoToList .fun (η (f fzero))) (arrayIsoToList .fun (n , f ∘ fsuc)) _ ⟩
+      arrayIsoToList .fun (η (f fzero)) ++ (arrayIsoToList .fun (n , f ∘ fsuc) ++ arrayIsoToList .fun ys)
+    ≡⟨ congS (arrayIsoToList .fun (η (f fzero)) ++_) (arrayIsoToList++ n (f ∘ fsuc) ys) ⟩
+      arrayIsoToList .fun (η (f fzero)) ++ arrayIsoToList .fun ((n , f ∘ fsuc) ⊕ ys)
+    ≡⟨ sym (arrayIsoToList+η (f fzero) ((n , f ∘ fsuc) ⊕ ys)) ⟩
+      arrayIsoToList .fun (η (f fzero) ⊕ ((n , f ∘ fsuc) ⊕ ys))
+    ≡⟨ congS (arrayIsoToList .fun) (sym (⊕-assocr (η (f fzero)) (n , f ∘ fsuc) ys)) ⟩
+      arrayIsoToList .fun ((η (f fzero) ⊕ (n , f ∘ fsuc)) ⊕ ys)
+    ≡⟨ congS (λ zs -> arrayIsoToList .fun (zs ⊕ ys)) (η+fsuc f) ⟩
+      arrayIsoToList .fun ((suc n , f) ⊕ ys) ∎
 
 module _ {ℓ} {A : Type ℓ} where
   open ArrayDef.Free
   module 𝔄 = M.MonSEq < Array A , array-α > array-sat
 
--- TODO: Investigate using a regularization tactic to simplify this
   arrayIsoToListHom : structIsHom < Array A , array-α > < List A , LM.list-α > (arrayIsoToList .fun)
   arrayIsoToListHom M.`e i = refl
   arrayIsoToListHom M.`⊕ i =
