@@ -240,6 +240,9 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     toCList (squash/ xs ys p q i j) =
       isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
 
+    toCList-id : (xs : Array A) -> toCList Q.[ xs ] ≡ ArrayToCList xs
+    toCList-id xs = refl
+
     toCList-e : toCList 𝔅.e ≡ CL.[]
     toCList-e = refl
 
@@ -267,3 +270,33 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         CL.[ x ] ℭ.⊕ xs
       ∎)
       (isSetCList _ _)
+
+  fromList-toCList : ∀ xs -> fromCList (toCList xs) ≡ xs
+  fromList-toCList = elimProp (λ _ -> squash/ _ _) (uncurry lemma)
+    where
+    lemma : (n : ℕ) (f : Fin n -> A) -> fromCList (toCList Q.[ n , f ]) ≡ Q.[ n , f ]
+    lemma zero f =
+      fromCList (toCList Q.[ zero , f ]) ≡⟨ congS fromCList (toCList-id (zero , f)) ⟩
+      fromCList [] ≡⟨ fromCList-e ⟩
+      𝔅.e ≡⟨ congS Q.[_] (e-eta _ (zero , f) refl refl) ⟩
+      Q.[ zero , f ] ∎
+    lemma (suc n) f =
+        fromCList (toCList Q.[ suc n , f ])
+      ≡⟨ congS fromCList (toCList-id (suc n , f)) ⟩
+        fromCList (ArrayToCList (suc n , f))
+      ≡⟨ congS (fromCList ∘ ArrayToCList) (sym (η+fsuc f)) ⟩
+        fromCList (ArrayToCList (A.η (f fzero) ⊕ (n , f ∘ fsuc)))
+      ≡⟨ congS fromCList $ sym (ArrayToCListHom .snd M.`⊕ ⟪ A.η (f fzero) ⨾ (n , f ∘ fsuc) ⟫) ⟩
+        fromCList (f fzero ∷ ArrayToCList (n , f ∘ fsuc))
+      ≡⟨ fromCList-++ CL.[ f fzero ] (ArrayToCList (n , f ∘ fsuc)) ⟩
+        fromCList CL.[ f fzero ] 𝔅.⊕ fromCList (ArrayToCList (n , f ∘ fsuc))
+      ≡⟨ congS (𝔅._⊕ fromCList (ArrayToCList (n , f ∘ fsuc))) (fromCList-η (f fzero)) ⟩
+        Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList (ArrayToCList (n , f ∘ fsuc))
+      ≡⟨ congS (λ zs -> Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList zs) (sym $ (toCList-id (n , f ∘ fsuc))) ⟩
+        Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList (toCList Q.[ n , f ∘ fsuc ])
+      ≡⟨ congS (Q.[ A.η (f fzero) ] 𝔅.⊕_) (lemma n (f ∘ fsuc)) ⟩
+        Q.[ A.η (f fzero) ] 𝔅.⊕ Q.[ n , f ∘ fsuc ]
+      ≡⟨ QFreeMon.[ A ]-isMonHom (PermRel A) .snd M.`⊕ ⟪ _ ⨾ _ ⟫ ⟩
+        Q.[ A.η (f fzero) 𝔄.⊕ (n , f ∘ fsuc) ]
+      ≡⟨ congS Q.[_] (η+fsuc f) ⟩
+        Q.[ suc n , f ] ∎

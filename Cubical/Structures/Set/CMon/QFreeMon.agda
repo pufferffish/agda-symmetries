@@ -130,21 +130,22 @@ module QFreeMon {ℓr ℓB} {freeMon : Free ℓr ℓB 2} (A : Type ℓr) ((R , i
   qFreeMon-sat (M.`mon M.`assocr) ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
   qFreeMon-sat M.`comm ρ = ⊕-comm (ρ fzero) (ρ fone)
 
-  module IsFree {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
-    module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
-
+  private
     𝔛 : M.CMonStruct
     𝔛 = < 𝒬 , qFreeMon-α >
-
+    
     module 𝔛 = M.CMonSEq 𝔛 qFreeMon-sat
 
-    [_]-isMonHom : structHom 𝔉 𝔛
-    fst [_]-isMonHom = Q.[_]
-    snd [_]-isMonHom M.`e i = cong _/_.[_] 𝔉.e-eta
-    snd [_]-isMonHom M.`⊕ i =
-      𝔛 .alg (M.`⊕ , (λ x -> Q.[ i x ])) ≡⟨ 𝔛.⊕-eta i Q.[_] ⟩
-      Q.[ freeMon .α (M.`⊕ , _) ] ≡⟨ cong (λ z -> Q.[_] {R = _≈_} (freeMon .α (M.`⊕ , z))) (lookup2≡i i) ⟩
-      Q.[ freeMon .α (M.`⊕ , i) ] ∎
+  [_]-isMonHom : structHom 𝔉 𝔛
+  fst [_]-isMonHom = Q.[_]
+  snd [_]-isMonHom M.`e i = cong _/_.[_] 𝔉.e-eta
+  snd [_]-isMonHom M.`⊕ i =
+    𝔛 .alg (M.`⊕ , (λ x -> Q.[ i x ])) ≡⟨ 𝔛.⊕-eta i Q.[_] ⟩
+    Q.[ freeMon .α (M.`⊕ , _) ] ≡⟨ cong (λ z -> Q.[_] {R = _≈_} (freeMon .α (M.`⊕ , z))) (lookup2≡i i) ⟩
+    Q.[ freeMon .α (M.`⊕ , i) ] ∎
+
+  module IsFree {𝔜 : struct ℓB M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-cmon : 𝔜 ⊨ M.CMonSEq) where
+    module 𝔜 = M.CMonSEq 𝔜 𝔜-cmon
 
     module _ (f : A -> 𝔜 .car) where
       f♯ : structHom 𝔉 𝔜
