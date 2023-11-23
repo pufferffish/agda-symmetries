@@ -151,24 +151,23 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         ≡⟨ congS (f ∘_) (funExt pInZ≡fsuc) ⟩
           f ∘ fsuc ∎
 
-      postulate
-        IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
-      -- IH2-lemma k q (zero , r) = congS g q
-      -- IH2-lemma k q (suc j , r) =
-      --     g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
-      --   ≡⟨⟩
-      --     g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
-      --   ≡⟨ congS (g ∘ fsuc) (equivOut-beta-α {σ = compIso pIso (invIso pIso)} j') ⟩
-      --     g (fsuc (fst (pIn k (pOut fzero j'))))
-      --   ≡⟨⟩
-      --     g (fsuc (fst (pIn k (⊎.rec _ (λ k<j -> predℕ (suc j) , _) (suc j <? 0 on _)))))
-      --   ≡⟨ congS (g ∘ fsuc ∘ fst ∘ pIn k ∘ ⊎.rec _ _) (<?-beta-inr (suc j) 0 _ (suc-≤-suc zero-≤)) ⟩
-      --     (g ∘ fsuc ∘ fst ∘ pIn k) (predℕ (suc j) , _)
-      --   ≡⟨ congS {x = predℕ (suc j) , _} {y = j , predℕ-≤-predℕ r} (g ∘ fsuc ∘ fst ∘ pIn k) (Fin-fst-≡ refl) ⟩
-      --     (g ∘ fsuc ∘ fst ∘ pIn k) (j , predℕ-≤-predℕ r) ∎
-      --   where
-      --   j' : FinExcept fzero
-      --   j' = (suc j , r) , znots ∘ (congS fst)
+      IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
+      IH2-lemma k q (zero , r) = congS g q
+      IH2-lemma k q (suc j , r) =
+          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
+        ≡⟨⟩
+          g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
+        ≡⟨ congS (g ∘ fsuc) (equivOut-beta-α {σ = compIso pIso (invIso pIso)} j') ⟩
+          g (fsuc (fst (pIn k (pOut fzero j'))))
+        ≡⟨⟩
+          g (fsuc (fst (pIn k (⊎.rec _ (λ k<j -> predℕ (suc j) , _) (suc j <? 0 on _)))))
+        ≡⟨ congS (g ∘ fsuc ∘ fst ∘ pIn k ∘ ⊎.rec _ _) (<?-beta-inr (suc j) 0 _ (suc-≤-suc zero-≤)) ⟩
+          (g ∘ fsuc ∘ fst ∘ pIn k) (predℕ (suc j) , _)
+        ≡⟨ congS {x = predℕ (suc j) , _} {y = j , predℕ-≤-predℕ r} (g ∘ fsuc ∘ fst ∘ pIn k) (Fin-fst-≡ refl) ⟩
+          (g ∘ fsuc ∘ fst ∘ pIn k) (j , predℕ-≤-predℕ r) ∎
+        where
+        j' : FinExcept fzero
+        j' = (suc j , r) , znots ∘ (congS fst)
 
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
