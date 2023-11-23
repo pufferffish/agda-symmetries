@@ -25,6 +25,7 @@ open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity hiding (_/_)
 open import Cubical.Structures.Set.CMon.QFreeMon
+open import Cubical.Structures.Set.CMon.CList
 open import Cubical.Structures.Set.CMon.Bag.Base
 open import Cubical.Structures.Set.CMon.Bag.Free
 open import Cubical.Relation.Nullary
@@ -300,3 +301,16 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         Q.[ A.η (f fzero) 𝔄.⊕ (n , f ∘ fsuc) ]
       ≡⟨ congS Q.[_] (η+fsuc f) ⟩
         Q.[ suc n , f ] ∎
+
+  BagToCList : Iso (Bag A) (CList A)
+  BagToCList = iso toCList fromCList toCList-fromCList fromList-toCList
+
+bagDef' : ∀ {ℓ ℓ'} -> BagDef.Free ℓ ℓ' 2
+bagDef' {ℓ = ℓ} {ℓ' = ℓ'} = BagDef.isoAux .fun (Bag , bagFreeAux)
+  where
+  clistFreeAux : BagDef.FreeAux ℓ ℓ' 2 CList
+  clistFreeAux = (inv BagDef.isoAux clistDef) .snd
+
+  bagFreeAux : BagDef.FreeAux ℓ ℓ' 2 Bag
+  bagFreeAux = subst (BagDef.FreeAux ℓ ℓ' 2)
+    (funExt λ X -> isoToPath $ invIso (IsoToCList.BagToCList X)) clistFreeAux
