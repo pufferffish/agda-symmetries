@@ -312,16 +312,22 @@ n+m≤k→m≤k∸n n m k p = subst (_≤ k ∸ n) (∸+ m n) (≤-∸-≤ (n + 
 ⊕-split : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
   (n + m , (λ w -> combine (suc n) m xs ys (fsuc w)))
   ≡ ((n , (λ w -> xs (fsuc w))) ⊕ (m , ys))
-⊕-split n m xs ys = ΣPathP (refl , funExt lemma)
-  where
-  lemma : _
-  lemma (o , p) with suc o ≤? suc n
-  lemma (o , p) | inl q with o ≤? n
-  lemma (o , p) | inl q | inl r = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (o , p) | inl q | inr r = ⊥.rec (<-asym (pred-≤-pred q) r)
-  lemma (o , p) | inr q with o ≤? n
-  lemma (o , p) | inr q | inl r = ⊥.rec (¬n<m<suc-n r q)
-  lemma (o , p) | inr q | inr r = cong ys (Σ≡Prop (λ _ -> isProp≤) refl)
+⊕-split n m xs ys = Array≡ refl λ k k<n+m -> ⊎.rec
+  (λ sk<sn -> sym $
+    ⊎.rec (xs ∘ fsuc) ys (finSplit n m (k , k<n+m)) ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k (pred-≤-pred sk<sn) k<n+m) ⟩
+    xs (fsuc (k , pred-≤-pred sk<sn)) ≡⟨ congS xs (Fin-fst-≡ refl) ⟩
+    xs (suc k , sk<sn) ≡⟨ sym (congS (⊎.rec _ _) (finSplit-beta-inl (suc k) sk<sn _)) ⟩
+    ⊎.rec xs ys (finSplit (suc n) m (suc k , _))
+  ∎)
+  (λ sn≤sk ->
+    let
+      k∸n<m = subst (k ∸ n <_) ((congS (_∸ n) (+-comm n m)) ∙ +∸ m n) (<-∸-< k (n + m) n k<n+m (≤<-trans (pred-≤-pred sn≤sk) k<n+m))
+    in
+      ⊎.rec xs ys (finSplit (suc n) m (suc k , _)) ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr (suc k) _ sn≤sk k∸n<m) ⟩
+      ys (k ∸ n , k∸n<m) ≡⟨ sym (congS (⊎.rec _ _) (finSplit-beta-inr k k<n+m (pred-≤-pred sn≤sk) k∸n<m)) ⟩
+      ⊎.rec (xs ∘ fsuc) ys (finSplit n m (k , k<n+m))
+  ∎)
+  (suc k ≤? suc n)
 
 array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
@@ -484,4 +490,4 @@ module _ {ℓ} {A : Type ℓ} where
     ≡⟨ arrayIsoToList++ (fst (i fzero)) (snd (i fzero)) (i fone) ⟩
       arrayIsoToList .fun (i fzero ⊕ i fone)
     ≡⟨ congS (arrayIsoToList .fun) (sym (𝔄.⊕-eta i (idfun _))) ⟩
-      arrayIsoToList .fun (i fzero ⊕ i fone) ∎
+      arrayIsoToList .fun (i fzero ⊕ i fone) ∎ 

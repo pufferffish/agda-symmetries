@@ -306,4 +306,7 @@ module _ {n : ℕ} where
     Fin n ∎Iso
 
   fill-σ : ∀ k -> Aut (Fin (suc n))
-  fill-σ k = equivOut {k = k} (compIso pIso (invIso pIso))
+  fill-σ k = equivOut $
+    FinExcept fzero Iso⟨ pIso ⟩
+    Fin n Iso⟨ invIso pIso ⟩
+    FinExcept k ∎Iso
