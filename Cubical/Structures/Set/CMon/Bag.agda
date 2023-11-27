@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --exact-split #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 -- Definition taken from https://drops.dagstuhl.de/opus/volltexte/2023/18395/pdf/LIPIcs-ITP-2023-20.pdf
 module Cubical.Structures.Set.CMon.Bag where

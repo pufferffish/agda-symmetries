@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module Cubical.Structures.Arity where
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module Cubical.Structures.Set.CMon.Desc where
 
