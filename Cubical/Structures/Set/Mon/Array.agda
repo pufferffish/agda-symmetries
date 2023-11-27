@@ -9,7 +9,6 @@ open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Induction.WellFounded
 import Cubical.Data.Empty as ⊥
 
 import Cubical.Structures.Set.Mon.Desc as M
@@ -19,8 +18,6 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
-
-open import Cubical.Structures.Inspect
 
 open Iso
 
@@ -283,16 +280,22 @@ n+m≤k→m≤k∸n n m k p = subst (_≤ k ∸ n) (∸+ m n) (≤-∸-≤ (n + 
   (k ≤? (n + m))
 
 η+fsuc : ∀ {n} (xs : Fin (suc n) -> A) -> η (xs fzero) ⊕ (n , xs ∘ fsuc) ≡ (suc n , xs)
-η+fsuc {n = n} xs = ΣPathP (refl , funExt lemma)
-  where
-  lemma : _
-  lemma (zero , p) = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (suc m , p) with oldInspect (suc m ≤? 1)
-  ... | inl q with-≡ r = ⊥.rec (¬-<-zero (pred-≤-pred q))
-  ... | inr q with-≡ r =
-    _ ≡⟨ cong (λ z -> ⊎.rec _ _ (finSplitAux 1 n (suc m) p z)) r ⟩
-    _ ≡⟨ cong xs (Σ≡Prop (λ _ -> isProp≤) refl) ⟩
-    _ ∎
+η+fsuc {n = n} xs = Array≡ refl λ k k<sucn -> ⊎.rec 
+  (λ k<1 ->
+      ⊎.rec (λ _ -> xs fzero) _ (finSplit 1 n (k , _))
+    ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k k<1 _) ⟩
+      xs fzero  
+    ≡⟨ congS xs (Σ≡Prop (λ _ -> isProp≤) (sym (≤0→≡0 (pred-≤-pred k<1)))) ⟩
+      xs (k , k<sucn) ∎
+  )
+  (λ 1≤k ->
+      ⊎.rec _ (xs ∘ fsuc) (finSplit 1 n (k , _))
+    ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr k _ 1≤k (<-∸-< k (suc n) 1 k<sucn (≤<-trans 1≤k k<sucn))) ⟩
+      xs (suc (k ∸ 1) , _)
+    ≡⟨ congS xs (Fin-fst-≡ (≤-∸-suc 1≤k)) ⟩
+      xs (k , k<sucn) ∎
+  )
+  (k ≤? 1)
 
 ¬n<m<suc-n : ∀ {n m} -> n < m -> m < suc n -> ⊥.⊥
 ¬n<m<suc-n {n} {m} (x , p) (y , q) = znots lemma-β
@@ -309,16 +312,22 @@ n+m≤k→m≤k∸n n m k p = subst (_≤ k ∸ n) (∸+ m n) (≤-∸-≤ (n + 
 ⊕-split : ∀ n m (xs : Fin (suc n) -> A) (ys : Fin m -> A) ->
   (n + m , (λ w -> combine (suc n) m xs ys (fsuc w)))
   ≡ ((n , (λ w -> xs (fsuc w))) ⊕ (m , ys))
-⊕-split n m xs ys = ΣPathP (refl , funExt lemma)
-  where
-  lemma : _
-  lemma (o , p) with suc o ≤? suc n
-  lemma (o , p) | inl q with o ≤? n
-  lemma (o , p) | inl q | inl r = cong xs (Σ≡Prop (λ _ -> isProp≤) refl)
-  lemma (o , p) | inl q | inr r = ⊥.rec (<-asym (pred-≤-pred q) r)
-  lemma (o , p) | inr q with o ≤? n
-  lemma (o , p) | inr q | inl r = ⊥.rec (¬n<m<suc-n r q)
-  lemma (o , p) | inr q | inr r = cong ys (Σ≡Prop (λ _ -> isProp≤) refl)
+⊕-split n m xs ys = Array≡ refl λ k k<n+m -> ⊎.rec
+  (λ sk<sn -> sym $
+    ⊎.rec (xs ∘ fsuc) ys (finSplit n m (k , k<n+m)) ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inl k (pred-≤-pred sk<sn) k<n+m) ⟩
+    xs (fsuc (k , pred-≤-pred sk<sn)) ≡⟨ congS xs (Fin-fst-≡ refl) ⟩
+    xs (suc k , sk<sn) ≡⟨ sym (congS (⊎.rec _ _) (finSplit-beta-inl (suc k) sk<sn _)) ⟩
+    ⊎.rec xs ys (finSplit (suc n) m (suc k , _))
+  ∎)
+  (λ sn≤sk ->
+    let
+      k∸n<m = subst (k ∸ n <_) ((congS (_∸ n) (+-comm n m)) ∙ +∸ m n) (<-∸-< k (n + m) n k<n+m (≤<-trans (pred-≤-pred sn≤sk) k<n+m))
+    in
+      ⊎.rec xs ys (finSplit (suc n) m (suc k , _)) ≡⟨ congS (⊎.rec _ _) (finSplit-beta-inr (suc k) _ sn≤sk k∸n<m) ⟩
+      ys (k ∸ n , k∸n<m) ≡⟨ sym (congS (⊎.rec _ _) (finSplit-beta-inr k k<n+m (pred-≤-pred sn≤sk) k∸n<m)) ⟩
+      ⊎.rec (xs ∘ fsuc) ys (finSplit n m (k , k<n+m))
+  ∎)
+  (suc k ≤? suc n)
 
 array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
@@ -438,3 +447,47 @@ arrayDef' {ℓ = ℓ} {ℓ' = ℓ'} = fun ArrayDef.isoAux (Array , arrayFreeAux)
 
   arrayFreeAux : ArrayDef.FreeAux ℓ ℓ' 2 Array
   arrayFreeAux = subst (ArrayDef.FreeAux ℓ ℓ' 2) (sym array≡List) listFreeAux
+
+private
+  arrayIsoToList+η : ∀ {ℓ} {A : Type ℓ} -> (x : A) (ys : Array A)
+                  -> arrayIsoToList .fun (η x ⊕ ys) ≡ arrayIsoToList .fun (η x) ++ arrayIsoToList .fun ys
+  arrayIsoToList+η x ys =
+    congS (λ z -> x ∷ₗ (uncurry tabulate) z) $ Array≡ refl $ λ k k<m ->
+      congS (⊎.rec _ _) (finSplit-beta-inr (suc k) (suc-≤-suc _) (suc-≤-suc zero-≤) k<m)
+
+  arrayIsoToList++ : ∀ {ℓ} {A : Type ℓ} n -> (f : Fin n -> A) (ys : Array A)
+                  -> arrayIsoToList .fun (n , f) ++ arrayIsoToList .fun ys ≡ arrayIsoToList .fun ((n , f) ⊕ ys)
+  arrayIsoToList++ zero f ys = congS (arrayIsoToList .fun) $ sym $
+    (zero , f) ⊕ ys ≡⟨ congS (_⊕ ys) (e-eta (zero , f) e refl refl) ⟩
+    e ⊕ ys ≡⟨ ⊕-unitl ys ⟩
+    ys ∎
+  arrayIsoToList++ (suc n) f ys =
+      arrayIsoToList .fun (suc n , f) ++ arrayIsoToList .fun ys
+    ≡⟨ congS (λ z -> arrayIsoToList .fun z ++ arrayIsoToList .fun ys) $ sym (η+fsuc f) ⟩
+      arrayIsoToList .fun (η (f fzero) ⊕ (n , f ∘ fsuc)) ++ arrayIsoToList .fun ys
+    ≡⟨ congS (_++ arrayIsoToList .fun ys) (arrayIsoToList+η (f fzero) (n , f ∘ fsuc)) ⟩
+      (arrayIsoToList .fun (η (f fzero)) ++ arrayIsoToList .fun (n , f ∘ fsuc)) ++ arrayIsoToList .fun ys
+    ≡⟨ ++-assoc (arrayIsoToList .fun (η (f fzero))) (arrayIsoToList .fun (n , f ∘ fsuc)) _ ⟩
+      arrayIsoToList .fun (η (f fzero)) ++ (arrayIsoToList .fun (n , f ∘ fsuc) ++ arrayIsoToList .fun ys)
+    ≡⟨ congS (arrayIsoToList .fun (η (f fzero)) ++_) (arrayIsoToList++ n (f ∘ fsuc) ys) ⟩
+      arrayIsoToList .fun (η (f fzero)) ++ arrayIsoToList .fun ((n , f ∘ fsuc) ⊕ ys)
+    ≡⟨ sym (arrayIsoToList+η (f fzero) ((n , f ∘ fsuc) ⊕ ys)) ⟩
+      arrayIsoToList .fun (η (f fzero) ⊕ ((n , f ∘ fsuc) ⊕ ys))
+    ≡⟨ congS (arrayIsoToList .fun) (sym (⊕-assocr (η (f fzero)) (n , f ∘ fsuc) ys)) ⟩
+      arrayIsoToList .fun ((η (f fzero) ⊕ (n , f ∘ fsuc)) ⊕ ys)
+    ≡⟨ congS (λ zs -> arrayIsoToList .fun (zs ⊕ ys)) (η+fsuc f) ⟩
+      arrayIsoToList .fun ((suc n , f) ⊕ ys) ∎
+
+module _ {ℓ} {A : Type ℓ} where
+  open ArrayDef.Free
+  private
+    module 𝔄 = M.MonSEq < Array A , array-α > array-sat
+
+  arrayIsoToListHom : structIsHom < Array A , array-α > < List A , LM.list-α > (arrayIsoToList .fun)
+  arrayIsoToListHom M.`e i = refl
+  arrayIsoToListHom M.`⊕ i =
+      arrayIsoToList .fun (i fzero) ++ arrayIsoToList .fun (i fone)
+    ≡⟨ arrayIsoToList++ (fst (i fzero)) (snd (i fzero)) (i fone) ⟩
+      arrayIsoToList .fun (i fzero ⊕ i fone)
+    ≡⟨ congS (arrayIsoToList .fun) (sym (𝔄.⊕-eta i (idfun _))) ⟩
+      arrayIsoToList .fun (i fzero ⊕ i fone) ∎ 
