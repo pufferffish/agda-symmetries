@@ -120,14 +120,14 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     in congS (tab 1) (p ∙ congS (g ∘_) (congS Iso.fun q))
   toCList-eq (suc (suc n)) f g σ p =
     ⊎.rec
-      (λ q ->
-        let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ (sym q)) (fsuc∘punchOutZero≡ f g σ p (sym q))
-        in case1 IH (sym q)
+      (λ 0≡σ0 ->
+        let IH = toCList-eq (suc n) (f ∘ fsuc) (g ∘ fsuc) (punchOutZero σ (sym 0≡σ0)) (fsuc∘punchOutZero≡ f g σ p (sym 0≡σ0))
+        in case1 IH (sym 0≡σ0)
       )
-      (λ (k , q) ->
-        case2 k (sym q)
-          (toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) (punch-σ σ) (sym (IH1-lemma k q)))
-          (toCList-eq (suc n) (g-σ k) (g ∘ fsuc) (fill-σ k) (sym (funExt (IH2-lemma k q))))
+      (λ (k , Sk≡σ0) ->
+        case2 k (sym Sk≡σ0)
+          (toCList-eq (suc n) (f ∘ fsuc) ((g ∼) ∘ pIn (fsuc k)) (punch-σ σ) (sym (IH1-lemma k Sk≡σ0)))
+          (toCList-eq (suc n) (g-σ k) (g ∘ fsuc) (fill-σ k) (sym (funExt (IH2-lemma k Sk≡σ0))))
       )
       (fsplit (σ .fun fzero))
     where
@@ -136,9 +136,9 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       g-σ k (suc j , p) = (g ∼) (1+ (pIn k (j , predℕ-≤-predℕ p)))
 
       IH1-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (g ∼) ∘ pIn (fsuc k) ∘ punch-σ σ .fun ≡ f ∘ fsuc
-      IH1-lemma k q =
+      IH1-lemma k Sk≡σ0 =
           (g ∼) ∘ pIn (fsuc k) ∘ punch-σ σ .fun
-        ≡⟨ congS (λ z -> (g ∼) ∘ pIn z ∘ punch-σ σ .fun) q ⟩
+        ≡⟨ congS (λ z -> (g ∼) ∘ pIn z ∘ punch-σ σ .fun) Sk≡σ0 ⟩
           (g ∼) ∘ pIn (σ .fun fzero) ∘ punch-σ σ .fun
         ≡⟨⟩
           (g ∼) ∘ pIn (σ .fun fzero) ∘ pOut (σ .fun fzero) ∘ ((G .fun σ) .snd) .fun ∘ pIn fzero
@@ -152,8 +152,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
           f ∘ fsuc ∎
 
       IH2-lemma : ∀ k -> fsuc k ≡ σ .fun fzero -> (j : Fin (suc n)) -> g (fsuc (fill-σ k .fun j)) ≡ (g-σ k) j
-      IH2-lemma k q (zero , r) = congS g q
-      IH2-lemma k q (suc j , r) =
+      IH2-lemma k Sk≡σ0 (zero , r) = congS g Sk≡σ0
+      IH2-lemma k Sk≡σ0 (suc j , r) =
           g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (suc j , r)))
         ≡⟨⟩
           g (fsuc (equivOut {k = k} (compIso pIso (invIso pIso)) .fun (j' .fst)))
@@ -172,10 +172,10 @@ module IsoToCList {ℓ} (A : Type ℓ) where
       case1 : (tab (suc n) (f ∘ fsuc) ≡ tab (suc n) (g ∘ fsuc))
             -> σ .fun fzero ≡ fzero
             -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case1 IH ϕ =
+      case1 IH σ0≡0 =
         tab (suc (suc n)) f ≡⟨⟩
         f fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (_∷ tab (suc n) (f ∘ fsuc)) (funExt⁻ p fzero) ⟩
-        g (σ .fun fzero) ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\k -> g k ∷ tab (suc n) (f ∘ fsuc)) ϕ ⟩
+        g (σ .fun fzero) ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (\k -> g k ∷ tab (suc n) (f ∘ fsuc)) σ0≡0 ⟩
         g fzero ∷ tab (suc n) (f ∘ fsuc) ≡⟨ congS (g fzero ∷_) IH ⟩
         g fzero ∷ tab (suc n) (g ∘ fsuc) ≡⟨⟩
         tab (suc (suc n)) g ∎
@@ -184,7 +184,7 @@ module IsoToCList {ℓ} (A : Type ℓ) where
             -> tab (suc n) (f ∘ fsuc) ≡ tab (suc n) ((g ∼) ∘ pIn (fsuc k))
             -> tab (suc n) (g-σ k) ≡ tab (suc n) (g ∘ fsuc)
             -> tab (suc (suc n)) f ≡ tab (suc (suc n)) g
-      case2 k ϕ IH1 IH2 =
+      case2 k σ0≡Sk IH1 IH2 =
         comm (f fzero) (g fzero) (tab n ((g ∼) ∘ pIn (fsuc k) ∘ fsuc))
           (sym (eqn1 IH1)) (sym (eqn2 IH2))
         where
@@ -240,8 +240,8 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     toCList (squash/ xs ys p q i j) =
       isSetCList (toCList xs) (toCList ys) (congS toCList p) (congS toCList q) i j
 
-    toCList-id : (xs : Array A) -> toCList Q.[ xs ] ≡ ArrayToCList xs
-    toCList-id xs = refl
+    toCList-η : (xs : Array A) -> toCList Q.[ xs ] ≡ ArrayToCList xs
+    toCList-η xs = refl
 
     toCList-e : toCList 𝔅.e ≡ CL.[]
     toCList-e = refl
@@ -276,13 +276,13 @@ module IsoToCList {ℓ} (A : Type ℓ) where
     where
     lemma : (n : ℕ) (f : Fin n -> A) -> fromCList (toCList Q.[ n , f ]) ≡ Q.[ n , f ]
     lemma zero f =
-      fromCList (toCList Q.[ zero , f ]) ≡⟨ congS fromCList (toCList-id (zero , f)) ⟩
+      fromCList (toCList Q.[ zero , f ]) ≡⟨ congS fromCList (toCList-η (zero , f)) ⟩
       fromCList [] ≡⟨ fromCList-e ⟩
       𝔅.e ≡⟨ congS Q.[_] (e-eta _ (zero , f) refl refl) ⟩
       Q.[ zero , f ] ∎
     lemma (suc n) f =
         fromCList (toCList Q.[ suc n , f ])
-      ≡⟨ congS fromCList (toCList-id (suc n , f)) ⟩
+      ≡⟨ congS fromCList (toCList-η (suc n , f)) ⟩
         fromCList (ArrayToCList (suc n , f))
       ≡⟨ congS (fromCList ∘ ArrayToCList) (sym (η+fsuc f)) ⟩
         fromCList (ArrayToCList (A.η (f fzero) ⊕ (n , f ∘ fsuc)))
@@ -292,7 +292,7 @@ module IsoToCList {ℓ} (A : Type ℓ) where
         fromCList CL.[ f fzero ] 𝔅.⊕ fromCList (ArrayToCList (n , f ∘ fsuc))
       ≡⟨ congS (𝔅._⊕ fromCList (ArrayToCList (n , f ∘ fsuc))) (fromCList-η (f fzero)) ⟩
         Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList (ArrayToCList (n , f ∘ fsuc))
-      ≡⟨ congS (λ zs -> Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList zs) (sym $ (toCList-id (n , f ∘ fsuc))) ⟩
+      ≡⟨ congS (λ zs -> Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList zs) (sym (toCList-η (n , f ∘ fsuc))) ⟩
         Q.[ A.η (f fzero) ] 𝔅.⊕ fromCList (toCList Q.[ n , f ∘ fsuc ])
       ≡⟨ congS (Q.[ A.η (f fzero) ] 𝔅.⊕_) (lemma n (f ∘ fsuc)) ⟩
         Q.[ A.η (f fzero) ] 𝔅.⊕ Q.[ n , f ∘ fsuc ]
