@@ -18,7 +18,7 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
-open import Cubical.HITs.FiniteMultiset public renaming (FMSet to SList)
+open import Cubical.HITs.FiniteMultiset public renaming (FMSet to SList; comm to swap)
 
 pattern [_] a = a ∷ []
 
