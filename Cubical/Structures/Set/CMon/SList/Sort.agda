@@ -27,6 +27,7 @@ open import Cubical.Structures.Arity
 open import Cubical.Structures.Set.Mon.List
 open import Cubical.Structures.Set.CMon.SList.Base renaming (_∷_ to _∷*_; [] to []*; [_] to [_]*; _++_ to _++*_)
 import Cubical.Structures.Set.CMon.SList.Base as S
+open import Cubical.Structures.Set.CMon.SList.Length as S
 
 open Iso
 
@@ -45,15 +46,15 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
-module Sort→Toset (sortHom : structHom < SList A , slist-α > < List A , list-α >) (sort≡ : ∀ xs -> list→slist (sortHom .fst xs) ≡ xs) where
+module Sort→Toset (isSetA : isSet A) (sortHom : structHom < SList A , slist-α > < List A , list-α >) (sort≡ : ∀ xs -> list→slist (sortHom .fst xs) ≡ xs) where
   sort : SList A -> List A
   sort = sortHom .fst
 
   private
     list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
-    list→slist-η [] x = {!   !}
-    list→slist-η (x ∷ []) y = {!   !}
-    list→slist-η (x ∷ y ∷ xs) z = {!   !}
+    list→slist-η [] x p = ⊥.rec (znots (congS S.length p))
+    list→slist-η (x ∷ []) y p = congS [_] ([-]-inj {ϕ = isSetA} p)
+    list→slist-η (x ∷ y ∷ xs) z p = ⊥.rec (snotz (injSuc (congS S.length p)))
 
     sort-η : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-η x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
@@ -64,13 +65,14 @@ module Sort→Toset (sortHom : structHom < SList A , slist-α > < List A , list-
   ≤-refl : ∀ x -> x ≤ x
   ≤-refl x =
     head-maybe (sort ([ x ]* ++* [ x ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ x ]* ⟫) ⟩
-    head-maybe (sort [ x ]* ++ sort [ x ]*) ≡⟨⟩
-    {!   !}
+    head-maybe (sort [ x ]* ++ sort [ x ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ x ]*)) (sort-η x) ⟩
+    head-maybe (x ∷ sort [ x ]*) ≡⟨⟩
+    just x ∎
 
   ≤-isToset : IsToset _≤_
-  IsToset.is-set ≤-isToset = {!   !}
-  IsToset.is-prop-valued ≤-isToset = {!   !}
-  IsToset.is-refl ≤-isToset = {!   !}
+  IsToset.is-set ≤-isToset = isSetA
+  IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
+  IsToset.is-refl ≤-isToset = ≤-refl
   IsToset.is-trans ≤-isToset = {!   !}
   IsToset.is-antisym ≤-isToset = {!   !}
   IsToset.is-strongly-connected ≤-isToset = {!   !} 
