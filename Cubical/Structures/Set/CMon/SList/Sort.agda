@@ -31,10 +31,10 @@ import Cubical.Structures.Set.CMon.SList.Base as S
 open Iso
 
 module Loset→Sort {ℓ : Level} {A : Type ℓ}
-                  (_≤_ : A -> A -> Type ℓ) (≤-isLo : IsToset _≤_) 
+                  (_≤_ : A -> A -> Type ℓ) (≤-isTo : IsToset _≤_) 
                   (_≤?_ : (m n : A) -> (m ≤ n) ⊎ (¬(m ≤ n))) where
 
-  open IsToset ≤-isLo
+  open IsToset ≤-isTo
 
   unneg : {m n : A} -> ¬(m ≤ n) -> n ≤ m
   unneg {m} {n} p with n ≤? m
