@@ -69,10 +69,17 @@ module Sort→Toset (isSetA : isSet A) (sortHom : structHom < SList A , slist-α
     head-maybe (x ∷ sort [ x ]*) ≡⟨⟩
     just x ∎
 
+  ≤-trans : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+  ≤-trans x y z p q =
+    head-maybe (sortHom .fst (x ∷* [ z ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ z ]* ⟫) ⟩
+    head-maybe (sort [ x ]* ++ sort [ z ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ z ]*)) (sort-η x) ⟩
+    head-maybe (x ∷ sort [ z ]*) ≡⟨⟩
+    just x ∎
+
   ≤-isToset : IsToset _≤_
   IsToset.is-set ≤-isToset = isSetA
   IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
   IsToset.is-refl ≤-isToset = ≤-refl
-  IsToset.is-trans ≤-isToset = {!   !}
+  IsToset.is-trans ≤-isToset = ≤-trans
   IsToset.is-antisym ≤-isToset = {!   !}
   IsToset.is-strongly-connected ≤-isToset = {!   !} 
