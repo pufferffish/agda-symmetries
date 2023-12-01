@@ -46,10 +46,7 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
-module Sort→Toset (isSetA : isSet A) (sortHom : structHom < SList A , slist-α > < List A , list-α >) (sort≡ : ∀ xs -> list→slist (sortHom .fst xs) ≡ xs) where
-  sort : SList A -> List A
-  sort = sortHom .fst
-
+module Sort→Toset (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
   private
     list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
     list→slist-η [] x p = ⊥.rec (znots (congS S.length p))
@@ -59,37 +56,14 @@ module Sort→Toset (isSetA : isSet A) (sortHom : structHom < SList A , slist-α
     sort-η : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-η x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
 
-  private -- test
-    lemma-test-α : ∀ x y -> head-maybe (sort (x ∷* y ∷* []*)) ≡ just x
-    lemma-test-α x y =
-      head-maybe (sortHom .fst (x ∷* [ y ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ y ]* ⟫) ⟩
-      head-maybe (sort [ x ]* ++ sort [ y ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ y ]*)) (sort-η x) ⟩
-      head-maybe (x ∷ sort [ y ]*) ≡⟨⟩
-      just x ∎
-    lemma-test-β : ∀ x y -> head-maybe (sort (x ∷* y ∷* []*)) ≡ just y
-    lemma-test-β x y =
-      head-maybe (sort (x ∷* y ∷* []*)) ≡⟨ congS (λ z -> head-maybe (sort z)) (swap x y []*) ⟩
-      head-maybe (sort (y ∷* [ x ]*)) ≡⟨ lemma-test-α y x ⟩
-      just y ∎
-    lemma-test : ∀ (x y : A) -> x ≡ y -- wtf?
-    lemma-test x y = just-inj x y (sym (lemma-test-α x y) ∙ (lemma-test-β x y))
-
   _≤_ : A -> A -> Type _
   x ≤ y = head-maybe (sort (x ∷* y ∷* []*)) ≡ just x
 
   ≤-refl : ∀ x -> x ≤ x
-  ≤-refl x =
-    head-maybe (sort ([ x ]* ++* [ x ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ x ]* ⟫) ⟩
-    head-maybe (sort [ x ]* ++ sort [ x ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ x ]*)) (sort-η x) ⟩
-    head-maybe (x ∷ sort [ x ]*) ≡⟨⟩
-    just x ∎
+  ≤-refl x = {!   !}
 
   ≤-trans : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-  ≤-trans x y z p q =
-    head-maybe (sortHom .fst (x ∷* [ z ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ z ]* ⟫) ⟩
-    head-maybe (sort [ x ]* ++ sort [ z ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ z ]*)) (sort-η x) ⟩
-    head-maybe (x ∷ sort [ z ]*) ≡⟨⟩
-    just x ∎
+  ≤-trans x y z p q = {!   !}
 
   ≤-isToset : IsToset _≤_
   IsToset.is-set ≤-isToset = isSetA
