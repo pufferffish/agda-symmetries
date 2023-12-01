@@ -5,6 +5,7 @@ module Cubical.Structures.Set.CMon.SList.Sort where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order renaming (_≤_ to _≤ℕ_)
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Empty as ⊥
@@ -46,7 +47,11 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
-module Sort→Toset (discreteA : Discrete A) (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
+module Sort→Toset (discreteA : Discrete A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
+
+  isSetA : isSet A
+  isSetA = Discrete→isSet discreteA
+
   private
     list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
     list→slist-η [] x p = ⊥.rec (znots (congS S.length p))
@@ -70,50 +75,92 @@ module Sort→Toset (discreteA : Discrete A) (isSetA : isSet A) (sort : SList A 
     sort-[-] : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-[-] x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
 
-    least : SList A -> Maybe A
-    least xs = head-maybe (sort xs)
+  least : SList A -> Maybe A
+  least xs = head-maybe (sort xs)
 
-    least-choice : ∀ x y -> (least (x ∷* y ∷* []*) ≡ just x) ⊎ (least (x ∷* y ∷* []*) ≡ just y)
-    least-choice x y = {!   !}
+  _∈*_ : A -> SList A -> Type _
+  x ∈* xs = 0 < (FMScount discreteA x xs)
+
+  private
+    ∈*-∷-α : ∀ x y xs -> x ≡ y -> x ∈* xs -> x ∈* (y ∷* xs)
+    ∈*-∷-α x y xs p q = <-trans q lemma-β
+      where
+      lemma-α : FMScount discreteA x (y ∷* xs) ≡ suc (FMScount discreteA x xs)
+      lemma-α = FMScount-≡-lemma discreteA xs p
+      lemma-β : FMScount discreteA x xs < FMScount discreteA x (y ∷* xs)
+      lemma-β = subst (FMScount discreteA x xs <_) (sym lemma-α) ≤-refl
+    ∈*-∷-β : ∀ x y xs -> ¬(x ≡ y) -> x ∈* xs -> x ∈* (y ∷* xs)
+    ∈*-∷-β x y xs p q = subst (0 <_) (sym lemma) q
+      where
+      lemma : FMScount discreteA x (y ∷* xs) ≡ FMScount discreteA x xs
+      lemma = FMScount-≢-lemma discreteA xs p
+    ∈*-∷ : ∀ x y xs -> x ∈* xs -> x ∈* (y ∷* xs)
+    ∈*-∷ x y xs p = decRec
+      (λ q -> ∈*-∷-α x y xs q p)
+      (λ q -> ∈*-∷-β x y xs q p)
+      (discreteA x y)
+
+  ∈*-++ : ∀ x xs ys -> x ∈* ys -> x ∈* (xs ++* ys)
+  ∈*-++ x xs ys p =
+    ElimProp.f {B = λ zs -> x ∈* (zs ++* ys)} isProp≤ p
+      (λ z {zs} q -> ∈*-∷ x z (zs ++* ys) q)
+      xs
 
   _≤_ : A -> A -> Type _
-  x ≤ y = least (x ∷* y ∷* []*) ≡ just x
+  x ≤ y = ∃[ xs ∈ SList A ] (least xs ≡ just x) × (y ∈* xs)
 
-  ≤-refl : ∀ x -> x ≤ x
-  ≤-refl x = ⊎.rec (λ p -> p) (λ p -> p) (least-choice x x)
+  refl-≤ : ∀ x -> x ≤ x
+  refl-≤ x = ∣ (x ∷* []*) , congS head-maybe (sort-[-] x) , x∈xs ∣₁
+    where
+    x∈xs : x ∈* [ x ]*
+    x∈xs with discreteA x x
+    ... | yes p = 0 , refl
+    ... | no ¬p = ⊥.rec (¬p refl)
 
-  ≤-trans : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-  ≤-trans x y z p q = {!   !}
+  trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+  trans-≤ x y z = P.rec (isPropΠ (λ _ -> squash₁)) λ (xs , p , q) ->
+    P.rec squash₁ λ (ys , r , s) ->
+      ∣ xs ++* ys , {!   !} , ∈*-++ z xs ys s ∣₁
 
-  ≤-antisym : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
-  ≤-antisym x y p q = ⊎.rec
-    (λ xy -> just-inj x y $
-      just x ≡⟨ sym xy ⟩
-      least (x ∷* y ∷* []*) ≡⟨ congS least (swap x y []*) ⟩
-      least (y ∷* x ∷* []*) ≡⟨ q ⟩
-      just y
-    ∎)
-    (λ yx -> just-inj x y $
-      just x ≡⟨ sym p ⟩
-      least (x ∷* [ y ]*) ≡⟨ yx ⟩
-      just y
-    ∎)
-    (least-choice x y)
-
-  ≤-dec : ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
-  ≤-dec x y = ⊎.rec
-    (λ p -> inl p)
-    (λ p -> inr $
-      least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
-      least (x ∷* [ y ]*) ≡⟨ p ⟩
-      just y
-    ∎)
-    (least-choice x y)
-
-  ≤-isToset : IsToset _≤_
-  IsToset.is-set ≤-isToset = isSetA
-  IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
-  IsToset.is-refl ≤-isToset = ≤-refl
-  IsToset.is-trans ≤-isToset = ≤-trans
-  IsToset.is-antisym ≤-isToset = ≤-antisym
-  IsToset.is-strongly-connected ≤-isToset x y = ∣ ≤-dec x y ∣₁ 
+--
+--  _≤_ : A -> A -> Type _
+--  x ≤ y = least (x ∷* y ∷* []*) ≡ just x
+--
+--  ≤-refl : ∀ x -> x ≤ x
+--  ≤-refl x = ⊎.rec (λ p -> p) (λ p -> p) (least-choice x x)
+--
+--  ≤-trans : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+--  ≤-trans x y z p q = {!   !}
+--
+--  ≤-antisym : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
+--  ≤-antisym x y p q = ⊎.rec
+--    (λ xy -> just-inj x y $
+--      just x ≡⟨ sym xy ⟩
+--      least (x ∷* y ∷* []*) ≡⟨ congS least (swap x y []*) ⟩
+--      least (y ∷* x ∷* []*) ≡⟨ q ⟩
+--      just y
+--    ∎)
+--    (λ yx -> just-inj x y $
+--      just x ≡⟨ sym p ⟩
+--      least (x ∷* [ y ]*) ≡⟨ yx ⟩
+--      just y
+--    ∎)
+--    (least-choice x y)
+--
+--  ≤-dec : ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
+--  ≤-dec x y = ⊎.rec
+--    (λ p -> inl p)
+--    (λ p -> inr $
+--      least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
+--      least (x ∷* [ y ]*) ≡⟨ p ⟩
+--      just y
+--    ∎)
+--    (least-choice x y)
+--
+--  ≤-isToset : IsToset _≤_
+--  IsToset.is-set ≤-isToset = isSetA
+--  IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
+--  IsToset.is-refl ≤-isToset = ≤-refl
+--  IsToset.is-trans ≤-isToset = ≤-trans
+--  IsToset.is-antisym ≤-isToset = ≤-antisym
+--  IsToset.is-strongly-connected ≤-isToset x y = ∣ ≤-dec x y ∣₁ 
