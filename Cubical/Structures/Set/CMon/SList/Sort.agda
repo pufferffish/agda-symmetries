@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort where
 
@@ -58,6 +58,21 @@ module Sort→Toset (isSetA : isSet A) (sortHom : structHom < SList A , slist-α
 
     sort-η : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-η x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
+
+  private -- test
+    lemma-test-α : ∀ x y -> head-maybe (sort (x ∷* y ∷* []*)) ≡ just x
+    lemma-test-α x y =
+      head-maybe (sortHom .fst (x ∷* [ y ]*)) ≡⟨ congS head-maybe $ sym (sortHom .snd M.`⊕ ⟪ [ x ]* ⨾ [ y ]* ⟫) ⟩
+      head-maybe (sort [ x ]* ++ sort [ y ]*) ≡⟨ congS (λ w -> head-maybe (w ++ sort [ y ]*)) (sort-η x) ⟩
+      head-maybe (x ∷ sort [ y ]*) ≡⟨⟩
+      just x ∎
+    lemma-test-β : ∀ x y -> head-maybe (sort (x ∷* y ∷* []*)) ≡ just y
+    lemma-test-β x y =
+      head-maybe (sort (x ∷* y ∷* []*)) ≡⟨ congS (λ z -> head-maybe (sort z)) (swap x y []*) ⟩
+      head-maybe (sort (y ∷* [ x ]*)) ≡⟨ lemma-test-α y x ⟩
+      just y ∎
+    lemma-test : ∀ (x y : A) -> x ≡ y -- wtf?
+    lemma-test x y = just-inj x y (sym (lemma-test-α x y) ∙ (lemma-test-β x y))
 
   _≤_ : A -> A -> Type _
   x ≤ y = head-maybe (sort (x ∷* y ∷* []*)) ≡ just x
