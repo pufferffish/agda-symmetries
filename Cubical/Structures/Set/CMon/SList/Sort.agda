@@ -72,11 +72,15 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     length-0 [] p = refl
     length-0 (x ∷ xs) p = ⊥.rec (snotz p)
 
-    sort-[] : sort []* ≡ []
-    sort-[] = length-0 (sort []*) (sort-length≡ []*)
+    sort-[] : ∀ xs -> sort xs ≡ [] -> xs ≡ []*
+    sort-[] xs p = sym (sort≡ xs) ∙ congS list→slist p
 
     sort-[-] : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-[-] x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
+
+    list→slist-[] : (xs : List A) -> list→slist xs ≡ []* -> xs ≡ []
+    list→slist-[] [] p = refl
+    list→slist-[] (x ∷ xs) p = ⊥.rec (snotz (congS S.length p))
 
   least : SList A -> Maybe A
   least xs = head-maybe (sort xs)
@@ -144,12 +148,44 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     y∈xs : y ∈* xs
     y∈xs = subst (y ∈*_) y∷ys≡xs (list→slist-∈* y ys)
 
+  ∈*-remove1 : ∀ x y xs -> x ∈* xs -> ¬(x ≡ y) -> x ∈* remove1 discreteA y xs
+  ∈*-remove1 x y xs p q = subst (0 <_) lemma p
+    where
+    lemma : FMScount discreteA x xs ≡ FMScount discreteA x (remove1 discreteA y xs)
+    lemma = sym (FMScount-remove1-≢-lemma discreteA xs q)
+
+  ¬∈[] : ∀ x -> ¬(x ∈* []*)
+  ¬∈[] x p = snotz (≤0→≡0 p)
+
+  least-nothing : ∀ xs -> least xs ≡ nothing -> xs ≡ []*
+  least-nothing xs p with sort xs | inspect sort xs
+  ... | []     | [ q ]ᵢ = sort-[] xs q
+  ... | y ∷ ys | [ q ]ᵢ = ⊥.rec (¬just≡nothing p)
+
+  ¬least-nothing : ∀ x xs -> ¬(least (x ∷* xs) ≡ nothing)
+  ¬least-nothing x xs p = snotz (congS S.length (least-nothing (x ∷* xs) p))
+
   least-choice : ∀ x y -> (least (x ∷* [ y ]*) ≡ just x) ⊎ (least (x ∷* [ y ]*) ≡ just y)
   least-choice x y with (discreteMaybe discreteA) (least (x ∷* [ y ]*)) (just x)
   ... | yes p = inl p
   ... | no ¬p with (discreteMaybe discreteA) (least (x ∷* [ y ]*)) (just y)
   ... | yes q = inr q
-  ... | no ¬q = {!   !}
+  ... | no ¬q with least (x ∷* [ y ]*) | inspect least (x ∷* [ y ]*)
+  ... | nothing | [ r ]ᵢ = ⊥.rec (¬least-nothing x [ y ]* r)
+  ... | just z  | [ r ]ᵢ = ⊥.rec (¬∈[] z smallest∈β)
+    where
+    remove1-α : remove1 discreteA x (x ∷* [ y ]*) ≡ [ y ]*
+    remove1-α with discreteA x x
+    ... | yes r = refl
+    ... | no ¬r = ⊥.rec (¬r refl)
+    smallest∈α : z ∈* [ y ]*
+    smallest∈α = subst (z ∈*_) remove1-α (∈*-remove1 z x (x ∷* [ y ]*) (least-in z (x ∷* [ y ]*) r) (¬p ∘ congS just))
+    remove1-β : remove1 discreteA y [ y ]* ≡ []*
+    remove1-β with discreteA y y
+    ... | yes r = refl
+    ... | no ¬r = ⊥.rec (¬r refl)
+    smallest∈β : z ∈* []*
+    smallest∈β = subst (z ∈*_) remove1-β (∈*-remove1 z y [ y ]* smallest∈α (¬q ∘ congS just))
 
   least-dec : ∀ x y -> (x ≤ y) ⊎ (¬(x ≤ y))
   least-dec x y = {!   !}
