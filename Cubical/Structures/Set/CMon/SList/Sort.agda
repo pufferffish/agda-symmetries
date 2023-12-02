@@ -47,7 +47,7 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
-module Sort→Toset (discreteA : Discrete A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
+module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
 
   isSetA : isSet A
   isSetA = Discrete→isSet discreteA
@@ -94,11 +94,14 @@ module Sort→Toset (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
       where
       lemma : FMScount discreteA x (y ∷* xs) ≡ FMScount discreteA x xs
       lemma = FMScount-≢-lemma discreteA xs p
-    ∈*-∷ : ∀ x y xs -> x ∈* xs -> x ∈* (y ∷* xs)
-    ∈*-∷ x y xs p = decRec
-      (λ q -> ∈*-∷-α x y xs q p)
-      (λ q -> ∈*-∷-β x y xs q p)
-      (discreteA x y)
+
+  ∈*-∷ : ∀ x y xs -> x ∈* xs -> x ∈* (y ∷* xs)
+  ∈*-∷ x y xs p = decRec
+    (λ q -> ∈*-∷-α x y xs q p)
+    (λ q -> ∈*-∷-β x y xs q p)
+    (discreteA x y)
+    
+    -- ElimProp.f (isPropΠ λ _ -> isOfHLevelMaybe 0 isSetA _ (just x)) (idfun _)
 
   ∈*-++ : ∀ x xs ys -> x ∈* ys -> x ∈* (xs ++* ys)
   ∈*-++ x xs ys p =
@@ -108,6 +111,29 @@ module Sort→Toset (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
 
   _≤_ : A -> A -> Type _
   x ≤ y = ∃[ xs ∈ SList A ] (least xs ≡ just x) × (y ∈* xs)
+
+  least-subset : ∀ x y xs -> least xs ≡ just x -> y ∈* xs -> x ≤ y
+  least-subset x y xs p q = ∣ xs , p , q ∣₁
+
+  remove1-in : ∀ x xs -> x ∈* xs -> x ∷* remove1 discreteA x xs ≡ xs
+  remove1-in = {!   !}
+
+  least-in : ∀ x xs -> least xs ≡ just x -> x ∈* xs
+  least-in x xs p = {!   !}
+
+  least-choice : ∀ x y -> (least (x ∷* [ y ]*) ≡ just x) ⊎ (least (x ∷* [ y ]*) ≡ just y)
+  least-choice x y with (discreteMaybe discreteA) (least (x ∷* [ y ]*)) (just x)
+  ... | yes p = inl p
+  ... | no ¬p with (discreteMaybe discreteA) (least (x ∷* [ y ]*)) (just y)
+  ... | yes q = inr q
+  ... | no ¬q = {!   !}
+
+  least-dec : ∀ x y -> (x ≤ y) ⊎ (¬(x ≤ y))
+  least-dec x y = {!   !}
+
+  least-order : ∀ x y -> x ≤ y -> least (x ∷* y ∷* []*) ≡ just x
+  least-order x y = P.rec (isOfHLevelMaybe 0 isSetA _ (just x)) λ (xs , p , q) ->
+    {!   !}
 
   refl-≤ : ∀ x -> x ≤ x
   refl-≤ x = ∣ (x ∷* []*) , congS head-maybe (sort-[-] x) , x∈xs ∣₁
@@ -122,17 +148,13 @@ module Sort→Toset (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     P.rec squash₁ λ (ys , r , s) ->
       ∣ xs ++* ys , {!   !} , ∈*-++ z xs ys s ∣₁
 
---
---  _≤_ : A -> A -> Type _
---  x ≤ y = least (x ∷* y ∷* []*) ≡ just x
---
---  ≤-refl : ∀ x -> x ≤ x
---  ≤-refl x = ⊎.rec (λ p -> p) (λ p -> p) (least-choice x x)
---
---  ≤-trans : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
---  ≤-trans x y z p q = {!   !}
---
---  ≤-antisym : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
+  antisym-≤ : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y  
+  antisym-≤ x y p q = just-inj x y $
+    just x ≡⟨ sym (least-order x y p) ⟩
+    least (x ∷* [ y ]*) ≡⟨ congS least (swap x y []*) ⟩
+    least (y ∷* [ x ]*) ≡⟨ least-order y x q ⟩
+    just y ∎
+
 --  ≤-antisym x y p q = ⊎.rec
 --    (λ xy -> just-inj x y $
 --      just x ≡⟨ sym xy ⟩
