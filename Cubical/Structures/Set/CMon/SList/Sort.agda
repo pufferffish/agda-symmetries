@@ -49,6 +49,9 @@ head-maybe (x ∷ xs) = just x
 
 module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
 
+  private
+    module 𝔖 = M.CMonSEq < SList A , slist-α > slist-sat
+
   isSetA : isSet A
   isSetA = Discrete→isSet discreteA
 
@@ -109,6 +112,19 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
       (λ z {zs} q -> ∈*-∷ x z (zs ++* ys) q)
       xs
 
+  x∈[x] : ∀ x -> x ∈* [ x ]*
+  x∈[x] x with discreteA x x
+  ... | yes p = 0 , refl
+  ... | no ¬p = ⊥.rec (¬p refl)
+
+  list→slist-∈* : ∀ x xs -> x ∈* list→slist (x ∷ xs)
+  list→slist-∈* x xs = subst (x ∈*_) lemma x∈xs++x
+    where
+    x∈xs++x : x ∈* (list→slist xs ++* [ x ]*)
+    x∈xs++x = ∈*-++ x (list→slist xs) [ x ]* (x∈[x] x)
+    lemma : list→slist xs ++* [ x ]* ≡ list→slist (x ∷ xs)
+    lemma = sym (𝔖.comm [ x ]* (list→slist xs))
+
   _≤_ : A -> A -> Type _
   x ≤ y = ∃[ xs ∈ SList A ] (least xs ≡ just x) × (y ∈* xs)
 
@@ -119,7 +135,14 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
   remove1-in = {!   !}
 
   least-in : ∀ x xs -> least xs ≡ just x -> x ∈* xs
-  least-in x xs p = {!   !}
+  least-in x xs p with sort xs | inspect sort xs
+  ... | []     | _      = ⊥.rec (¬nothing≡just p)
+  ... | y ∷ ys | [ q ]ᵢ = subst (_∈* xs) (just-inj y x p) y∈xs
+    where
+    y∷ys≡xs : list→slist (y ∷ ys) ≡ xs
+    y∷ys≡xs = congS list→slist (sym q) ∙ sort≡ xs
+    y∈xs : y ∈* xs
+    y∈xs = subst (y ∈*_) y∷ys≡xs (list→slist-∈* y ys)
 
   least-choice : ∀ x y -> (least (x ∷* [ y ]*) ≡ just x) ⊎ (least (x ∷* [ y ]*) ≡ just y)
   least-choice x y with (discreteMaybe discreteA) (least (x ∷* [ y ]*)) (just x)
@@ -136,12 +159,7 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     {!   !}
 
   refl-≤ : ∀ x -> x ≤ x
-  refl-≤ x = ∣ (x ∷* []*) , congS head-maybe (sort-[-] x) , x∈xs ∣₁
-    where
-    x∈xs : x ∈* [ x ]*
-    x∈xs with discreteA x x
-    ... | yes p = 0 , refl
-    ... | no ¬p = ⊥.rec (¬p refl)
+  refl-≤ x = ∣ (x ∷* []*) , congS head-maybe (sort-[-] x) , x∈[x] x ∣₁
 
   trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
   trans-≤ x y z = P.rec (isPropΠ (λ _ -> squash₁)) λ (xs , p , q) ->
