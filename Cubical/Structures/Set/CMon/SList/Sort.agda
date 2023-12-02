@@ -75,6 +75,9 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     sort-[] : ∀ xs -> sort xs ≡ [] -> xs ≡ []*
     sort-[] xs p = sym (sort≡ xs) ∙ congS list→slist p
 
+    sort-[]' : sort []* ≡ []
+    sort-[]' = length-0 (sort []*) (sort-length≡ []*)
+
     sort-[-] : ∀ x -> sort [ x ]* ≡ [ x ]
     sort-[-] x = list→slist-η (sort [ x ]*) x (sort≡ [ x ]*)
 
@@ -180,6 +183,46 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     smallest∈β : z ∈* []*
     smallest∈β = subst (z ∈*_) remove1-β (∈*-remove1 z y [ y ]* smallest∈α (¬q ∘ congS just))
 
+  sort-cons : ∀ x xs -> sort (x ∷* list→slist xs) ≡ x ∷ xs -> sort (list→slist xs) ≡ xs
+  sort-cons x [] p = sort-[]'
+  sort-cons x (y ∷ ys) p = {!   !}
+    where
+    IH : sort (list→slist ys) ≡ ys
+    IH = sort-cons y ys {!   !}
+
+  -- sort-cons : ∀ x xs -> least xs ≡ just x -> sort xs ≡ x ∷ sort (remove1 discreteA x xs)
+  -- sort-cons x xs p with sort xs | inspect sort xs
+  -- ... | []         | _      = ⊥.rec (¬nothing≡just p)
+  -- ... | y ∷ []     | [ q ]ᵢ = cong₂ _∷_ (just-inj y x p) {!   !}
+  -- ... | y ∷ z ∷ ys | [ q ]ᵢ = cong₂ _∷_ (just-inj y x p) {!   !}
+  --   where
+  --   IH : sort (z ∷* list→slist ys) ≡ z ∷ sort (remove1 discreteA z (z ∷* list→slist ys))
+  --   IH = {!   !}
+  --   xs≡yzys : xs ≡ y ∷* z ∷* list→slist ys
+  --   xs≡yzys =
+  --     xs ≡⟨ sym (sort≡ xs) ⟩
+  --     list→slist (sort xs) ≡⟨ congS list→slist q ⟩
+  --     list→slist (y ∷ z ∷ ys) ∎
+  --   lemma-α : remove1 discreteA x (y ∷* z ∷* list→slist ys) ≡ z ∷* list→slist ys
+  --   lemma-α with discreteA x y
+  --   ... | no ¬r = ⊥.rec (¬r (just-inj x y (sym p)))
+  --   ... | yes r = refl
+  --   lemma-β : remove1 discreteA x xs ≡ z ∷* list→slist ys
+  --   lemma-β = congS (remove1 discreteA x) xs≡yzys ∙ lemma-α
+  --   lemma-γ : sort (z ∷* list→slist ys) ≡ z ∷ ys
+  --   lemma-γ =
+  --     sort (z ∷* list→slist ys) ≡⟨ IH ⟩
+  --     z ∷ sort (remove1 discreteA z (z ∷* list→slist ys)) ≡⟨ congS (λ w -> z ∷ sort w) (sym (remove1-≡-lemma discreteA (list→slist ys) refl)) ⟩
+  --     z ∷ sort (list→slist ys) ≡⟨⟩
+  --     {!   !}
+
+  least-remove : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> least (x ∷* [ y ]*) ≡ just x
+  least-remove x y z p = {!   !}
+
+  least-add : ∀ x y z -> least (x ∷* [ y ]*) ≡ just x
+              -> (least (x ∷* y ∷* [ z ]*) ≡ just x) ⊎ (least (x ∷* y ∷* [ z ]*) ≡ just z) 
+  least-add x y z p = {!   !}
+
   _≤_ : A -> A -> Type _
   x ≤ y = least (x ∷* y ∷* []*) ≡ just x
 
@@ -204,8 +247,8 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     ∎)
     (least-choice x y)
 
-  dec-≤ : ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
-  dec-≤ x y = ⊎.rec
+  total-≤ : ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
+  total-≤ x y = ⊎.rec
     (λ p -> inl p)
     (λ p -> inr $
       least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
@@ -214,10 +257,13 @@ module Sort→Order (discreteA : Discrete A) (sort : SList A -> List A) (sort≡
     ∎)
     (least-choice x y)
 
+  dec-≤ : ∀ x y -> (x ≤ y) ⊎ (¬(x ≤ y))
+  dec-≤ x y = decRec inl inr ((discreteMaybe discreteA) (least (x ∷* y ∷* []*)) (just x))
+
   ≤-isToset : IsToset _≤_
   IsToset.is-set ≤-isToset = isSetA
   IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
   IsToset.is-refl ≤-isToset = refl-≤
   IsToset.is-trans ≤-isToset = trans-≤
   IsToset.is-antisym ≤-isToset = antisym-≤
-  IsToset.is-strongly-connected ≤-isToset x y = ∣ dec-≤ x y ∣₁ 
+  IsToset.is-strongly-connected ≤-isToset x y = ∣ total-≤ x y ∣₁ 
