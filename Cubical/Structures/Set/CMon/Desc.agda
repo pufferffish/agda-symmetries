@@ -8,6 +8,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Functions.Logic as L
 open import Cubical.Structures.Arity as F public
 
 open import Cubical.Structures.Sig
@@ -92,3 +93,11 @@ module CMonSEq {ℓ} (𝔛 : CMonStruct {ℓ}) (ϕ : 𝔛 ⊨ CMonSEq) where
 ℕ-CMonStr-MonSEq : ℕ-CMonStr ⊨ CMonSEq
 ℕ-CMonStr-MonSEq (`mon eqn) ρ = M.ℕ-MonStr-MonSEq eqn ρ
 ℕ-CMonStr-MonSEq `comm ρ = +-comm (ρ fzero) (ρ fone)
+
+⊔-MonStr-CMonSEq : (ℓ : Level) -> M.⊔-MonStr ℓ ⊨ CMonSEq
+⊔-MonStr-CMonSEq ℓ (`mon eqn) ρ = M.⊔-MonStr-MonSEq ℓ eqn ρ
+⊔-MonStr-CMonSEq ℓ `comm ρ = ⊔-comm (ρ fzero) (ρ fone)
+
+⊓-MonStr-CMonSEq : (ℓ : Level) -> M.⊓-MonStr ℓ ⊨ CMonSEq
+⊓-MonStr-CMonSEq ℓ (`mon eqn) ρ = M.⊓-MonStr-MonSEq ℓ eqn ρ
+⊓-MonStr-CMonSEq ℓ `comm ρ = ⊓-comm (ρ fzero) (ρ fone)
