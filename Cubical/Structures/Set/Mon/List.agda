@@ -8,6 +8,7 @@ open import Cubical.Data.List
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 import Cubical.Data.Empty as ⊥
+open import Cubical.Functions.Logic as L
 
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Free as F
@@ -86,3 +87,22 @@ module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
 
   _∈_ : A -> List A -> Type ℓ
   x ∈ xs = ∈Prop x xs .fst
+
+  isProp-∈ : (x : A) -> (xs : List A) -> isProp (x ∈ xs)
+  isProp-∈ x xs = (∈Prop x xs) .snd
+  
+  x∈xs : ∀ x xs -> x ∈ (x ∷ xs)
+  x∈xs x xs = inl refl
+
+  x∈[x] : ∀ x -> x ∈ [ x ]
+  x∈[x] x = x∈xs x []
+
+  ∈-∷ : ∀ x y xs -> x ∈ xs -> x ∈ (y ∷ xs)
+  ∈-∷ x y xs p = inr p
+
+  ∈-++ : ∀ x xs ys -> x ∈ ys -> x ∈ (xs ++ ys)
+  ∈-++ x [] ys p = p
+  ∈-++ x (a ∷ as) ys p = ∈-∷ x a (as ++ ys) (∈-++ x as ys p)
+
+  ¬∈[] : ∀ x -> (x ∈ []) -> ⊥.⊥
+  ¬∈[] x = ⊥.rec*

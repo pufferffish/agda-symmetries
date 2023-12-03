@@ -39,12 +39,6 @@ private
     ℓ : Level
     A : Type ℓ
 
-list→slist-Hom : structHom < List A , list-α > < SList A , slist-α >
-list→slist-Hom = ListDef.Free.ext listDef trunc (M.cmonSatMon slist-sat) S.[_]
-
-list→slist : List A -> SList A
-list→slist = list→slist-Hom .fst
-
 head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
@@ -57,7 +51,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   private
     module 𝔖 = M.CMonSEq < SList A , slist-α > slist-sat
   
-  open S.Membership isSetA
+  open Membership* isSetA
 
   private
     list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
@@ -143,6 +137,12 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
 
   refl-≤ : ∀ x -> x ≤ x
   refl-≤ x = Prec isProp-≤ (least-choice x x) (⊎.rec (idfun _) (idfun _))
+
+  trans-lemma-α : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x
+                -> (sort (x ∷* y ∷* [ z ]*) ≡ x ∷ y ∷ [ z ]) ⊔′ (sort (x ∷* y ∷* [ z ]*) ≡ x ∷ z ∷ [ y ])
+  trans-lemma-α x y z p =
+    let (xs , q) = least-Σ x (x ∷* y ∷* [ z ]*) p
+    in {!   !}
 
   -- trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
   -- trans-≤ x y z p q = {!   !}
