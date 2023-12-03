@@ -89,6 +89,9 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     list→slist-[] [] p = refl
     list→slist-[] (x ∷ xs) p = ⊥.rec (snotz (congS S.length p))
 
+    Prec : {X P : Type ℓ} -> isProp P -> ∥ X ∥₁ -> (X -> P) ->  P
+    Prec x y z = P.rec x z y
+
   least : SList A -> Maybe A
   least xs = head-maybe (sort xs)
 
@@ -108,7 +111,12 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
         x∷ys≡xs = congS list→slist (sym q) ∙ sort≡ xs
     in subst (x ∈*_) x∷ys≡xs (x∈*xs x (list→slist ys))
 
-  least-choice : ∀ x y -> (least (x ∷* [ y ]*) ≡ just x) ⊔′ (least (x ∷* [ y ]*) ≡ just y)
+  least-choice-prop : ∀ x y -> hProp _
+  least-choice-prop x y =
+    ((least (x ∷* [ y ]*) ≡ just x) , (isSetMaybeA _ _))
+    ⊔ ((least (x ∷* [ y ]*) ≡ just y) , (isSetMaybeA _ _))
+
+  least-choice : ∀ x y -> ⟨ least-choice-prop x y ⟩
   least-choice x y with least (x ∷* [ y ]*) | inspect least (x ∷* [ y ]*)
   ... | nothing | [ p ]ᵢ =
     ⊥.rec (snotz (congS S.length (least-nothing (x ∷* [ y ]*) p)))
@@ -127,47 +135,49 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     want2 : hProp _
     want2 = (just z ≡ just y) , isSetMaybeA _ _
 
-  -- _≤_ : A -> A -> Type _
-  -- x ≤ y = least (x ∷* y ∷* []*) ≡ just x
+  _≤_ : A -> A -> Type _
+  x ≤ y = least (x ∷* y ∷* []*) ≡ just x
 
-  -- refl-≤ : ∀ x -> x ≤ x
-  -- refl-≤ x = ⊎.rec (λ p -> p) (λ p -> p) (least-choice x x)
+  isProp-≤ : ∀ {a} {b} -> isProp (a ≤ b)
+  isProp-≤  = isSetMaybeA _ _
+
+  refl-≤ : ∀ x -> x ≤ x
+  refl-≤ x = Prec isProp-≤ (least-choice x x) (⊎.rec (idfun _) (idfun _))
 
   -- trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
   -- trans-≤ x y z p q = {!   !}
 
-  -- antisym-≤ : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
-  -- antisym-≤ x y p q = ⊎.rec
-  --   (λ xy -> just-inj x y $
-  --     just x ≡⟨ sym xy ⟩
-  --     least (x ∷* y ∷* []*) ≡⟨ congS least (swap x y []*) ⟩
-  --     least (y ∷* x ∷* []*) ≡⟨ q ⟩
-  --     just y
-  --   ∎)
-  --   (λ yx -> just-inj x y $
-  --     just x ≡⟨ sym p ⟩
-  --     least (x ∷* [ y ]*) ≡⟨ yx ⟩
-  --     just y
-  --   ∎)
-  --   (least-choice x y)
+  antisym-≤ : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
+  antisym-≤ x y p q = Prec (isSetA x y) (least-choice x y) $
+    ⊎.rec
+      (λ xy -> just-inj x y $
+        just x ≡⟨ sym xy ⟩
+        least (x ∷* y ∷* []*) ≡⟨ congS least (swap x y []*) ⟩
+        least (y ∷* x ∷* []*) ≡⟨ q ⟩
+        just y
+      ∎)
+      (λ yx -> just-inj x y $
+        just x ≡⟨ sym p ⟩
+        least (x ∷* [ y ]*) ≡⟨ yx ⟩
+        just y
+      ∎)
 
-  -- total-≤ : ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
-  -- total-≤ x y = ⊎.rec
-  --   (λ p -> inl p)
-  --   (λ p -> inr $
-  --     least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
-  --     least (x ∷* [ y ]*) ≡⟨ p ⟩
-  --     just y
-  --   ∎)
-  --   (least-choice x y)
+  total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
+  total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
+    L.inl
+    (λ p -> L.inr $
+      least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
+      least (x ∷* [ y ]*) ≡⟨ p ⟩
+      just y
+    ∎)
 
   -- dec-≤ : ∀ x y -> (x ≤ y) ⊎ (¬(x ≤ y))
   -- dec-≤ x y = decRec inl inr ((discreteMaybe discreteA) (least (x ∷* y ∷* []*)) (just x))
 
-  -- ≤-isToset : IsToset _≤_
-  -- IsToset.is-set ≤-isToset = isSetA
-  -- IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
-  -- IsToset.is-refl ≤-isToset = refl-≤
-  -- IsToset.is-trans ≤-isToset = trans-≤
-  -- IsToset.is-antisym ≤-isToset = antisym-≤
-  -- IsToset.is-strongly-connected ≤-isToset x y = ∣ total-≤ x y ∣₁ 
+  ≤-isToset : IsToset _≤_
+  IsToset.is-set ≤-isToset = isSetA
+  IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
+  IsToset.is-refl ≤-isToset = refl-≤
+  IsToset.is-trans ≤-isToset = {!   !}
+  IsToset.is-antisym ≤-isToset = antisym-≤
+  IsToset.is-strongly-connected ≤-isToset = total-≤
