@@ -16,6 +16,7 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
+open import Cubical.HITs.PropositionalTruncation as P
 
 private
   variable
@@ -76,3 +77,12 @@ F.Definition.Free.η listDef = [_]
 F.Definition.Free.α listDef = list-α
 F.Definition.Free.sat listDef = list-sat
 F.Definition.Free.isFree listDef isSet𝔜 satMon = (Free.listEquiv isSet𝔜 satMon) .snd
+
+module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
+  open Free {A = A} isSetHProp (M.⊔-MonStr-MonSEq ℓ)
+
+  ∈Prop : A -> List A -> hProp ℓ 
+  ∈Prop x = (λ y -> (x ≡ y) , isSetA x y) ♯
+
+  _∈_ : A -> List A -> Type ℓ
+  x ∈ xs = ∈Prop x xs .fst
