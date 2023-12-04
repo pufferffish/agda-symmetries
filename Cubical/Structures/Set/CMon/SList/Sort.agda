@@ -51,6 +51,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   private
     module 𝔖 = M.CMonSEq < SList A , slist-α > slist-sat
   
+  open Membership isSetA
   open Membership* isSetA
 
   private
@@ -86,6 +87,21 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     Prec : {X P : Type ℓ} -> isProp P -> ∥ X ∥₁ -> (X -> P) ->  P
     Prec x y z = P.rec x z y
 
+    A≡ : A -> A -> hProp _
+    A≡ x y = (x ≡ y) , isSetA x y
+
+    just≡ : A -> A -> hProp _
+    just≡ x y = (just x ≡ just y) , isSetMaybeA _ _
+
+    maybe≡ : Maybe A -> Maybe A -> hProp _
+    maybe≡ x y = (x ≡ y) , isSetMaybeA _ _
+
+  sort-∈ : ∀ x xs -> x ∈* xs -> x ∈ sort xs
+  sort-∈ x xs p = ∈*→∈ x (sort xs) (subst (x ∈*_) (sym (sort≡ xs)) p)
+
+  sort-∈* : ∀ x xs -> x ∈ sort xs -> x ∈* xs
+  sort-∈* x xs p = subst (x ∈*_) (sort≡ xs) (∈→∈* x (sort xs) p)
+
   least : SList A -> Maybe A
   least xs = head-maybe (sort xs)
 
@@ -107,27 +123,58 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
 
   least-choice-prop : ∀ x y -> hProp _
   least-choice-prop x y =
-    ((least (x ∷* [ y ]*) ≡ just x) , (isSetMaybeA _ _))
-    ⊔ ((least (x ∷* [ y ]*) ≡ just y) , (isSetMaybeA _ _))
+    (maybe≡ (least (x ∷* [ y ]*)) (just x))
+    ⊔ (maybe≡ (least (x ∷* [ y ]*)) (just y))
 
   least-choice : ∀ x y -> ⟨ least-choice-prop x y ⟩
   least-choice x y with least (x ∷* [ y ]*) | inspect least (x ∷* [ y ]*)
   ... | nothing | [ p ]ᵢ =
     ⊥.rec (snotz (congS S.length (least-nothing (x ∷* [ y ]*) p)))
   ... | just z  | [ p ]ᵢ =
-    ⊔-elim z≡x (z≡y ⊔ (⊥* , isProp⊥*)) (λ _ -> want1 ⊔ want2)
+    ⊔-elim (A≡ z x) ((A≡ z y) ⊔ (⊥* , isProp⊥*)) (λ _ -> (just≡ z x) ⊔ (just≡ z y))
       (λ q -> L.inl (congS just q))
-      (L.inr ∘ ⊔-elim z≡y (⊥* , isProp⊥*) (λ _ -> want2) (congS just) ⊥.rec*)
+      (L.inr ∘ ⊔-elim (A≡ z y) (⊥* , isProp⊥*) (λ _ -> (just≡ z y)) (congS just) ⊥.rec*)
       (least-in z (x ∷* [ y ]*) p)
+  
+  sort-choice-prop : ∀ x y -> hProp _
+  sort-choice-prop x y =
+    ((sort (x ∷* [ y ]*) ≡ x ∷ [ y ]) , (isOfHLevelList 0 isSetA _ _))
+    ⊔ ((sort (x ∷* [ y ]*) ≡ y ∷ [ x ]) , (isOfHLevelList 0 isSetA _ _))
+
+  sort-choice : ∀ x y -> ⟨ sort-choice-prop x y ⟩
+  sort-choice x y with sort (x ∷* [ y ]*) | inspect sort (x ∷* [ y ]*)
+  ... | []             | lol = {!   !}
+  ... | a ∷ []         | lol = {!   !}
+  ... | a ∷ b ∷ c ∷ as | lol = {!   !}
+  ... | a ∷ b ∷ [] | [ p ]ᵢ =
+    ⊔-elim (A≡ x a) (∈*Prop x [ b ]*) (λ _ -> want)
+      (λ x≡a ->
+        ⊔-elim (A≡ y a) (∈*Prop y [ b ]*) (λ _ -> want)
+          (λ y≡a -> -- x = a, y = a, x = y
+            L.inl (sym p ∙ dup (x≡a ∙ sym y≡a))
+          )
+          (λ y∈[b] -> -- x = a, y = b
+            L.inl (cong₂ (λ u v -> u ∷ v ∷ []) (sym x≡a) (sym (x∈[y]→x≡y y b y∈[b])))
+          )
+          y∈ab
+      ) -- x = a
+      {!   !} -- x = b
+      x∈ab
     where
-    z≡x : hProp _
-    z≡x = (z ≡ x) , isSetA z x
-    z≡y : hProp _
-    z≡y = (z ≡ y) , isSetA z y
-    want1 : hProp _
-    want1 = (just z ≡ just x) , isSetMaybeA _ _
-    want2 : hProp _
-    want2 = (just z ≡ just y) , isSetMaybeA _ _
+    dup : x ≡ y -> sort (x ∷* [ y ]*) ≡ x ∷ y ∷ []
+    dup q = {!   !}
+    x∈ab : x ∈* (a ∷* b ∷* []*)
+    x∈ab = {!   !}
+    y∈ab : y ∈* (a ∷* b ∷* []*)
+    y∈ab = {!   !}
+    want : hProp _
+    want = ∥ (a ∷ b ∷ [] ≡ x ∷ y ∷ []) ⊎ (a ∷ b ∷ [] ≡ y ∷ x ∷ []) ∥₁ , squash₁
+
+    -- ⊔-elim (maybe≡ (least (x ∷* [ y ]*)) (just x)) (maybe≡ (least (x ∷* [ y ]*)) (just y))
+    --   (λ _ -> sort-choice-prop x y)
+    --   (λ p -> {!   !})
+    --   (λ p -> {!   !})
+    --   (least-choice x y)
 
   _≤_ : A -> A -> Type _
   x ≤ y = least (x ∷* y ∷* []*) ≡ just x
@@ -138,11 +185,17 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   refl-≤ : ∀ x -> x ≤ x
   refl-≤ x = Prec isProp-≤ (least-choice x x) (⊎.rec (idfun _) (idfun _))
 
-  trans-lemma-α : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x
-                -> (sort (x ∷* y ∷* [ z ]*) ≡ x ∷ y ∷ [ z ]) ⊔′ (sort (x ∷* y ∷* [ z ]*) ≡ x ∷ z ∷ [ y ])
+  trans-lemma-α-Prop : ∀ x y z -> hProp _
+  trans-lemma-α-Prop x y z =
+    ((sort (x ∷* y ∷* [ z ]*) ≡ x ∷ y ∷ [ z ]) , isOfHLevelList 0 isSetA _ _)
+    ⊔ ((sort (x ∷* y ∷* [ z ]*) ≡ x ∷ z ∷ [ y ]) , (isOfHLevelList 0 isSetA _ _))
+
+  trans-lemma-α : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> ⟨ trans-lemma-α-Prop x y z ⟩
   trans-lemma-α x y z p =
-    let (xs , q) = least-Σ x (x ∷* y ∷* [ z ]*) p
-    in {!   !}
+    ⊔-elim (A≡ x x) (∈*Prop x (y ∷* [ z ]*)) (λ _ -> trans-lemma-α-Prop x y z)
+      (λ _ -> {!   !}) 
+      {!   !}
+      (x∈*xs x (y ∷* [ z ]*))
 
   -- trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
   -- trans-≤ x y z p q = {!   !}
