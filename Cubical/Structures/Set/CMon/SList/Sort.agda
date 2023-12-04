@@ -145,60 +145,28 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   refl-≤ : ∀ x -> x ≤ x
   refl-≤ x = Prec isProp-≤ (least-choice x x) (⊎.rec (idfun _) (idfun _))
 
-  trans-lemma-α-Prop : ∀ x y z -> hProp _
-  trans-lemma-α-Prop x y z =
-    ((sort (x ∷* y ∷* [ z ]*) ≡ x ∷ y ∷ [ z ]) , isOfHLevelList 0 isSetA _ _)
-    ⊔ ((sort (x ∷* y ∷* [ z ]*) ≡ x ∷ z ∷ [ y ]) , (isOfHLevelList 0 isSetA _ _))
+  least-removed : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> least (x ∷* [ z ]*) ≡ just x
+  least-removed x y z p = {!   !}
 
-  trans-lemma-α : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> ⟨ trans-lemma-α-Prop x y z ⟩
-  trans-lemma-α x y z p with sort (x ∷* y ∷* [ z ]*) | inspect sort (x ∷* y ∷* [ z ]*)
-  ... | [] | lol = {! TODO  !}
-  ... | x₁ ∷ [] | lol = {!   !}
-  ... | x₁ ∷ x₂ ∷ [] | lol = {!   !}
-  ... | x₁ ∷ x₂ ∷ x₃ ∷ x₄ ∷ what | lol = {!   !}
-  ... | a ∷ b ∷ c ∷ [] | [ q ]ᵢ =
-    ⊔-elim (A≡ y a) (∈*Prop y (b ∷* c ∷* []*)) want
-      (λ y≡a -> -- a = x, a = y, x = y
-        TODO
-      )
-      (⊔-elim (A≡ y b) (∈*Prop y [ c ]*) want
-        (λ y≡b -> -- a = x, b = y
-          ⊔-elim (A≡ z a) (∈*Prop z (b ∷* c ∷* []*)) want
-            (λ z≡a -> -- a = x, b = y, a = z, x = z
-              TODO
-            )
-            (⊔-elim (A≡ z b) (∈*Prop z [ c ]*) want
-              (λ z≡b -> -- a = x, b = y, b = z
-                {!   !}
-              )
-              (λ z∈[c] -> -- a = x, b = y, c = z
-                L.inl λ i -> a≡x i ∷ y≡b (~ i) ∷ (x∈[y]→x≡y z c z∈[c]) (~ i) ∷ []
-              )
-            )
-            z∈abc
-        )
-        (λ y∈[c] -> -- a = x, c = y
-          TODO
-        )
-      )
-      y∈abc
+  trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+  trans-≤ x y z p q with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
+  ... | nothing | [ r ]ᵢ = ⊥.rec {!   !}
+  ... | just w  | [ r ]ᵢ = least-removed x y z (r ∙ congS just lemma)
     where
-    TODO : {X : Type ℓ} -> X 
-    TODO = {!   !}
-
-    a≡x : a ≡ x
-    a≡x = just-inj a x p
-    xyz≡abc : x ∷* y ∷* [ z ]* ≡ a ∷* b ∷* c ∷* []*
-    xyz≡abc = sym (sort≡ (x ∷* y ∷* [ z ]*)) ∙ congS list→slist q
-    y∈abc : y ∈* (a ∷* b ∷* c ∷* []*)
-    y∈abc = subst (y ∈*_) xyz≡abc (L.inr (L.inl refl))
-    z∈abc : z ∈* (a ∷* b ∷* c ∷* []*)
-    z∈abc = subst (z ∈*_) xyz≡abc (L.inr (L.inr (L.inl refl)))
-    want : {X : Type ℓ} -> X -> hProp _
-    want _ = ∥ (a ∷ b ∷ c ∷ [] ≡ x ∷ y ∷ z ∷ []) ⊎ (a ∷ b ∷ c ∷ [] ≡ x ∷ z ∷ y ∷ []) ∥₁ , squash₁
-
-  -- trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-  -- trans-≤ x y z p q = {!   !}
+    lemma : w ≡ x
+    lemma =
+      ⊔-elim (A≡ w x) (∈*Prop w (y ∷* [ z ]*)) (λ _ -> A≡ w x)
+        (λ w≡x -> w≡x)
+        (⊔-elim (A≡ w y) (∈*Prop w [ z ]*) (λ _ -> A≡ w x)
+          (λ w≡y ->
+            {!   !}
+          )
+          (λ w∈[z] ->
+            let w≡z = x∈[y]→x≡y w z w∈[z] in
+            {!   !}
+          )
+        )
+        (least-in w (x ∷* y ∷* [ z ]*) r)
 
   antisym-≤ : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
   antisym-≤ x y p q = Prec (isSetA x y) (least-choice x y) $
@@ -233,4 +201,4 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   IsToset.is-refl ≤-isToset = refl-≤
   IsToset.is-trans ≤-isToset = {!   !}
   IsToset.is-antisym ≤-isToset = antisym-≤
-  IsToset.is-strongly-connected ≤-isToset = total-≤ 
+  IsToset.is-strongly-connected ≤-isToset = total-≤  
