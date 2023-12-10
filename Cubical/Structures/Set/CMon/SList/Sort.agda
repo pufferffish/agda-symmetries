@@ -84,7 +84,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     list→slist-[] [] p = refl
     list→slist-[] (x ∷ xs) p = ⊥.rec (snotz (congS S.length p))
 
-    Prec : {X P : Type ℓ} -> isProp P -> ∥ X ∥₁ -> (X -> P) ->  P
+    Prec : {X P : Type ℓ} -> isProp P -> ∥ X ∥₁ -> (X -> P) -> P
     Prec x y z = P.rec x z y
 
     A≡ : A -> A -> hProp _
@@ -163,51 +163,40 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
         just y
       ∎)
 
-  least-removed : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> least (x ∷* [ z ]*) ≡ just x
-  least-removed x y z p = {!   !}
+  -- length 3
+  -- least [x, z] either be x or z
+  -- least [least [x, z], y, z] or least [x, y, least[x, z]] = x
+  least-removed : ∀ x y z -> x ≤ y -> least (x ∷* y ∷* [ z ]*) ≡ least (x ∷* [ z ]*)
+  least-removed x y z x≤y =
+    least (x ∷* y ∷* [ z ]*) ≡⟨ sym lemma ⟩
+    least (least' (x ∷* [ y ]*) ++* [ z ]*) ≡⟨ congS (λ w -> least (w ++* [ z ]*)) least-β ⟩
+    least (x ∷* [ z ]*) ∎
+    where
+    least' : SList A -> SList A
+    least' xs = Maybe.rec []* [_]* (least xs)
+    least-β : least' (x ∷* [ y ]*) ≡ [ x ]*
+    least-β = congS (Maybe.rec []* [_]*) x≤y
+
+    lemma : least (least' (x ∷* [ y ]*) ++* [ z ]*) ≡ least (x ∷* y ∷* [ z ]*)
+    lemma with least (x ∷* [ y ]*) | inspect least (x ∷* [ y ]*)
+    ... | nothing | [ _ ]ᵢ = ⊥.rec (¬nothing≡just x≤y)
+    ... | just w  | [ p ]ᵢ =
+      ⊔-elim (A≡ w x) (∈*Prop w [ y ]*) (λ _ -> maybe≡ (least (w ∷* [ z ]*)) (least (x ∷* y ∷* [ z ]*))) 
+        (λ w≡x ->
+          {!   !}
+        )
+        {!   !}
+        (least-in w (x ∷* [ y ]*) p)
 
   trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-  trans-≤ x y z p q with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
-  ... | nothing | [ r ]ᵢ = ⊥.rec (snotz (congS S.length (least-nothing _ r)))
-  ... | just w  | [ r ]ᵢ = least-removed x y z (r ∙ congS just lemma)
-    where
-    yzx : y ∷* z ∷* [ x ]* ≡ x ∷* y ∷* [ z ]*
-    yzx =
-      y ∷* z ∷* [ x ]* ≡⟨ congS (y ∷*_) (swap z x []*) ⟩
-      y ∷* x ∷* [ z ]* ≡⟨ swap y x [ z ]* ⟩
-      x ∷* y ∷* [ z ]* ∎
-    zxy : z ∷* x ∷* [ y ]* ≡ x ∷* y ∷* [ z ]*
-    zxy =
-      z ∷* x ∷* [ y ]* ≡⟨ swap z x [ y ]* ⟩
-      x ∷* z ∷* [ y ]* ≡⟨ congS (x ∷*_) (swap z y []*) ⟩
-      x ∷* y ∷* [ z ]* ∎
-
-    lemma-on-y : w ≡ y -> w ≡ x
-    lemma-on-y w≡y =
-      sym $ antisym-≤ x w (subst (x ≤_) (sym w≡y) p) $ least-removed w z x $
-      least (w ∷* z ∷* [ x ]*) ≡⟨ congS (λ t -> least (t ∷* z ∷* [ x ]*)) w≡y ⟩
-      least (y ∷* z ∷* [ x ]*) ≡⟨ congS least yzx ⟩
-      least (x ∷* y ∷* [ z ]*) ≡⟨ r ⟩
-      just w ∎
-
-    lemma : w ≡ x
-    lemma =
-      ⊔-elim (A≡ w x) (∈*Prop w (y ∷* [ z ]*)) (λ _ -> A≡ w x)
-        (λ w≡x -> w≡x)
-        (⊔-elim (A≡ w y) (∈*Prop w [ z ]*) (λ _ -> A≡ w x)
-          lemma-on-y
-          (λ w∈[z] ->
-            let w≡z = x∈[y]→x≡y w z w∈[z] in lemma-on-y $
-            sym $ antisym-≤ y w (subst (y ≤_) (sym w≡z) q) $ least-removed w x y $
-            least (w ∷* x ∷* [ y ]*) ≡⟨ congS (λ t -> least (t ∷* x ∷* [ y ]*)) w≡z ⟩
-            least (z ∷* x ∷* [ y ]*) ≡⟨ congS least zxy ⟩
-            least (x ∷* y ∷* [ z ]*) ≡⟨ r ⟩
-            just w ∎
-          )
-        )
-        (least-in w (x ∷* y ∷* [ z ]*) r)
+  trans-≤ x y z x≤y y≤z =
+    least (x ∷* [ z ]*) ≡⟨ sym (least-removed x y z x≤y) ⟩
+    least (x ∷* y ∷* [ z ]*) ≡⟨ congS least (comm-++ [ x ]* (y ∷* [ z ]*)) ⟩
+    least (y ∷* z ∷* [ x ]*) ≡⟨ least-removed y z x y≤z ⟩
+    least (y ∷* [ x ]*) ≡⟨ congS least (comm-++ [ y ]* [ x ]*) ⟩
+    least (x ∷* [ y ]*) ≡⟨ x≤y ⟩
+    just x ∎
     
-
   total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
   total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
     L.inl
@@ -217,13 +206,10 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       just y
     ∎)
 
-  -- dec-≤ : ∀ x y -> (x ≤ y) ⊎ (¬(x ≤ y))
-  -- dec-≤ x y = decRec inl inr ((discreteMaybe discreteA) (least (x ∷* y ∷* []*)) (just x))
-
   ≤-isToset : IsToset _≤_
   IsToset.is-set ≤-isToset = isSetA
   IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
   IsToset.is-refl ≤-isToset = refl-≤
-  IsToset.is-trans ≤-isToset = {!   !}
-  IsToset.is-antisym ≤-isToset = antisym-≤
+  IsToset.is-trans ≤-isToset = trans-≤
+  IsToset.is-antisym ≤-isToset = antisym-≤ 
   IsToset.is-strongly-connected ≤-isToset = total-≤  
