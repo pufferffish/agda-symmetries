@@ -176,24 +176,37 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       y ∷* z ∷* [ x ]* ≡⟨ congS (y ∷*_) (swap z x []*) ⟩
       y ∷* x ∷* [ z ]* ≡⟨ swap y x [ z ]* ⟩
       x ∷* y ∷* [ z ]* ∎
+    zxy : z ∷* x ∷* [ y ]* ≡ x ∷* y ∷* [ z ]*
+    zxy =
+      z ∷* x ∷* [ y ]* ≡⟨ swap z x [ y ]* ⟩
+      x ∷* z ∷* [ y ]* ≡⟨ congS (x ∷*_) (swap z y []*) ⟩
+      x ∷* y ∷* [ z ]* ∎
+
+    lemma-on-y : w ≡ y -> w ≡ x
+    lemma-on-y w≡y =
+      sym $ antisym-≤ x w (subst (x ≤_) (sym w≡y) p) $ least-removed w z x $
+      least (w ∷* z ∷* [ x ]*) ≡⟨ congS (λ t -> least (t ∷* z ∷* [ x ]*)) w≡y ⟩
+      least (y ∷* z ∷* [ x ]*) ≡⟨ congS least yzx ⟩
+      least (x ∷* y ∷* [ z ]*) ≡⟨ r ⟩
+      just w ∎
 
     lemma : w ≡ x
     lemma =
       ⊔-elim (A≡ w x) (∈*Prop w (y ∷* [ z ]*)) (λ _ -> A≡ w x)
         (λ w≡x -> w≡x)
         (⊔-elim (A≡ w y) (∈*Prop w [ z ]*) (λ _ -> A≡ w x)
-          (λ w≡y ->
-            sym $ antisym-≤ x w (subst (x ≤_) (sym w≡y) p) $ least-removed w z x $
-            least (w ∷* z ∷* [ x ]*) ≡⟨ congS (λ t -> least (t ∷* z ∷* [ x ]*)) w≡y ⟩
-            least (y ∷* z ∷* [ x ]*) ≡⟨ congS least yzx ⟩
+          lemma-on-y
+          (λ w∈[z] ->
+            let w≡z = x∈[y]→x≡y w z w∈[z] in lemma-on-y $
+            sym $ antisym-≤ y w (subst (y ≤_) (sym w≡z) q) $ least-removed w x y $
+            least (w ∷* x ∷* [ y ]*) ≡⟨ congS (λ t -> least (t ∷* x ∷* [ y ]*)) w≡z ⟩
+            least (z ∷* x ∷* [ y ]*) ≡⟨ congS least zxy ⟩
             least (x ∷* y ∷* [ z ]*) ≡⟨ r ⟩
             just w ∎
           )
-          (λ w∈[z] ->
-            {!   !}
-          )
         )
         (least-in w (x ∷* y ∷* [ z ]*) r)
+    
 
   total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
   total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
