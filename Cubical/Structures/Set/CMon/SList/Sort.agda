@@ -142,31 +142,11 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   isProp-≤ : ∀ {a} {b} -> isProp (a ≤ b)
   isProp-≤  = isSetMaybeA _ _
 
+  ≤-Prop : ∀ x y -> hProp _
+  ≤-Prop x y = (x ≤ y) , isProp-≤
+
   refl-≤ : ∀ x -> x ≤ x
   refl-≤ x = Prec isProp-≤ (least-choice x x) (⊎.rec (idfun _) (idfun _))
-
-  least-removed : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> least (x ∷* [ z ]*) ≡ just x
-  least-removed x y z p = {!   !}
-
-  trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-  trans-≤ x y z p q with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
-  ... | nothing | [ r ]ᵢ = ⊥.rec {!   !}
-  ... | just w  | [ r ]ᵢ = least-removed x y z (r ∙ congS just lemma)
-    where
-    lemma : w ≡ x
-    lemma =
-      ⊔-elim (A≡ w x) (∈*Prop w (y ∷* [ z ]*)) (λ _ -> A≡ w x)
-        (λ w≡x -> w≡x)
-        (⊔-elim (A≡ w y) (∈*Prop w [ z ]*) (λ _ -> A≡ w x)
-          (λ w≡y ->
-            {!   !}
-          )
-          (λ w∈[z] ->
-            let w≡z = x∈[y]→x≡y w z w∈[z] in
-            {!   !}
-          )
-        )
-        (least-in w (x ∷* y ∷* [ z ]*) r)
 
   antisym-≤ : ∀ x y -> x ≤ y -> y ≤ x -> x ≡ y
   antisym-≤ x y p q = Prec (isSetA x y) (least-choice x y) $
@@ -182,6 +162,38 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
         least (x ∷* [ y ]*) ≡⟨ yx ⟩
         just y
       ∎)
+
+  least-removed : ∀ x y z -> least (x ∷* y ∷* [ z ]*) ≡ just x -> least (x ∷* [ z ]*) ≡ just x
+  least-removed x y z p = {!   !}
+
+  trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+  trans-≤ x y z p q with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
+  ... | nothing | [ r ]ᵢ = ⊥.rec (snotz (congS S.length (least-nothing _ r)))
+  ... | just w  | [ r ]ᵢ = least-removed x y z (r ∙ congS just lemma)
+    where
+    yzx : y ∷* z ∷* [ x ]* ≡ x ∷* y ∷* [ z ]*
+    yzx =
+      y ∷* z ∷* [ x ]* ≡⟨ congS (y ∷*_) (swap z x []*) ⟩
+      y ∷* x ∷* [ z ]* ≡⟨ swap y x [ z ]* ⟩
+      x ∷* y ∷* [ z ]* ∎
+
+    lemma : w ≡ x
+    lemma =
+      ⊔-elim (A≡ w x) (∈*Prop w (y ∷* [ z ]*)) (λ _ -> A≡ w x)
+        (λ w≡x -> w≡x)
+        (⊔-elim (A≡ w y) (∈*Prop w [ z ]*) (λ _ -> A≡ w x)
+          (λ w≡y ->
+            sym $ antisym-≤ x w (subst (x ≤_) (sym w≡y) p) $ least-removed w z x $
+            least (w ∷* z ∷* [ x ]*) ≡⟨ congS (λ t -> least (t ∷* z ∷* [ x ]*)) w≡y ⟩
+            least (y ∷* z ∷* [ x ]*) ≡⟨ congS least yzx ⟩
+            least (x ∷* y ∷* [ z ]*) ≡⟨ r ⟩
+            just w ∎
+          )
+          (λ w∈[z] ->
+            {!   !}
+          )
+        )
+        (least-in w (x ∷* y ∷* [ z ]*) r)
 
   total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
   total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
