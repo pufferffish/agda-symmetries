@@ -35,7 +35,7 @@ module FCM = CMonDef.Free
 ηˢ = FCM.η {ℓ' = ℓ} slistDef
 
 ηˢ♯ : structHom < Bag A , FCM.α bagFreeDef > < SList A , FCM.α {ℓ' = ℓ} slistDef >
-ηˢ♯ = FCM.ext bagFreeDef S.isSetSList (FCM.sat {ℓ' = ℓ} S.slistDef) ηˢ
+ηˢ♯ = FCM.ext bagFreeDef S.trunc (FCM.sat {ℓ' = ℓ} S.slistDef) ηˢ
 
 ηᵇ♯ : structHom < SList A , FCM.α {ℓ' = ℓ} slistDef > < Bag A , FCM.α bagFreeDef >
 ηᵇ♯ = FCM.ext slistDef Q.squash/ (FCM.sat bagFreeDef) (FCM.η bagFreeDef)
@@ -46,7 +46,7 @@ module FCM = CMonDef.Free
 ηᵇ♯∘ηˢ♯-β : ηᵇ♯∘ηˢ♯ .fst ∘ ηᵇ ≡ ηᵇ
 ηᵇ♯∘ηˢ♯-β =
     ηᵇ♯ .fst ∘ ηˢ♯ .fst ∘ ηᵇ
-  ≡⟨ cong (ηᵇ♯ .fst ∘_) (FCM.ext-η bagFreeDef S.isSetSList (FCM.sat {ℓ' = ℓ} slistDef) ηˢ) ⟩
+  ≡⟨ cong (ηᵇ♯ .fst ∘_) (FCM.ext-η bagFreeDef S.trunc (FCM.sat {ℓ' = ℓ} slistDef) ηˢ) ⟩
     ηᵇ♯ .fst ∘ ηˢ
   ≡⟨ FCM.ext-η slistDef Q.squash/ (FCM.sat bagFreeDef) ηᵇ ⟩
     ηᵇ
@@ -62,6 +62,6 @@ module FCM = CMonDef.Free
 𝔫𝔣-inj {as} {bs} p = sym (funExt⁻ (cong fst ηᵇ♯∘ηˢ♯-η) as) ∙ cong (ηᵇ♯ .fst) p ∙ funExt⁻ (cong fst ηᵇ♯∘ηˢ♯-η) bs
 
 norm : isEmbedding 𝔫𝔣
-norm = injEmbedding isSetSList 𝔫𝔣-inj
+norm = injEmbedding trunc 𝔫𝔣-inj
 
 -- also equivalence
