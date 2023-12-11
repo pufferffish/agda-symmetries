@@ -168,25 +168,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   -- least [least [x, z], y, z] or least [x, y, least[x, z]] = x
   least-removed : ∀ x y z -> x ≤ y -> least (x ∷* y ∷* [ z ]*) ≡ least (x ∷* [ z ]*)
   least-removed x y z x≤y =
-    least (x ∷* y ∷* [ z ]*) ≡⟨ sym lemma ⟩
-    least (least' (x ∷* [ y ]*) ++* [ z ]*) ≡⟨ congS (λ w -> least (w ++* [ z ]*)) least-β ⟩
-    least (x ∷* [ z ]*) ∎
-    where
-    least' : SList A -> SList A
-    least' xs = Maybe.rec []* [_]* (least xs)
-    least-β : least' (x ∷* [ y ]*) ≡ [ x ]*
-    least-β = congS (Maybe.rec []* [_]*) x≤y
-
-    lemma : least (least' (x ∷* [ y ]*) ++* [ z ]*) ≡ least (x ∷* y ∷* [ z ]*)
-    lemma with least (x ∷* [ y ]*) | inspect least (x ∷* [ y ]*)
-    ... | nothing | [ _ ]ᵢ = ⊥.rec (¬nothing≡just x≤y)
-    ... | just w  | [ p ]ᵢ =
-      ⊔-elim (A≡ w x) (∈*Prop w [ y ]*) (λ _ -> maybe≡ (least (w ∷* [ z ]*)) (least (x ∷* y ∷* [ z ]*))) 
-        (λ w≡x ->
-          {!   !}
-        )
-        {!   !}
-        (least-in w (x ∷* [ y ]*) p)
+    {!   !}
 
   trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
   trans-≤ x y z x≤y y≤z =
@@ -212,4 +194,4 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   IsToset.is-refl ≤-isToset = refl-≤
   IsToset.is-trans ≤-isToset = trans-≤
   IsToset.is-antisym ≤-isToset = antisym-≤ 
-  IsToset.is-strongly-connected ≤-isToset = total-≤  
+  IsToset.is-strongly-connected ≤-isToset = total-≤   
