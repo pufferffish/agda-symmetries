@@ -5,7 +5,7 @@ module Cubical.Structures.Set.CMon.SList.Sort where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order renaming (_≤_ to _≤ℕ_)
+open import Cubical.Data.Nat.Order renaming (_≤_ to _≤ℕ_; _<_ to _<ℕ_)
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Empty as ⊥
@@ -95,6 +95,15 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   ... | no ¬p | yes q = no λ r -> ¬p (subst (x ≤_) r (is-refl x))
   ... | no ¬p | no ¬q = ⊥.rec $ P.rec isProp⊥ (⊎.rec ¬p ¬q) (is-strongly-connected x y)
 
+  A-is-loset : Loset _ _
+  A-is-loset = Toset→Loset (A , tosetstr _≤_ ≤-isToset) isDiscreteA
+
+  _<_ : A -> A -> Type ℓ
+  _<_ = LosetStr._<_ (A-is-loset .snd)
+
+  <-isLoset : IsLoset _<_
+  <-isLoset = LosetStr.isLoset (A-is-loset .snd)
+
   insert : A -> List A -> List A
   insert x [] = [ x ]
   insert x (y ∷ ys) with x ≤? y
@@ -156,7 +165,7 @@ module Order→Sort-Example where
     (λ _ _ -> ≤-antisym)
     lemma
     where
-    <→≤ : ∀ {n m} -> n < m -> n ≤ℕ m
+    <→≤ : ∀ {n m} -> n <ℕ m -> n ≤ℕ m
     <→≤ (k , p) = suc k , sym (+-suc k _) ∙ p
     lemma : BinaryRelation.isStronglyConnected _≤ℕ_
     lemma x y = ∣ ⊎.rec ⊎.inl (_⊎_.inr ∘ <→≤) (splitℕ-≤ x y) ∣₁
