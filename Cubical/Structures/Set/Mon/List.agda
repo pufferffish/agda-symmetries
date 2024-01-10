@@ -18,6 +18,7 @@ open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 open import Cubical.Structures.Arity
 open import Cubical.HITs.PropositionalTruncation as P
+open import Cubical.Data.Sum as ⊎
 
 private
   variable
@@ -92,13 +93,13 @@ module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
   isProp-∈ x xs = (∈Prop x xs) .snd
   
   x∈xs : ∀ x xs -> x ∈ (x ∷ xs)
-  x∈xs x xs = inl refl
+  x∈xs x xs = L.inl refl
 
   x∈[x] : ∀ x -> x ∈ [ x ]
   x∈[x] x = x∈xs x []
 
   ∈-∷ : ∀ x y xs -> x ∈ xs -> x ∈ (y ∷ xs)
-  ∈-∷ x y xs p = inr p
+  ∈-∷ x y xs p = L.inr p
 
   ∈-++ : ∀ x xs ys -> x ∈ ys -> x ∈ (xs ++ ys)
   ∈-++ x [] ys p = p
@@ -106,3 +107,6 @@ module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
 
   ¬∈[] : ∀ x -> (x ∈ []) -> ⊥.⊥
   ¬∈[] x = ⊥.rec*
+
+  x∈[y]→x≡y : ∀ x y -> x ∈ [ y ] -> x ≡ y
+  x∈[y]→x≡y x y = P.rec (isSetA x y) $ ⊎.rec (idfun _) ⊥.rec*

@@ -63,11 +63,11 @@ module Membership* {ℓ} {A : Type ℓ} (isSetA : isSet A) where
       (λ a {zs} q -> ∈*-∷ x a (zs ++ ys) q)
       xs
 
-  ¬∈[] : ∀ x -> (x ∈* []) -> ⊥.⊥
-  ¬∈[] x = ⊥.rec*
+  ¬∈*[] : ∀ x -> (x ∈* []) -> ⊥.⊥
+  ¬∈*[] x = ⊥.rec*
 
-  x∈[y]→x≡y : ∀ x y -> x ∈* [ y ] -> x ≡ y
-  x∈[y]→x≡y x y = P.rec (isSetA x y) $ ⊎.rec (idfun _) ⊥.rec*
+  x∈*[y]→x≡y : ∀ x y -> x ∈* [ y ] -> x ≡ y
+  x∈*[y]→x≡y x y = P.rec (isSetA x y) $ ⊎.rec (idfun _) ⊥.rec*
 
   open Membership isSetA
 
