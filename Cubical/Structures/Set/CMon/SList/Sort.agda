@@ -349,21 +349,15 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   is-sorted list = ∥ fiber sort list ∥₁
 
   module _ (tail-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs) where
-
-    -- let (least x :: zs) be u
-    -- u = x or u in zs
-    -- let (least x :: y :: zs) be v
-    -- v = x or v = y or v in zs
-
-    least-removed : ∀ x y zs -> x ≤ y -> least (x ∷* y ∷* zs) ≡ least (x ∷* zs)
-    least-removed x y zs x≤y =
+    least-removed : ∀ x y z -> x ≤ y -> least (x ∷* y ∷* [ z ]*) ≡ least (x ∷* [ z ]*)
+    least-removed x y z x≤y =
       {!   !}
 
     trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
     trans-≤ x y z x≤y y≤z =
-      least (x ∷* [ z ]*) ≡⟨ sym (least-removed x y [ z ]* x≤y) ⟩
+      least (x ∷* [ z ]*) ≡⟨ sym (least-removed x y z x≤y) ⟩
       least (x ∷* y ∷* [ z ]*) ≡⟨ congS least (comm-++ [ x ]* (y ∷* [ z ]*)) ⟩
-      least (y ∷* z ∷* [ x ]*) ≡⟨ least-removed y z [ x ]* y≤z ⟩
+      least (y ∷* z ∷* [ x ]*) ≡⟨ least-removed y z x y≤z ⟩
       least (y ∷* [ x ]*) ≡⟨ congS least (comm-++ [ y ]* [ x ]*) ⟩
       least (x ∷* [ y ]*) ≡⟨ x≤y ⟩
       just x ∎
@@ -383,4 +377,4 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-refl ≤-isToset = refl-≤
     IsToset.is-trans ≤-isToset = trans-≤
     IsToset.is-antisym ≤-isToset = antisym-≤ 
-    IsToset.is-strongly-connected ≤-isToset = total-≤   
+    IsToset.is-strongly-connected ≤-isToset = total-≤    
