@@ -1,0 +1,46 @@
+\documentclass{article}
+
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amscd,mathrsfs,mathtools}
+\usepackage{quiver} 
+\usepackage{microtype}
+\usepackage{biblatex}  
+\addbibresource{cites.bib}
+
+\title{Something about commutativity}
+\author{Anonymous}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+In this talk, we will discuss free monoids and free commutative monoids, in Homotopy Type Theory, and formalized in
+Cubical Agda.
+
+First, we will discuss a general framework for doing universal algebra, and the construction of free algebras\dots
+
+Then, we will discuss the construction of free monoids, and free commutative monoids, giving several constructions of
+free monoids, and adding the appropriate notion of commutativity to each representation, to obtain free commutative
+monoids. 
+
+From HITs for free monoids to HITs for free commutative monoids.
+From Free Monoids to Free commutative monoids by quotienting with permutation relations.
+From Array to Bag, and List to PList.
+From List to SList.
+
+We prove properties of these constructions.
+List(A+B) ~= List(A) + List(B)
+SList(A+B) ~= SList(A) x SList(B)
+
+We study specifications for normal forms for these constructions, by showing that cons is injective in each
+representation. To do this, we study the path spaces of these types.
+
+Finally, we will relate these ideas to sorting. We will show that sorting can be formalized as a section to the
+canonical map from the free monoid to the free commutative monoid, and the correctness of a sorting algorithm can be
+stated abstractly in this framework.
+
+Note: It has to be new, previous work: Free Commutative Monoids in Homotopy Type Theory, Final coalgebras of Analytic
+functors in Homotopy Type Theory, and A Fresh look at Commutativity.
+
+\printbibliography
+
+\end{document}
