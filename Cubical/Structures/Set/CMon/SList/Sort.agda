@@ -345,13 +345,37 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
         just y
       ∎)
 
+  total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
+  total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
+    L.inl
+    (λ p -> L.inr $
+      least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
+      least (x ∷* [ y ]*) ≡⟨ p ⟩
+      just y
+    ∎)
+
   is-sorted : List A -> Type _
   is-sorted list = ∥ fiber sort list ∥₁
 
-  module _ (tail-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs) where
+  module _ (is-sorted-hom : ∀ xs ys -> is-sorted (xs ++ ys) -> (is-sorted xs) × (is-sorted ys)) where
     least-removed : ∀ x y z -> x ≤ y -> least (x ∷* y ∷* [ z ]*) ≡ least (x ∷* [ z ]*)
-    least-removed x y z x≤y =
-      {!   !}
+    least-removed x y z x≤y with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
+    ... | nothing | aa = {!   !}
+    ... | just u | [ p ]ᵢ =
+      P.rec (isSetMaybeA _ _)
+        (⊎.rec
+          (λ u≡x -> {!   !})
+          -- sort [x, y, z] = [x, y, z] or [x, z, y]
+          -- if [x, z, y] -> [x, z] is sorted, therefore sort [x, z] = 
+          -- if [x, y, z] -> 
+          (P.rec (isSetMaybeA _ _)
+            (⊎.rec
+              (λ u≡y -> {!   !})
+              (λ u∈[z] -> {!   !})
+            )
+          )
+        )
+        (least-in u (x ∷* y ∷* [ z ]*) p)
 
     trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
     trans-≤ x y z x≤y y≤z =
@@ -362,19 +386,10 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       least (x ∷* [ y ]*) ≡⟨ x≤y ⟩
       just x ∎
 
-    total-≤ : ∀ x y -> (x ≤ y) ⊔′ (y ≤ x)
-    total-≤ x y = Prec squash₁ (least-choice x y) $ ⊎.rec
-      L.inl
-      (λ p -> L.inr $
-        least (y ∷* [ x ]*) ≡⟨ congS least (swap y x []*) ⟩
-        least (x ∷* [ y ]*) ≡⟨ p ⟩
-        just y
-      ∎)
-
     ≤-isToset : IsToset _≤_
     IsToset.is-set ≤-isToset = isSetA
     IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
     IsToset.is-refl ≤-isToset = refl-≤
-    IsToset.is-trans ≤-isToset = trans-≤
-    IsToset.is-antisym ≤-isToset = antisym-≤ 
+    IsToset.is-trans ≤-isToset = trans-≤ 
+    IsToset.is-antisym ≤-isToset = antisym-≤     
     IsToset.is-strongly-connected ≤-isToset = total-≤    
