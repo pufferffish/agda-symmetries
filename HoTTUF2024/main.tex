@@ -7,6 +7,9 @@
 \usepackage{amsthm}
 \usepackage{cleveref}
 
+\usepackage{verbatim}
+\newenvironment{code}{\verbatim}{\endverbatim}
+
 \makeatletter
 \def\@seccntformat#1{%
   \expandafter\ifx\csname c@#1\endcsname\c@section\else
@@ -35,9 +38,11 @@ tree would indeed satisfy the system of equations, for example, ($\mathbb{N},0,+
 unit and associativity laws of a monoid. We can then formalize the notion of homomorphisms by 
 defining it as functions which satisfies $\sigma(h(x),h(y),h(z),...) = h(\sigma(x,y,z,...))$ for
 a homomorphism $h$ and any operation $\sigma$. Finally, we formalize the definition of a free algebra
-by its universal property, namely: for a free algebra $F$ on $A$ and $B$, a set function 
-$g : A \rightarrow F(B)$, there exists a unique homomorphism $f : F(A) \rightarrow F(B)$ such that
-$g = f \circ i$, where $i : A \rightarrow F(A)$ is the canonical injection morphism. 
+by its universal property, namely: for a free algebra $F$ on $A$ and an algebra $\mathfrak{B}$, a set function 
+$g : A \rightarrow \mathfrak{B}$, there exists a unique homomorphism $f : F(A) \rightarrow \mathfrak{B}$ such that
+$g = f \circ i$, where $i : A \rightarrow F(A)$ is the canonical injection morphism.
+We define the $\# : (A \rightarrow \mathfrak{B}) \rightarrow (F(A) \rightarrow \mathfrak{B})$ operation, which lifts
+a set function $A \rightarrow \mathfrak{B}$ to a homomorphism $F(A) \rightarrow \mathfrak{B}$ using the universal property.
 
 Using the framework we present different constructions of free monoids,
 such as list $List$, free monoid as a HIT $FreeMon$, and as an index function $\Sigma (n : \mathbb{N}). Fin \, n \rightarrow X$ which we call $Array$.
@@ -75,6 +80,9 @@ the list in the process.
 \end{mylemma}
 
 We first concretely define the notion of membership for $List$ and $SList$: $x \in xs$ if $x$ equals to one of the element in $xs$.
+We do so by noting propositions form a commutative monoid under $\vee$,
+which allow us to define membership proof for an element $x$ using the $\#$ operation
+by lifting the function $\lambda y. \, x = y$ from $X \rightarrow Prop$ to $List \, X \rightarrow Prop$ and $SList \, X \rightarrow Prop$ respectively.
 We then note that the canonical map $f : List \, X \rightarrow SList \, X$ preserves length and preserves membership, $x \in xs$ iff $x \in f(xs)$.
 Since $f(q(\{x, y\})) = \{x, y\}$ by definition, $q(\{x,y\})$ must therefore have length 2, and $x, y \in q(\{x, y\})$.
 Let $q(\{x, y\})$ be $[u, v]$, we perform the following case analysis.
@@ -132,11 +140,25 @@ Previous works already established $SList$ and $Bag$ are free commutative
 monoids when 0-truncated, and it is folklore that when 1-truncated they should be free symmetric monoidal groupoid, although
 this has not yet been shown internally in HoTT. 
 
-In the case of $SList$, higher path constructors are needed to establish the coherence of swap, whereas in the case of
-$Bag$, we first need to show that $Array$ itself is a free monoidal groupoid. We then need to show a free
+In the case of $SList$, higher path constructors are needed. To establish the coherence of $swap$ we need a higher $hexagon$
+path constructor. However to define the $hexagon$ constructor it would involve compositions of $swap$ which leads to a regularity
+problem. To avoid this we need to split the $hexagon$ equations as below:
+
+\begin{code}
+  hexagon- : (a b c : A) (cs : SList A)
+           -> a :: b :: c :: cs = c :: b :: a :: cs
+  hexagon↑ : (a b c : A) (cs : SList A)
+           -> Square (\i -> b :: swap a c cs i) (hexagon- a b c cs)
+                     (swap b a (c :: cs)) (swap b c (a :: cs))
+  hexagon↓ : (a b c : A) (cs : SList A)
+           -> Square (hexagon- a b c cs) (swap a c (b :: cs))
+                     (\i -> a :: swap b c cs i) (\i -> c :: swap b a cs i)
+\end{code}
+
+
+In the case of $Bag$, we first need to show that $Array$ itself is a free monoidal groupoid. We then need to show a free
 monoidal groupoid quotiented by a permutation relation would be a free symmetric monoidal groupoid, and show that by quotienting
 $Array$ with an isomorphism on the index, we would indeed get a free symmetric monoidal groupoid.
-
 
 \printbibliography
 
