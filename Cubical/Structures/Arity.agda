@@ -88,4 +88,3 @@ _▸_ {n = suc n} x f i = lookup (x ∷ tabulate (suc n) f) (subst Arity (congS 
 
 ⟪_⨾_⨾_⟫ : (a b c : A) -> Arity 3 -> A
 ⟪ a ⨾ b ⨾ c ⟫ = lookup (a ∷ b ∷ c ∷ [])
- 
