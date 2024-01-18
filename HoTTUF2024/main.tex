@@ -17,7 +17,7 @@
   \fi}
 \makeatother
 
-\marginsize{2cm}{2cm}{2cm}{2cm}
+\marginsize{2cm}{2cm}{0cm}{1cm}
 
 \addbibresource{cites.bib}
 
@@ -30,26 +30,45 @@
 \maketitle
 
 We present a general framework for doing universal algebra and the construction of
-free algebra in Cubical Agda. We first identify the operations of an algebra by an ADT and their
-arities by the cardinalities of arbitary types, and then express the equations of the algebra
-by expressing the left and right hand sides of the equations as expression trees. We can
-show that a construction satisfies an algebraic structure by showing that an evaluated expression
+free algebra in Cubical Agda. We first define the signature $\sigma$ of an algebra by $op : \mathcal{U}$ and
+$arity : op \rightarrow \mathcal{U}$, where $op$ is the set of operation symbols and $arity$ determines
+the arity of the operation by the cardinality of the type it maps the operation to. By allowing the arity
+of the operation to be the cardinality of an arbitary type we can express infinitary operations within the framework.
+We define $sig \: \sigma \: X : \Sigma( s : \sigma \: .op ). \: (\sigma \: .arity \: s \rightarrow X)$ to represent
+the symbol of an operation and a lookup function for the arguments of the operation.
+We then define a $\sigma$-structure to be $car : \mathcal{U}$ and $alg : sig \: \sigma \: car \rightarrow car$, where $car$
+is the carrier of the algebra and $alg$ evaluates the algebra given an operation and its arguments. We also
+define an ADT for $\sigma$-expression trees on carrier $X$, $Tree \: \sigma \: X$,
+with the constructors $leaf : X \rightarrow Tree \: X$ and
+$node : sig \: \sigma \: (Tree \: X) \rightarrow Tree \: X$, which we will use to represent
+the left hand side and right hand side of equations. We define the signature of equations by 
+$name : \mathcal{U}$ and $free : name \rightarrow \mathcal{U}$, where $name$ is a set of names used to identity
+the axiom equation of an algebra, and $free$ determines the number of free variables in the equation by the
+cardinality of the type it maps the name to, again allowing for infinitary equations. Finally, given a
+equation signature $\tau$ for a $\sigma$-algebra, we define a system of equations as
+$(e : \tau \: .name) \rightarrow Tree \: (\tau \: .free \: e) \times Tree \: (\tau \: .free \: e)$, using $Tree$
+to express the right hand side and left hand side of equations.
+We can show that a construction satisfies an algebraic structure by showing that an evaluated expression
 tree would indeed satisfy the system of equations, for example, ($\mathbb{N},0,+$) satisfies the
-unit and associativity laws of a monoid. We can then formalize the notion of homomorphisms by 
+unit and associativity laws of a monoid. We can then formalize the notion of homomorphisms on $\sigma$-algebras by 
 defining it as functions which satisfies $\sigma(h(x),h(y),h(z),...) = h(\sigma(x,y,z,...))$ for
-a homomorphism $h$ and any operation $\sigma$. Finally, we formalize the definition of a free algebra
+a homomorphism $h$. Finally, we formalize the definition of a free algebra
 by its universal property, namely: for a free algebra $F$ on $A$ and an algebra $\mathfrak{B}$, a set function 
 $g : A \rightarrow \mathfrak{B}$, there exists a unique homomorphism $f : F(A) \rightarrow \mathfrak{B}$ such that
-$g = f \circ i$, where $i : A \rightarrow F(A)$ is the canonical injection morphism.
-We define the $\# : (A \rightarrow \mathfrak{B}) \rightarrow (F(A) \rightarrow \mathfrak{B})$ operation, which lifts
-a set function $A \rightarrow \mathfrak{B}$ to a homomorphism $F(A) \rightarrow \mathfrak{B}$ using the universal property.
+$g = f \circ i$, where $i : A \rightarrow F(A)$ is the canonical injection morphism. We do so by requiring a
+$\sigma$-structure to satisfy a property for any $\sigma$-structure $\mathfrak{Y}$
+$isFree : isEquiv \: (\lambda f. \: f \circ i)$ where $f$ is a homomorphism to $\mathfrak{Y}$ and
+$i$ is the canonical injection.
+We then define the $\# : (A \rightarrow \mathfrak{B}) \rightarrow (F(A) \rightarrow \mathfrak{B})$ operation, which lifts
+a set function $A \rightarrow \mathfrak{B}$ to a homomorphism $F(A) \rightarrow \mathfrak{B}$ using
+the universal property.
 
 Using the framework we present different constructions of free monoids,
-such as list $List$, free monoid as a HIT $FreeMon$, and as an index function $\Sigma (n : \mathbb{N}). Fin \, n \rightarrow X$ which we call $Array$.
+such as list $List$, free monoid as a HIT $FreeMon$, and as an index function $\Sigma (n : \mathbb{N}). Fin \: n \rightarrow X$ which we call $Array$.
 We then extend our work by constructing free commutative monoids,
 such as swapped-list $SList$ and free monoid quotiented by a permutation relation $QFreeMon$,
 for example $List$ quotiented by permutation ($PList$)
-and $Array$ quotiented by isomorphism on index $\Sigma (\sigma : Fin \, n \simeq \, Fin \, m). \, v = w \circ \sigma$ ($Bag$).
+and $Array$ quotiented by isomorphism on index $\Sigma (\sigma : Fin \: n \simeq \: Fin \: m). \: v = w \circ \sigma$ ($Bag$).
 We prove these constructions are indeed free algebras by proving their universal property directly,
 and we can derive canonical maps between different constructions directly using the universal property.
 
@@ -58,74 +77,69 @@ Using the same framework, we hope to prove the following conjectures:
 \newtheorem{myconj}{Conjecture}
 \newtheorem{mydef}{Definition}
 \newtheorem{mylemma}{Lemma}
-\newtheorem{mythm}{Theorem}
+\newtheorem{mythm}{Proposition}
 
 \begin{myconj}
     A section to the canonical map from the free monoid to the free commutative monoid on set $X$ implies a total order on set $X$.
 \end{myconj}
-It is well known that a linear order on set $X$ would imply a sort function on $List \, X$. It should follow that a sort function on set $X$
+It is well known that a linear order on set $X$ would imply a sort function on $List \: X$. It should follow that a sort function on set $X$
 would imply a linear order on $X$. We can formalize the notion of a sort function as a section to the canonical map from $List$ to
 $SList$, which can be thought of as a function which picks a canonical representation from an unordered list, thereby sorting
 the list in the process.
 
 \begin{mydef}
-    Given a section $q : SList \, X \rightarrow List \, X$ to the canonical map $List \, X \rightarrow SList \, X$,
-    we define a relation $\leq$: if $x$ is the head of $q([x, y])$, $x \leq y$.
+    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
+    we define a relation $\leq$: if $x$ is the head of $s(\{x, y\})$, $x \leq y$.
 \end{mydef}
 
 \begin{mylemma}
     \label{sort-either}
-    Given a section $q : SList \, X \rightarrow List \, X$ to the canonical map $List \, X \rightarrow SList \, X$,
-    $q(\{x, y\})$ must either be $[x, y]$ or $[y, x]$.
+    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
+    $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$.
 \end{mylemma}
 
 We first concretely define the notion of membership for $List$ and $SList$: $x \in xs$ if $x$ equals to one of the element in $xs$.
 We do so by noting propositions form a commutative monoid under $\vee$,
 which allow us to define membership proof for an element $x$ using the $\#$ operation
-by lifting the function $\lambda y. \, x = y$ from $X \rightarrow Prop$ to $List \, X \rightarrow Prop$ and $SList \, X \rightarrow Prop$ respectively.
-We then note that the canonical map $f : List \, X \rightarrow SList \, X$ preserves length and preserves membership, $x \in xs$ iff $x \in f(xs)$.
-Since $f(q(\{x, y\})) = \{x, y\}$ by definition, $q(\{x,y\})$ must therefore have length 2, and $x, y \in q(\{x, y\})$.
-Let $q(\{x, y\})$ be $[u, v]$, we perform the following case analysis.
-
-Case $x = u$, $y = v$: We obtain a proof $q(\{x, y\}) = [x, y]$, fulfilling the first case.
-
-Case $x = v$, $y = u$: We obtain a proof $q(\{x, y\}) = [y, x]$, fulfilling the second case.
-
-Case $x = u$, $y = u$ and $x = v$, $y = v$: We obtain a proof $x = y$. Since $q(\{x, x\}) = [u , v]$ by assumption,
-and $f([u, v]) = \{x, x\}$ by definition of $q$, $u, v \in \{x, x\}$. By the definition of membership $u, v$ must either be $x$ or $x$.
-Either case we obtain the proofs that $u = x$ and $v = x$. Since $u = v = x = y$, and $q(\{x, y\}) = [u, v]$, $q(\{x, y\}) = [x, y]$, fulfilling the first case.
+by lifting the function $\lambda y. \: x = y$ from $X \rightarrow Prop$ to $List \: X \rightarrow Prop$ and $SList \: X \rightarrow Prop$ respectively.
+We then note that the canonical map $q : List \: X \rightarrow SList \: X$ preserves length and preserves membership, $x \in xs$ iff $x \in q(xs)$.
+Since $q(s(\{x, y\})) = \{x, y\}$ by definition, $s(\{x,y\})$ must therefore have length 2, and $x, y \in s(\{x, y\})$.
+Let $q(\{x, y\})$ be $[u, v]$, we perform a proof by cases. For case $x = u$, $y = v$ and $x = v$, $y = u$ the proof is trivial.
+For case $x = u$, $y = u$ and $x = v$, $y = v$, we obtain a proof $x = y$. Since $s(\{x, x\}) = [u , v]$ by assumption,
+and $q([u, v]) = \{x, x\}$ by definition of $s$, $u, v \in \{x, x\}$, therefore $u, v$ must equal to $x$.
+Since $u = v = x = y$, and $s(\{x, y\}) = [u, v]$, $s(\{x, y\}) = [x, y]$.
 
 With this lemma we can then prove $\leq$ does indeed satisfy all axioms of total order except transitivity.
 
 \begin{mythm}
     $\leq$ is reflexive.
 \end{mythm}
-    By Lemma \ref{sort-either}, $q(\{x, x\})$ must either be $[x, x]$ or $[x ,x]$. Either case we obtain a proof that
-    $q(\{x, x\}) = [x, x]$. Since $x$ is the head of $[x, x]$, $x \leq x$.
+    By Lemma \ref{sort-either}, $s(\{x, x\})$ must either be $[x, x]$ or $[x ,x]$. Either case we obtain a proof that
+    $s(\{x, x\}) = [x, x]$. Since $x$ is the head of $[x, x]$, $x \leq x$.
 
 \begin{mythm}
     $\leq$ is antisymmetric.
 \end{mythm}
     Given $x \leq y$ and $y \leq x$, we want to show $x = y$.
-    By Lemma \ref{sort-either}, $q(\{x, y\})$ must either be $[x, y]$ or $[y, x]$. In the case $q(\{x, y\}) = [x, y]$,
-    since $y \leq x$, $y$ is the head of $[x, y]$, and we obtain a proof $y = x$. In the case $q(\{x, y\}) = [y, x]$,
+    By Lemma \ref{sort-either}, $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$. In the case $s(\{x, y\}) = [x, y]$,
+    since $y \leq x$, $y$ is the head of $[x, y]$, and we obtain a proof $y = x$. In the case $s(\{x, y\}) = [y, x]$,
     we invert $x$ and $y$ in the previous proof and obtain $x = y$. Either case we obtain $x = y$.
 
 \begin{mythm}
     $\leq$ is total.
 \end{mythm}
     We want to show for any $x$ and $y$, either $x \leq y$ or $y \leq x$.
-    By Lemma \ref{sort-either}, $q(\{x, y\})$ must either be $[x, y]$ or $[y, x]$, therefore either $x$ or $y$
-    is the head of $q(\{x, y\})$. We obtain either $x \leq y$ or $y \leq x$.
+    By Lemma \ref{sort-either}, $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$, therefore either $x$ or $y$
+    is the head of $s(\{x, y\})$. We obtain either $x \leq y$ or $y \leq x$.
 
 \begin{mydef}
-    Given a section $q : SList \, X \rightarrow List \, X$ to the canonical map $List \, X \rightarrow SList \, X$,
-    $xs$ is said to be sorted if $xs$ is in the image of $q$.
+    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
+    $xs$ is said to be sorted if $xs$ is in the image of $s$, more percisely, 
 \end{mydef}
 
 It is unclear how transitivity of $\leq$ can be proven. We conjecture that the assumption the tail of a sorted list
-must be sorted is needed to prove transitivity. It should be noted that not all sections to the canonical map $List \, X \rightarrow SList \, X$
-satisfy this assumption. Consider a function $s : SList \, \mathbb{N} \rightarrow List \, \mathbb{N}$ which sorts ascendingly given an odd-lengthed
+must be sorted is needed to prove transitivity. It should be noted that not all sections to the canonical map $List \: X \rightarrow SList \: X$
+satisfy this assumption. Consider a function $s : SList \: \mathbb{N} \rightarrow List \: \mathbb{N}$ which sorts ascendingly given an odd-lengthed
 $SList$ and descendingly given an even-lengthed $SList$. This function would indeed be a valid section, but violate the previous assumption.
 
 If we assume $X$ to have decidable equality, we can construct a linear order from the total order.
