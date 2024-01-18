@@ -62,8 +62,16 @@ given by post-composition with $\eta_{V}$, that is,
 %
 $\sigAlg(\str{T}(V),\str{X}) \xrightarrow[\sim]{(\blank) \comp \eta_{V}} (V \to X)$.
 %
-The inverse to this map is the extension operation $(\blank)^{\sharp}$, which extends a map $f\colon V \to X$ to a
-homomorphism $\str{T}(V) \to \str{X}$.
+The inverse to this map is the extension operation $\ext{(\blank)}$,
+which extends a map $f\colon V \to X$ to a homomorphism $\ext{f}\colon \str{T}(V) \to \str{X}$.
+
+A signature of equations $\epsilon$ over $\sigma$ is given by a type of equations $\eq \colon \UU$ with an arity of free
+variables $\fv \colon \eq \to \UU$. A system of equations (or a theory $T$) over $(\sigma,\epsilon)$ is given by
+$\dfun*{e:\eq}{\tree{\fv(e)} \times \tree{\fv(e)}}$, that is, a pair of trees for each equation.
+%
+A $\sigma$-structure $\str{X}$ entails $T$, $\str{X} \entails T$, if,
+for each $e\colon \eq$ and $\rho \colon \fv(e) \to X$,
+$\ext{\rho}(\fst({T(e)})) \id \ext{\rho}(\snd({T(e)}))$.
 
 We present a general framework for doing universal algebra and the construction of
 free algebra in Cubical Agda. We first define the signature $\sigma$ of an algebra by $op : \mathcal{U}$ and
