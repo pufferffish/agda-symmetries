@@ -12,18 +12,6 @@
 *.cb2
 .*.lb
 
-## Extra
-*.bit
-*.gz
-*.tui
-*.alg
-*.mp
-*.tmp
-*.top
-*.tui
-*.tex.bak
-*.bib.bak
-
 ## Intermediate documents:
 *.dvi
 *.xdv
@@ -37,7 +25,7 @@
 .pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
-# *.bbl
+*.bbl
 *.bcf
 *.blg
 *-blx.aux
@@ -121,12 +109,25 @@ acs-*.bib
 *.glo
 *.gls
 *.glsdefs
+*.lzo
+*.lzs
+*.slg
+*.slo
+*.sls
+
+# uncomment this for glossaries-extra (will ignore makeindex's style files!)
+# *.ist
+
+# gnuplot
+*.gnuplot
+*.table
 
 # gnuplottex
 *-gnuplottex-*
 
 # gregoriotex
 *.gaux
+*.glog
 *.gtex
 
 # htlatex
@@ -142,18 +143,20 @@ acs-*.bib
 
 # knitr
 *-concordance.tex
-# TODO Comment the next line if you want to keep your tikz graphics files
-*.tikz
+# TODO Uncomment the next line if you use knitr and want to ignore its generated tikz files
+# *.tikz
 *-tikzDictionary
 
 # listings
 *.lol
 
+# luatexja-ruby
+*.ltjruby
+
 # makeidx
 *.idx
 *.ilg
 *.ind
-*.ist
 
 # minitoc
 *.maf
@@ -170,6 +173,9 @@ _minted*
 
 # morewrites
 *.mw
+
+# newpax
+*.newpax
 
 # nomencl
 *.nlg
@@ -189,6 +195,9 @@ _minted*
 
 # scrwfile
 *.wrt
+
+# svg
+svg-inkscape/
 
 # sympy
 *.sout
@@ -214,8 +223,15 @@ pythontex-files-*/
 *.md5
 *.auxlock
 
+# titletoc
+*.ptc
+
 # todonotes
 *.tdo
+
+# vhistory
+*.hst
+*.ver
 
 # easy-todo
 *.lod
@@ -229,8 +245,9 @@ pythontex-files-*/
 # xindy
 *.xdy
 
-# xypic precompiled matrices
+# xypic precompiled matrices and outlines
 *.xyc
+*.xyd
 
 # endfloat
 *.ttt
@@ -253,8 +270,14 @@ TSWLatexianTemp*
 # Kile
 *.backup
 
+# gummi
+.*.swp
+
 # KBibTeX
 *~[0-9]*
+
+# TeXnicCenter
+*.tps
 
 # auto folder when using emacs and auctex
 ./auto/*
@@ -266,4 +289,13 @@ TSWLatexianTemp*
 # standalone packages
 *.sta
 
-# Taken from github.com/github/gitignore/blob/master/TeX.gitignore
+# Makeindex log files
+*.lpz
+
+# xwatermark package
+*.xwm
+
+# REVTeX puts footnotes in the bibliography by default, unless the nofootinbib
+# option is specified. Footnotes are the stored in a file with suffix Notes.bib.
+# Uncomment the next line to have this generated file ignored.
+#*Notes.bib
