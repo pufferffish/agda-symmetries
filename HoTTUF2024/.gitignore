@@ -39,6 +39,7 @@
 *.synctex.gz
 *.synctex.gz(busy)
 *.pdfsync
+.deps
 
 ## Build tool directories for auxiliary files
 # latexrun
