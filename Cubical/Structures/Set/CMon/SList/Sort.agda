@@ -357,39 +357,53 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   is-sorted : List A -> Type _
   is-sorted list = ∥ fiber sort list ∥₁
 
-  module _ (is-sorted-hom : ∀ xs ys -> is-sorted (xs ++ ys) -> (is-sorted xs) × (is-sorted ys)) where
-    least-removed : ∀ x y z -> x ≤ y -> least (x ∷* y ∷* [ z ]*) ≡ least (x ∷* [ z ]*)
-    least-removed x y z x≤y with least (x ∷* y ∷* [ z ]*) | inspect least (x ∷* y ∷* [ z ]*)
-    ... | nothing | aa = {!   !}
+  is-sorted→≤ : ∀ x y -> is-sorted (x ∷ y ∷ []) -> x ≤ y
+  is-sorted→≤ x y = P.rec (isSetMaybeA _ _) λ (xs , p) ->
+    congS head-maybe (congS sort (sym (sym (sort≡ xs) ∙ congS list→slist p)) ∙ p)
+
+  module _ (sort-respects-least : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])) where
+    trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
+    trans-≤ x y z x≤y y≤z with least (x ∷* y ∷* z ∷* []*) | inspect least (x ∷* y ∷* z ∷* []*)
+    ... | nothing | [ p ]ᵢ = ⊥.rec (snotz (congS S.length (least-nothing _ p)))
     ... | just u | [ p ]ᵢ =
       P.rec (isSetMaybeA _ _)
-        (⊎.rec
-          (λ u≡x -> {!   !})
-          -- sort [x, y, z] = [x, y, z] or [x, z, y]
-          -- if [x, z, y] -> [x, z] is sorted, therefore sort [x, z] = 
-          -- if [x, y, z] -> 
+        (⊎.rec case1 
           (P.rec (isSetMaybeA _ _)
-            (⊎.rec
-              (λ u≡y -> {!   !})
-              (λ u∈[z] -> {!   !})
-            )
+            (⊎.rec case2 (case3 ∘ x∈[y]→x≡y _ _))
           )
         )
-        (least-in u (x ∷* y ∷* [ z ]*) p)
-
-    trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
-    trans-≤ x y z x≤y y≤z =
-      least (x ∷* [ z ]*) ≡⟨ sym (least-removed x y z x≤y) ⟩
-      least (x ∷* y ∷* [ z ]*) ≡⟨ congS least (comm-++ [ x ]* (y ∷* [ z ]*)) ⟩
-      least (y ∷* z ∷* [ x ]*) ≡⟨ least-removed y z x y≤z ⟩
-      least (y ∷* [ x ]*) ≡⟨ congS least (comm-++ [ y ]* [ x ]*) ⟩
-      least (x ∷* [ y ]*) ≡⟨ x≤y ⟩
-      just x ∎
+        (least-in u (x ∷* y ∷* z ∷* []*) p)
+      where
+      tail' : Σ[ xs ∈ List A ] u ∷ xs ≡ sort (x ∷* y ∷* z ∷* []*)
+      tail' with sort (x ∷* y ∷* z ∷* []*)
+      ... | [] = ⊥.rec (¬nothing≡just p)
+      ... | v ∷ xs = xs , congS (_∷ xs) (just-inj _ _ (sym p))
+      tail : List A
+      tail = tail' .fst
+      tail-proof : u ∷ tail ≡ sort (x ∷* y ∷* z ∷* []*)
+      tail-proof = tail' .snd
+      u∷tail-is-sorted : is-sorted (u ∷ tail)
+      u∷tail-is-sorted = ∣ ((x ∷* y ∷* z ∷* []*) , sym tail-proof) ∣₁
+      u-is-smallest : ∀ v -> v ∈* (x ∷* y ∷* z ∷* []*) -> u ≤ v
+      u-is-smallest v q =
+        is-sorted→≤ u v (sort-respects-least u v tail u∷tail-is-sorted (subst (v ∈_) (sym tail-proof) (sort-∈ v _ q)))
+      case1 : u ≡ x -> x ≤ z
+      case1 u≡x = subst (_≤ z) u≡x (u-is-smallest z (L.inr (L.inr (L.inl refl))))
+      case2 : u ≡ y -> x ≤ z
+      case2 u≡y = subst (_≤ z) (antisym-≤ y x y≤x x≤y) y≤z
+        where
+        y≤x : y ≤ x
+        y≤x = subst (_≤ x) u≡y (u-is-smallest x (L.inl refl))
+      case3 : u ≡ z -> x ≤ z
+      case3 u≡z = subst (x ≤_) (antisym-≤ y z y≤z z≤y) x≤y
+        where
+        z≤y : z ≤ y
+        z≤y = subst (_≤ y) u≡z (u-is-smallest y (L.inr (L.inl refl)))
 
     ≤-isToset : IsToset _≤_
     IsToset.is-set ≤-isToset = isSetA
     IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
     IsToset.is-refl ≤-isToset = refl-≤
     IsToset.is-trans ≤-isToset = trans-≤ 
-    IsToset.is-antisym ≤-isToset = antisym-≤     
+    IsToset.is-antisym ≤-isToset = antisym-≤       
     IsToset.is-strongly-connected ≤-isToset = total-≤    
