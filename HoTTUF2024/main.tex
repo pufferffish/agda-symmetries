@@ -116,25 +116,44 @@ and $Array$ quotiented by isomorphism on index $\Sigma (\sigma : Fin \: n \simeq
 We prove these constructions are indeed free algebras by proving their universal property directly,
 and we can derive canonical maps between different constructions directly using the universal property.
 
-Using the same framework, we hope to prove the following conjectures:
+Using the same framework, we can axiomatize the notion of a sort function.
 
 \newtheorem{myconj}{Conjecture}
 \newtheorem{mydef}{Definition}
 \newtheorem{mylemma}{Lemma}
 \newtheorem{mythm}{Proposition}
 
-\begin{myconj}
-    A section to the canonical map from the free monoid to the free commutative monoid on set $X$ implies a total order on set $X$.
-\end{myconj}
-It is well known that a linear order on set $X$ would imply a sort function on $List \: X$. It should follow that a sort function on set $X$
-would imply a linear order on $X$. We can formalize the notion of a sort function as a section to the canonical map from $List$ to
+\begin{mydef}
+    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
+    $xs$ is said to be sorted if $xs$ is in the image of $s$.
+\end{mydef}
+
+We define the proposition $\textit{is-sorted} : List \: X \rightarrow \mathcal{U}$ to be
+$\lambda xs. \: \exists (ys : SList \: X). \: s(ys) = xs$.
+We also use the universal property of free monoid to define membership proofs for $List \: X$ and $SList \: X$.
+We do so by noting propositions form a commutative monoid under $\vee$,
+which allow us to define membership proof for an element $x$ using the extension operation $\ext{(\blank)}$
+by lifting the function $\lambda y. \: x = y$ from $X \rightarrow Prop$ to $List \: X \rightarrow Prop$ and $SList \: X \rightarrow Prop$ respectively.
+
+\begin{mythm}
+    A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
+    implies a total order on set $X$ iff
+    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
+\end{mythm}
+It is well known that a total order on set $X$ would imply a sort function on $List \: X$. It should follow that a sort function on set $X$
+would imply a total order on $X$. We can formalize the notion of a sort function as a section to the canonical map from $List$ to
 $SList$, which can be thought of as a function which picks a canonical representation from an unordered list, thereby sorting
-the list in the process.
+the list in the process. However, we cannot prove transitivity purely from $s$ being a section, one example being
+a function $s : SList \: \mathbb{N} \rightarrow List \: \mathbb{N}$ which sorts ascendingly given an odd-lengthed
+$SList$ and descendingly given an even-lengthed $SList$. Hence, a stronger assumption is needed to fully construct
+a total order.
 
 \begin{mydef}
     Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
     we define a relation $\leq$: if $x$ is the head of $s(\{x, y\})$, $x \leq y$.
 \end{mydef}
+
+    We note that $x \leq y$ iff $\textit{is-sorted}([x, y])$.
 
 \begin{mylemma}
     \label{sort-either}
@@ -142,18 +161,14 @@ the list in the process.
     $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$.
 \end{mylemma}
 
-We first concretely define the notion of membership for $List$ and $SList$: $x \in xs$ if $x$ equals to one of the element in $xs$.
-We do so by noting propositions form a commutative monoid under $\vee$,
-which allow us to define membership proof for an element $x$ using the $\#$ operation
-by lifting the function $\lambda y. \: x = y$ from $X \rightarrow Prop$ to $List \: X \rightarrow Prop$ and $SList \: X \rightarrow Prop$ respectively.
-We then note that the canonical map $q : List \: X \rightarrow SList \: X$ preserves length and preserves membership, $x \in xs$ iff $x \in q(xs)$.
+We note that the canonical map $q : List \: X \rightarrow SList \: X$ preserves length and preserves membership, $x \in xs$ iff $x \in q(xs)$.
 Since $q(s(\{x, y\})) = \{x, y\}$ by definition, $s(\{x,y\})$ must therefore have length 2, and $x, y \in s(\{x, y\})$.
 Let $q(\{x, y\})$ be $[u, v]$, we perform a proof by cases. For case $x = u$, $y = v$ and $x = v$, $y = u$ the proof is trivial.
 For case $x = u$, $y = u$ and $x = v$, $y = v$, we obtain a proof $x = y$. Since $s(\{x, x\}) = [u , v]$ by assumption,
 and $q([u, v]) = \{x, x\}$ by definition of $s$, $u, v \in \{x, x\}$, therefore $u, v$ must equal to $x$.
 Since $u = v = x = y$, and $s(\{x, y\}) = [u, v]$, $s(\{x, y\}) = [x, y]$.
 
-With this lemma we can then prove $\leq$ does indeed satisfy all axioms of total order except transitivity.
+With this lemma we can then prove $\leq$ does indeed satisfy all axioms of total order.
 
 \begin{mythm}
     $\leq$ is reflexive.
@@ -176,15 +191,16 @@ With this lemma we can then prove $\leq$ does indeed satisfy all axioms of total
     By Lemma \ref{sort-either}, $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$, therefore either $x$ or $y$
     is the head of $s(\{x, y\})$. We obtain either $x \leq y$ or $y \leq x$.
 
-\begin{mydef}
-    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
-    $xs$ is said to be sorted if $xs$ is in the image of $s$, more percisely, 
-\end{mydef}
-
-It is unclear how transitivity of $\leq$ can be proven. We conjecture that the assumption the tail of a sorted list
-must be sorted is needed to prove transitivity. It should be noted that not all sections to the canonical map $List \: X \rightarrow SList \: X$
-satisfy this assumption. Consider a function $s : SList \: \mathbb{N} \rightarrow List \: \mathbb{N}$ which sorts ascendingly given an odd-lengthed
-$SList$ and descendingly given an even-lengthed $SList$. This function would indeed be a valid section, but violate the previous assumption.
+\begin{mythm}
+    $\leq$ is transitive.
+\end{mythm}
+    Given $x \leq y$ and $y \leq z$, we want to show $x \leq z$. We first note that the head of $s(\{x,y,z\})$
+    must either be $x$, $y$, or $z$.
+    For case $x$, by assumption $[x, z]$ is sorted, therefore $x \leq z$.
+    For case $y$, by assumption $[y, x]$ is sorted, therefore $y \leq x$, and since $x \leq y$ by assumption,
+    by antisymmetry $x = y$, and by assumption $y \leq z$, therefore $x \leq z$.
+    For case $z$, by assumption $[z, y]$ is sorted, therefore $z \leq y$, and since $y \leq z$ by assumption,
+    by antisymmetry $y = z$, and by assumption $x \leq y$, therefore $x \leq z$.
 
 If we assume $X$ to have decidable equality, we can construct a linear order from the total order.
 With more constraint it should be possible to prove that the constructed linear order would be a well order, and therefore imply $X$ is a choice
