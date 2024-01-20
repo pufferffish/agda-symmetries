@@ -170,9 +170,18 @@ Further, using the universal property we study various properties of these const
 Finally, we use this framework to study sorting and total orders. It is commonly understood that lists are ordered
 lists and bags are unordered lists. Our aim is to give a conceptual explanation of this fact.
 
-Given a total order on a set $A$, a sorting algorithm turns lists of $A$ into sorted lists of $A$.
+Given a total order on a set $A$, a sorting algorithm, informally, turns lists of $A$ into sorted lists of $A$.
 %
-Formally, this produces a section to the canonical homomorphism from the free monoid to the free commutative monoid.
+Formally, this produces a well-behaved section to the canonical homomorphism from the free monoid to the free commutative monoid.
+
+\begin{mythm}
+    Assume a total order on $X$.
+    Then, there is a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on $X$
+    satisfying
+    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
+\end{mythm}
+
+We will prove the converse of this theorem.
 
 \begin{mythm}
     A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
@@ -182,12 +191,6 @@ Formally, this produces a section to the canonical homomorphism from the free mo
 \end{mythm}
 We show that $\leq$ satisfies all axioms of total order above.
 
-\begin{mythm}
-    A total order on $X$ implies
-    a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
-    satisfying
-    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
-\end{mythm}
 With both propositions
 a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
 satisfying
@@ -195,7 +198,7 @@ $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: 
 iff there is a total order on $X$.
 
 
-The framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
+To conclude, the framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
 system of equations. As an instance of this, we consider the construction free monoidal and free symmetric monoidal
 groupoids. This is currently work in progress, and we will mention the rudiments of the theory in the talk.
 
