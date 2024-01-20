@@ -180,22 +180,22 @@ commutative monoid: $q : \LL(X) \to \MM(X)$.
     $xs$ is said to be sorted if $xs$ is in the image of $s$.
 \end{mydef}
 
-We define the proposition $\textit{is-sorted} : List \: X \rightarrow \mathcal{U}$ to be
-$\lambda xs. \: \exists (ys : SList \: X). \: s(ys) = xs$.
+We define the proposition $\textit{is-sorted}_{s} : \LL \: X \rightarrow \mathcal{U}$
+to be $\lambda xs. \: \exists (ys : \MM \: X). \: s(ys) = xs$.
+We then define the property
+$\textit{is-sort(s)} = \forall x \: y \: xs. \textit{is-sorted}_{s}(x :: xs) \rightarrow y \in (x :: xs) \rightarrow \textit{is-sorted}_{s}(x :: y :: [])$.
 
 \begin{mythm}
     Assume a total order on $X$.
     Then, there is a section $s : \MM(X) \to \LL(X)$ to $q$
-    satisfying
-    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
+    satisfying \textit{is-sort}.
 \end{mythm}
 
 We will prove the converse of this theorem.
 
 \begin{mythm}
     A section $s : \MM(X) \to \LL(X)$ to $q$
-    satisfying
-    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
+    satisfying \textit{is-sort}
     implies a total order on $X$.
 \end{mythm}
 
