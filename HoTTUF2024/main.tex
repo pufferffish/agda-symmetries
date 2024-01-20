@@ -15,6 +15,10 @@
 \usepackage[inline]{enumitem}
 \usepackage{authblk}
 
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+
 \usepackage[math-style=ISO]{unicode-math}
 
 \defaultfontfeatures{Scale = MatchLowercase}
@@ -164,11 +168,6 @@ Further, using the universal property we study various properties of these const
 
 \subsection*{Total orders and Sorting}
 
-\newtheorem{myconj}{Conjecture}
-\newtheorem{mydef}{Definition}
-\newtheorem{mylemma}{Lemma}
-\newtheorem{mythm}{Proposition}
-
 Finally, we use this framework to study sorting and total orders. It is commonly understood that lists are ordered
 lists and bags are unordered lists. Our aim is to give a conceptual explanation of this fact.
 
@@ -177,33 +176,31 @@ Given a total order on a set $A$, a sorting algorithm, informally, turns lists o
 Formally, this produces a well-behaved section to the canonical homomorphism from the free monoid to the free
 commutative monoid: $q : \LL(X) \to \MM(X)$.
 
-\begin{mydef}
-    Given a section $s : \MM(X) \to \LL(X)$ to $q$
-    $xs$ is said to be sorted if $xs$ is in the image of $s$.
-\end{mydef}
+\begin{definition}
+    Given a section $s : \MM(X) \to \LL(X)$ to $q$,
+    we say that a list $xs : \LL(X)$ is sorted if $\exists (ys : \MM(X)). \: s(ys) = xs$.
 
-We define the proposition $\textit{is-sorted}_{s} : \LL \: X \rightarrow \mathcal{U}$
-to be $\lambda xs. \: \exists (ys : \MM \: X). \: s(ys) = xs$.
-We then define the property
-$\textit{is-sort(s)} = \forall x \: y \: xs. \textit{is-sorted}_{s}(x :: xs) \rightarrow y \in (x :: xs) \rightarrow \textit{is-sorted}_{s}(x :: y :: [])$.
+    Further, we say that $s$ is a sort function if
+    $\forall x \: y \: xs. \term{is-sorted}_{s}(x :: xs) \to y \in (x :: xs) \to \term{is-sorted}_{s}(x :: y :: [])$.
+\end{definition}
 
-\begin{mythm}
+This allows us to state our main theorem and its converse.
+
+\begin{theorem}
     Assume a total order on $X$.
-    Then, there is a section $s : \MM(X) \to \LL(X)$ to $q$
-    satisfying \textit{is-sort}.
-\end{mythm}
+    Then, there is a section $s : \MM(X) \to \LL(X)$ to $q$ satisfying \textit{is-sort}.
+\end{theorem}
 
-We will prove the converse of this theorem.
+\begin{theorem}
+    Assume a section $s : \MM(X) \to \LL(X)$ to $q$ satisfying \textit{is-sort}.
+    Then, there is a total order on $X$.
+\end{theorem}
 
-\begin{mythm}
-    A section $s : \MM(X) \to \LL(X)$ to $q$
-    satisfying \textit{is-sort}
-    implies a total order on $X$.
-\end{mythm}
-
-To conclude, the framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
-system of equations. As an instance of this, we consider the construction free monoidal and free symmetric monoidal
-groupoids. This is currently work in progress, and we will mention the rudiments of the theory in the talk.
+\medskip\noindent
+To conclude, the described framework of universal algebra can be generalised from sets to groupoids, using a system of
+coherences on top of the system of equations. As an instance of this, we consider the construction of free monoidal and
+free symmetric monoidal groupoids. This is currently work in progress, and we will mention the rudiments of the theory
+in the talk.
 
 \printbibliography
 
