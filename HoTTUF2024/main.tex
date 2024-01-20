@@ -190,14 +190,6 @@ We will prove the converse of this theorem.
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
     implies a total order on $X$.
 \end{mythm}
-We show that $\leq$ satisfies all axioms of total order above.
-
-With both propositions
-a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
-satisfying
-$\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
-iff there is a total order on $X$.
-
 
 To conclude, the framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
 system of equations. As an instance of this, we consider the construction free monoidal and free symmetric monoidal
