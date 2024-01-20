@@ -130,7 +130,7 @@ $A \xto{\eta} \LL(A) \xto{q} \quot{\LL(A)}{\approx}$ is a free commutative monoi
 From this we construct:
 \begin{itemize}
     \item $\type{PList}$, a quotient of $\type{List}$ by various permutation relations,
-    \item $\type{Bag}$, a quotient of $\type{Array}(A) = \dsum{n:\Nat}{A^{\Fin(n)}}$ by
+    \item $\type{Bag}$, a quotient of $\type{Array}(A) = \dsum{n:\Nat}{f:A^{\Fin(n)}}$ by
           $(n,f) \sim (m,g) \defeq \dsum{\sigma \colon \Fin(n) \eqv \Fin(m)}{f = g \comp \sigma}$.
 \end{itemize}
 %
@@ -148,7 +148,12 @@ Further, using the universal property we study various properties of these const
 \newtheorem{mylemma}{Lemma}
 \newtheorem{mythm}{Proposition}
 
-Finally, we use this framework to study sorting and total orders.
+Finally, we use this framework to study sorting and total orders. It is commonly understood that lists are ordered
+lists and bags are unordered lists. Our aim is to give a conceptual explanation of this fact.
+
+Given a total order on a set $A$, a sorting algorithm turns lists of $A$ into sorted lists of $A$.
+%
+Formally, this produces a section to the canonical homomorphism from the free monoid to the free commutative monoid.
 
 \begin{mydef}
     Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
@@ -255,32 +260,11 @@ by antisymmetry $y = z$, and by assumption $x \leq y$, therefore $x \leq z$.
     iff there is a total order on $X$.
 
 
-\begin{myconj}
-    SList and Bag are free symmetric monoidal groupoid
-\end{myconj}
-Previous works already established $SList$ and $Bag$ are free commutative
-monoids when 0-truncated, and it is folklore that when 1-truncated they should be free symmetric monoidal groupoid, although
-this has not yet been shown internally in HoTT.
+The framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
+system of equations. As an instance of this, we consider the construction free monoidal and free symmetric monoidal
+groupoids. This is currently work in progress, and we will mention the rudiments of the theory in the talk.
 
-In the case of $SList$, higher path constructors are needed. To establish the coherence of $swap$ we need a higher $hexagon$
-path constructor. However to define the $hexagon$ constructor it would involve compositions of $swap$ which leads to a regularity
-problem. To avoid this we need to split the $hexagon$ equations as below:
-
-\begin{code}
-    hexagon- : (a b c : A) (cs : SList A)
-    -> a :: b :: c :: cs = c :: b :: a :: cs
-    hexagon↑ : (a b c : A) (cs : SList A)
-    -> Square (\i -> b :: swap a c cs i) (hexagon- a b c cs)
-    (swap b a (c :: cs)) (swap b c (a :: cs))
-    hexagon↓ : (a b c : A) (cs : SList A)
-    -> Square (hexagon- a b c cs) (swap a c (b :: cs))
-    (\i -> a :: swap b c cs i) (\i -> c :: swap b a cs i)
-\end{code}
-
-
-In the case of $Bag$, we first need to show that $Array$ itself is a free monoidal groupoid. We then need to show a free
-monoidal groupoid quotiented by a permutation relation would be a free symmetric monoidal groupoid, and show that by quotienting
-$Array$ with an isomorphism on the index, we would indeed get a free symmetric monoidal groupoid.
+Our work is formalized in Cubical Agda and available at: \url{https://github.com/pufferffish/agda-symmetries/}.
 
 \printbibliography
 
