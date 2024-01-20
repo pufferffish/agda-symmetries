@@ -9,6 +9,7 @@
 \usepackage{amsthm}
 \usepackage{cleveref}
 \usepackage[inline]{enumitem}
+\usepackage{authblk}
 
 \usepackage[math-style=ISO]{unicode-math}
 
@@ -34,15 +35,27 @@
 \addbibresource{cites.bib}
 
 \title{Something about commutativity and well-orders}
-\author{Anonymous}
+\author[1]{Wind Wong}
+\author[2]{Vikraman Choudhury\footnote{Supported by EU Marie Skłodowska-Curie fellowship 101106046 ReGrade-CS.}}
+\author[3]{Simon J. Gay}
+\affil[1,3]{University of Glasgow}
+\affil[2]{Universit\`{a} di Bologna and OLAS Team, INRIA}
 
 \date{\today}
 
 \begin{document}
 \maketitle
 
-In this talk, we study free monoids, free commutative monoids, and their connections with sorting and well-orders, using
-univalent type theory, implemented in Cubical Agda.
+In this talk, we study free monoids, free commutative monoids, and their connections with sorting and well-orders.
+%
+Univalent foundations provides a rigorous framework for implementing these ideas,
+in the construction of free algebras, using higher inductive types and quotients,
+and reasoning upto equivalence using categorical universal properties.
+%
+The main contributions are a framework for universal algebra (free algebras and their universal properties),
+various constructions of free monoids and free commutative monoids (with proofs of their universal properties),
+applications to proving combinatorial properties of these constructions,
+and finally an axiomatic understanding of sorting.
 
 \subsection*{Background}
 
