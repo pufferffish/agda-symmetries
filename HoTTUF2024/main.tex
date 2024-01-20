@@ -175,6 +175,18 @@ Given a total order on a set $A$, a sorting algorithm, informally, turns lists o
 Formally, this produces a well-behaved section to the canonical homomorphism from the free monoid to the free
 commutative monoid: $q : \LL(X) \to \MM(X)$.
 
+\begin{mydef}
+    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
+    $xs$ is said to be sorted if $xs$ is in the image of $s$.
+\end{mydef}
+
+We define the proposition $\textit{is-sorted} : List \: X \rightarrow \mathcal{U}$ to be
+$\lambda xs. \: \exists (ys : SList \: X). \: s(ys) = xs$.
+We also use the universal property of free monoid to define membership proofs for $List \: X$ and $SList \: X$.
+We do so by noting propositions form a commutative monoid under $\vee$,
+which allow us to define membership proof for an element $x$ using the extension operation $\ext{(\blank)}$
+by lifting the function $\lambda y. \: x = y$ from $X \rightarrow Prop$ to $List \: X \rightarrow Prop$ and $SList \: X \rightarrow Prop$ respectively.
+
 \begin{mythm}
     Assume a total order on $X$.
     Then, there is a section $s : \MM(X) \to \LL(X)$ to $q$
