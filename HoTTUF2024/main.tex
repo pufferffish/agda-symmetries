@@ -130,7 +130,7 @@ $A \xto{\eta} \LL(A) \xto{q} \quot{\LL(A)}{\approx}$ is a free commutative monoi
 From this we construct:
 \begin{itemize}
     \item $\type{PList}$, a quotient of $\type{List}$ by various permutation relations,
-    \item $\type{Bag}$, a quotient of $\type{Array}(A) = \dsum{n:\Nat}{A^{\Fin(n)}}$ by
+    \item $\type{Bag}$, a quotient of $\type{Array}(A) = \dsum{n:\Nat}{f:A^{\Fin(n)}}$ by
           $(n,f) \sim (m,g) \defeq \dsum{\sigma \colon \Fin(n) \eqv \Fin(m)}{f = g \comp \sigma}$.
 \end{itemize}
 %
@@ -148,7 +148,12 @@ Further, using the universal property we study various properties of these const
 \newtheorem{mylemma}{Lemma}
 \newtheorem{mythm}{Proposition}
 
-Finally, we use this framework to study sorting and total orders.
+Finally, we use this framework to study sorting and total orders. It is commonly understood that lists are ordered
+lists and bags are unordered lists. Our aim is to give a conceptual explanation of this fact.
+
+Given a total order on a set $A$, a sorting algorithm turns lists of $A$ into sorted lists of $A$.
+%
+Formally, this produces a section to the canonical homomorphism from the free monoid to the free commutative monoid.
 
 \begin{mydef}
     Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
