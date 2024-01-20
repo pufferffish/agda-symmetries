@@ -172,11 +172,12 @@ lists and bags are unordered lists. Our aim is to give a conceptual explanation 
 
 Given a total order on a set $A$, a sorting algorithm, informally, turns lists of $A$ into sorted lists of $A$.
 %
-Formally, this produces a well-behaved section to the canonical homomorphism from the free monoid to the free commutative monoid.
+Formally, this produces a well-behaved section to the canonical homomorphism from the free monoid to the free
+commutative monoid: $q : \LL(X) \to \MM(X)$.
 
 \begin{mythm}
     Assume a total order on $X$.
-    Then, there is a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on $X$
+    Then, there is a section $s : \MM(X) \to \LL(X)$ to $q$
     satisfying
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
 \end{mythm}
@@ -184,7 +185,7 @@ Formally, this produces a well-behaved section to the canonical homomorphism fro
 We will prove the converse of this theorem.
 
 \begin{mythm}
-    A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
+    A section $s : \MM(X) \to \LL(X)$ to $q$
     satisfying
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
     implies a total order on $X$.
