@@ -15,7 +15,7 @@ $(DEPS_DIR) :
 
 %.pdf : %.tex
 	if [ ! -e $(DEPS_DIR) ]; then mkdir $(DEPS_DIR); fi
-	$(LATEXMK) -pdf -f -deps-out=$(DEPS_DIR)/$@P $<
+	$(LATEXMK) -pdflua -f -deps-out=$(DEPS_DIR)/$@P $<
 
 clean:
 	latexmk -c

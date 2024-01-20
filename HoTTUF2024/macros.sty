@@ -2,14 +2,13 @@
 
 \RequirePackage{xparse}
 \RequirePackage{amsmath}
-\RequirePackage{eucal}
 \RequirePackage{perfectcut}
 \let\ps\perfectparens%
 
 \RequirePackage{hott}
 
 % math
-\newcommand{\xto}[1]{\xrightarrow{#1}}
+\newcommand{\xto}[1]{\xlongrightarrow{#1}}
 
 % universal algebra
 
@@ -18,7 +17,7 @@
 
 \newcommand{\sig}{\sigma}
 \NewDocumentCommand{\Sig}{O{\sig}}{
-  \Sigma_{#1}
+  F_{#1}
 }
 
 \newcommand{\Alg}{\type{Alg}}
@@ -30,7 +29,7 @@
 }
 
 \NewDocumentCommand{\tree}{O{\sigma}m}{
-  \mathsf{Tree}{_{#1}}\ps{#2}
+  \mathsf{Tr}{_{#1}}\ps{#2}
 }
 \newcommand{\str}[1]{\mathfrak{#1}}
 
@@ -38,5 +37,8 @@
 
 \newcommand{\eq}{\term{eq}}
 \newcommand{\fv}{\term{fv}}
+
+\newcommand{\lhs}{\mathscr{l}}
+\newcommand{\rhs}{\mathscr{r}}
 
 \newcommand{\entails}{\vDash}
