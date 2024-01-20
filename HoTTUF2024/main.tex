@@ -169,85 +169,6 @@ Given a total order on a set $A$, a sorting algorithm turns lists of $A$ into so
 %
 Formally, this produces a section to the canonical homomorphism from the free monoid to the free commutative monoid.
 
-\begin{mydef}
-    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
-    $xs$ is said to be sorted if $xs$ is in the image of $s$.
-\end{mydef}
-
-We define the proposition $\textit{is-sorted} : List \: X \rightarrow \mathcal{U}$ to be
-$\lambda xs. \: \exists (ys : SList \: X). \: s(ys) = xs$.
-We also use the universal property of free monoid to define membership proofs for $List \: X$ and $SList \: X$.
-We do so by noting propositions form a commutative monoid under $\vee$,
-which allow us to define membership proof for an element $x$ using the extension operation $\ext{(\blank)}$
-by lifting the function $\lambda y. \: x = y$ from $X \rightarrow Prop$ to $List \: X \rightarrow Prop$ and $SList \: X \rightarrow Prop$ respectively.
-
-\begin{mythm}
-    A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
-    implies a total order on set $X$ iff
-    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
-\end{mythm}
-It is well known that a total order on set $X$ would imply a sort function on $List \: X$. It should follow that a sort function on set $X$
-would imply a total order on $X$. We can formalize the notion of a sort function as a section to the canonical map from $List$ to
-$SList$, which can be thought of as a function which picks a canonical representation from an unordered list, thereby sorting
-the list in the process. However, we cannot prove transitivity purely from $s$ being a section, one example being
-a function $s : SList \: \mathbb{N} \rightarrow List \: \mathbb{N}$ which sorts ascendingly given an odd-lengthed
-$SList$ and descendingly given an even-lengthed $SList$. Hence, a stronger assumption is needed to fully construct
-a total order.
-
-\begin{mydef}
-    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
-    we define a relation $\leq$: if $x$ is the head of $s(\{x, y\})$, $x \leq y$.
-\end{mydef}
-
-We note that $x \leq y$ iff $\textit{is-sorted}([x, y])$.
-
-\begin{mylemma}
-    \label{sort-either}
-    Given a section $s : SList \: X \rightarrow List \: X$ to the canonical map $List \: X \rightarrow SList \: X$,
-    $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$.
-\end{mylemma}
-
-We note that the canonical map $q : List \: X \rightarrow SList \: X$ preserves length and preserves membership, $x \in xs$ iff $x \in q(xs)$.
-Since $q(s(\{x, y\})) = \{x, y\}$ by definition, $s(\{x,y\})$ must therefore have length 2, and $x, y \in s(\{x, y\})$.
-Let $q(\{x, y\})$ be $[u, v]$, we perform a proof by cases. For case $x = u$, $y = v$ and $x = v$, $y = u$ the proof is trivial.
-For case $x = u$, $y = u$ and $x = v$, $y = v$, we obtain a proof $x = y$. Since $s(\{x, x\}) = [u , v]$ by assumption,
-and $q([u, v]) = \{x, x\}$ by definition of $s$, $u, v \in \{x, x\}$, therefore $u, v$ must equal to $x$.
-Since $u = v = x = y$, and $s(\{x, y\}) = [u, v]$, $s(\{x, y\}) = [x, y]$.
-
-With this lemma we can then prove $\leq$ does indeed satisfy all axioms of total order.
-
-\begin{mythm}
-    $\leq$ is reflexive.
-\end{mythm}
-By Lemma \ref{sort-either}, $s(\{x, x\})$ must either be $[x, x]$ or $[x ,x]$. Either case we obtain a proof that
-$s(\{x, x\}) = [x, x]$. Since $x$ is the head of $[x, x]$, $x \leq x$.
-
-\begin{mythm}
-    $\leq$ is antisymmetric.
-\end{mythm}
-Given $x \leq y$ and $y \leq x$, we want to show $x = y$.
-By Lemma \ref{sort-either}, $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$. In the case $s(\{x, y\}) = [x, y]$,
-since $y \leq x$, $y$ is the head of $[x, y]$, and we obtain a proof $y = x$. In the case $s(\{x, y\}) = [y, x]$,
-we invert $x$ and $y$ in the previous proof and obtain $x = y$. Either case we obtain $x = y$.
-
-\begin{mythm}
-    $\leq$ is total.
-\end{mythm}
-We want to show for any $x$ and $y$, either $x \leq y$ or $y \leq x$.
-By Lemma \ref{sort-either}, $s(\{x, y\})$ must either be $[x, y]$ or $[y, x]$, therefore either $x$ or $y$
-is the head of $s(\{x, y\})$. We obtain either $x \leq y$ or $y \leq x$.
-
-\begin{mythm}
-    $\leq$ is transitive.
-\end{mythm}
-Given $x \leq y$ and $y \leq z$, we want to show $x \leq z$. We first note that the head of $s(\{x,y,z\})$
-must either be $x$, $y$, or $z$.
-For case $x$, by assumption $[x, z]$ is sorted, therefore $x \leq z$.
-For case $y$, by assumption $[y, x]$ is sorted, therefore $y \leq x$, and since $x \leq y$ by assumption,
-by antisymmetry $x = y$, and by assumption $y \leq z$, therefore $x \leq z$.
-For case $z$, by assumption $[z, y]$ is sorted, therefore $z \leq y$, and since $y \leq z$ by assumption,
-by antisymmetry $y = z$, and by assumption $x \leq y$, therefore $x \leq z$.
-
 \begin{mythm}
     A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
     satisfying
@@ -262,12 +183,7 @@ by antisymmetry $y = z$, and by assumption $x \leq y$, therefore $x \leq z$.
     satisfying
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
 \end{mythm}
-    We can define such a section as a sort function on $SList \: X$.
-    We show that the sort function satifies the property
-    as follow: since $x$ is the minimal element in $x :: xs$, we prove by induction on $xs$,
-    to obtain a proof that $x \leq y$, and use it to show $is-sorted([x, y])$.
-
-    With this we obtain a proof
+    With both propositions we obtain a proof
     a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
     satisfying
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
