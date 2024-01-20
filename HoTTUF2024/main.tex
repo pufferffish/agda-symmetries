@@ -229,10 +229,31 @@ by antisymmetry $x = y$, and by assumption $y \leq z$, therefore $x \leq z$.
 For case $z$, by assumption $[z, y]$ is sorted, therefore $z \leq y$, and since $y \leq z$ by assumption,
 by antisymmetry $y = z$, and by assumption $x \leq y$, therefore $x \leq z$.
 
-If we assume $X$ to have decidable equality, we can construct a linear order from the total order.
-With more constraint it should be possible to prove that the constructed linear order would be a well order, and therefore imply $X$ is a choice
-set. We can then show that by assuming every set $X$ is decidable and has a section to the canonical map from the free monoid to the free commutative monoid, we
-would be able to derive the axiom of choice.
+\begin{mythm}
+    A section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
+    satisfying
+    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
+    implies a total order on $X$.
+\end{mythm}
+    We show that $\leq$ satisfies all axioms of total order above.
+
+\begin{mythm}
+    A total order on $X$ implies
+    a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
+    satisfying
+    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
+\end{mythm}
+    We can define such a section as a sort function on $SList \: X$.
+    We show that the sort function satifies the property
+    as follow: since $x$ is the minimal element in $x :: xs$, we prove by induction on $xs$,
+    to obtain a proof that $x \leq y$, and use it to show $is-sorted([x, y])$.
+
+    With this we obtain a proof
+    a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
+    satisfying
+    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
+    iff there is a total order on $X$.
+
 
 \begin{myconj}
     SList and Bag are free symmetric monoidal groupoid
