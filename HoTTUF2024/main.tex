@@ -188,24 +188,11 @@ We show that $\leq$ satisfies all axioms of total order above.
     satisfying
     $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$.
 \end{mythm}
-<<<<<<< HEAD
-    With both propositions we obtain a proof
-    a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
-    satisfying
-    $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
-    iff there is a total order on $X$.
-=======
-We can define such a section as a sort function on $SList \: X$.
-We show that the sort function satifies the property
-as follow: since $x$ is the minimal element in $x :: xs$, we prove by induction on $xs$,
-to obtain a proof that $x \leq y$, and use it to show $is-sorted([x, y])$.
-
-With this we obtain a proof
+With both propositions
 a section $s : SList \: X \rightarrow List \: X$ to the canonical map from the free monoid to the free commutative monoid on set $X$
 satisfying
 $\: \forall x \: y \: xs. \: \textit{is-sorted}(x :: xs) \rightarrow y \in x :: xs \rightarrow \textit{is-sorted}([x, y])$
 iff there is a total order on $X$.
->>>>>>> 37b5f8f4f13ffbc3295801dd3ccc02c5a3f3cfe8
 
 
 The framework of universal algebra can be generalised from sets to groupoids, using a system of coherences on top of
