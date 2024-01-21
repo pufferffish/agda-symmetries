@@ -173,9 +173,14 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
       z ∷ insert y (insert x zs) ≡⟨ sym (insert-β-2 y z _ ¬y≤z) ⟩
       insert y (z ∷ insert x zs) ∎
 
-  private
-    sort-membership : ∀ x xs -> x ∷* list→slist (sort xs) ≡ list→slist (sort (x ∷* xs))
-    sort-membership x xs = {!   !}
+  insert-is-permute : ∀ x xs -> list→slist (x ∷ xs) ≡ list→slist (insert x xs)
+  insert-is-permute x [] = refl
+  insert-is-permute x (y ∷ ys) with x ≤? y
+  ... | yes p = refl
+  ... | no ¬p =
+    x ∷* y ∷* list→slist ys ≡⟨ swap x y _ ⟩
+    y ∷* x ∷* list→slist ys ≡⟨ congS (y ∷*_) (insert-is-permute x ys) ⟩
+    y ∷* list→slist (insert x ys) ∎
 
   sort-is-permute : ∀ xs -> list→slist (sort xs) ≡ xs
   sort-is-permute = ElimProp.f (trunc _ _) refl lemma
@@ -183,7 +188,8 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     lemma : ∀ x {xs} p -> list→slist (sort (x ∷* xs)) ≡ x ∷* xs
     lemma x {xs} p = sym $
       x ∷* xs ≡⟨ congS (x ∷*_) (sym p) ⟩
-      x ∷* list→slist (sort xs) ≡⟨ sort-membership x xs ⟩
+      list→slist (x ∷ sort xs) ≡⟨ insert-is-permute x (sort xs) ⟩
+      list→slist (insert x (sort xs)) ≡⟨⟩
       list→slist (sort (x ∷* xs)) ∎
 
   open Sort is-set sort sort-is-permute
@@ -406,6 +412,12 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       ∎))
     (least-choice x y)
 
+  dec-≤ : (discA : Discrete A) -> ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
+  dec-≤ discA x y with (discreteMaybe discA) (least (x ∷* y ∷* []*)) (just x)
+  ... | yes p = ⊎.inl p
+  ... | no ¬p = ⊎.inr (P.rec (isSetMaybeA _ _)
+    (⊎.rec (⊥.rec ∘ ¬p) (congS least (swap y x []*) ∙_)) (least-choice x y))
+
   is-sorted→≤ : ∀ x y -> is-sorted (x ∷ y ∷ []) -> x ≤ y
   is-sorted→≤ x y = P.rec (isSetMaybeA _ _) λ (xs , p) ->
     congS head-maybe (congS sort (sym (sym (sort≡ xs) ∙ congS list→slist p)) ∙ p)
@@ -455,4 +467,4 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-refl ≤-isToset = refl-≤
     IsToset.is-trans ≤-isToset = trans-≤ 
     IsToset.is-antisym ≤-isToset = antisym-≤                
-    IsToset.is-strongly-connected ≤-isToset = total-≤       
+    IsToset.is-strongly-connected ≤-isToset = total-≤
