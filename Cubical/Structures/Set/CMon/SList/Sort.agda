@@ -193,9 +193,9 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
       lemma ys p = insert-≤ x y (sort tail) xs (congS sort tail-proof ∙ p)
         where
         tail : SList A
-        tail = {!   !}
+        tail = list→slist xs
         tail-proof : x ∷* y ∷* tail ≡ ys
-        tail-proof = {!   !}
+        tail-proof = sym (congS list→slist p) ∙ sort-is-permute ys
 
   sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
   sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
