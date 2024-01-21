@@ -90,6 +90,24 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     ... | yes p = ⊥.rec (¬p p)
     ... | no ¬_ = refl
 
+    insert-≤ : ∀ x y xs ys -> insert x (insert y xs) ≡ x ∷ y ∷ ys -> x ≤ y
+    insert-≤ x y [] ys p with x ≤? y
+    ... | yes x≤y = x≤y
+    ... | no ¬x≤y = subst (_≤ y) (just-inj y x (congS head-maybe p)) (is-refl y)
+    insert-≤ x y (z ∷ zs) ys p with y ≤? z
+    ... | yes y≤z = lemma
+      where
+      lemma : x ≤ y
+      lemma with x ≤? y
+      ... | yes x≤y = x≤y
+      ... | no ¬x≤y = subst (_≤ y) (just-inj y x (congS head-maybe p)) (is-refl y)
+    ... | no ¬y≤z = lemma
+      where
+      lemma : x ≤ y
+      lemma with x ≤? z
+      ... | yes x≤z = subst (x ≤_) (just-inj z y (congS head-maybe (cons-inj₂ p))) x≤z
+      ... | no ¬x≤z = ⊥.rec (¬x≤z (subst (_≤ z) (just-inj z x (congS head-maybe p)) (is-refl z)))
+
     not-total-impossible : ∀ {x y} -> ¬(x ≤ y) -> ¬(y ≤ x) -> ⊥
     not-total-impossible {x} {y} p q =
       P.rec isProp⊥ (⊎.rec p q) (is-strongly-connected x y)
@@ -169,7 +187,15 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     tail-is-sorted x xs = P.rec squash₁ {!   !}
     
     sort→order-lemma : ∀ x y xs -> is-sorted (x ∷ y ∷ xs) -> x ≤ y
-    sort→order-lemma x y xs = P.rec (is-prop-valued x y) {!   !}
+    sort→order-lemma x y xs = P.rec (is-prop-valued x y) (uncurry lemma)
+      where
+      lemma : ∀ ys p -> x ≤ y
+      lemma ys p = insert-≤ x y (sort tail) xs (congS sort tail-proof ∙ p)
+        where
+        tail : SList A
+        tail = {!   !}
+        tail-proof : x ∷* y ∷* tail ≡ ys
+        tail-proof = {!   !}
 
   sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
   sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
@@ -414,5 +440,5 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
     IsToset.is-refl ≤-isToset = refl-≤
     IsToset.is-trans ≤-isToset = trans-≤ 
-    IsToset.is-antisym ≤-isToset = antisym-≤             
-    IsToset.is-strongly-connected ≤-isToset = total-≤    
+    IsToset.is-antisym ≤-isToset = antisym-≤               
+    IsToset.is-strongly-connected ≤-isToset = total-≤      
