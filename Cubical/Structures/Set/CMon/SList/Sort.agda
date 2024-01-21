@@ -43,6 +43,15 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
+module Sort {A : Type ℓ} (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
+  open Membership isSetA
+
+  is-sorted : List A -> Type _
+  is-sorted list = ∥ fiber sort list ∥₁
+
+  is-sort : Type _
+  is-sort = ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])
+
 module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : IsToset _≤_) (_≤?_ : ∀ x y -> Dec (x ≤ y)) where
   open IsToset ≤-isToset
   open Membership is-set
@@ -140,25 +149,63 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
       z ∷ insert y (insert x zs) ≡⟨ sym (insert-β-2 y z _ ¬y≤z) ⟩
       insert y (z ∷ insert x zs) ∎
 
--- module Order→Sort-Example where
--- 
---   ≤ℕ-isToset : IsToset _≤ℕ_
---   ≤ℕ-isToset = istoset isSetℕ
---     (λ _ _ -> isProp≤)
---     (λ _ -> ≤-refl)
---     (λ _ _ _ -> ≤-trans)
---     (λ _ _ -> ≤-antisym)
---     lemma
---     where
---     <→≤ : ∀ {n m} -> n <ℕ m -> n ≤ℕ m
---     <→≤ (k , p) = suc k , sym (+-suc k _) ∙ p
---     lemma : BinaryRelation.isStronglyConnected _≤ℕ_
---     lemma x y = ∣ ⊎.rec ⊎.inl (_⊎_.inr ∘ <→≤) (splitℕ-≤ x y) ∣₁
--- 
---   open Order→Sort _≤ℕ_ ≤ℕ-isToset ≤Dec
--- 
---   _ : sort (4 ∷ 6 ∷ 1 ∷ 2 ∷ []) ≡ (1 ∷ 2 ∷ 4 ∷ 6 ∷ [])
---   _ = refl
+  private
+    sort-membership : ∀ x xs -> x ∷* list→slist (sort xs) ≡ list→slist (sort (x ∷* xs))
+    sort-membership x xs = {!   !}
+
+  sort-is-permute : ∀ xs -> list→slist (sort xs) ≡ xs
+  sort-is-permute = ElimProp.f (trunc _ _) refl lemma
+    where
+    lemma : ∀ x {xs} p -> list→slist (sort (x ∷* xs)) ≡ x ∷* xs
+    lemma x {xs} p = sym $
+      x ∷* xs ≡⟨ congS (x ∷*_) (sym p) ⟩
+      x ∷* list→slist (sort xs) ≡⟨ sort-membership x xs ⟩
+      list→slist (sort (x ∷* xs)) ∎
+
+  open Sort is-set sort sort-is-permute
+
+  private
+    tail-is-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
+    tail-is-sorted x xs = P.rec squash₁ {!   !}
+    
+    sort→order-lemma : ∀ x y xs -> is-sorted (x ∷ y ∷ xs) -> x ≤ y
+    sort→order-lemma x y xs = P.rec (is-prop-valued x y) {!   !}
+
+  sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
+  sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
+  sort→order x y (z ∷ zs) p y∈x∷z∷zs with isDiscreteA x y
+  ... | yes x≡y = subst (x ≤_) x≡y (is-refl x)
+  ... | no ¬x≡y =
+    P.rec (is-prop-valued x y) (⊎.rec (⊥.rec ∘ ¬x≡y ∘ sym) lemma) y∈x∷z∷zs
+    where
+    lemma : y ∈ (z ∷ zs) -> x ≤ y
+    lemma y∈z∷zs = is-trans x z y
+      (sort→order-lemma x z zs p)
+      (sort→order z y zs (tail-is-sorted x (z ∷ zs) p) y∈z∷zs)
+
+  sort-is-sort : is-sort
+  sort-is-sort x y xs p y∈xs =
+    ∣ (x ∷* y ∷* []* , insert-β-1 x y [] (sort→order x y xs p y∈xs)) ∣₁
+
+module Order→Sort-Example where
+
+  ≤ℕ-isToset : IsToset _≤ℕ_
+  ≤ℕ-isToset = istoset isSetℕ
+    (λ _ _ -> isProp≤)
+    (λ _ -> ≤-refl)
+    (λ _ _ _ -> ≤-trans)
+    (λ _ _ -> ≤-antisym)
+    lemma
+    where
+    <→≤ : ∀ {n m} -> n <ℕ m -> n ≤ℕ m
+    <→≤ (k , p) = suc k , sym (+-suc k _) ∙ p
+    lemma : BinaryRelation.isStronglyConnected _≤ℕ_
+    lemma x y = ∣ ⊎.rec ⊎.inl (_⊎_.inr ∘ <→≤) (splitℕ-≤ x y) ∣₁
+
+  open Order→Sort _≤ℕ_ ≤ℕ-isToset ≤Dec
+ 
+  _ : sort (4 ∷* 6 ∷* 1 ∷* 2 ∷* []*) ≡ (1 ∷ 2 ∷ 4 ∷ 6 ∷ [])
+  _ = refl
 
 module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
 
@@ -173,6 +220,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   
   open Membership isSetA
   open Membership* isSetA
+  open Sort isSetA sort sort≡
 
   list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
   list→slist-η [] x p = ⊥.rec (znots (congS S.length p))
@@ -318,14 +366,11 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       ∎))
     (least-choice x y)
 
-  is-sorted : List A -> Type _
-  is-sorted list = ∥ fiber sort list ∥₁
-
   is-sorted→≤ : ∀ x y -> is-sorted (x ∷ y ∷ []) -> x ≤ y
   is-sorted→≤ x y = P.rec (isSetMaybeA _ _) λ (xs , p) ->
     congS head-maybe (congS sort (sym (sym (sort≡ xs) ∙ congS list→slist p)) ∙ p)
 
-  module _ (sort-respects-least : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])) where
+  module _ (sort-is-sort : is-sort) where
     trans-≤ : ∀ x y z -> x ≤ y -> y ≤ z -> x ≤ z
     trans-≤ x y z x≤y y≤z with least (x ∷* y ∷* z ∷* []*) | inspect least (x ∷* y ∷* z ∷* []*)
     ... | nothing | [ p ]ᵢ = ⊥.rec (snotz (congS S.length (least-nothing _ p)))
@@ -350,7 +395,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       u∷tail-is-sorted = ∣ ((x ∷* y ∷* z ∷* []*) , sym tail-proof) ∣₁
       u-is-smallest : ∀ v -> v ∈* (x ∷* y ∷* z ∷* []*) -> u ≤ v
       u-is-smallest v q =
-        is-sorted→≤ u v (sort-respects-least u v tail u∷tail-is-sorted (subst (v ∈_) (sym tail-proof) (sort-∈ v _ q)))
+        is-sorted→≤ u v (sort-is-sort u v tail u∷tail-is-sorted (subst (v ∈_) (sym tail-proof) (sort-∈ v _ q)))
       case1 : u ≡ x -> x ≤ z
       case1 u≡x = subst (_≤ z) u≡x (u-is-smallest z (L.inr (L.inr (L.inl refl))))
       case2 : u ≡ y -> x ≤ z
