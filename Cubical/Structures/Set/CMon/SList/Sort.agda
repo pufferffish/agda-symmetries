@@ -93,20 +93,26 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     insert-≤ : ∀ x y xs ys -> insert x (insert y xs) ≡ x ∷ y ∷ ys -> x ≤ y
     insert-≤ x y [] ys p with x ≤? y
     ... | yes x≤y = x≤y
-    ... | no ¬x≤y = subst (_≤ y) (just-inj y x (congS head-maybe p)) (is-refl y)
+    ... | no ¬x≤y = subst (_≤ y) (cons-inj₁ p) (is-refl y)
     insert-≤ x y (z ∷ zs) ys p with y ≤? z
     ... | yes y≤z = lemma
       where
       lemma : x ≤ y
       lemma with x ≤? y
       ... | yes x≤y = x≤y
-      ... | no ¬x≤y = subst (_≤ y) (just-inj y x (congS head-maybe p)) (is-refl y)
+      ... | no ¬x≤y = subst (_≤ y) (cons-inj₁ p) (is-refl y)
     ... | no ¬y≤z = lemma
       where
       lemma : x ≤ y
       lemma with x ≤? z
-      ... | yes x≤z = subst (x ≤_) (just-inj z y (congS head-maybe (cons-inj₂ p))) x≤z
-      ... | no ¬x≤z = ⊥.rec (¬x≤z (subst (_≤ z) (just-inj z x (congS head-maybe p)) (is-refl z)))
+      ... | yes x≤z = subst (x ≤_) (cons-inj₁ (cons-inj₂ p)) x≤z
+      ... | no ¬x≤z = ⊥.rec (¬x≤z (subst (_≤ z) (cons-inj₁ p) (is-refl z)))
+
+    insert-cons : ∀ x xs ys -> x ∷ xs ≡ insert x ys -> xs ≡ ys
+    insert-cons x xs [] p = cons-inj₂ p
+    insert-cons x xs (y ∷ ys) p with x ≤? y
+    ... | yes x≤y = cons-inj₂ p
+    ... | no ¬x≤y = ⊥.rec (¬x≤y (subst (x ≤_) (cons-inj₁ p) (is-refl x)))
 
     not-total-impossible : ∀ {x y} -> ¬(x ≤ y) -> ¬(y ≤ x) -> ⊥
     not-total-impossible {x} {y} p q =
@@ -184,7 +190,15 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
 
   private
     tail-is-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
-    tail-is-sorted x xs = P.rec squash₁ {!   !}
+    tail-is-sorted x xs = P.rec squash₁ (uncurry lemma)
+      where
+      lemma : ∀ ys p -> is-sorted xs
+      lemma ys p = ∣ (list→slist xs) , sym (insert-cons x _ _ sort-proof) ∣₁
+        where
+        ys-proof : ys ≡ x ∷* list→slist xs
+        ys-proof = sym (sort-is-permute ys) ∙ (congS list→slist p)
+        sort-proof : x ∷ xs ≡ insert x (sort (list→slist xs))
+        sort-proof = sym p ∙ congS sort ys-proof
     
     sort→order-lemma : ∀ x y xs -> is-sorted (x ∷ y ∷ xs) -> x ≤ y
     sort→order-lemma x y xs = P.rec (is-prop-valued x y) (uncurry lemma)
@@ -440,5 +454,5 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-prop-valued ≤-isToset x y = isOfHLevelMaybe 0 isSetA _ _
     IsToset.is-refl ≤-isToset = refl-≤
     IsToset.is-trans ≤-isToset = trans-≤ 
-    IsToset.is-antisym ≤-isToset = antisym-≤               
-    IsToset.is-strongly-connected ≤-isToset = total-≤      
+    IsToset.is-antisym ≤-isToset = antisym-≤                
+    IsToset.is-strongly-connected ≤-isToset = total-≤       
