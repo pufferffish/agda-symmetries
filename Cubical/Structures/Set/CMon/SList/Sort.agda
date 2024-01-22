@@ -13,6 +13,7 @@ open import Cubical.Induction.WellFounded
 open import Cubical.Relation.Binary
 open import Cubical.Relation.Binary.Order 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.HLevels
 open import Cubical.Data.List
 open import Cubical.HITs.PropositionalTruncation as P
 import Cubical.Data.List as L
@@ -491,6 +492,7 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   open Sort isSetA
   open Sort→Order isSetA
   open Order→Sort
+  open IsToset
 
   IsDecOrder : (A -> A -> Type ℓ) -> Type _
   IsDecOrder _≤_ = IsToset _≤_ × (∀ x y -> Dec (x ≤ y))
@@ -501,12 +503,42 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   HasSortSectionAndIsDiscrete : Type _
   HasSortSectionAndIsDiscrete = (Σ _ is-sort-section) × (Discrete A)
 
-  sort↔order : Iso HasDecOrder HasSortSectionAndIsDiscrete
-  sort↔order = iso order→sort sort→order {!   !} {!   !}
+  order→sort : HasDecOrder -> HasSortSectionAndIsDiscrete
+  order→sort (_≤_ , isToset , isDec) =
+    (sort _≤_ isToset isDec , subst (λ isSetA' -> Sort.is-sort-section isSetA' (sort _≤_ isToset isDec)) (isPropIsSet _ _) (Order→Sort.sort-is-sort-section _≤_ isToset isDec)) , isDiscreteA _≤_ isToset isDec
+
+  sort→order : HasSortSectionAndIsDiscrete -> HasDecOrder
+  sort→order ((s , s-is-section , s-is-sort) , discA) =
+    _≤_ s s-is-section , ≤-isToset s s-is-section s-is-sort , dec-≤ s s-is-section discA
+
+  sort→order→sort : ∀ x -> order→sort (sort→order x) ≡ x
+  sort→order→sort ((s , s-is-section , s-is-sort) , discA) =
+    Σ≡Prop (λ _ -> isPropDiscrete) (Σ≡Prop isProp-is-sort-section {!   !})
+
+  order→sort→order : ∀ x -> sort→order (order→sort x) ≡ x
+  order→sort→order (_≤_ , isToset , isDec) =
+    Σ≡Prop (λ _≤'_ -> isOfHLevelΣ 1 (isPropIsToset _) (λ p -> isPropΠ2 λ x y -> isPropDec (is-prop-valued p x y))) (sym ≤-≡)
     where
-    order→sort : HasDecOrder -> HasSortSectionAndIsDiscrete
-    order→sort (_≤_ , isToset , isDec) =
-      (sort _≤_ isToset isDec , subst (λ isSetA' -> Sort.is-sort-section isSetA' (sort _≤_ isToset isDec)) (isPropIsSet _ _) (Order→Sort.sort-is-sort-section _≤_ isToset isDec)) , isDiscreteA _≤_ isToset isDec
-    sort→order : HasSortSectionAndIsDiscrete -> HasDecOrder
-    sort→order ((s , s-is-section , s-is-sort) , discA) =
-      _≤_ s s-is-section , ≤-isToset s s-is-section s-is-sort , dec-≤ s s-is-section discA
+    _≤*_ : A -> A -> Type _
+    _≤*_ = sort→order (order→sort (_≤_ , isToset , isDec)) .fst
+
+    ≤*-isToset : IsToset _≤*_
+    ≤*-isToset = sort→order (order→sort (_≤_ , isToset , isDec)) .snd .fst
+
+    iso-to : ∀ x y -> x ≤ y -> x ≤* y
+    iso-to x y x≤y with isDec x y
+    ... | yes p = refl
+    ... | no ¬p = ⊥.rec (¬p x≤y)
+
+    iso-from : ∀ x y -> x ≤* y -> x ≤ y
+    iso-from x y x≤y with isDec x y
+    ... | yes p = p
+    ... | no ¬p = ⊥.rec (¬p (subst (_≤ y) (just-inj y x x≤y) (is-refl isToset y)))
+
+    iso-≤ : ∀ x y -> Iso (x ≤ y) (x ≤* y)
+    iso-≤ x y = iso (iso-to x y) (iso-from x y) (λ p -> is-prop-valued ≤*-isToset x y _ p) (λ p -> is-prop-valued isToset x y _ p)
+    ≤-≡ : _≤_ ≡ _≤*_  
+    ≤-≡ = funExt λ x -> funExt λ y -> isoToPath (iso-≤ x y) 
+
+  sort↔order : Iso HasDecOrder HasSortSectionAndIsDiscrete
+  sort↔order = iso order→sort sort→order sort→order→sort order→sort→order
