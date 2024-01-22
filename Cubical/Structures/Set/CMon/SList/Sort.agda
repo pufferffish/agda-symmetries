@@ -43,14 +43,29 @@ head-maybe : List A -> Maybe A
 head-maybe [] = nothing
 head-maybe (x ∷ xs) = just x
 
-module Sort {A : Type ℓ} (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀ xs -> list→slist (sort xs) ≡ xs) where
+module Sort {A : Type ℓ} (isSetA : isSet A) (sort : SList A -> List A) where
   open Membership isSetA
 
   is-sorted : List A -> Type _
   is-sorted list = ∥ fiber sort list ∥₁
 
+  is-section : Type _
+  is-section = ∀ xs -> list→slist (sort xs) ≡ xs
+
+  isProp-is-section : isProp is-section
+  isProp-is-section = isPropΠ (λ _ -> trunc _ _)
+
   is-sort : Type _
   is-sort = ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])
+
+  isProp-is-sort : isProp is-sort
+  isProp-is-sort = isPropΠ5 λ _ _ _ _ _ -> squash₁
+
+  is-sort-section : Type _
+  is-sort-section = is-section × is-sort
+
+  isProp-is-sort-section : isProp is-sort-section
+  isProp-is-sort-section = isOfHLevelΣ 1 isProp-is-section (λ _ -> isProp-is-sort)
 
 module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : IsToset _≤_) (_≤?_ : ∀ x y -> Dec (x ≤ y)) where
   open IsToset ≤-isToset
@@ -182,7 +197,9 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     y ∷* x ∷* list→slist ys ≡⟨ congS (y ∷*_) (insert-is-permute x ys) ⟩
     y ∷* list→slist (insert x ys) ∎
 
-  sort-is-permute : ∀ xs -> list→slist (sort xs) ≡ xs
+  open Sort is-set sort
+
+  sort-is-permute : is-section
   sort-is-permute = ElimProp.f (trunc _ _) refl lemma
     where
     lemma : ∀ x {xs} p -> list→slist (sort (x ∷* xs)) ≡ x ∷* xs
@@ -191,8 +208,6 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
       list→slist (x ∷ sort xs) ≡⟨ insert-is-permute x (sort xs) ⟩
       list→slist (insert x (sort xs)) ≡⟨⟩
       list→slist (sort (x ∷* xs)) ∎
-
-  open Sort is-set sort sort-is-permute
 
   private
     tail-is-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
@@ -217,21 +232,24 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
         tail-proof : x ∷* y ∷* tail ≡ ys
         tail-proof = sym (congS list→slist p) ∙ sort-is-permute ys
 
-  sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
-  sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
-  sort→order x y (z ∷ zs) p y∈x∷z∷zs with isDiscreteA x y
-  ... | yes x≡y = subst (x ≤_) x≡y (is-refl x)
-  ... | no ¬x≡y =
-    P.rec (is-prop-valued x y) (⊎.rec (⊥.rec ∘ ¬x≡y ∘ sym) lemma) y∈x∷z∷zs
-    where
-    lemma : y ∈ (z ∷ zs) -> x ≤ y
-    lemma y∈z∷zs = is-trans x z y
-      (sort→order-lemma x z zs p)
-      (sort→order z y zs (tail-is-sorted x (z ∷ zs) p) y∈z∷zs)
+    sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
+    sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
+    sort→order x y (z ∷ zs) p y∈x∷z∷zs with isDiscreteA x y
+    ... | yes x≡y = subst (x ≤_) x≡y (is-refl x)
+    ... | no ¬x≡y =
+      P.rec (is-prop-valued x y) (⊎.rec (⊥.rec ∘ ¬x≡y ∘ sym) lemma) y∈x∷z∷zs
+      where
+      lemma : y ∈ (z ∷ zs) -> x ≤ y
+      lemma y∈z∷zs = is-trans x z y
+        (sort→order-lemma x z zs p)
+        (sort→order z y zs (tail-is-sorted x (z ∷ zs) p) y∈z∷zs)
 
   sort-is-sort : is-sort
   sort-is-sort x y xs p y∈xs =
     ∣ (x ∷* y ∷* []* , insert-β-1 x y [] (sort→order x y xs p y∈xs)) ∣₁
+
+  sort-is-sort-section : is-sort-section
+  sort-is-sort-section = sort-is-permute , sort-is-sort
 
 module Order→Sort-Example where
 
@@ -266,7 +284,10 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   
   open Membership isSetA
   open Membership* isSetA
-  open Sort isSetA sort sort≡
+  open Sort isSetA sort
+
+  sort-is-permute : is-section
+  sort-is-permute = sort≡
 
   list→slist-η : ∀ xs -> (x : A) -> list→slist xs ≡ [ x ]* -> xs ≡ [ x ]
   list→slist-η [] x p = ⊥.rec (znots (congS S.length p))
@@ -412,11 +433,8 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       ∎))
     (least-choice x y)
 
-  dec-≤ : (discA : Discrete A) -> ∀ x y -> (x ≤ y) ⊎ (y ≤ x)
-  dec-≤ discA x y with (discreteMaybe discA) (least (x ∷* y ∷* []*)) (just x)
-  ... | yes p = ⊎.inl p
-  ... | no ¬p = ⊎.inr (P.rec (isSetMaybeA _ _)
-    (⊎.rec (⊥.rec ∘ ¬p) (congS least (swap y x []*) ∙_)) (least-choice x y))
+  dec-≤ : (discA : Discrete A) -> ∀ x y -> Dec (x ≤ y)
+  dec-≤ discA x y = discreteMaybe discA _ _
 
   is-sorted→≤ : ∀ x y -> is-sorted (x ∷ y ∷ []) -> x ≤ y
   is-sorted→≤ x y = P.rec (isSetMaybeA _ _) λ (xs , p) ->
@@ -468,3 +486,27 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-trans ≤-isToset = trans-≤ 
     IsToset.is-antisym ≤-isToset = antisym-≤                
     IsToset.is-strongly-connected ≤-isToset = total-≤
+
+module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
+  open Sort isSetA
+  open Sort→Order isSetA
+  open Order→Sort
+
+  IsDecOrder : (A -> A -> Type ℓ) -> Type _
+  IsDecOrder _≤_ = IsToset _≤_ × (∀ x y -> Dec (x ≤ y))
+
+  HasDecOrder : Type _
+  HasDecOrder = Σ _ IsDecOrder
+
+  HasSortSectionAndIsDiscrete : Type _
+  HasSortSectionAndIsDiscrete = (Σ _ is-sort-section) × (Discrete A)
+
+  sort↔order : Iso HasDecOrder HasSortSectionAndIsDiscrete
+  sort↔order = iso order→sort sort→order {!   !} {!   !}
+    where
+    order→sort : HasDecOrder -> HasSortSectionAndIsDiscrete
+    order→sort (_≤_ , isToset , isDec) =
+      (sort _≤_ isToset isDec , subst (λ isSetA' -> Sort.is-sort-section isSetA' (sort _≤_ isToset isDec)) (isPropIsSet _ _) (Order→Sort.sort-is-sort-section _≤_ isToset isDec)) , isDiscreteA _≤_ isToset isDec
+    sort→order : HasSortSectionAndIsDiscrete -> HasDecOrder
+    sort→order ((s , s-is-section , s-is-sort) , discA) =
+      _≤_ s s-is-section , ≤-isToset s s-is-section s-is-sort , dec-≤ s s-is-section discA
