@@ -325,7 +325,7 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   open Sort.Section is-set
 
   is-sort' : (SList A -> List A) -> Type _
-  is-sort' f = (∀ xs -> list→slist (f xs) ≡ xs) × (∀ xs -> Sorted (f xs))
+  is-sort' f = (∀ xs -> list→slist (f xs) ≡ xs) × (∀ xs -> ∥ Sorted (f xs) ∥₁)
 
   tail-sorted' : ∀ {x xs} -> Sorted (x ∷ xs) -> Sorted xs 
   tail-sorted' (sorted-one ._) = sorted-nil
@@ -339,6 +339,41 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
         (λ z≡x -> subst (x ≤_) (sym z≡x) (is-refl x))
         (λ z∈ys -> is-trans x y z q (≤-tail z∈ys r))
       ) p
+  
+  smallest-sorted : ∀ x xs -> (∀ y -> y ∈ xs -> x ≤ y) -> Sorted xs -> Sorted (x ∷ xs)
+  smallest-sorted x .[] p sorted-nil =
+    sorted-one x
+  smallest-sorted x .([ y ]) p (sorted-one y) =
+    sorted-cons x y [] (p y (x∈[x] y)) (sorted-one y)
+  smallest-sorted x .(_ ∷ _ ∷ _) p (sorted-cons y z zs y≤z r) =
+    sorted-cons x y (z ∷ zs) (p y (x∈xs y (z ∷ zs))) (smallest-sorted y (z ∷ zs) lemma r)
+    where
+    lemma : ∀ a -> a ∈ (z ∷ zs) -> y ≤ a
+    lemma a = P.rec (is-prop-valued y a) $ ⊎.rec
+      (λ a≡z -> subst (y ≤_) (sym a≡z) y≤z)
+      (λ a∈zs -> is-trans y z a y≤z (≤-tail (L.inr a∈zs) r))
+
+  insert-∈ : ∀ {x} {y} ys -> x ∈ insert y ys -> x ∈ (y ∷ ys)
+  insert-∈ {x} {y} ys p = ∈*→∈ x (y ∷ ys)
+    (subst (x ∈*_) (sym (insert-is-permute y ys)) (∈→∈* x (insert y ys) p))
+
+  insert-is-sorted : ∀ x xs -> Sorted xs -> Sorted (insert x xs)
+  insert-is-sorted x [] p = sorted-one x
+  insert-is-sorted x (y ∷ ys) p with x ≤? y
+  ... | yes q = sorted-cons x y ys q p
+  ... | no ¬q = smallest-sorted y (insert x ys) (lemma ys p) IH
+    where
+    IH : Sorted (insert x ys)
+    IH = insert-is-sorted x ys (tail-sorted' p)
+    y≤x : y ≤ x
+    y≤x = P.rec (is-prop-valued y x) (⊎.rec (idfun _) (⊥.rec ∘ ¬q)) (is-strongly-connected y x)
+    lemma : ∀ zs -> Sorted (y ∷ zs) -> ∀ z -> z ∈ insert x zs → y ≤ z
+    lemma zs p z r = P.rec (is-prop-valued y z)
+      (⊎.rec (λ z≡x -> subst (y ≤_) (sym z≡x) y≤x) (λ z∈zs -> ≤-tail (L.inr z∈zs) p)) (insert-∈ zs r)
+
+  sort-is-sorted' : ∀ xs -> ∥ Sorted (sort xs) ∥₁
+  sort-is-sorted' = ElimProp.f squash₁ ∣ sorted-nil ∣₁
+    λ x -> P.rec squash₁ λ p -> ∣ (insert-is-sorted x _ p) ∣₁
 
   -- Step 1. show both sort xs and sort->order->sort xs give sorted list
   -- Step 2. apply this lemma
@@ -348,8 +383,7 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   unique-sorted-xs [] (y ∷ ys) p xs-sorted ys-sorted = ⊥.rec (znots (congS S.length p))
   unique-sorted-xs (x ∷ xs) [] p xs-sorted ys-sorted = ⊥.rec (snotz (congS S.length p))
   unique-sorted-xs (x ∷ xs) (y ∷ ys) p xs-sorted ys-sorted =
-    -- use FMCount or something for second hole
-    cong₂ _∷_ x≡y (unique-sorted-xs xs ys {!   !} (tail-sorted' xs-sorted) (tail-sorted' ys-sorted))
+    cong₂ _∷_ x≡y (unique-sorted-xs xs ys xs≡ys (tail-sorted' xs-sorted) (tail-sorted' ys-sorted))
     where
     x≤y : x ≤ y
     x≤y = ≤-tail (∈*→∈ y (x ∷ xs) (subst (y ∈*_) (sym p) (L.inl refl))) xs-sorted
@@ -357,9 +391,22 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     y≤x = ≤-tail (∈*→∈ x (y ∷ ys) (subst (x ∈*_) p (L.inl refl))) ys-sorted
     x≡y : x ≡ y
     x≡y = is-antisym x y x≤y y≤x
+    xs≡ys : list→slist xs ≡ list→slist ys
+    xs≡ys =
+      list→slist xs ≡⟨ remove1-≡-lemma isDiscreteA (list→slist xs) refl ⟩
+      remove1 isDiscreteA x (list→slist (x ∷ xs)) ≡⟨ congS (remove1 isDiscreteA x) p ⟩
+      remove1 isDiscreteA x (list→slist (y ∷ ys)) ≡⟨ sym (remove1-≡-lemma isDiscreteA (list→slist ys) x≡y) ⟩
+      list→slist ys ∎
   
   unique-sort : ∀ f -> is-sort' f -> f ≡ sort
-  unique-sort f (f-is-permute , f-is-sorted) = funExt {!   !}
+  unique-sort f (f-is-permute , f-is-sorted) = funExt λ xs ->
+    P.rec2 (isOfHLevelList 0 is-set _ _)
+      (unique-sorted-xs (f xs) (sort xs) (f-is-permute xs ∙ sym (sort-is-permute xs)))
+      (f-is-sorted xs)
+      (sort-is-sorted' xs)
+
+  unique-sort' : ∀ f xs -> is-sort' f -> f xs ≡ sort xs
+  unique-sort' f xs p = congS (λ g -> g xs) (unique-sort f p)
 
 module Order→Sort-Example where
 
@@ -519,6 +566,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
 
 module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   open Sort isSetA
+  open Sort.Section isSetA
   open Sort→Order isSetA
   open Order→Sort
   open IsToset
@@ -542,7 +590,10 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
 
   sort→order→sort : ∀ x -> order→sort (sort→order x) ≡ x
   sort→order→sort ((s , s-is-section , s-is-sort) , discA) =
-    Σ≡Prop (λ _ -> isPropDiscrete) (Σ≡Prop isProp-is-sort-section (funExt s'≡s))
+    Σ≡Prop (λ _ -> isPropDiscrete)
+    $ Σ≡Prop isProp-is-sort-section
+    $ sym
+    $ funExt λ xs -> unique-sort' _≤*_ ≤*-isToset ≤*-dec s xs (s-is-section , s-is-sort')
     where
     s' : SList A -> List A
     s' = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .fst
@@ -559,23 +610,13 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
     ≤*-dec : ∀ x y -> Dec (x ≤* y)
     ≤*-dec = dec-≤ s s-is-section discA
 
-    insert* : _
-    insert* = insert _≤*_ ≤*-isToset ≤*-dec
+    Sorted* : List A -> Type _
+    Sorted* = Sorted _≤*_ ≤*-isToset ≤*-dec
 
-    s-s'-same-head : ∀ xs -> head-maybe (s xs) ≡ head-maybe (s' xs)
-    s-s'-same-head xs = {!   !}
-
-    s'≡s : ∀ xs -> s' xs ≡ s xs
-    s'≡s xs with s' xs | s xs | inspect s' xs | inspect s xs
-    ... | []     | []     | [ p ]ᵢ | [ q ]ᵢ = refl
-    ... | []     | z ∷ zs | [ p ]ᵢ | [ q ]ᵢ = ⊥.rec {!   !}
-    ... | y ∷ ys | []     | [ p ]ᵢ | [ q ]ᵢ = ⊥.rec {!   !}
-    ... | y ∷ ys | z ∷ zs | [ p ]ᵢ | [ q ]ᵢ = cong₂ _∷_ y≡z ys≡zs
-      where
-      y≡z : y ≡ z
-      y≡z = just-inj y z (sym (congS head-maybe p) ∙ sym (s-s'-same-head xs) ∙ congS head-maybe q)
-      ys≡zs : ys ≡ zs
-      ys≡zs = {!   !}
+    s-is-sort' : ∀ xs -> ∥ Sorted* (s xs) ∥₁
+    s-is-sort' = ElimProp.f squash₁
+      ∣ subst Sorted* (sym (sort-[]' s s-is-section)) sorted-nil ∣₁
+      λ x {xs} -> P.rec squash₁ λ p -> {!   !}
 
   order→sort→order : ∀ x -> sort→order (order→sort x) ≡ x
   order→sort→order (_≤_ , isToset , isDec) =
