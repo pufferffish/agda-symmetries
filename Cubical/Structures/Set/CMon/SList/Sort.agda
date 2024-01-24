@@ -95,99 +95,83 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   ... | yes p = x ∷ y ∷ ys
   ... | no ¬p = y ∷ insert x ys
 
-  private
-    insert-β-1 : ∀ x y ys -> x ≤ y -> insert x (y ∷ ys) ≡ x ∷ y ∷ ys
-    insert-β-1 x y ys p with x ≤? y
-    ... | yes _ = refl
-    ... | no ¬p = ⊥.rec (¬p p)
+  insert-β-1 : ∀ x y ys -> x ≤ y -> insert x (y ∷ ys) ≡ x ∷ y ∷ ys
+  insert-β-1 x y ys p with x ≤? y
+  ... | yes _ = refl
+  ... | no ¬p = ⊥.rec (¬p p)
 
-    insert-β-2 : ∀ x y ys -> ¬ (x ≤ y) -> insert x (y ∷ ys) ≡ y ∷ insert x ys
-    insert-β-2 x y ys ¬p with x ≤? y
-    ... | yes p = ⊥.rec (¬p p)
-    ... | no ¬_ = refl
+  insert-β-2 : ∀ x y ys -> ¬ (x ≤ y) -> insert x (y ∷ ys) ≡ y ∷ insert x ys
+  insert-β-2 x y ys ¬p with x ≤? y
+  ... | yes p = ⊥.rec (¬p p)
+  ... | no ¬_ = refl
 
-    insert-≤ : ∀ x y xs ys -> insert x (insert y xs) ≡ x ∷ y ∷ ys -> x ≤ y
-    insert-≤ x y [] ys p with x ≤? y
+  insert-≤ : ∀ x y xs ys -> insert x (insert y xs) ≡ x ∷ y ∷ ys -> x ≤ y
+  insert-≤ x y [] ys p with x ≤? y
+  ... | yes x≤y = x≤y
+  ... | no ¬x≤y = subst (_≤ y) (cons-inj₁ p) (is-refl y)
+  insert-≤ x y (z ∷ zs) ys p with y ≤? z
+  ... | yes y≤z = lemma
+    where
+    lemma : x ≤ y
+    lemma with x ≤? y
     ... | yes x≤y = x≤y
     ... | no ¬x≤y = subst (_≤ y) (cons-inj₁ p) (is-refl y)
-    insert-≤ x y (z ∷ zs) ys p with y ≤? z
-    ... | yes y≤z = lemma
-      where
-      lemma : x ≤ y
-      lemma with x ≤? y
-      ... | yes x≤y = x≤y
-      ... | no ¬x≤y = subst (_≤ y) (cons-inj₁ p) (is-refl y)
-    ... | no ¬y≤z = lemma
-      where
-      lemma : x ≤ y
-      lemma with x ≤? z
-      ... | yes x≤z = subst (x ≤_) (cons-inj₁ (cons-inj₂ p)) x≤z
-      ... | no ¬x≤z = ⊥.rec (¬x≤z (subst (_≤ z) (cons-inj₁ p) (is-refl z)))
+  ... | no ¬y≤z = lemma
+    where
+    lemma : x ≤ y
+    lemma with x ≤? z
+    ... | yes x≤z = subst (x ≤_) (cons-inj₁ (cons-inj₂ p)) x≤z
+    ... | no ¬x≤z = ⊥.rec (¬x≤z (subst (_≤ z) (cons-inj₁ p) (is-refl z)))
 
-    insert-cons : ∀ x xs ys -> x ∷ xs ≡ insert x ys -> xs ≡ ys
-    insert-cons x xs [] p = cons-inj₂ p
-    insert-cons x xs (y ∷ ys) p with x ≤? y
-    ... | yes x≤y = cons-inj₂ p
-    ... | no ¬x≤y = ⊥.rec (¬x≤y (subst (x ≤_) (cons-inj₁ p) (is-refl x)))
+  insert-cons : ∀ x xs ys -> x ∷ xs ≡ insert x ys -> xs ≡ ys
+  insert-cons x xs [] p = cons-inj₂ p
+  insert-cons x xs (y ∷ ys) p with x ≤? y
+  ... | yes x≤y = cons-inj₂ p
+  ... | no ¬x≤y = ⊥.rec (¬x≤y (subst (x ≤_) (cons-inj₁ p) (is-refl x)))
 
+  private
     not-total-impossible : ∀ {x y} -> ¬(x ≤ y) -> ¬(y ≤ x) -> ⊥
     not-total-impossible {x} {y} p q =
       P.rec isProp⊥ (⊎.rec p q) (is-strongly-connected x y)
 
+  insert-insert : ∀ x y xs -> insert x (insert y xs) ≡ insert y (insert x xs)
+  insert-insert x y [] with x ≤? y | y ≤? x
+  ... | yes x≤y | no ¬y≤x = refl
+  ... | no ¬x≤y | yes y≤x = refl
+  ... | no ¬x≤y | no ¬y≤x = ⊥.rec (not-total-impossible ¬x≤y ¬y≤x)
+  ... | yes x≤y | yes y≤x = let x≡y = is-antisym x y x≤y y≤x in cong₂ (λ u v -> u ∷ v ∷ []) x≡y (sym x≡y)
+  insert-insert x y (z ∷ zs) with y ≤? z | x ≤? z
+  ... | yes y≤z | yes x≤z = case1 y≤z x≤z
+    where
+    case1 : y ≤ z -> x ≤ z -> insert x (y ∷ z ∷ zs) ≡ insert y (x ∷ z ∷ zs)
+    case1 y≤z x≤z with x ≤? y | y ≤? x
+    ... | yes x≤y | yes y≤x = let x≡y = is-antisym x y x≤y y≤x in cong₂ (λ u v -> (u ∷ v ∷ z ∷ zs)) x≡y (sym x≡y)
+    ... | yes x≤y | no ¬y≤x = sym (congS (x ∷_) (insert-β-1 y z zs y≤z))
+    ... | no ¬x≤y | yes y≤x = congS (y ∷_) (insert-β-1 x z zs x≤z)
+    ... | no ¬x≤y | no ¬y≤x = ⊥.rec (not-total-impossible ¬x≤y ¬y≤x)
+  ... | yes y≤z | no ¬x≤z = case2 y≤z ¬x≤z
+    where
+    case2 : y ≤ z -> ¬(x ≤ z) -> insert x (y ∷ z ∷ zs) ≡ insert y (z ∷ insert x zs)
+    case2 y≤z ¬x≤z with x ≤? y
+    ... | yes x≤y = ⊥.rec (¬x≤z (is-trans x y z x≤y y≤z))
+    ... | no ¬x≤y = congS (y ∷_) (insert-β-2 x z zs ¬x≤z) ∙ sym (insert-β-1 y z _ y≤z)
+  ... | no ¬y≤z | yes x≤z = case3 ¬y≤z x≤z
+    where
+    case3 : ¬(y ≤ z) -> x ≤ z -> insert x (z ∷ insert y zs) ≡ insert y (x ∷ z ∷ zs)
+    case3 ¬y≤z x≤z with y ≤? x
+    ... | yes y≤x = ⊥.rec (¬y≤z (is-trans y x z y≤x x≤z))
+    ... | no ¬y≤x = insert-β-1 x z _ x≤z ∙ congS (x ∷_) (sym (insert-β-2 y z zs ¬y≤z))
+  ... | no ¬y≤z | no ¬x≤z =
+    insert x (z ∷ insert y zs) ≡⟨ insert-β-2 x z _ ¬x≤z ⟩
+    z ∷ insert x (insert y zs) ≡⟨ congS (z ∷_) (insert-insert x y zs) ⟩
+    z ∷ insert y (insert x zs) ≡⟨ sym (insert-β-2 y z _ ¬y≤z) ⟩
+    insert y (z ∷ insert x zs) ∎
+
   sort : SList A -> List A
   sort = Elim.f []
     (λ x xs -> insert x xs)
-    (λ x y xs -> sort-eq x y xs)
+    (λ x y xs -> insert-insert x y xs)
     (λ _ -> isOfHLevelList 0 is-set)
-    where
-    case1 : ∀ {x y z zs} -> y ≤ z -> x ≤ z -> insert x (y ∷ z ∷ zs) ≡ insert y (x ∷ z ∷ zs)
-    case1 {x} {y} {z} {zs} y≤z x≤z with x ≤? y | y ≤? x
-    ... | yes x≤y | yes y≤x =
-      cong₂ (λ u v -> (u ∷ v ∷ z ∷ zs)) x≡y (sym x≡y)
-      where
-      x≡y : x ≡ y
-      x≡y = is-antisym x y x≤y y≤x
-    ... | yes x≤y | no ¬y≤x = sym $
-      x ∷ (insert y (z ∷ zs)) ≡⟨ congS (x ∷_) (insert-β-1 y z zs y≤z) ⟩
-      x ∷ y ∷ z ∷ zs ∎
-    ... | no ¬x≤y | yes y≤x =
-      y ∷ (insert x (z ∷ zs)) ≡⟨ congS (y ∷_) (insert-β-1 x z zs x≤z) ⟩
-      y ∷ x ∷ z ∷ zs ∎
-    ... | no ¬x≤y | no ¬y≤x = ⊥.rec (not-total-impossible ¬x≤y ¬y≤x)
-    case2 : ∀ {x y z zs} -> y ≤ z -> ¬(x ≤ z) -> insert x (y ∷ z ∷ zs) ≡ insert y (z ∷ insert x zs)
-    case2 {x} {y} {z} {zs} y≤z ¬x≤z with x ≤? y
-    ... | yes x≤y = ⊥.rec (¬x≤z (is-trans x y z x≤y y≤z))
-    ... | no ¬x≤y =
-      y ∷ (insert x (z ∷ zs)) ≡⟨ congS (y ∷_) (insert-β-2 x z zs ¬x≤z) ⟩
-      y ∷ z ∷ insert x zs ≡⟨ sym (insert-β-1 y z _ y≤z) ⟩
-      insert y (z ∷ insert x zs) ∎
-    case3 : ∀ {x y z zs} -> ¬(y ≤ z) -> x ≤ z -> insert x (z ∷ insert y zs) ≡ insert y (x ∷ z ∷ zs)
-    case3 {x} {y} {z} {zs} ¬y≤z x≤z with y ≤? x
-    ... | yes y≤x = ⊥.rec (¬y≤z (is-trans y x z y≤x x≤z))
-    ... | no ¬y≤x =
-      insert x (z ∷ insert y zs) ≡⟨ insert-β-1 x z _ x≤z ⟩
-      x ∷ z ∷ insert y zs ≡⟨ congS (x ∷_) (sym (insert-β-2 y z zs ¬y≤z)) ⟩
-      x ∷ insert y (z ∷ zs) ∎
-
-    sort-eq : ∀ x y xs -> insert x (insert y xs) ≡ insert y (insert x xs)
-    sort-eq x y [] with x ≤? y | y ≤? x
-    ... | yes x≤y | no ¬y≤x = refl
-    ... | no ¬x≤y | yes y≤x = refl
-    ... | no ¬x≤y | no ¬y≤x = ⊥.rec (not-total-impossible ¬x≤y ¬y≤x)
-    ... | yes x≤y | yes y≤x =
-      cong₂ (λ u v -> u ∷ v ∷ []) x≡y (sym x≡y)
-      where
-      x≡y : x ≡ y
-      x≡y = is-antisym x y x≤y y≤x
-    sort-eq x y (z ∷ zs) with y ≤? z | x ≤? z
-    ... | yes y≤z | yes x≤z = case1 y≤z x≤z
-    ... | yes y≤z | no ¬x≤z = case2 y≤z ¬x≤z
-    ... | no ¬y≤z | yes x≤z = case3 ¬y≤z x≤z
-    ... | no ¬y≤z | no ¬x≤z =
-      insert x (z ∷ insert y zs) ≡⟨ insert-β-2 x z _ ¬x≤z ⟩
-      z ∷ insert x (insert y zs) ≡⟨ congS (z ∷_) (sort-eq x y zs) ⟩
-      z ∷ insert y (insert x zs) ≡⟨ sym (insert-β-2 y z _ ¬y≤z) ⟩
-      insert y (z ∷ insert x zs) ∎
 
   insert-is-permute : ∀ x xs -> list→slist (x ∷ xs) ≡ list→slist (insert x xs)
   insert-is-permute x [] = refl
@@ -513,7 +497,65 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
 
   sort→order→sort : ∀ x -> order→sort (sort→order x) ≡ x
   sort→order→sort ((s , s-is-section , s-is-sort) , discA) =
-    Σ≡Prop (λ _ -> isPropDiscrete) (Σ≡Prop isProp-is-sort-section {!   !})
+    Σ≡Prop (λ _ -> isPropDiscrete) (Σ≡Prop isProp-is-sort-section (funExt s'≡s))
+    where
+    s' : SList A -> List A
+    s' = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .fst
+
+    s'-is-sort-section : is-sort-section s'
+    s'-is-sort-section = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .snd
+
+    _≤*_ : A -> A -> Type _
+    _≤*_ = _≤_ s s-is-section
+
+    ≤*-isToset : IsToset _≤*_
+    ≤*-isToset = ≤-isToset s s-is-section s-is-sort
+
+    ≤*-dec : ∀ x y -> Dec (x ≤* y)
+    ≤*-dec = dec-≤ s s-is-section discA
+
+    insert* : _
+    insert* = insert _≤*_ ≤*-isToset ≤*-dec
+
+    insert*-s1 : ∀ x y -> insert* x [ y ] ≡ s (x ∷* [ y ]*)
+    insert*-s1 x y with ≤*-dec x y
+    ... | yes x≤y = sym $ P.rec (isOfHLevelList 0 isSetA _ _)
+      (⊎.rec (idfun _) $ λ p -> let x≡y = just-inj x y (sym x≤y ∙ congS head-maybe p) in
+        s (x ∷* [ y ]*) ≡⟨ p ⟩
+        y ∷ x ∷ [] ≡⟨ cong₂ (λ u v -> u ∷ v ∷ []) (sym x≡y) x≡y  ⟩
+        x ∷ y ∷ []
+      ∎)
+      (sort-choice s s-is-section x y)
+    ... | no ¬x≤y = sym $ P.rec (isOfHLevelList 0 isSetA _ _)
+      (⊎.rec (⊥.rec ∘ ¬x≤y ∘ congS head-maybe) (idfun _))
+      (sort-choice s s-is-section x y)
+  
+    insert*-s : ∀ x y xs -> insert* x (s (y ∷* xs)) ≡ s (x ∷* y ∷* xs)
+    insert*-s x y = ElimProp.f (isOfHLevelList 0 isSetA _ _)
+      (insert* x (s [ y ]*) ≡⟨ congS (insert* x) (sort-[-] s s-is-section y) ⟩
+       insert* x [ y ] ≡⟨ insert*-s1 x y ⟩
+       s (x ∷* [ y ]*)
+      ∎)
+      (λ z {zs} p -> {!   !})
+
+    s'≡sxs : ∀ x xs -> s' (x ∷* xs) ≡ s (x ∷* xs)
+    s'≡sxs x = ElimProp.f (λ {ys} -> isOfHLevelList 0 isSetA (s' (x ∷* ys)) (s (x ∷* ys)))
+      (sort-[-] s' (s'-is-sort-section .fst) x ∙ sym (sort-[-] s s-is-section x))
+      (λ y {ys} q -> lemma y ys q)
+      where
+      lemma : ∀ y ys -> s' (x ∷* ys) ≡ s (x ∷* ys) -> s' (x ∷* y ∷* ys) ≡ s (x ∷* y ∷* ys)
+      lemma y ys q =
+        s' (x ∷* y ∷* ys) ≡⟨ congS s' (swap x y ys) ⟩
+        s' (y ∷* x ∷* ys) ≡⟨⟩
+        insert* y (s' (x ∷* ys)) ≡⟨ congS (insert* y) q ⟩
+        insert* y (s (x ∷* ys)) ≡⟨ insert*-s y x ys ⟩
+        s (y ∷* x ∷* ys) ≡⟨ congS s (swap y x ys) ⟩
+        s (x ∷* y ∷* ys) ∎
+
+    s'≡s : ∀ xs -> s' xs ≡ s xs
+    s'≡s = ElimProp.f (isOfHLevelList 0 isSetA _ _)
+      (sort-[]' s' (s'-is-sort-section .fst) ∙ sym (sort-[]' s s-is-section))
+      (λ x {xs} _ -> s'≡sxs x xs)
 
   order→sort→order : ∀ x -> sort→order (order→sort x) ≡ x
   order→sort→order (_≤_ , isToset , isDec) =
