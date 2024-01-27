@@ -3,10 +3,13 @@
 module Cubical.Structures.Set.Mon.Desc where
 
 open import Cubical.Foundations.Everything
+open import Cubical.Functions.Logic as L
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.List
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
+open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Structures.Sig
@@ -158,3 +161,27 @@ alg ℕ-MonStr (`⊕ , i) = i fzero + i fone
 ℕ-MonStr-MonSEq `unitl ρ = refl
 ℕ-MonStr-MonSEq `unitr ρ = +-zero (ρ fzero)
 ℕ-MonStr-MonSEq `assocr ρ = sym (+-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+
+⊔-MonStr : (ℓ : Level) -> MonStruct {n = ℓ-suc ℓ}
+car (⊔-MonStr ℓ) = hProp ℓ
+alg (⊔-MonStr ℓ) (`e , i) = ⊥* , isProp⊥*
+alg (⊔-MonStr ℓ) (`⊕ , i) = i fzero ⊔ i fone
+
+⊔-MonStr-MonSEq : (ℓ : Level) -> ⊔-MonStr ℓ ⊨ MonSEq
+⊔-MonStr-MonSEq ℓ `unitl ρ =
+  ⇒∶ ⊔-elim (⊥* , isProp⊥*) (ρ fzero) (λ _ -> ρ fzero) ⊥.rec* (idfun _)
+  ⇐∶ L.inr
+⊔-MonStr-MonSEq ℓ `unitr ρ =
+  ⇔toPath (⊔-elim (ρ fzero) (⊥* , isProp⊥*) (λ _ -> ρ fzero) (idfun _) ⊥.rec*) L.inl
+⊔-MonStr-MonSEq ℓ `assocr ρ =
+  sym (⊔-assoc (ρ fzero) (ρ fone) (ρ ftwo))
+
+⊓-MonStr : (ℓ : Level) -> MonStruct {n = ℓ-suc ℓ}
+car (⊓-MonStr ℓ) = hProp ℓ
+alg (⊓-MonStr ℓ) (`e , i) = L.⊤
+alg (⊓-MonStr ℓ) (`⊕ , i) = i fzero ⊓ i fone
+
+⊓-MonStr-MonSEq : (ℓ : Level) -> ⊓-MonStr ℓ ⊨ MonSEq
+⊓-MonStr-MonSEq ℓ `unitl ρ = ⊓-identityˡ (ρ fzero)
+⊓-MonStr-MonSEq ℓ `unitr ρ = ⊓-identityʳ (ρ fzero)
+⊓-MonStr-MonSEq ℓ `assocr ρ = sym (⊓-assoc (ρ fzero) (ρ fone) (ρ ftwo))
