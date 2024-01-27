@@ -568,8 +568,9 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-antisym ≤-isToset = antisym-≤                
     IsToset.is-strongly-connected ≤-isToset = total-≤
 
-    sort-tail : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
-    sort-tail x xs p = {!   !}
+    -- sort-tail : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
+    -- sort-tail x [] p = {!   !}
+    -- sort-tail x (y ∷ ys) p = {!   !}
 
 module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   open Sort isSetA
@@ -594,58 +595,6 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   sort→order : HasSortSectionAndIsDiscrete -> HasDecOrder
   sort→order ((s , s-is-section , s-is-sort) , discA) =
     _≤_ s s-is-section , ≤-isToset s s-is-section s-is-sort , dec-≤ s s-is-section discA
-
-  sort→order→sort : ∀ x -> order→sort (sort→order x) ≡ x
-  sort→order→sort ((s , s-is-section , s-is-sort) , discA) =
-    Σ≡Prop (λ _ -> isPropDiscrete)
-    $ Σ≡Prop isProp-is-sort-section
-    $ sym
-    $ funExt λ xs -> unique-sort' _≤*_ ≤*-isToset ≤*-dec s xs (s-is-section , ∣_∣₁ ∘ s-is-sort')
-    where
-    s' : SList A -> List A
-    s' = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .fst
-
-    s'-is-sort-section : is-sort-section s'
-    s'-is-sort-section = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .snd
-
-    _≤*_ : A -> A -> Type _
-    _≤*_ = _≤_ s s-is-section
-
-    ≤*-isToset : IsToset _≤*_
-    ≤*-isToset = ≤-isToset s s-is-section s-is-sort
-
-    ≤*-dec : ∀ x y -> Dec (x ≤* y)
-    ≤*-dec = dec-≤ s s-is-section discA
-
-    Sorted* : List A -> Type _
-    Sorted* = Sorted _≤*_ ≤*-isToset ≤*-dec
-
-    s-is-sort'' : ∀ xs n -> n ≡ L.length (s xs) -> Sorted* (s xs)
-    s-is-sort'' xs n p with n | s xs | inspect s xs
-    ... | zero  | []     | _ = sorted-nil
-    ... | zero  | y ∷ ys | _ = ⊥.rec (znots p)
-    ... | suc _ | []     | _ = ⊥.rec (snotz p)
-    ... | suc _ | y ∷ [] | _ = sorted-one y
-    ... | suc m | y ∷ z ∷ zs | [ q ]ᵢ = induction (s-is-sort'' (list→slist (z ∷ zs)) m (injSuc p ∙ wit))
-      where
-      wit : suc (L.length zs) ≡ L.length (s (list→slist (z ∷ zs)))
-      wit = sym $
-        L.length (s (list→slist (z ∷ zs))) ≡⟨ sort-length≡ s s-is-section (list→slist (z ∷ zs)) ⟩
-        S.length (list→slist (z ∷ zs)) ≡⟨ sym (sort-length≡-α s s-is-section (z ∷ zs)) ⟩
-        L.length (z ∷ zs) ∎
-
-      z∷zs-sorted : s (list→slist (z ∷ zs)) ≡ z ∷ zs
-      z∷zs-sorted = sort-unique s s-is-section (z ∷ zs)
-        (sort-tail s s-is-section s-is-sort y (z ∷ zs) ∣ _ , q ∣₁)
-
-      induction : Sorted* (s (list→slist (z ∷ zs))) -> Sorted* (y ∷ z ∷ zs)  
-      induction IH =
-        sorted-cons y z zs
-          (is-sorted→≤ s s-is-section y z (s-is-sort y z (z ∷ zs) ∣ _ , q ∣₁ (L.inr (L.inl refl))))
-          (subst Sorted* z∷zs-sorted IH)
-
-    s-is-sort' : ∀ xs -> Sorted* (s xs)
-    s-is-sort' xs = s-is-sort'' xs (L.length (s xs)) refl -- helps with termination checking
 
   order→sort→order : ∀ x -> sort→order (order→sort x) ≡ x
   order→sort→order (_≤_ , isToset , isDec) =
@@ -672,5 +621,58 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
     ≤-≡ : _≤_ ≡ _≤*_  
     ≤-≡ = funExt λ x -> funExt λ y -> isoToPath (iso-≤ x y) 
 
-  sort↔order : Iso HasDecOrder HasSortSectionAndIsDiscrete
-  sort↔order = iso order→sort sort→order sort→order→sort order→sort→order
+  -- sort→order→sort : ∀ x -> order→sort (sort→order x) ≡ x
+  -- sort→order→sort ((s , s-is-section , s-is-sort) , discA) =
+  --   Σ≡Prop (λ _ -> isPropDiscrete)
+  --   $ Σ≡Prop isProp-is-sort-section
+  --   $ sym
+  --   $ funExt λ xs -> unique-sort' _≤*_ ≤*-isToset ≤*-dec s xs (s-is-section , ∣_∣₁ ∘ s-is-sort')
+  --   where
+  --   s' : SList A -> List A
+  --   s' = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .fst
+
+  --   s'-is-sort-section : is-sort-section s'
+  --   s'-is-sort-section = order→sort (sort→order ((s , s-is-section , s-is-sort) , discA)) .fst .snd
+
+  --   _≤*_ : A -> A -> Type _
+  --   _≤*_ = _≤_ s s-is-section
+
+  --   ≤*-isToset : IsToset _≤*_
+  --   ≤*-isToset = ≤-isToset s s-is-section s-is-sort
+
+  --   ≤*-dec : ∀ x y -> Dec (x ≤* y)
+  --   ≤*-dec = dec-≤ s s-is-section discA
+
+  --   Sorted* : List A -> Type _
+  --   Sorted* = Sorted _≤*_ ≤*-isToset ≤*-dec
+
+  --   s-is-sort'' : ∀ xs n -> n ≡ L.length (s xs) -> Sorted* (s xs)
+  --   s-is-sort'' xs n p with n | s xs | inspect s xs
+  --   ... | zero  | []     | _ = sorted-nil
+  --   ... | zero  | y ∷ ys | _ = ⊥.rec (znots p)
+  --   ... | suc _ | []     | _ = ⊥.rec (snotz p)
+  --   ... | suc _ | y ∷ [] | _ = sorted-one y
+  --   ... | suc m | y ∷ z ∷ zs | [ q ]ᵢ = induction (s-is-sort'' (list→slist (z ∷ zs)) m (injSuc p ∙ wit))
+  --     where
+  --     wit : suc (L.length zs) ≡ L.length (s (list→slist (z ∷ zs)))
+  --     wit = sym $
+  --       L.length (s (list→slist (z ∷ zs))) ≡⟨ sort-length≡ s s-is-section (list→slist (z ∷ zs)) ⟩
+  --       S.length (list→slist (z ∷ zs)) ≡⟨ sym (sort-length≡-α s s-is-section (z ∷ zs)) ⟩
+  --       L.length (z ∷ zs) ∎
+
+  --     z∷zs-sorted : s (list→slist (z ∷ zs)) ≡ z ∷ zs
+  --     z∷zs-sorted = sort-unique s s-is-section (z ∷ zs)
+  --       (sort-tail s s-is-section s-is-sort y (z ∷ zs) ∣ _ , q ∣₁)
+
+  --     induction : Sorted* (s (list→slist (z ∷ zs))) -> Sorted* (y ∷ z ∷ zs)  
+  --     induction IH =
+  --       sorted-cons y z zs
+  --         (is-sorted→≤ s s-is-section y z (s-is-sort y z (z ∷ zs) ∣ _ , q ∣₁ (L.inr (L.inl refl))))
+  --         (subst Sorted* z∷zs-sorted IH)
+
+  --   s-is-sort' : ∀ xs -> Sorted* (s xs)
+  --   s-is-sort' xs = s-is-sort'' xs (L.length (s xs)) refl -- helps with termination checking
+
+
+  -- sort↔order : Iso HasDecOrder HasSortSectionAndIsDiscrete
+  -- sort↔order = iso order→sort sort→order sort→order→sort order→sort→order
