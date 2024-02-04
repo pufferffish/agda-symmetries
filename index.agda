@@ -35,6 +35,9 @@ import Cubical.Structures.Gpd.Mon.List
 import Cubical.Structures.Gpd.SMon.Free
 import Cubical.Structures.Gpd.SMon.SList
 
+-- sorting and order equivalence
+import Cubical.Structures.Set.CMon.SList.Sort
+
 -- useful experiments
 import Experiments.Norm
 
