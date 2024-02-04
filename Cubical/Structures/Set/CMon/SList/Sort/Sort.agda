@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas --exact-split -WnoUnsupportedIndexedMatch #-}
+{-# OPTIONS --cubical --safe --exact-split -WnoUnsupportedIndexedMatch #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort.Sort where
 
@@ -154,7 +154,8 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
       u∷tail-is-sorted : is-sorted (u ∷ tail)
       u∷tail-is-sorted = ∣ ((x ∷* y ∷* z ∷* []*) , sym tail-proof) ∣₁
       u-is-smallest : ∀ v -> v ∈* (x ∷* y ∷* z ∷* []*) -> u ≤ v
-      u-is-smallest v = {!   !}
+      u-is-smallest v q =
+        is-sorted→≤ u v (sort-is-sort .fst u v tail u∷tail-is-sorted (subst (v ∈_) (sym tail-proof) (sort-∈ v _ q)))
       case1 : u ≡ x -> x ≤ z
       case1 u≡x = subst (_≤ z) u≡x (u-is-smallest z (L.inr (L.inr (L.inl refl))))
       case2 : u ≡ y -> x ≤ z
@@ -175,10 +176,3 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
     IsToset.is-trans ≤-isToset = trans-≤ 
     IsToset.is-antisym ≤-isToset = antisym-≤                
     IsToset.is-strongly-connected ≤-isToset = total-≤
-
-    sort-tail : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
-    sort-tail x ys p = sort-is-sort x [] ys p
-
-    sort-head2 : ∀ x y xs -> is-sorted (x ∷ y ∷ xs) -> is-sorted (x ∷ y ∷ [])
-    sort-head2 x y [] p = p
-    sort-head2 x y (z ∷ zs) p = sort-head2 x y zs (sort-is-sort z (x ∷ y ∷ []) zs p)

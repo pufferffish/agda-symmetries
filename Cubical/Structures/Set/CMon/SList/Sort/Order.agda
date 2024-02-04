@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --allow-unsolved-metas --exact-split -WnoUnsupportedIndexedMatch #-}
+{-# OPTIONS --cubical --safe --exact-split -WnoUnsupportedIndexedMatch #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort.Order where
 
@@ -294,11 +294,11 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
         (sort→order-lemma x z zs p)
         (sort→order z y zs (tail-is-sorted x (z ∷ zs) p) y∈z∷zs)
 
-  sort-is-sort : is-sort
-  sort-is-sort x ys zs p = ∣ list→slist (ys ++ zs) , {!   !} ∣₁
+  sort-is-sort : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])
+  sort-is-sort x y xs p y∈xs = ∣ (x ∷* y ∷* []* , insert-β-1 x y [] (sort→order x y xs p y∈xs)) ∣₁
 
   sort-is-sort-section : is-sort-section
-  sort-is-sort-section = sort-is-permute , sort-is-sort
+  sort-is-sort-section = sort-is-permute , sort-is-sort , tail-is-sorted
 
 module Order→Sort-Example where
 

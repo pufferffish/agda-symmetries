@@ -56,20 +56,23 @@ module Sort {A : Type ℓ} (isSetA : isSet A) (sort : SList A -> List A) where
   isProp-is-section : isProp is-section
   isProp-is-section = isPropΠ (λ _ -> trunc _ _)
 
+  is-head-least : Type _
+  is-head-least = ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])
+
+  is-tail-sort : Type _
+  is-tail-sort = ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
+
   is-sort : Type _
-  is-sort = ∀ x xs ys -> is-sorted (xs ++ [ x ] ++ ys) -> is-sorted (xs ++ ys)
+  is-sort = is-head-least × is-tail-sort
 
-  is-sort2 : Type _
-  is-sort2 = ∀ x y xs -> is-sorted (x ∷ y ∷ []) -> is-sorted (y ∷ xs) -> is-sorted (x ∷ xs)
+  isProp-is-head-least : isProp is-head-least
+  isProp-is-head-least = isPropΠ5 λ _ _ _ _ _ -> squash₁
 
-  is-sort3 : Type _
-  is-sort3 = ∀ xs ys zs -> is-sorted (xs ++ ys) -> is-sorted (ys ++ zs) -> is-sorted (xs ++ zs)
-
-  is-sort4 : Type _
-  is-sort4 = (∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])) × (∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs)
+  isProp-is-tail-sort : isProp is-tail-sort
+  isProp-is-tail-sort = isPropΠ3 (λ _ _ _ -> squash₁)
 
   isProp-is-sort : isProp is-sort
-  isProp-is-sort = isPropΠ4 λ _ _ _ _ -> squash₁
+  isProp-is-sort = isProp× isProp-is-head-least isProp-is-tail-sort
 
   is-sort-section : Type _
   is-sort-section = is-section × is-sort

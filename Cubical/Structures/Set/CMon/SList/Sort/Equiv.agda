@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --exact-split -WnoUnsupportedIndexedMatch --allow-unsolved-metas #-}
+{-# OPTIONS --cubical --exact-split -WnoUnsupportedIndexedMatch --safe #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort.Equiv where
 
@@ -132,13 +132,12 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
         L.length (z ∷ zs) ∎
 
       z∷zs-sorted : s (list→slist (z ∷ zs)) ≡ z ∷ zs
-      z∷zs-sorted = sort-unique s s-is-section (z ∷ zs)
-        (sort-tail s s-is-section s-is-sort y (z ∷ zs) ∣ _ , q ∣₁)
+      z∷zs-sorted = sort-unique s s-is-section (z ∷ zs) (s-is-sort .snd y (z ∷ zs) ∣ _ , q ∣₁)
 
       induction : Sorted* (s (list→slist (z ∷ zs))) -> Sorted* (y ∷ z ∷ zs)  
       induction IH =
         sorted-cons y z zs
-          (is-sorted→≤ s s-is-section y z (sort-head2 s s-is-section s-is-sort y z zs ∣ _ , q ∣₁))
+          (is-sorted→≤ s s-is-section y z (s-is-sort .fst y z _ ∣ _ , q ∣₁ (L.inr (L.inl refl))))
           (subst Sorted* z∷zs-sorted IH)
 
     s-is-sort' : ∀ xs -> Sorted* (s xs)
