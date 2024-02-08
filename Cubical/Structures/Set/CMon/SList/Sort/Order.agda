@@ -155,9 +155,9 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     y ∷* x ∷* list→slist ys ≡⟨ congS (y ∷*_) (insert-is-permute x ys) ⟩
     y ∷* list→slist (insert x ys) ∎
 
-  open Sort is-set sort
+  open Sort is-set
 
-  sort-is-permute : is-section
+  sort-is-permute : is-section sort
   sort-is-permute = ElimProp.f (trunc _ _) refl lemma
     where
     lemma : ∀ x {xs} p -> list→slist (sort (x ∷* xs)) ≡ x ∷* xs
@@ -167,10 +167,10 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
       list→slist (insert x (sort xs)) ≡⟨⟩
       list→slist (sort (x ∷* xs)) ∎
 
-  tail-is-sorted : ∀ x xs -> is-sorted (x ∷ xs) -> is-sorted xs
+  tail-is-sorted : ∀ x xs -> is-sorted sort (x ∷ xs) -> is-sorted sort xs
   tail-is-sorted x xs = P.rec squash₁ (uncurry lemma)
     where
-    lemma : ∀ ys p -> is-sorted xs
+    lemma : ∀ ys p -> is-sorted sort xs
     lemma ys p = ∣ (list→slist xs) , sym (insert-cons x _ _ sort-proof) ∣₁
       where
       ys-proof : ys ≡ x ∷* list→slist xs
@@ -237,6 +237,10 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   sort-is-sorted' = ElimProp.f squash₁ ∣ sorted-nil ∣₁
     λ x -> P.rec squash₁ λ p -> ∣ (insert-is-sorted x _ p) ∣₁
 
+  sort-is-sorted'' : ∀ xs -> is-sorted sort xs -> ∥ Sorted xs ∥₁
+  sort-is-sorted'' xs = P.rec squash₁ λ (ys , p) ->
+    P.map (subst Sorted p) (sort-is-sorted' ys)
+
   -- Step 1. show both sort xs and sort->order->sort xs give sorted list
   -- Step 2. apply this lemma
   -- Step 3. get sort->order->sort = sort
@@ -271,7 +275,7 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
   unique-sort' f xs p = congS (λ g -> g xs) (unique-sort f p)
 
   private
-    sort→order-lemma : ∀ x y xs -> is-sorted (x ∷ y ∷ xs) -> x ≤ y
+    sort→order-lemma : ∀ x y xs -> is-sorted sort (x ∷ y ∷ xs) -> x ≤ y
     sort→order-lemma x y xs = P.rec (is-prop-valued x y) (uncurry lemma)
       where
       lemma : ∀ ys p -> x ≤ y
@@ -282,7 +286,7 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
         tail-proof : x ∷* y ∷* tail ≡ ys
         tail-proof = sym (congS list→slist p) ∙ sort-is-permute ys
 
-    sort→order : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
+    sort→order : ∀ x y xs -> is-sorted sort (x ∷ xs) -> y ∈ (x ∷ xs) -> x ≤ y
     sort→order x y [] p y∈xs = subst (_≤ y) (x∈[y]→x≡y y x y∈xs) (is-refl y)
     sort→order x y (z ∷ zs) p y∈x∷z∷zs with isDiscreteA x y
     ... | yes x≡y = subst (x ≤_) x≡y (is-refl x)
@@ -294,11 +298,96 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
         (sort→order-lemma x z zs p)
         (sort→order z y zs (tail-is-sorted x (z ∷ zs) p) y∈z∷zs)
 
-  sort-is-sort : ∀ x y xs -> is-sorted (x ∷ xs) -> y ∈ (x ∷ xs) -> is-sorted (x ∷ y ∷ [])
-  sort-is-sort x y xs p y∈xs = ∣ (x ∷* y ∷* []* , insert-β-1 x y [] (sort→order x y xs p y∈xs)) ∣₁
+  sort-is-head-least : is-head-least sort
+  sort-is-head-least x y xs p y∈xs = ∣ (x ∷* y ∷* []* , insert-β-1 x y [] (sort→order x y xs p y∈xs)) ∣₁
 
-  sort-is-sort-section : is-sort-section
-  sort-is-sort-section = sort-is-permute , sort-is-sort , tail-is-sorted
+  sort-is-sort-section : is-sort-section sort
+  sort-is-sort-section = sort-is-permute , sort-is-head-least , tail-is-sorted
+
+  -- counter example that obeys is-head-least and not tail-sort
+
+  swap1-2 : List A -> List A
+  swap1-2 [] = []
+  swap1-2 (x ∷ []) = x ∷ []
+  swap1-2 (x ∷ y ∷ xs) = y ∷ x ∷ xs
+
+  swap1-2-id : ∀ xs -> swap1-2 (swap1-2 xs) ≡ xs
+  swap1-2-id [] = refl
+  swap1-2-id (x ∷ []) = refl
+  swap1-2-id (x ∷ y ∷ xs) = refl
+
+  swap2-3 : List A -> List A
+  swap2-3 [] = []
+  swap2-3 (x ∷ xs) = x ∷ swap1-2 xs
+
+  swap2-3-id : ∀ xs -> swap2-3 (swap2-3 xs) ≡ xs
+  swap2-3-id [] = refl
+  swap2-3-id (x ∷ xs) = congS (x ∷_) (swap1-2-id xs)
+
+  swap2-3-is-permute : ∀ f -> is-section f -> is-section (swap2-3 ∘ f)
+  swap2-3-is-permute f f-is-permute xs with f xs | inspect f xs
+  ... | [] | [ p ]ᵢ = sym (congS list→slist p) ∙ f-is-permute xs
+  ... | x ∷ [] | [ p ]ᵢ = sym (congS list→slist p) ∙ f-is-permute xs
+  ... | x ∷ y ∷ [] | [ p ]ᵢ = sym (congS list→slist p) ∙ f-is-permute xs
+  ... | x ∷ y ∷ z ∷ ys | [ p ]ᵢ =
+    x ∷* z ∷* y ∷* list→slist ys ≡⟨ congS (x ∷*_) (swap z y (list→slist ys)) ⟩
+    x ∷* y ∷* z ∷* list→slist ys ≡⟨ sym (congS list→slist p) ⟩
+    list→slist (f xs) ≡⟨ f-is-permute xs ⟩
+    xs ∎
+
+  head-least-only : SList A -> List A
+  head-least-only = swap2-3 ∘ sort
+
+  head-least-only-is-permute : is-section head-least-only
+  head-least-only-is-permute = swap2-3-is-permute sort sort-is-permute
+
+  private
+    head-least-is-same-for-2 : ∀ u v -> is-sorted sort (u ∷ v ∷ []) -> is-sorted head-least-only (u ∷ v ∷ [])
+    head-least-is-same-for-2 u v = P.map λ (ys , q) -> ys , congS swap2-3 q
+
+    head-least→sorted : ∀ x xs -> is-sorted head-least-only (x ∷ xs) -> is-sorted sort (x ∷ swap1-2 xs)
+    head-least→sorted x [] =
+      P.map λ (ys , q) -> ys , sym (swap2-3-id (sort ys)) ∙ congS swap2-3 q
+    head-least→sorted x (y ∷ []) =
+      P.map λ (ys , q) -> ys , sym (swap2-3-id (sort ys)) ∙ congS swap2-3 q
+    head-least→sorted x (y ∷ z ∷ xs) =
+      P.map λ (ys , q) -> ys , sym (swap2-3-id (sort ys)) ∙ congS swap2-3 q
+
+    swap1-2-∈ : ∀ x xs -> x ∈ xs -> x ∈ swap1-2 xs
+    swap1-2-∈ x [] x∈ = x∈
+    swap1-2-∈ x (y ∷ []) x∈ = x∈
+    swap1-2-∈ x (y ∷ z ∷ xs) = P.rec squash₁
+      (⊎.rec (L.inr ∘ L.inl) (P.rec squash₁ (⊎.rec L.inl (L.inr ∘ L.inr))))
+
+    swap2-3-∈ : ∀ x xs -> x ∈ xs -> x ∈ swap2-3 xs
+    swap2-3-∈ x (y ∷ xs) = P.rec squash₁ (⊎.rec L.inl (L.inr ∘ swap1-2-∈ x xs))
+
+    is-sorted→≤ : ∀ {x y} -> is-sorted sort (x ∷ y ∷ []) -> x ≤ y
+    is-sorted→≤ {x} {y} p = P.rec (is-prop-valued x y)
+      (≤-tail {ys = y ∷ []} (L.inr (L.inl refl)))
+      (sort-is-sorted'' (x ∷ y ∷ []) p)
+
+    head-least-tail-sort→x≡y : ∀ x y -> is-tail-sort head-least-only -> x ≤ y -> x ≡ y
+    head-least-tail-sort→x≡y x y h-tail-sort x≤y =
+      is-antisym x y x≤y (is-sorted→≤ (lemma1 ∣ x ∷* x ∷* y ∷* []* , lemma2 ∣₁))
+      where
+      -- [1, 2, 3] sorted by sort -> [1, 3, 2] sorted by head-least -> [3, 2] sorted by head-least -> [3, 2] sorted by sort
+      lemma1 : is-sorted sort (x ∷ x ∷ y ∷ []) -> is-sorted sort (y ∷ x ∷ [])
+      lemma1 = P.rec squash₁ λ (ys , q) -> head-least→sorted y [ x ] (h-tail-sort x _ ∣ ys , congS swap2-3 q ∣₁) 
+      lemma2 : sort (x ∷* x ∷* [ y ]*) ≡ x ∷ x ∷ y ∷ []
+      lemma2 =
+        insert x (insert x [ y ]) ≡⟨ congS (insert x) (insert-β-1 x y [] x≤y) ⟩
+        insert x (x ∷ y ∷ []) ≡⟨ insert-β-1 x x [ y ] (is-refl x) ⟩
+        x ∷ x ∷ [ y ] ∎
+
+  head-least-only-is-head-least : is-head-least head-least-only
+  head-least-only-is-head-least x y xs p y∈xs = head-least-is-same-for-2 x y
+    (sort-is-head-least x y (swap1-2 xs) (head-least→sorted x xs p) (swap2-3-∈ y (x ∷ xs) y∈xs))
+
+  head-least-tail-sort→isProp-A : is-tail-sort head-least-only -> isProp A
+  head-least-tail-sort→isProp-A h-tail-sort x y = P.rec (is-set _ _)
+    (⊎.rec (head-least-tail-sort→x≡y x y h-tail-sort) (sym ∘ (head-least-tail-sort→x≡y y x h-tail-sort)))
+    (is-strongly-connected x y)
 
 module Order→Sort-Example where
 
@@ -319,4 +408,5 @@ module Order→Sort-Example where
  
   _ : sort (4 ∷* 6 ∷* 1 ∷* 2 ∷* []*) ≡ (1 ∷ 2 ∷ 4 ∷ 6 ∷ [])
   _ = refl
-
+   
+   
