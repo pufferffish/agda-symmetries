@@ -7,6 +7,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.List
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Unit
 import Cubical.Data.Empty as ⊥
 open import Cubical.Functions.Logic as L
 
@@ -23,7 +24,7 @@ open import Cubical.Data.Sum as ⊎
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B : Type ℓ
 
 list-α : sig M.MonSig (List A) -> List A
 list-α (M.`e , i) = []
@@ -79,6 +80,13 @@ F.Definition.Free.η listDef = [_]
 F.Definition.Free.α listDef = list-α
 F.Definition.Free.sat listDef = list-sat
 F.Definition.Free.isFree listDef isSet𝔜 satMon = (Free.listEquiv isSet𝔜 satMon) .snd
+
+list-⊥ : (List ⊥.⊥) ≃ Unit
+list-⊥ = isoToEquiv (iso (λ _ -> tt) (λ _ -> []) (λ _ -> isPropUnit _ _) lemma)
+  where
+  lemma : ∀ xs -> [] ≡ xs
+  lemma [] = refl
+  lemma (x ∷ xs) = ⊥.rec x
 
 module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
   open Free {A = A} isSetHProp (M.⊔-MonStr-MonSEq ℓ)

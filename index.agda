@@ -38,6 +38,9 @@ import Cubical.Structures.Gpd.SMon.SList
 -- sorting and order equivalence
 import Cubical.Structures.Set.CMon.SList.Sort
 
+-- combinatorics properties
+import Cubical.Structures.Set.CMon.SList.Seely
+
 -- useful experiments
 import Experiments.Norm
 
