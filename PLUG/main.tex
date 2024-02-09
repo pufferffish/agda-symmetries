@@ -1,0 +1,60 @@
+\documentclass{beamer}
+
+\usepackage{hott}
+\usepackage{macros}
+
+%Information to be included in the title page:
+\title{On commutativity, total orders, and sorting}
+\author[shortname]{
+  Wind Wong \inst{1}
+  \and Vikraman Choudhury \inst{2}
+  \and Simon J. Gay \inst{1}
+}
+\institute[shortinst]{\inst{1} University of Glasgow \and %
+                      \inst{2} Universit\`{a} di Bologna and OLAS Team, INRIA}
+\date{February 14, 2024}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Motivation}
+
+\begin{itemize}
+
+  \item The goal is to study free monoids and free commutative monoids.
+
+  \item We created a framework to formalize different algebraic structures, free algebras and
+their universal properties.
+
+  \item Univalent type theory gives us higher inductive types, which allows us to reason with
+    commutativity and equations of algebras. (No setoid hell!)
+
+  \item Using the framework, we study the relationship between sorting and total orders.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Homotopy Type Theory extends intensional MLTT and allows us to reason with equivalences more
+powerfully.
+
+\begin{itemize}
+
+  \item Function extensionality
+
+  \item Quotient types (via higher inductive types)
+
+  \item Equalities between types (via univalence)
+
+  \item Mere propositions
+
+\end{itemize}
+
+\end{frame}
+
+\end{document}
