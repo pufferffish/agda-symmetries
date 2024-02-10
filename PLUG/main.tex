@@ -2,10 +2,78 @@
 
 \usecolortheme{orchid}
 
-\usepackage[links]{agda}
 \usepackage{hott}
 \usepackage{mathtools}
 \usepackage{macros}
+\usepackage{listings}
+\usepackage{microtype}
+
+\usepackage{mathpartir}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{commath}
+\usepackage{xparse}
+\usepackage{array}
+
+\usepackage{tikz}
+\usetikzlibrary{cd}
+\usetikzlibrary{fit}
+
+\usepackage{fontspec}
+\setmonofont{Iosevka}
+
+\lstloadlanguages{Haskell}
+\lstdefinelanguage{Agda}{
+  language         = Haskell,
+  showstringspaces = false,
+  xleftmargin      = .01\textwidth,
+  xrightmargin     = .01\textwidth,
+  columns          = fullflexible,
+  keepspaces       = true,
+  basewidth        = {0em,0em},
+  morekeywords     = {},
+  deletekeywords   = {List},
+  emph             = [1]{List,Mset,SMC,FMSet,Perm},
+  emph             = [2]{i0,i1,hcomp},
+  alsoletter       = {_,-},
+  escapeinside     = ||,
+  moredelim        = **[is][\only<+>{\color{red}}]{@}{@},
+  basicstyle       = \ttfamily\color{gray},
+  keywordstyle     = \bfseries\color{blue},
+  emphstyle        = [1]\bfseries\color{orange},
+  emphstyle        = [2]\color{blue},
+  identifierstyle  = \color{black},
+  stringstyle      = \color{orange},
+  commentstyle     = \itshape\color{teal},
+  literate         = {->}{{$\rightarrow$}}2
+                     {->m}{{$\xrightarrow{Mon}$}}2
+                     {->cm}{{$\xrightarrow{CMon}$}}2
+                     {lambda}{{λ\!}}2
+                     {forall}{{∀}}2
+                     {times}{{×}}2 {plus}{{+}}2 {uplus}{{$\uplus$}}2
+                     {top}{{$\top$}}2 {bot}{{$\bot$}}2
+                     {and}{{∧}}2 {or}{{∨}}2
+                     {exists}{{∃}}2
+                     {==}{{≡}}2
+                     {nil}{{\color{gray}[]}}2
+                     {cons}{{\color{gray}::}}2
+                     {append}{{\color{gray}++}}2
+                     {union}{{\color{gray}$\bigcup$}}2
+                     {tensor}{{\color{gray}⊗}}2
+                     {sharp}{{\color{gray}\ensuremath{^{\text{\#}}}}}2
+}
+\lstnewenvironment{code}{\lstset{language=Agda}}{}
+\lstdefinestyle{inline}{
+  breaklines        = true,
+  breakatwhitespace = true
+}
+\newcommand{\inline}[1]{\lstinline[language=Agda,style=inline]{#1}}
+\newcommand{\inlinelabel}[1]{
+  \lstinline[language=Agda,style=inline,basicstyle=\ttfamily\tiny\color{solarized-base01}]{#1}
+}
 
 %Information to be included in the title page:
 \title{On commutativity, total orders, and sorting}
@@ -49,7 +117,7 @@ powerfully.
 
 \begin{itemize}
 
-  \item Function extensionality
+  \item Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
 
   \item Quotient types (via higher inductive types)
 
@@ -59,6 +127,7 @@ powerfully.
 
 \end{itemize}
 
+\uncover<2>{
 \begin{block}{Definition}
   Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
   equivalence $A \rightarrow B$.
@@ -69,6 +138,7 @@ powerfully.
 \begin{block}{Univalence axiom}
   $(A = B) \simeq (A \simeq B)$
 \end{block}
+}
 
 \end{frame}
 
@@ -93,21 +163,64 @@ powerfully.
 
 \begin{frame}[fragile]
 \frametitle{Higher Inductive Types}
-\begin{semiverbatim}
-data FMSet (A : Type ℓ) : Type ℓ where
+
+\begin{code}
+data List (A : Type) : Type where
+  nil : List A
+  _::_ : A -> List A -> List A
+
+-- Swap list as HIT
+data FMSet (A : Type) : Type where
   []    : FMSet A
-  _::_   : (x : A) → (xs : FMSet A) → FMSet A
-  comm  : ∀ x y xs → x :: y :: xs ≡ y :: x :: xs
+  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
+  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
+  trunc : isSet (FMSet A)
+\end{code}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+
+\begin{code}
+-- Swap list as HIT
+data FMSet (A : Type) : Type where
+  []    : FMSet A
+  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
+  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
 (x :: xs) ++ ys = x :: xs ++ ys
 comm x y xs i ++ ys =
-  (proof for x :: y :: (xs ++ ys) ≡ y :: x :: (xs ++ ys))
+  -- proof x :: y :: (xs ++ ys) ≡ y :: x :: (xs ++ ys)
 trunc xs zs p q i j ++ ys =
-  (proof for cong (_++ ys) p ≡ cong (_++ ys) q)
-\end{semiverbatim}
+  -- proof cong (_++ ys) p ≡ cong (_++ ys) q
+\end{code}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+
+\begin{code}
+-- Set quotient
+data _/_ (A : Type) (R : A → A → Type) : Type where
+  [_] : (a : A) → A / R
+  eq/ : (a b : A) → (r : R a b) → [ a ] ≡ [ b ]
+  squash/ : (x y : A / R) → (p q : x ≡ y) → p ≡ q
+
+data Perm {A : Type} : List A -> List A -> Type where
+  perm-refl : ∀ {xs} -> Perm xs xs
+  perm-swap : ∀ {x y xs ys zs}
+    -> Perm (xs ++ x ∷ y ∷ ys) zs
+    -> Perm (xs ++ y ∷ x ∷ ys) zs
+
+-- Swap list as quotient
+FMSet : Type -> Type
+FMSet A = List A / Perm
+\end{code}
 
 \end{frame}
 
