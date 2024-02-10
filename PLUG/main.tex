@@ -1,3 +1,5 @@
+% !TEX program = lualatex 
+
 \documentclass{beamer}
 
 \usecolortheme{orchid}
@@ -127,7 +129,73 @@ powerfully.
 
 \end{itemize}
 
-\uncover<2>{
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
+
+\begin{itemize}
+
+  \item MLTT by itself does not have function extensionality
+
+  \item It has to be added as an axiom (we lose canonicity!)
+
+  \item funExt can be derived as a theorem in HoTT
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Quotient types
+
+\begin{itemize}
+
+  \item In MLTT we can only emulate quotient types with setoids
+  \item We need to prove functions are setoid homomorphisms when defining a function
+  \item A lot of proof obligation
+  \item HoTT lets us define quotient types directly with HITs (no more setoid hell!)
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Mere propositions
+
+\begin{itemize}
+
+  \item In MLTT we don't have a distinction between sets and propositions (both are types)
+  \item We might end up needing a stronger theorem to prove a proposition
+  \item E.g. existential proofs are done with $\Sigma$-types, requiring us to construct the element
+  \item HoTT allows us to have types that are "mere propositions"
+  \item E.g. existential proofs can be done with propositionally truncated $\Sigma$-types (mere existence)
+  \item We can use mere existential proofs to prove other propositions, even if we don't have the specific element
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Equalities between types
+
+\begin{itemize}
+
+  \item In MLTT we don't have equalities between types
+  \item HoTT gives us equalities between types by the univalence axiom 
+  \item E.g. given $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$,
+        we can get $P(B)$ from $P(A)$ by substitution
+
+\end{itemize}
+
 \begin{block}{Definition}
   Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
   equivalence $A \rightarrow B$.
@@ -138,7 +206,7 @@ powerfully.
 \begin{block}{Univalence axiom}
   $(A = B) \simeq (A \simeq B)$
 \end{block}
-}
+
 
 \end{frame}
 
