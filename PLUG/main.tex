@@ -257,6 +257,8 @@ data FMSet (A : Type) : Type where
   _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
   comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
+  -- alternatively
+  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
@@ -291,5 +293,21 @@ FMSet A = List A / Perm
 \end{code}
 
 \end{frame}
+
+\begin{frame}
+\frametitle{Cubical Type Theory}
+
+\begin{itemize}
+
+  \item The project is done in Cubical Agda, an implementation of Cubical Type Theory
+  \item Cubical Type Theory is a variant of HoTT that preserves computational content for proofs
+  \item Univalence is not postulated and can be computationally derived
+  \item Axioms are designed to preserve canonicity, using univalence won't destroy computational content of a proof
+
+\end{itemize}
+
+
+\end{frame}
+
 
 \end{document}
