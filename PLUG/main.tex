@@ -1,6 +1,10 @@
 \documentclass{beamer}
 
+\usecolortheme{orchid}
+
+\usepackage[links]{agda}
 \usepackage{hott}
+\usepackage{mathtools}
 \usepackage{macros}
 
 %Information to be included in the title page:
@@ -49,11 +53,61 @@ powerfully.
 
   \item Quotient types (via higher inductive types)
 
-  \item Equalities between types (via univalence)
-
   \item Mere propositions
 
+  \item Equalities between types (via univalence)
+
 \end{itemize}
+
+\begin{block}{Definition}
+  Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
+  equivalence $A \rightarrow B$.
+  A function $f$ is said to be an equivalence if
+  $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
+\end{block}
+
+\begin{block}{Univalence axiom}
+  $(A = B) \simeq (A \simeq B)$
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Higher Inductive Types}
+
+\begin{align*}
+  \text{isContr}(A) & \coloneqq \sum_{(a:A)} \prod_{(x:A)} (a = x).
+  & \text{(e.g. $\mathbf{1}$)} \\
+  \text{isProp}(A) & \coloneqq \prod_{(x,y:A)} (x = y).
+  & \text{(e.g. $\mathbf{1}, \mathbf{0}$)} \\
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+  & \text{(e.g. $\mathbf{1}, \mathbf{0}, \mathbb{N}, \mathsf{hProp}$)} \\
+  \text{isGroupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isSet}(x = y).
+  & \text{(e.g. $\mathsf{hSet}$)} \\
+  \text{is2Groupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isGroupoid}(x = y).
+  & \text{(e.g. $\mathsf{hGroupoid}$)} \\
+  \shortvdotswithin{=}
+\end{align*}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+\begin{semiverbatim}
+data FMSet (A : Type ℓ) : Type ℓ where
+  []    : FMSet A
+  _::_   : (x : A) → (xs : FMSet A) → FMSet A
+  comm  : ∀ x y xs → x :: y :: xs ≡ y :: x :: xs
+  trunc : isSet (FMSet A)
+
+_++_ : ∀ (xs ys : FMSet A) → FMSet A
+[] ++ ys = ys
+(x :: xs) ++ ys = x :: xs ++ ys
+comm x y xs i ++ ys =
+  (proof for x :: y :: (xs ++ ys) ≡ y :: x :: (xs ++ ys))
+trunc xs zs p q i j ++ ys =
+  (proof for cong (_++ ys) p ≡ cong (_++ ys) q)
+\end{semiverbatim}
 
 \end{frame}
 
