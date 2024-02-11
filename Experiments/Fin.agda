@@ -4,7 +4,6 @@ module Experiments.Fin where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
-open import Cubical.Data.List renaming (_∷_ to _∷ₗ_)
 open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -29,16 +28,23 @@ open import Cubical.Reflection.Base
 open import Cubical.Tactics.FunctorSolver.Solver
 open import Cubical.Tactics.Reflection
 
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
 
 
-postulate
-  TODO : ∀ {ℓ} {A : Type ℓ} -> A
+infixr 5 _∷_
 
-arrayIsoToListHom' : ∀ {ℓ} {A : Type ℓ} -> structIsHom < Array A , ArrayDef.Free.α {ℓ' = ℓ} arrayDef' > < List A , LM.list-α > (arrayIsoToList .fun)
-arrayIsoToListHom' M.`e i = refl
-arrayIsoToListHom' {A = A} M.`⊕ index with index fzero | inspect index fzero
-... | zero , f | [ p ]ᵢ = congS (uncurry tabulate) (Array≡ (sym lemma-α) TODO)
-  where
-  lemma-α : _
-  lemma-α = {!   !}
-... | suc n , f | p = TODO
+data FMSet (A : Type ℓ) : Type ℓ where
+  []    : FMSet A
+  _∷_   : (x : A) → (xs : FMSet A) → FMSet A
+  comm  : ∀ x y xs → x ∷ y ∷ xs ≡ y ∷ x ∷ xs
+  trunc : isSet (FMSet A)
+
+_++_ : ∀ (xs ys : FMSet A) → FMSet A
+[] ++ ys = ys
+(x ∷ xs) ++ ys = x ∷ xs ++ ys
+comm x y xs i ++ ys = comm x y (xs ++ ys) i
+trunc xs zs p q i j ++ ys = {! trunc (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) !}
+  -- trunc (xs ++ ys) (zs ++ ys) (cong (_++ ys) p) (cong (_++ ys) q) i j
