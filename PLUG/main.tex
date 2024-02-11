@@ -1,0 +1,498 @@
+% !TEX program = lualatex 
+
+\documentclass[9pt]{beamer}
+
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usecolortheme{metropolis}
+\usepackage{xcolor-solarized}
+
+\setbeamercolor{normal text}{%
+  fg=solarized-base02,
+  bg=solarized-base3!20!white
+}
+\setbeamercolor{alerted text}{%
+  fg=solarized-red
+}
+\setbeamercolor{example text}{%
+  fg=solarized-green
+}
+\setbeamercolor{frametitle}{%
+    fg=solarized-blue!70!black,
+    bg=solarized-base2
+}
+
+\usecolortheme{orchid}
+
+\usepackage{hott}
+\usepackage{mathtools}
+\usepackage{macros}
+\usepackage[final]{microtype}
+
+\usepackage{mathpartir}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{commath}
+\usepackage{xparse}
+\usepackage{array}
+
+% fancy boxes
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{qblock}[1][Question]{
+  colback=white,
+  colframe=solarized-violet,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+\newtcolorbox{dblock}[1][Definition]{
+  colback=white,
+  colframe=solarized-violet,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+
+\newtcolorbox{tblock}[1][Proposition]{
+  colback=white,
+  colframe=solarized-blue,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+
+\usepackage{tikz}
+\usetikzlibrary{cd}
+\usetikzlibrary{fit}
+
+\usepackage{fontspec}
+\setmonofont{Iosevka}
+
+%Information to be included in the title page:
+\title{On commutativity, total orders, and sorting}
+\author[shortname]{
+  Wind Wong \inst{1}
+  \and Vikraman Choudhury \inst{2}
+  \and Simon J. Gay \inst{1}
+}
+\institute[shortinst]{\inst{1} University of Glasgow \and %
+                      \inst{2} Universit\`{a} di Bologna and OLAS Team, INRIA}
+\date{February 14, 2024}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+  \frametitle{Motivation}
+
+  \begin{qblock}
+    What is a correct sorting algorithm?
+  \end{qblock}
+
+  \begin{itemize}
+    \item Sorting is a basic algorithm that we study in undergraduate computer science.
+
+    \item A sorting algorithm is a \inline{sort : List Nat -> List Nat} function.
+
+    \item For example, \inline{sort([3,1,6,5])} produces \inline{[1,3,5,6]}.
+
+    \item Why is it correct?
+
+          \begin{itemize}
+            \item In ordered lists, elements are accessed in order by their indices.
+
+            \item The in-order access matches the ordering on numbers:
+                  \[
+                  l(0) \leq l(1) \leq l_{3}(2) \leq l_{4} .
+                  \]
+
+            \item Or, any two consecutive pairs of elements are ordered:
+                  \[
+                  l(0) \leq l(1), l(1) \leq l(3), \ldots
+                  \]
+            \item What determines correctness of sorting? We need to study them abstractly!
+          \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Motivation}
+
+  To do this, we need some background and use some technology:
+
+\begin{itemize}
+
+  \item We first study free monoids and free commutative monoids.
+
+  \item We created a framework to formalize different algebraic structures, free algebras and
+their universal properties.
+
+  \item Univalent type theory gives us higher inductive types, which allows us to reason with
+    commutativity and equations of algebras. (No setoid hell!)
+
+  \item Using the framework, we study the relationship between sorting and total orders, which gives us axiomatics of sorting!
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Homotopy Type Theory extends intensional MLTT and allows us to reason with equivalences more
+powerfully.
+
+\begin{itemize}
+
+  \item Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
+
+  \item Quotient types (via higher inductive types)
+
+  \item Mere propositions
+
+  \item Equalities between types (via univalence)
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
+
+\begin{itemize}
+
+  \item MLTT by itself does not have function extensionality
+
+  \item It has to be added as an axiom (we lose canonicity!)
+
+  \item<2-> funExt can be derived as a theorem in HoTT
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Quotient Types:
+
+\begin{itemize}
+
+  \item In MLTT we can only emulate quotient types with setoids
+  \item We need to prove functions are setoid homomorphisms when defining a function
+  \item A lot of proof obligation
+  \item<2-> HoTT lets us define quotient types directly with HITs (no more setoid hell!)
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Mere Proposition:
+
+\begin{itemize}
+
+  \item In MLTT we don't have a distinction between sets and propositions (both are types)
+  \item We might end up needing a stronger theorem to prove a proposition
+  \item E.g. existential proofs are done with $\Sigma$-types, requiring us to construct the element
+  \item<2-> HoTT allows us to have types that are "mere propositions"
+  \item<2-> E.g. existential proofs can be done with propositionally truncated $\Sigma$-types (mere existence)
+  \item<2-> We can use mere existential proofs to prove other propositions, even if we don't have the specific element
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+Equalities between types:
+
+\begin{itemize}
+
+  \item In MLTT we don't have equalities between types
+  \item HoTT gives us equalities between types by the univalence axiom 
+  \item E.g. given $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$,
+        we can get $P(B)$ from $P(A)$ by substitution
+
+\end{itemize}
+
+\uncover<2->{
+\begin{block}{Definition}
+  Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
+  equivalence $A \rightarrow B$.
+  A function $f$ is said to be an equivalence if
+  $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
+\end{block}
+
+\begin{block}{Univalence axiom}
+  $(A = B) \simeq (A \simeq B)$
+\end{block}
+}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+\begin{align*}
+  \text{isContr}(A) & \coloneqq \sum_{(a:A)} \prod_{(x:A)} (a = x).
+  \\
+  % & \text{(e.g. $\mathbf{1}$)} \\
+  \text{isProp}(A) & \coloneqq \prod_{(x,y:A)} (x = y).
+  \\
+  % & \text{(e.g. $\mathbf{1}, \mathbf{0}$)} \\
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+  \\
+  % & \text{(e.g. $\mathbf{1}, \mathbf{0}, \mathbb{N}, \mathsf{hProp}$)} \\
+  \text{isGroupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isSet}(x = y).
+  \\
+  % & \text{(e.g. $\mathsf{hSet}$)} \\
+  \text{is2Groupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isGroupoid}(x = y).
+  \\
+  % & \text{(e.g. $\mathsf{hGroupoid}$)} \\
+  \shortvdotswithin{=}
+\end{align*}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+H-Level 0: Contractible types
+
+\begin{align*}
+  \text{isContr}(A) & \coloneqq \sum_{(a:A)} \prod_{(x:A)} (a = x).
+\end{align*}
+
+There exists a center of contraction such that all elements of $A$ equals to
+the center of contraction.
+
+Examples:
+\begin{itemize}
+  \item $\mathbf{1}$ (Unit type)
+\end{itemize}
+
+All contractible types are equivalent to $\mathbf{1}$!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+H-Level 1: Mere propositions
+
+\begin{align*}
+  \text{isProp}(A) & \coloneqq \prod_{(x,y:A)} (x = y).
+\end{align*}
+
+All elements of $A$ are equal to each other.
+
+Examples:
+\begin{itemize}
+  \item $\mathbf{1}$ (Unit type)
+  \item $\mathbf{0}$ (Void type)
+\end{itemize}
+
+All h-propositions are equivalent to either $\mathbf{1}$ or $\mathbf{0}$.
+
+A type that represents a proposition should be an $\mathsf{hProp}$.
+
+E.g. mere existential proofs can be done with a truncated $\Sigma$-type.
+($\Sigma$-type wrapped in a HIT that makes all its elements equal.)
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+H-Level 2: Sets
+
+\begin{align*}
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+\end{align*}
+
+The identity type of $A$ is a proposition.
+All elements of $x = x$ are equal.
+
+Examples:
+\begin{itemize}
+  \item $\mathbf{1}$, $\mathbf{0}$
+  \item $\mathbb{N}$
+  \item $\mathsf{hProp}$ ($\sum_{A : \mathcal{U}} \text{isProp}(A)$)
+\end{itemize}
+
+For the scope of the project, this is primarily what we are working with!
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Homotopy Levels}
+
+H-Level 2: Sets
+
+\begin{align*}
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+\end{align*}
+
+In a type theory with K-axiom / uniqueness of identity proof (UIP), all types
+are h-sets.
+
+E.g. Idris2 lets us prove UIP by pattern matching:
+
+\begin{code}
+uip : (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
+uip A x x Refl Refl = Refl
+\end{code}
+
+We can embed extensional type theory into HoTT with h-sets.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+H-Level 3: Groupoids
+
+\begin{align*}
+  \text{isGroupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isSet}(x = y).
+\end{align*}
+
+The identity type of $A$ is a set.
+
+Examples:
+\begin{itemize}
+  \item Any type that satisfies $\text{isSet}$...
+  \item $\mathsf{hSet}$ ($\sum_{A : \mathcal{U}} \text{isSet}(A)$)
+\end{itemize}
+
+Consider $\mathbb{B} : \mathsf{hSet}$, univalence gives us two $\mathbb{B} = \mathbb{B}$
+generated by $\text{id}$ and $\text{not}$.
+
+These two equalities are not equal!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Levels}
+
+\begin{align*}
+  \text{isContr}(A) & \coloneqq \sum_{(a:A)} \prod_{(x:A)} (a = x).
+  \\
+  % & \text{(e.g. $\mathbf{1}$)} \\
+  \text{isProp}(A) & \coloneqq \prod_{(x,y:A)} (x = y).
+  \\
+  % & \text{(e.g. $\mathbf{1}, \mathbf{0}$)} \\
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+  \\
+  % & \text{(e.g. $\mathbf{1}, \mathbf{0}, \mathbb{N}, \mathsf{hProp}$)} \\
+  \text{isGroupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isSet}(x = y).
+  \\
+  % & \text{(e.g. $\mathsf{hSet}$)} \\
+  \text{is2Groupoid}(A) & \coloneqq \prod_{(x,y:A)} \text{isGroupoid}(x = y).
+  \\
+  % & \text{(e.g. $\mathsf{hGroupoid}$)} \\
+  \shortvdotswithin{=}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+
+\begin{code}
+data List (A : Type) : Type where
+  nil : List A
+  _::_ : A -> List A -> List A
+
+-- Swap list / Finite Multiset as HIT
+data FMSet (A : Type) : Type where
+  []    : FMSet A
+  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
+  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
+  trunc : isSet (FMSet A)
+  -- alternatively
+  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
+\end{code}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+
+\begin{code}
+data FMSet (A : Type) : Type where
+  []    : FMSet A
+  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
+  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
+  trunc : isSet (FMSet A)
+
+_++_ : ∀ (xs ys : FMSet A) → FMSet A
+[] ++ ys = ys
+(x :: xs) ++ ys = x :: xs ++ ys
+comm x y xs i ++ ys =
+  -- proof x :: y :: (xs ++ ys) ≡ y :: x :: (xs ++ ys)
+trunc xs zs p q i j ++ ys =
+  -- proof cong (_++ ys) p ≡ cong (_++ ys) q
+\end{code}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Higher Inductive Types}
+
+\begin{code}
+-- Set quotient
+data _/_ (A : Type) (R : A → A → Type) : Type where
+  [_] : (a : A) → A / R
+  eq/ : (a b : A) → (r : R a b) → [ a ] ≡ [ b ]
+  squash/ : (x y : A / R) → (p q : x ≡ y) → p ≡ q
+
+data Perm {A : Type} : List A -> List A -> Type where
+  perm-refl : ∀ {xs} -> Perm xs xs
+  perm-swap : ∀ {x y xs ys zs}
+    -> Perm (xs ++ x ∷ y ∷ ys) zs
+    -> Perm (xs ++ y ∷ x ∷ ys) zs
+
+-- Swap list as quotient
+FMSet : Type -> Type
+FMSet A = List A / Perm
+\end{code}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Cubical Type Theory}
+
+\begin{itemize}
+
+  \item The project is done in Cubical Agda, an implementation of Cubical Type Theory
+  \item Cubical Type Theory is a variant of HoTT that preserves computational content for proofs
+  \item Univalence is not postulated and can be computationally derived
+  \item Axioms are designed to preserve canonicity, using univalence won't destroy computational content of a proof
+
+\end{itemize}
+
+
+\end{frame}
+
+
+\end{document}
