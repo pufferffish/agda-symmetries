@@ -65,7 +65,6 @@
                      {and}{{∧}}2 {or}{{∨}}2
                      {exists}{{∃}}2
                      {==}{{≡}}2
-                     {eq}{{\color{solarized-base02}$=$}}2
                      {nil}{{\color{solarized-base01}[]}}2
                      {cons}{{\color{solarized-base01}::}}2
                      {append}{{\color{solarized-base02}++}}2
@@ -325,7 +324,7 @@ are h-sets.
 E.g. Idris2 lets us prove UIP by pattern matching:
 
 \begin{code}
-uip: (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
+uip : (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
 uip A x x Refl Refl = Refl
 \end{code}
 
@@ -412,8 +411,6 @@ data FMSet (A : Type) : Type where
   _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
   comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
-  -- alternatively
-  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
