@@ -1,14 +1,31 @@
 % !TEX program = lualatex 
 
-\documentclass{beamer}
+\documentclass[9pt]{beamer}
+
+\usetheme{metropolis}
+\usepackage{xcolor-solarized}
+
+\setbeamercolor{normal text}{%
+  fg=solarized-base02,
+  bg=solarized-base3!20!white
+}
+\setbeamercolor{alerted text}{%
+  fg=solarized-red
+}
+\setbeamercolor{example text}{%
+  fg=solarized-green
+}
+\setbeamercolor{frametitle}{%
+    fg=solarized-blue!70!black,
+    bg=solarized-base2
+}
 
 \usecolortheme{orchid}
 
 \usepackage{hott}
 \usepackage{mathtools}
 \usepackage{macros}
-\usepackage{listings}
-\usepackage{microtype}
+\usepackage[final]{microtype}
 
 \usepackage{mathpartir}
 \usepackage{stmaryrd}
@@ -20,62 +37,47 @@
 \usepackage{xparse}
 \usepackage{array}
 
+% fancy boxes
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{qblock}[1][Question]{
+  colback=white,
+  colframe=solarized-violet,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+\newtcolorbox{dblock}[1][Definition]{
+  colback=white,
+  colframe=solarized-violet,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+
+\newtcolorbox{tblock}[1][Proposition]{
+  colback=white,
+  colframe=solarized-blue,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+
 \usepackage{tikz}
 \usetikzlibrary{cd}
 \usetikzlibrary{fit}
 
 \usepackage{fontspec}
 \setmonofont{Iosevka}
-
-\lstloadlanguages{Haskell}
-\lstdefinelanguage{Agda}{
-  language         = Haskell,
-  showstringspaces = false,
-  xleftmargin      = .01\textwidth,
-  xrightmargin     = .01\textwidth,
-  columns          = fullflexible,
-  keepspaces       = true,
-  basewidth        = {0em,0em},
-  morekeywords     = {},
-  deletekeywords   = {List},
-  emph             = [1]{List,Mset,SMC,FMSet,Perm},
-  emph             = [2]{i0,i1,hcomp},
-  alsoletter       = {_,-},
-  escapeinside     = ||,
-  moredelim        = **[is][\only<+>{\color{red}}]{@}{@},
-  basicstyle       = \ttfamily\color{gray},
-  keywordstyle     = \bfseries\color{blue},
-  emphstyle        = [1]\bfseries\color{orange},
-  emphstyle        = [2]\color{blue},
-  identifierstyle  = \color{black},
-  stringstyle      = \color{orange},
-  commentstyle     = \itshape\color{teal},
-  literate         = {->}{{$\rightarrow$}}2
-                     {->m}{{$\xrightarrow{Mon}$}}2
-                     {->cm}{{$\xrightarrow{CMon}$}}2
-                     {lambda}{{λ\!}}2
-                     {forall}{{∀}}2
-                     {times}{{×}}2 {plus}{{+}}2 {uplus}{{$\uplus$}}2
-                     {top}{{$\top$}}2 {bot}{{$\bot$}}2
-                     {and}{{∧}}2 {or}{{∨}}2
-                     {exists}{{∃}}2
-                     {==}{{≡}}2
-                     {nil}{{\color{gray}[]}}2
-                     {cons}{{\color{gray}::}}2
-                     {append}{{\color{gray}++}}2
-                     {union}{{\color{gray}$\bigcup$}}2
-                     {tensor}{{\color{gray}⊗}}2
-                     {sharp}{{\color{gray}\ensuremath{^{\text{\#}}}}}2
-}
-\lstnewenvironment{code}{\lstset{language=Agda}}{}
-\lstdefinestyle{inline}{
-  breaklines        = true,
-  breakatwhitespace = true
-}
-\newcommand{\inline}[1]{\lstinline[language=Agda,style=inline]{#1}}
-\newcommand{\inlinelabel}[1]{
-  \lstinline[language=Agda,style=inline,basicstyle=\ttfamily\tiny\color{solarized-base01}]{#1}
-}
 
 %Information to be included in the title page:
 \title{On commutativity, total orders, and sorting}
@@ -93,11 +95,45 @@
 \frame{\titlepage}
 
 \begin{frame}
-\frametitle{Motivation}
+  \frametitle{Motivation}
+
+  \begin{qblock}
+    What is a correct sorting algorithm?
+  \end{qblock}
+
+  \begin{itemize}
+    \item Sorting is a basic algorithm that we study in undergraduate computer science.
+
+    \item A sorting algorithm is a \inline{sort : List Nat -> List Nat} function.
+
+    \item For example, \inline{sort([3,1,6,5])} produces \inline{[1,3,5,6]}.
+
+    \item Why is it correct?
+
+          \begin{itemize}
+            \item In ordered lists, elements are accessed in order by their indices.
+
+            \item The in-order access matches the ordering on numbers:
+                  \[
+                  l(0) \leq l(1) \leq l_{3}(2) \leq l_{4} .
+                  \]
+
+            \item Or, any two consecutive pairs of elements are ordered:
+                  \[
+                  l(0) \leq l(1), l(1) \leq l(3), \ldots
+                  \]
+            \item What determines correctness of sorting? We need to study them abstractly!
+          \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Motivation}
+
+  To do this, we need some background and use some technology:
 
 \begin{itemize}
 
-  \item The goal is to study free monoids and free commutative monoids.
+  \item We first study free monoids and free commutative monoids.
 
   \item We created a framework to formalize different algebraic structures, free algebras and
 their universal properties.
@@ -105,7 +141,7 @@ their universal properties.
   \item Univalent type theory gives us higher inductive types, which allows us to reason with
     commutativity and equations of algebras. (No setoid hell!)
 
-  \item Using the framework, we study the relationship between sorting and total orders.
+  \item Using the framework, we study the relationship between sorting and total orders, which gives us axiomatics of sorting!
 
 \end{itemize}
 
