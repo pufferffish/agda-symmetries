@@ -34,10 +34,17 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{braket}
+\usepackage{quiver}
 \usepackage{mathtools}
 \usepackage{commath}
 \usepackage{xparse}
 \usepackage{array}
+\usepackage{subcaption} %side by side diagrams
+\usepackage{caption} %customises captions
+\usepackage{floatrow}
+\usepackage{tikz} 
+\usepackage{tikz-cd}
+\usetikzlibrary{babel}% added
 
 % fancy boxes
 \usepackage[most]{tcolorbox}
@@ -79,7 +86,14 @@
 \usetikzlibrary{fit}
 
 \usepackage{fontspec}
-\setmonofont{Iosevka}
+\setmonofont{Iosevka}[
+    Path=./Iosevka/,
+    Extension = .ttf,
+    UprightFont=*-Regular,
+    BoldFont=*-Bold,
+    ItalicFont=*-Italic,
+    BoldItalicFont=*-BoldItalic
+]
 
 %Information to be included in the title page:
 \title{On commutativity, total orders, and sorting}
@@ -104,7 +118,7 @@
   \end{qblock}
 
   \begin{itemize}
-    \item Sorting is a basic algorithm that we study in undergraduate computer science.
+    \item We learn sorting algorithms in undergraduate ordinateur science.
 
     \item A sorting algorithm is a \inline{sort : List Nat -> List Nat} function.
 
@@ -117,12 +131,12 @@
 
             \item The in-order access matches the ordering on numbers:
                   \[
-                  l(0) \leq l(1) \leq l_{3}(2) \leq l_{4} .
+                  l(0) \leq l(1) \leq l_{3}(2) \leq l_{4}
                   \]
 
             \item Or, any two consecutive pairs of elements are ordered:
                   \[
-                  l(0) \leq l(1), l(1) \leq l(3), \ldots
+                  l(0) \leq l(1), l(1) \leq l(3), l(0) \leq l(2) \ldots
                   \]
             \item What determines correctness of sorting? We need to study them abstractly!
           \end{itemize}
@@ -131,19 +145,48 @@
 
 \begin{frame}{Motivation}
 
-  To do this, we need some background and use some technology:
+  We will need some background, and use some technology:
 
 \begin{itemize}
 
-  \item We first study free monoids and free commutative monoids.
+  \item We will study algebraic structures, using a framework for \alert{universal algebra}, that we have developed in type theory. Using this framework, we define free algebras and their universal properties.
 
-  \item We created a framework to formalize different algebraic structures, free algebras and
-their universal properties.
+  \item We study two specific algebraic structures: \alert{monoids} and \alert{commutative monoids}, which are crucial to sorting, and the corresponding constructions of \alert{free monoids} and \alert{free commutative monoids}.
 
-  \item Univalent type theory gives us higher inductive types, which allows us to reason with
-    commutativity and equations of algebras. (No setoid hell!)
+  \item Using this framework, we will formally define:
+    \begin{itemize}
+        \item What is a sorting algorithm?
+        \item When is a sorting algorithm correct?
+    \end{itemize}
 
-  \item Using the framework, we study the relationship between sorting and total orders, which gives us axiomatics of sorting!
+  \item We will show that these correctness criteria are complete, by connecting them to the theory of \alert{total orders}. This gives us an \alert{axiomatics of sorting}.
+
+  \item These ideas come from category theory and universal properties. We work in univalent type theory (in particular, \alert{Cubical Agda}), which gives us powerful tools to implement these ideas correctly, and compute with them.
+  
+  %% gives us higher inductive types, which allows us to reason with
+  %% commutativity and equations of algebras. (No setoid hell!)
+
+\end{itemize}
+♑
+\end{frame}
+
+\begin{frame}
+\frametitle{Homotopy Type Theory}
+
+Homotopy Type Theory (HoTT) is an extension of intensional MLTT.
+%% and allows us to reason with equivalences more powerfully.
+
+\begin{itemize}
+
+  \item Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$)
+
+  \item Quotient types: $Q = A / R$ (via higher inductive types)
+
+  \item Homotopy types: contractible types, propositions, sets, groupoids, 2-groupoids, \ldots
+
+  \item Richer notion of equality types (or identity types or Path types)
+
+  \item and many more \ldots
 
 \end{itemize}
 
@@ -151,27 +194,7 @@ their universal properties.
 
 \begin{frame}
 \frametitle{Homotopy Type Theory}
-
-Homotopy Type Theory extends intensional MLTT and allows us to reason with equivalences more
-powerfully.
-
-\begin{itemize}
-
-  \item Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
-
-  \item Quotient types (via higher inductive types)
-
-  \item Mere propositions
-
-  \item Equalities between types (via univalence)
-
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Homotopy Type Theory}
-
+♑
 Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
 
 \begin{itemize}
@@ -197,7 +220,7 @@ Quotient Types:
   \item We need to prove functions are setoid homomorphisms when defining a function
   \item A lot of proof obligation
   \item<2-> HoTT lets us define quotient types directly with HITs (no more setoid hell!)
-
+♑
 \end{itemize}
 
 \end{frame}
@@ -229,7 +252,7 @@ Equalities between types:
   \item In MLTT we don't have equalities between types
   \item HoTT gives us equalities between types by the univalence axiom 
   \item E.g. given $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$,
-        we can get $P(B)$ from $P(A)$ by substitution
+        we can get $P(B)$ from $P(A)$ by transport (substitution)
 
 \end{itemize}
 
@@ -419,18 +442,19 @@ These two equalities are not equal!
 \frametitle{Higher Inductive Types}
 
 \begin{code}
+-- ordered lists
 data List (A : Type) : Type where
   nil : List A
   _::_ : A -> List A -> List A
 
--- Swap list / Finite Multiset as HIT
-data FMSet (A : Type) : Type where
-  []    : FMSet A
-  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
-  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
-  trunc : isSet (FMSet A)
+-- swap lists or unordered lists or finite multisets
+data SList (A : Type) : Type where
+  []    : SList A
+  _::_  : (x : A) -> (xs : SList A) -> SList A
+  swap  : forall x y xs -> x :: y :: xs == y :: x :: xs
+  trunc : isSet (SList A)
   -- alternatively
-  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
+  -- trunc : (x y : SList A) -> (p q : x == y) -> p == q
 \end{code}
 
 \end{frame}
@@ -442,13 +466,13 @@ data FMSet (A : Type) : Type where
 data FMSet (A : Type) : Type where
   []    : FMSet A
   _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
-  comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
+  swap  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
 (x :: xs) ++ ys = x :: xs ++ ys
-comm x y xs i ++ ys =
+swap x y xs i ++ ys =
   -- proof x :: y :: (xs ++ ys) ≡ y :: x :: (xs ++ ys)
 trunc xs zs p q i j ++ ys =
   -- proof cong (_++ ys) p ≡ cong (_++ ys) q
@@ -473,8 +497,8 @@ data Perm {A : Type} : List A -> List A -> Type where
     -> Perm (xs ++ y ∷ x ∷ ys) zs
 
 -- Swap list as quotient
-FMSet : Type -> Type
-FMSet A = List A / Perm
+PList : Type -> Type
+PList A = List A / Perm
 \end{code}
 
 \end{frame}
@@ -484,8 +508,8 @@ FMSet A = List A / Perm
 
 \begin{itemize}
 
-  \item The project is done in Cubical Agda, an implementation of Cubical Type Theory
-  \item Cubical Type Theory is a variant of HoTT that preserves computational content for proofs
+  \item The project is formalized in Cubical Agda, an implementation of Cubical Type Theory
+  \item Cubical Type Theory is a variant of HoTT that doesn't lose computational properties of type theory (no axioms, has canonicity)
   \item Univalence is not postulated and can be computationally derived
   \item Axioms are designed to preserve canonicity, using univalence won't destroy computational content of a proof
 
@@ -494,5 +518,130 @@ FMSet A = List A / Perm
 
 \end{frame}
 
+\begin{frame}
+\frametitle{Universal Algebra}
+A signature $\sigma$ =
+\begin{itemize}
+    \item a set of operation symbols $op : \mathsf{Set}$
+    \item an arity function $ar : \sigma \rightarrow \mathsf{Set}$
+\end{itemize}
+
+This gives a signature endofunctor $F_{\sigma}(X) := \sum_{f : op} X^{ar(f)}$
+
+A $F_{\sigma}$-algebra is:
+\begin{itemize}
+    \item a carrier set $X : Set$
+    \item an evaluation function: $\alpha_X\colon\Sig(X) \to X$
+\end{itemize}
+
+A $\sigma$-algebra homomorphism $h: A \rightarrow B$ is a function such that \\
+for all $(\sigma, a_1, \dots, a_n) : F_{\sigma}(X)$:
+\begin{align*}
+    h(\alpha_A(\sigma, a_1, \dots, a_n)) = \alpha_B(\sigma, h(a_1), \dots, h(a_n))
+\end{align*}
+
+$F_{\sigma}$-algebras and their morphisms form a category $\sigma$-Alg.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Universal Algebra}
+Example: $\mathbb{N}$ as a monoid
+
+The signature $\sigma$ =
+\begin{itemize}
+    \item the set of operation symbols $op : \mathsf{Set} = \{e, +\}$
+    \item the arity function $ar : \sigma \rightarrow \mathsf{Set} = \{e \mapsto \mathbf{0}, + \mapsto \mathbb{B}\}$
+\end{itemize}
+
+The algebra has the carrier set $\mathbb{N}$ and the evaluation function:
+
+\begin{align*}
+\alpha(e) & = 0 \\
+\alpha(+, a, b) & = a + b 
+\end{align*} 
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Universal Algebra}♑
+
+The forgetful functor $\sigma$-Alg to $Set$ admits a left adjoint
+
+This gives us a free $\sigma$-algebra construction on a carrier set
+
+The universal property of a free object:
+
+For any object \( B \) in $\sigma$-Alg and any map between sets \( g : X \to U(B) \),
+there exists a unique morphism \( f : F(X) \to B \) in $\sigma$-Alg such that \( g = U(f) \circ \eta \):
+
+% https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiVShBKSJdLFsyLDIsIlUoQikiXSxbMCwxLCJpIiwwLHsiY29sb3VyIjpbMSwxMDAsNjBdfSxbMSwxMDAsNjAsMV1dLFswLDIsImciLDJdLFsxLDIsIlUoZikiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
+\[
+\begin{tikzcd}[ampersand replacement=\&]
+	F(X) \\
+	\\
+	B
+	\arrow["f", dotted, from=1-1, to=3-1]
+\end{tikzcd}
+\hspace{1cm}
+\begin{tikzcd}[ampersand replacement=\&]
+	X \&\& {U(F(X))} \\
+	\\
+	\&\& {U(B)}
+	\arrow["\eta", color={rgb,255:red,255;green,54;blue,51}, from=1-1, to=1-3]
+	\arrow["g"', from=1-1, to=3-3]
+	\arrow["{U(f)}", dotted, from=1-3, to=3-3]
+\end{tikzcd}\]
+
+where $U$ is the forgetful functor and $\eta : X \rightarrow F(X)$ is the canonical injection.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Universal Algebra}
+
+We can construct a a free $\sigma$-algebra on $V$ as an inductive type $Tr_\sigma(V)$:
+\begin{itemize}
+    \item $\text{leaf} : V \rightarrow Tr_\sigma(V)$
+    \item $\text{node} : \sum_f(Tr_\sigma(V)^{ar(f)}) \rightarrow Tr_\sigma(V)$
+\end{itemize}
+
+node is our evaluation function $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_\sigma(V)$
+
+leaf is our canonical injection $\eta : V \rightarrow Tr_\sigma(V)$
+
+This forms a $\sigma$-algebra $\str{T}(V) = (\tree{V}, \term{node})$
+
+By the universal property: $(\blank) \comp \eta \colon \sigAlg(\str{T}(V),\str{X}) \xto{\sim} (V \to X)$
+
+The inverse to the equivalence: the extension operation $\ext{(\blank)}$,
+maps $f\colon V \to X$ to a homomorphism $\ext{f}\colon \str{T}(V) \to \str{X}$
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Universal Algebra}
+
+An equation signature $\epsilon$ is defined by:
+\begin{itemize}
+    \item A set of equation symbols $eq : Set$
+    \item an arity function for free variables $fv : eq \to Set$
+\end{itemize}
+
+We define a system of equation (or a theory $T$) with pairs of trees on the set of free variables:
+$l, r : (e : eq) \to Tr_\sigma(fv(e))$
+
+$\mathfrak{X}$ satisfies $T$ ($\mathfrak{X} \entails T$) if for all $e : eq$ and $\rho : fv(e) \to X$,
+$\ext{\rho}(l(e)) = \ext{\rho}(r(e))$
+
+Essentially:
+\begin{itemize}
+    \item $\rho : fv(e) \to X$ maps free variables in equations to elements of $X$
+    \item $\ext{\rho} : Tr_\sigma(fv(e)) \to X$ evaluates a tree given some variables
+\end{itemize}
+
+\end{frame}
 
 \end{document}
