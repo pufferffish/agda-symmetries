@@ -1,6 +1,9 @@
 % !TEX program = lualatex 
 
 \documentclass{beamer}
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usecolortheme{metropolis}
 
 \usecolortheme{orchid}
 
@@ -27,29 +30,31 @@
 \usepackage{fontspec}
 \setmonofont{Iosevka}
 
+\usepackage{xcolor-solarized}
+
 \lstloadlanguages{Haskell}
 \lstdefinelanguage{Agda}{
   language         = Haskell,
   showstringspaces = false,
-  xleftmargin      = .01\textwidth,
-  xrightmargin     = .01\textwidth,
+  xleftmargin      = .0\textwidth,
+  xrightmargin     = .0\textwidth,
   columns          = fullflexible,
   keepspaces       = true,
-  basewidth        = {0em,0em},
+  basewidth        = {0.5em,0.5em},
   morekeywords     = {},
   deletekeywords   = {List},
   emph             = [1]{List,Mset,SMC,FMSet,Perm},
-  emph             = [2]{i0,i1,hcomp,Refl},
+  emph             = [2]{i,j,k,i0,i1,hcomp,Refl},
   alsoletter       = {_,-},
   escapeinside     = ||,
-  moredelim        = **[is][\only<+>{\color{red}}]{@}{@},
-  basicstyle       = \ttfamily\color{gray},
-  keywordstyle     = \bfseries\color{blue},
-  emphstyle        = [1]\bfseries\color{orange},
-  emphstyle        = [2]\color{blue},
-  identifierstyle  = \color{black},
-  stringstyle      = \color{orange},
-  commentstyle     = \itshape\color{teal},
+  moredelim        = **[is][\only<+>{\color{solarized-red}}]{@}{@},
+  basicstyle       = \ttfamily\color{solarized-base01},
+  keywordstyle     = \bfseries\color{solarized-cyan},
+  emphstyle        = [1]\bfseries\color{solarized-orange},
+  emphstyle        = [2]\color{solarized-blue},
+  identifierstyle  = \color{solarized-base03},
+  stringstyle      = \color{solarized-orange},
+  commentstyle     = \itshape\color{solarized-green},
   literate         = {->}{{$\rightarrow$}}2
                      {->m}{{$\xrightarrow{Mon}$}}2
                      {->cm}{{$\xrightarrow{CMon}$}}2
@@ -60,12 +65,13 @@
                      {and}{{∧}}2 {or}{{∨}}2
                      {exists}{{∃}}2
                      {==}{{≡}}2
-                     {nil}{{\color{gray}[]}}2
-                     {cons}{{\color{gray}::}}2
-                     {append}{{\color{gray}++}}2
-                     {union}{{\color{gray}$\bigcup$}}2
-                     {tensor}{{\color{gray}⊗}}2
-                     {sharp}{{\color{gray}\ensuremath{^{\text{\#}}}}}2
+                     {eq}{{\color{solarized-base02}$=$}}2
+                     {nil}{{\color{solarized-base01}[]}}2
+                     {cons}{{\color{solarized-base01}::}}2
+                     {append}{{\color{solarized-base02}++}}2
+                     {union}{{\color{solarized-base02}$\bigcup$}}2
+                     {tensor}{{\color{solarized-base02}⊗}}2
+                     {sharp}{{\color{solarized-base01}\ensuremath{^{\text{\#}}}}}2
 }
 \lstnewenvironment{code}{\lstset{language=Agda}}{}
 \lstdefinestyle{inline}{
@@ -134,7 +140,7 @@ powerfully.
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
+Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
 
 \begin{itemize}
 
@@ -151,7 +157,7 @@ Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Quotient types
+Quotient Types:
 
 \begin{itemize}
 
@@ -167,7 +173,7 @@ Quotient types
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Mere propositions
+Mere Proposition:
 
 \begin{itemize}
 
@@ -184,8 +190,7 @@ Mere propositions
 
 \begin{frame}
 \frametitle{Homotopy Type Theory}
-
-Equalities between types
+Equalities between types:
 
 \begin{itemize}
 
