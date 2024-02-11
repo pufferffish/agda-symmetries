@@ -2,7 +2,9 @@
 
 \documentclass[9pt]{beamer}
 
-\usetheme{metropolis}
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usecolortheme{metropolis}
 \usepackage{xcolor-solarized}
 
 \setbeamercolor{normal text}{%
@@ -170,7 +172,7 @@ powerfully.
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
+Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
 
 \begin{itemize}
 
@@ -178,7 +180,7 @@ Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
 
   \item It has to be added as an axiom (we lose canonicity!)
 
-  \item funExt can be derived as a theorem in HoTT
+  \item<2-> funExt can be derived as a theorem in HoTT
 
 \end{itemize}
 
@@ -187,14 +189,14 @@ Function extensionality ($\forall x. \, f(x) = g(x) \rightarrow f = g$)
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Quotient types
+Quotient Types:
 
 \begin{itemize}
 
   \item In MLTT we can only emulate quotient types with setoids
   \item We need to prove functions are setoid homomorphisms when defining a function
   \item A lot of proof obligation
-  \item HoTT lets us define quotient types directly with HITs (no more setoid hell!)
+  \item<2-> HoTT lets us define quotient types directly with HITs (no more setoid hell!)
 
 \end{itemize}
 
@@ -203,16 +205,16 @@ Quotient types
 \begin{frame}
 \frametitle{Homotopy Type Theory}
 
-Mere propositions
+Mere Proposition:
 
 \begin{itemize}
 
   \item In MLTT we don't have a distinction between sets and propositions (both are types)
   \item We might end up needing a stronger theorem to prove a proposition
   \item E.g. existential proofs are done with $\Sigma$-types, requiring us to construct the element
-  \item HoTT allows us to have types that are "mere propositions"
-  \item E.g. existential proofs can be done with propositionally truncated $\Sigma$-types (mere existence)
-  \item We can use mere existential proofs to prove other propositions, even if we don't have the specific element
+  \item<2-> HoTT allows us to have types that are "mere propositions"
+  \item<2-> E.g. existential proofs can be done with propositionally truncated $\Sigma$-types (mere existence)
+  \item<2-> We can use mere existential proofs to prove other propositions, even if we don't have the specific element
 
 \end{itemize}
 
@@ -220,8 +222,7 @@ Mere propositions
 
 \begin{frame}
 \frametitle{Homotopy Type Theory}
-
-Equalities between types
+Equalities between types:
 
 \begin{itemize}
 
@@ -232,6 +233,7 @@ Equalities between types
 
 \end{itemize}
 
+\uncover<2->{
 \begin{block}{Definition}
   Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
   equivalence $A \rightarrow B$.
@@ -242,7 +244,7 @@ Equalities between types
 \begin{block}{Univalence axiom}
   $(A = B) \simeq (A \simeq B)$
 \end{block}
-
+}
 
 \end{frame}
 
@@ -340,6 +342,30 @@ For the scope of the project, this is primarily what we are working with!
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Homotopy Levels}
+
+H-Level 2: Sets
+
+\begin{align*}
+  \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
+\end{align*}
+
+In a type theory with K-axiom / uniqueness of identity proof (UIP), all types
+are h-sets.
+
+E.g. Idris2 lets us prove UIP by pattern matching:
+
+\begin{code}
+uip : (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
+uip A x x Refl Refl = Refl
+\end{code}
+
+We can embed extensional type theory into HoTT with h-sets.
+
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Homotopy Levels}
 
@@ -397,12 +423,14 @@ data List (A : Type) : Type where
   nil : List A
   _::_ : A -> List A -> List A
 
--- Swap list as HIT
+-- Swap list / Finite Multiset as HIT
 data FMSet (A : Type) : Type where
   []    : FMSet A
   _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
   comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
+  -- alternatively
+  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
 \end{code}
 
 \end{frame}
@@ -411,14 +439,11 @@ data FMSet (A : Type) : Type where
 \frametitle{Higher Inductive Types}
 
 \begin{code}
--- Swap list as HIT
 data FMSet (A : Type) : Type where
   []    : FMSet A
   _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
   comm  : forall x y xs -> x :: y :: xs == y :: x :: xs
   trunc : isSet (FMSet A)
-  -- alternatively
-  -- trunc : (x y : FMSet A) -> (p q : x == y) -> p == q
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
