@@ -21,7 +21,9 @@
 
 % Fin
 \newcommand{\Nat}{\mathbb{N}}
-\newcommand{\Fin}{\type{Fin}}
+\NewDocumentCommand{\Fin}{O{}}{
+  \type{Fin{\ifstrempty{#1}{}{_{\mathsmaller{#1}}}}}
+}
 
 % universes
 \newcommand{\UU}{\mathcal{U}}
@@ -140,11 +142,11 @@
 % propositions
 \NewDocumentCommand{\fora}{smm}{
   \IfBooleanTF{#1}
-  {\forall_{\mathsmaller{(#2).}}{#3}}
-  {\forall{\textstyle\mathsmaller{(#2).}}{#3}}
+  {\forall_{{(#2).}}{#3}}
+  {\forall{\textstyle{(#2).}}{#3}}
 }
 \NewDocumentCommand{\exis}{smm}{
   \IfBooleanTF{#1}
-  {\exists_{\mathsmaller{(#2).}}{#3}}
-  {\exists{\textstyle\mathsmaller{(#2).}}{#3}}
+  {\exists_{{(#2).}}{#3}}
+  {\exists{\textstyle{(#2).}}{#3}}
 }

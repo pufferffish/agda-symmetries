@@ -60,6 +60,8 @@
 % code listings
 \lstloadlanguages{Haskell}
 \lstdefinelanguage{Agda}{
+  aboveskip        = 0pt,
+  belowskip        = -1\baselineskip,
   language         = Haskell,
   showstringspaces = false,
   xleftmargin      = .01\textwidth,
@@ -99,6 +101,7 @@
                      {union}{{\color{solarized-base01}$\bigcup$}}2
                      {tensor}{{\color{solarized-base01}⊗}}2
                      {sharp}{{\color{solarized-base01}\ensuremath{^{\text{\#}}}}}2
+                     {UU}{{\color{solarized-base01}$\UU$}}2
 }
 \lstnewenvironment{code}{\lstset{language=Agda}}{}
 \lstdefinestyle{inline}{
