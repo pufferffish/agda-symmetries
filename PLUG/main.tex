@@ -2,9 +2,8 @@
 
 \documentclass[9pt]{beamer}
 
-\useoutertheme{metropolis}
-\useinnertheme{metropolis}
-\usecolortheme{metropolis}
+\usetheme{metropolis}
+\usepackage{bookmark}
 \usepackage{xcolor-solarized}
 
 \setbeamercolor{normal text}{%
@@ -21,6 +20,9 @@
     fg=solarized-blue!70!black,
     bg=solarized-base2
 }
+
+\setbeamerfont{title}{series=\bfseries,parent=structure}
+\setbeamerfont{frametitle}{series=\bfseries,parent=structure}
 
 \usecolortheme{orchid}
 
@@ -51,7 +53,7 @@
 
 \newtcolorbox{qblock}[1][Question]{
   colback=white,
-  colframe=solarized-violet,
+  colframe=solarized-orange,
   colbacktitle=white!90!structure.fg,
   coltitle=black,
   fonttitle=\itshape,
@@ -70,9 +72,20 @@
   attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
 }
 
-\newtcolorbox{tblock}[1][Proposition]{
+\newtcolorbox{pblock}[1][Proposition]{
   colback=white,
   colframe=solarized-blue,
+  colbacktitle=white!90!structure.fg,
+  coltitle=black,
+  fonttitle=\itshape,
+  title={#1},
+  enhanced,
+  attach boxed title to top left={yshift=-0.1cm, xshift=0.5em}
+}
+
+\newtcolorbox{tblock}[1][Theorem]{
+  colback=white,
+  colframe=solarized-green,
   colbacktitle=white!90!structure.fg,
   coltitle=black,
   fonttitle=\itshape,
@@ -140,6 +153,7 @@
                   \]
             \item What determines correctness of sorting? We need to study them abstractly!
           \end{itemize}
+    \item The type \inline{sort : List Nat -> List Nat} is very imprecise, can we give it a more precise type?
   \end{itemize}
 \end{frame}
 
@@ -167,10 +181,10 @@
   %% commutativity and equations of algebras. (No setoid hell!)
 
 \end{itemize}
-♑
+
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Homotopy Type Theory}
 \frametitle{Homotopy Type Theory}
 
 Homotopy Type Theory (HoTT) is an extension of intensional MLTT.
@@ -192,16 +206,16 @@ Homotopy Type Theory (HoTT) is an extension of intensional MLTT.
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Function Extensionality}
 \frametitle{Homotopy Type Theory}
-♑
+
 Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
 
 \begin{itemize}
 
   \item MLTT by itself does not have function extensionality
 
-  \item It has to be added as an axiom (we lose canonicity!)
+  \item It has to be added as an axiom (we lose \alert{canonicity}!)
 
   \item<2-> funExt can be derived as a theorem in HoTT
 
@@ -209,7 +223,7 @@ Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Quotient Types}
 \frametitle{Homotopy Type Theory}
 
 Quotient Types:
@@ -218,14 +232,14 @@ Quotient Types:
 
   \item In MLTT we can only emulate quotient types with setoids
   \item We need to prove functions are setoid homomorphisms when defining a function
-  \item A lot of proof obligation
-  \item<2-> HoTT lets us define quotient types directly with HITs (no more setoid hell!)
-♑
+  \item A lot of proof obligation (\alert{setoid hell}!)
+  \item<2-> HoTT lets us define quotient types directly with HITs
+
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Mere Proposition}
 \frametitle{Homotopy Type Theory}
 
 Mere Proposition:
@@ -233,45 +247,45 @@ Mere Proposition:
 \begin{itemize}
 
   \item In MLTT we don't have a distinction between sets and propositions (both are types)
-  \item We might end up needing a stronger theorem to prove a proposition
-  \item E.g. existential proofs are done with $\Sigma$-types, requiring us to construct the element
-  \item<2-> HoTT allows us to have types that are "mere propositions"
+  \item We might end up needing a \alert{stronger theorem} to prove a proposition
+  \item E.g. existential proofs are done with $\Sigma$-types, requiring us to \alert{construct} the element
+  \item<2-> HoTT allows us to have types that are "\alert{mere propositions}"
   \item<2-> E.g. existential proofs can be done with propositionally truncated $\Sigma$-types (mere existence)
-  \item<2-> We can use mere existential proofs to prove other propositions, even if we don't have the specific element
+  \item<2-> We can use mere existential proofs to prove other propositions even \alert{without} having the specific element
 
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Equalities between Types}
 \frametitle{Homotopy Type Theory}
 Equalities between types:
 
 \begin{itemize}
 
   \item In MLTT we don't have equalities between types
-  \item HoTT gives us equalities between types by the univalence axiom 
+  \item HoTT gives us equalities between types by the \alert{univalence axiom}
   \item E.g. given $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$,
         we can get $P(B)$ from $P(A)$ by transport (substitution)
 
 \end{itemize}
 
 \uncover<2->{
-\begin{block}{Definition}
+\begin{dblock}
   Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
   equivalence $A \rightarrow B$.
   A function $f$ is said to be an equivalence if
   $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
-\end{block}
+\end{dblock}
 
-\begin{block}{Univalence axiom}
+\begin{tblock}[Univalence axiom]
   $(A = B) \simeq (A \simeq B)$
-\end{block}
+\end{tblock}
 }
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Homotopy Levels}
 \frametitle{Homotopy Levels}
 
 \begin{align*}
@@ -295,7 +309,7 @@ Equalities between types:
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Contractible Types}
 \frametitle{Homotopy Levels}
 
 H-Level 0: Contractible types
@@ -304,7 +318,7 @@ H-Level 0: Contractible types
   \text{isContr}(A) & \coloneqq \sum_{(a:A)} \prod_{(x:A)} (a = x).
 \end{align*}
 
-There exists a center of contraction such that all elements of $A$ equals to
+There exists a \alert{center of contraction} such that all elements of $A$ are equal to
 the center of contraction.
 
 Examples:
@@ -316,7 +330,7 @@ All contractible types are equivalent to $\mathbf{1}$!
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Propositional Types}
 \frametitle{Homotopy Levels}
 
 H-Level 1: Mere propositions
@@ -342,7 +356,7 @@ E.g. mere existential proofs can be done with a truncated $\Sigma$-type.
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Sets}
 \frametitle{Homotopy Levels}
 
 H-Level 2: Sets
@@ -374,22 +388,24 @@ H-Level 2: Sets
   \text{isSet}(A) & \coloneqq \prod_{(x,y:A)} \text{isProp}(x = y).
 \end{align*}
 
-In a type theory with K-axiom / uniqueness of identity proof (UIP), all types
+In a type theory with \alert{K-axiom} / \alert{uniqueness of identity proof} (UIP), all types
 are h-sets.
 
 E.g. Idris2 lets us prove UIP by pattern matching:
 
-\begin{code}
+    \begin{dblock}[UIP]
+        \begin{code}
 uip : (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
 uip A x x Refl Refl = Refl
-\end{code}
+        \end{code}
+    \end{dblock}
 
 We can embed extensional type theory into HoTT with h-sets.
 
 \end{frame}
 
 
-\begin{frame}
+\begin{frame}{Groupoids}
 \frametitle{Homotopy Levels}
 
 H-Level 3: Groupoids
@@ -407,13 +423,13 @@ Examples:
 \end{itemize}
 
 Consider $\mathbb{B} : \mathsf{hSet}$, univalence gives us two $\mathbb{B} = \mathbb{B}$
-generated by $\text{id}$ and $\text{not}$.
+generated by \alert{id} and \alert{not}.
 
 These two equalities are not equal!
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Homotopy Levels}
 \frametitle{Homotopy Levels}
 
 \begin{align*}
@@ -438,7 +454,7 @@ These two equalities are not equal!
 \end{frame}
 
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{Higher Inductive Types}
 \frametitle{Higher Inductive Types}
 
 \begin{code}
@@ -508,30 +524,31 @@ PList A = List A / Perm
 
 \begin{itemize}
 
-  \item The project is formalized in Cubical Agda, an implementation of Cubical Type Theory
-  \item Cubical Type Theory is a variant of HoTT that doesn't lose computational properties of type theory (no axioms, has canonicity)
+  \item The project is formalized in \alert{Cubical Agda}, an implementation of Cubical Type Theory
+  \item Cubical Type Theory is a variant of HoTT that doesn't lose \alert{computational properties} of type theory
+        (no axioms, has \alert{canonicity})
   \item Univalence is not postulated and can be computationally derived
-  \item Axioms are designed to preserve canonicity, using univalence won't destroy computational content of a proof
+  \item Designed to preserve \alert{canonicity}, using univalence won't destroy computational content of a proof
 
 \end{itemize}
 
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Universal Algebra}
 \frametitle{Universal Algebra}
-A signature $\sigma$ =
+A \alert{signature} $\sigma$ =
 \begin{itemize}
-    \item a set of operation symbols $op : \mathsf{Set}$
-    \item an arity function $ar : \sigma \rightarrow \mathsf{Set}$
+    \item a set of \alert{operation symbols} $op : \mathsf{Set}$
+    \item an \alert{arity function} $ar : \sigma \rightarrow \mathsf{Set}$
 \end{itemize}
 
 This gives a signature endofunctor $F_{\sigma}(X) := \sum_{f : op} X^{ar(f)}$
 
 A $F_{\sigma}$-algebra is:
 \begin{itemize}
-    \item a carrier set $X : Set$
-    \item an evaluation function: $\alpha_X\colon\Sig(X) \to X$
+    \item a \alert{carrier set} $X : Set$
+    \item an \alert{evaluation function}: $\alpha_X\colon\Sig(X) \to X$
 \end{itemize}
 
 A $\sigma$-algebra homomorphism $h: A \rightarrow B$ is a function such that \\
@@ -565,42 +582,42 @@ The algebra has the carrier set $\mathbb{N}$ and the evaluation function:
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Universal Algebra}♑
+\begin{frame}{Free Object}
+\frametitle{Free Objects}
 
 The forgetful functor $\sigma$-Alg to $Set$ admits a left adjoint
 
 This gives us a free $\sigma$-algebra construction on a carrier set
 
-The universal property of a free object:
-
-For any object \( B \) in $\sigma$-Alg and any map between sets \( g : X \to U(B) \),
-there exists a unique morphism \( f : F(X) \to B \) in $\sigma$-Alg such that \( g = U(f) \circ \eta \):
+\begin{dblock}[The universal property of a free object]
+For any object \( \mathfrak{Y} \) in $\sigma$-Alg and any map between sets \( g : X \to U(\mathfrak{Y}) \),
+there exists a unique morphism \( f : F(X) \to \mathfrak{Y} \) in $\sigma$-Alg such that \( g = U(f) \circ \eta \):
 
 % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiVShBKSJdLFsyLDIsIlUoQikiXSxbMCwxLCJpIiwwLHsiY29sb3VyIjpbMSwxMDAsNjBdfSxbMSwxMDAsNjAsMV1dLFswLDIsImciLDJdLFsxLDIsIlUoZikiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
 \[
 \begin{tikzcd}[ampersand replacement=\&]
 	F(X) \\
 	\\
-	B
+	\mathfrak{Y}
 	\arrow["f", dotted, from=1-1, to=3-1]
 \end{tikzcd}
 \hspace{1cm}
 \begin{tikzcd}[ampersand replacement=\&]
 	X \&\& {U(F(X))} \\
 	\\
-	\&\& {U(B)}
+	\&\& {U(\mathfrak{Y})}
 	\arrow["\eta", color={rgb,255:red,255;green,54;blue,51}, from=1-1, to=1-3]
 	\arrow["g"', from=1-1, to=3-3]
 	\arrow["{U(f)}", dotted, from=1-3, to=3-3]
 \end{tikzcd}\]
 
 where $U$ is the forgetful functor and $\eta : X \rightarrow F(X)$ is the canonical injection.
+\end{dblock}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Universal Algebra}
+\frametitle{Free Objects}
 
 We can construct a a free $\sigma$-algebra on $V$ as an inductive type $Tr_\sigma(V)$:
 \begin{itemize}
@@ -608,15 +625,15 @@ We can construct a a free $\sigma$-algebra on $V$ as an inductive type $Tr_\sigm
     \item $\text{node} : \sum_f(Tr_\sigma(V)^{ar(f)}) \rightarrow Tr_\sigma(V)$
 \end{itemize}
 
-node is our evaluation function $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_\sigma(V)$
+node is our \alert{evaluation function} $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_\sigma(V)$
 
-leaf is our canonical injection $\eta : V \rightarrow Tr_\sigma(V)$
+leaf is our \alert{canonical injection} $\eta : V \rightarrow Tr_\sigma(V)$
 
 This forms a $\sigma$-algebra $\str{T}(V) = (\tree{V}, \term{node})$
 
-By the universal property: $(\blank) \comp \eta \colon \sigAlg(\str{T}(V),\str{X}) \xto{\sim} (V \to X)$
+By the \alert{universal property}: $(\blank) \comp \eta \colon \sigAlg(\str{T}(V),\str{X}) \xto{\sim} (V \to X)$
 
-The inverse to the equivalence: the extension operation $\ext{(\blank)}$,
+The inverse to the equivalence: the \alert{extension operation} $\ext{(\blank)}$,
 maps $f\colon V \to X$ to a homomorphism $\ext{f}\colon \str{T}(V) \to \str{X}$
 
 \end{frame}
@@ -624,13 +641,13 @@ maps $f\colon V \to X$ to a homomorphism $\ext{f}\colon \str{T}(V) \to \str{X}$
 \begin{frame}
 \frametitle{Universal Algebra}
 
-An equation signature $\epsilon$ is defined by:
+An \alert{equation signature} $\epsilon$ is defined by:
 \begin{itemize}
-    \item A set of equation symbols $eq : Set$
-    \item an arity function for free variables $fv : eq \to Set$
+    \item A set of \alert{equation symbols} $eq : Set$
+    \item an \alert{arity function} for free variables $fv : eq \to Set$
 \end{itemize}
 
-We define a system of equation (or a theory $T$) with pairs of trees on the set of free variables:
+We define a system of equation (or a \alert{theory} $T$) with pairs of trees on the set of free variables:
 $l, r : (e : eq) \to Tr_\sigma(fv(e))$
 
 $\mathfrak{X}$ satisfies $T$ ($\mathfrak{X} \entails T$) if for all $e : eq$ and $\rho : fv(e) \to X$,
@@ -642,6 +659,295 @@ Essentially:
     \item $\ext{\rho} : Tr_\sigma(fv(e)) \to X$ evaluates a tree given some variables
 \end{itemize}
 
+Because $\ext{\rho}$ is a \alert{homomorphism}, it must evaluate the tree correctly!
+
+\end{frame}
+
+\begin{frame}[fragile]{Constructions of free monoids}
+    \begin{dblock}[Cons Lists]
+        \begin{code}
+data List (A : UU) : UU where
+  nil : List A
+  _cons_ : A -> List A -> List A
+        \end{code}
+    \end{dblock}
+    \begin{dblock}[Array]
+        $\type{Array}(A) = \dsum{n\colon\Nat}{f : \Fin[n] \to A}$
+    \end{dblock}
+    Each construction satisfies the universal property of free monoids.
+\end{frame}
+
+\begin{frame}[fragile]{Constructions of free monoids}
+    \begin{dblock}[Cons Lists]
+        \begin{code}
+data List (A : UU) : UU where
+  nil : List A
+  _cons_ : A -> List A -> List A
+        \end{code}
+    \end{dblock}
+We define the $\ext{(\blank)}$ on $f : A \to X$:
+\begin{align*}
+    \ext{f}([]) & = e \\
+    \ext{f}(x :: xs) & =  f(x) + \ext{f}(xs)
+\end{align*} 
+Then we prove:
+\begin{itemize}
+    \item $\ext{f}$ is a \alert{homomorphism} $\text{List}(A) \to \mathfrak{X}$
+    \item $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are \alert{inverse} of each other.
+\end{itemize}
+
+List satisfies the \alert{universal property} of free monoid. Therefore, List is a free monoid!
+
+\end{frame}
+
+\begin{frame}[fragile]{Constructions of free monoids}
+    \begin{dblock}[Array]
+        $\type{Array}(A) = \dsum{n\colon\Nat}{f : \Fin[n] \to A}$
+    \end{dblock}
+
+The monoid operation:
+\begin{align*}
+    (n , f) + (m , g) & = (n + m , f \oplus g) \\
+    (f \oplus g)(o) & = \begin{cases}
+      f(o), & \text{if}\ o < n \\
+      g(o - n), & \text{otherwise}
+    \end{cases}
+\end{align*} 
+
+We define the $\ext{(\blank)}$ on $f : A \to X$:
+\begin{align*}
+    \ext{f}(0 , g) & = e \\
+    \ext{f}(S(n) , g) & = f(g(0)) + \ext{f}(n , g \circ S)
+\end{align*} 
+
+Array satisfies the \alert{universal property} of free monoid!
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Constructions of free commutative monoids}
+    \begin{dblock}[Arrays quotiented by symmetries]
+        \vspace{-0.4cm}
+        \begin{align*}
+            \type{Bag}(A) &= Array(A) / \sim          
+            \\
+            (n,f) \sim (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+        \end{align*}
+    \end{dblock}
+    \begin{dblock}[Swapped Cons lists]
+        \begin{code}
+data SList (A : UU) : UU where
+  nil : List A
+  _cons_ : A -> List A -> List A
+  swap : forall x y xs -> x cons y cons xs == y cons x cons xs 
+        \end{code}
+    \end{dblock}
+    \begin{dblock}[Cons lists quotiented by permutations]
+        $\type{PList}(A) = \type{List}(A) / \type{Perm}$
+    \end{dblock}
+    Each construction satisfies the universal proeprty of free commutative monoids.    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    \begin{dblock}[Arrays quotiented by symmetries]
+        \vspace{-0.4cm}
+        \begin{align*}
+            \type{Bag}(A) &= Array(A) / \sim          
+            \\
+            (n,f) \sim (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+        \end{align*}
+    \end{dblock}
+    \begin{dblock}[Cons lists quotiented by permutations]
+        $\type{PList}(A) = \type{List}(A) / \type{Perm}$
+    \end{dblock}
+
+    A free monoid quotiented by a \alert{permutation relation} is a free commutative monoid:
+    \begin{itemize}
+        \item reflexivity, symmetry, transitivity: equality relation
+        \item congruence: $a \simeq b \to c \simeq d \to a + c \simeq b + d$
+        \item commutativity: $a + b \simeq b + a$
+        \item respect $\ext{(\blank)}$: $\forall f. \, a \simeq b \to \ext{f}(a) = \ext{f}(b)$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    \begin{dblock}[Arrays quotiented by symmetries]
+        \vspace{-0.4cm}
+        \begin{align*}
+            \type{Bag}(A) &= Array(A) / \sim          
+            \\
+            (n,f) \sim (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+        \end{align*}
+    \end{dblock}
+    How to show $\simeq$ respects \alert{commutativity}: $a + b \simeq b + a$?
+
+    Let $a = (n , f)$ and $b = (m , g)$, w.t.s. there exists an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$
+    such that: $(f \oplus g) = (g \oplus f) \circ \phi$
+
+    \begin{align*}
+        \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{inl,inr \xto{\sim} inr,inl} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
+    \end{align*}
+
+        \vspace{-0.6cm}
+
+  % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
+\[\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+m-1 \color{black}\}} \\
+	{ \{\color{blue}n,n+1\dots,n+m-1, \color{red}0,1,\dots,n-1 \color{black}\}}
+    \arrow["\phi", maps to, from=1-1, to=2-1]
+\end{tikzcd}\]
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    \begin{dblock}[Arrays quotiented by symmetries]
+        \vspace{-0.4cm}
+        \begin{align*}
+            \type{Bag}(A) &= Array(A) / \sim          
+            \\
+            (n,f) \sim (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+        \end{align*}
+    \end{dblock}
+    How to show $\simeq$ respects $\ext{(\blank)}$: $\forall f. \, a \simeq b \to \ext{f}(a) = \ext{f}(b)$?
+
+    We can prove this by showing $\ext{f}$ is \alert{invariant to permutation}: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
+    $\ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$ $\ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+
+    \begin{tblock}
+    Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, assuming $\phi(0) = 0$, there is a 
+    $\psi\colon \Fin[n]\xto{\sim}\Fin[n]$ such that $\phi \circ S = S \circ \psi$.
+   
+    \[\begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{0, 1, 2, 3, \dots\}} \\
+    	{ \{0, x, y, z, \dots\}}
+        \arrow["\phi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}\]
+
+    \[\begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{0, 1, 2, \dots\}} \\
+    	{ \{x - 1, y - 1, z - 1, \dots\}}
+        \arrow["\psi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}\]
+
+    \end{tblock}
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]. \, \ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+
+    \begin{tblock}
+    Assuming $\phi(0) = 0$, $\forall \phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]. \, \ext{f}(S(n), i) = \ext{f}(S(n), i \circ \phi)$.
+    \begin{align*}
+        & \ext{f}(S(n), i \circ \phi) \\
+        & = f(i(\phi(0))) + \ext{f}(n, i \circ \phi \circ S) & \quad\text{(by definition)} \\
+        & = f(i(0)) + \ext{f}(n, i \circ \phi \circ S)       & \quad\text{(by assumption)} \\
+        & = f(i(0)) + \ext{f}(n, i \circ S \circ \psi)       & \quad\text{(by previous theorem)} \\
+        & = f(i(0)) + \ext{f}(n, i \circ S)                  & \quad\text{(by induction)} \\
+        & = \ext{f}(S(n), i)                                 & \quad\text{(by definition)} \\
+    \end{align*}
+    \end{tblock}
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]. \, \ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+
+    \begin{tblock}
+    Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
+    such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
+
+    Let $k$ be $\phi^{-1}(0)$:
+
+    \[\begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
+    	{ \{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
+        \arrow["\phi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}\]
+
+    \[\begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
+    	{ \{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
+        \arrow["\tau", maps to, from=1-1, to=2-1]
+    \end{tikzcd}\]
+    
+    \end{tblock}
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]. \, \ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+
+    \begin{tblock}
+    Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
+    such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
+
+    Let $k$ be $\phi^{-1}(0)$, $j + k = S(n)$:
+    
+    \begin{align*}
+        & \ext{f}(S(n), i \circ \phi) \\
+        & = \ext{f}(j + k, g \oplus h) \\
+        & = \ext{f}(j, g) + \ext{f}(k, h) & \quad \text{(by homomorphism)} \\
+        & = \ext{f}(k, h) + \ext{f}(j, g) & \quad \text{(by commutativity in codomain of $\ext{f}$)}\\
+        & = \ext{f}(k + j, h \oplus g)    & \quad \text{(by homomorphism)} \\
+        & = \ext{f}(S(n), i \circ \tau)
+    \end{align*}
+    
+    \end{tblock}
+    
+\end{frame}
+
+\begin{frame}[fragile]{Arrays quotiented by symmetries}
+    W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]. \, \ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+
+    \begin{tblock}
+    For all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]. \, \ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+    
+    \begin{align*}
+        & \ext{f}(S(n), i \circ \phi) \\
+        & = \ext{f}(S(n), i \circ \tau) \\
+        & = \ext{f}(S(n), i)
+    \end{align*}
+    
+    \end{tblock}
+    
+\end{frame}
+
+\begin{frame}[fragile]{\inline{List}s vs \inline{SList}s}
+    \begin{itemize}
+        \item length
+        \item membership
+        \item \inline{Any} and \inline{All}
+        \item \inline{head} function
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Main Result}
+
+\begin{dblock}
+    $\type{DecTotOrd}(A)$ = type of decidable total orders on $A$
+
+    $\type{Sort}(A)$ = type of sections $s\colon \MM(A) \to \LL(A)$ to $q$ satisfying $\term{is-sort}$
+\end{dblock}
+
+\begin{tblock}
+    $\term{o2s}\colon \type{DecTotOrd}(A) \to \type{Sort}(A)$ is an equivalence.
+\end{tblock}
+
+\end{frame}
+
+\begin{frame}[standout]
+    Thank you!
 \end{frame}
 
 \end{document}
