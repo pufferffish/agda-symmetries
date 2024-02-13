@@ -45,9 +45,15 @@
 
 \newcommand{\entails}{\vDash}
 
+\newcommand{\reln}{\mathrel{\boldsymbol{\approx}}}
+
 % monoids
 \newcommand{\Mon}{\type{Mon}}
 \newcommand{\CMon}{\type{CMon}}
+
+\newcommand{\munit}{e}
+% \newcommand{\mmult}{\boldsymbol{\cdot}}
+\newcommand{\mmult}{\bullet}
 
 %
 \newcommand{\LL}{\mathcal{L}}
@@ -94,7 +100,7 @@
                      {top}{{$\top$}}2 {bot}{{$\bot$}}2
                      {land}{{∧}}2 {lor}{{∨}}2
                      {exists}{{∃}}2
-                     {==}{{≡}}2
+                     {==}{{$\id$}}2
                      {nil}{{\color{solarized-base01}[]}}2
                      {cons}{{\color{solarized-base01}::}}2
                      {append}{{\color{solarized-base01}++}}2
@@ -112,3 +118,5 @@
 \newcommand{\inlinelabel}[1]{
   \lstinline[language=Agda,style=inline,basicstyle=\ttfamily\tiny\color{solarized-base01}]{#1}
 }
+
+\newcommand{\vc}[1]{\textcolor{solarized-red}{VC: #1}}

@@ -46,6 +46,7 @@
 
 % empty type
 \newcommand{\emptyt}{{\mathbf{0}}}
+\newcommand{\Void}{\mathbf{0}}
 
 % Bool
 \newcommand{\Bool}{{\mathbf{2}}}
@@ -54,8 +55,8 @@
 \NewDocumentCommand{\id}{E{^_}{{}{}}}{
   \mathrel{
     \ifstrempty{#1}
-    {\ifstrempty{#2}{\mathrel{=}}{\mathrel{{=}_{\mathsmaller{#2}}}}}
-    {{=}^{#1}_{#2}}
+    {\ifstrempty{#2}{\mathrel{\boldsymbol{=}}}{\mathrel{{\boldsymbol{=}}_{\mathsmaller{#2}}}}}
+    {{\boldsymbol{=}}^{#1}_{#2}}
   }
 }
 \NewDocumentCommand{\refl}{E{_}{{}}}{
@@ -147,6 +148,6 @@
 }
 \NewDocumentCommand{\exis}{smm}{
   \IfBooleanTF{#1}
-  {\exists_{{(#2).}}{#3}}
-  {\exists{\textstyle{(#2).}}{#3}}
+  {\exists_{{(#2).\;}}{#3}}
+  {\exists{\textstyle{(#2).\;}}{#3}}
 }

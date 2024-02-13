@@ -33,8 +33,12 @@
 
 \usepackage{mathpartir}
 \usepackage{stmaryrd}
+\usepackage{lipsum}
+\usepackage{adjustbox}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{mathrsfs}
 \usepackage{braket}
 \usepackage{quiver}
 \usepackage{mathtools}
@@ -42,11 +46,14 @@
 \usepackage{xparse}
 \usepackage{array}
 \usepackage{subcaption} %side by side diagrams
-\usepackage{caption} %customises captions
 \usepackage{floatrow}
-\usepackage{tikz} 
+\usepackage{tikz}
 \usepackage{tikz-cd}
 \usetikzlibrary{babel}% added
+
+% bibliography
+\usepackage[style=authortitle,backend=biber]{biblatex}
+\addbibresource{symmetries.bib}
 
 % fancy boxes
 \usepackage[most]{tcolorbox}
@@ -285,6 +292,26 @@ Equalities between types:
 
 \end{frame}
 
+\begin{frame}{Equalities between Types}
+\frametitle{Homotopy Type Theory}
+
+\begin{tblock}[Univalence axiom]
+  $(A = B) \simeq (A \simeq B)$
+\end{tblock}
+
+Consider $\mathbb{B}$, there are \alert{two} $\mathbb{B} = \mathbb{B}$:
+
+We have two equivalences:
+\begin{itemize}
+    \item $\text{id} := \lambda \{ \text{true} \mapsto \text{true}, \text{false} \mapsto \text{false} \}$
+    \item $\text{not} := \lambda \{ \text{true} \mapsto \text{false}, \text{false} \mapsto \text{true} \}$
+\end{itemize}
+
+Univalence gives us two $\mathbb{B} = \mathbb{B}$ generated from \alert{id} and \alert{not},
+but these two equalities are not equal!
+
+\end{frame}
+
 \begin{frame}{Homotopy Levels}
 \frametitle{Homotopy Levels}
 
@@ -372,6 +399,7 @@ Examples:
 \begin{itemize}
   \item $\mathbf{1}$, $\mathbf{0}$
   \item $\mathbb{N}$
+  \item $\mathbb{B}$
   \item $\mathsf{hProp}$ ($\sum_{A : \mathcal{U}} \text{isProp}(A)$)
 \end{itemize}
 
@@ -419,7 +447,9 @@ The identity type of $A$ is a set.
 Examples:
 \begin{itemize}
   \item Any type that satisfies $\text{isSet}$...
-  \item $\mathsf{hSet}$ ($\sum_{A : \mathcal{U}} \text{isSet}(A)$)
+  \item Type of all sets: $\mathsf{hSet}$ ($\sum_{A : \mathcal{U}} \text{isSet}(A)$)
+  \item Type of types that are equal to Bool: $\dsum*{X:\UU}{\Trunc{X = \Bool}}$
+  \item Circle: $S^1$
 \end{itemize}
 
 Consider $\mathbb{B} : \mathsf{hSet}$, univalence gives us two $\mathbb{B} = \mathbb{B}$
@@ -477,13 +507,12 @@ data SList (A : Type) : Type where
 
 \begin{frame}[fragile]
 \frametitle{Higher Inductive Types}
-
 \begin{code}
-data FMSet (A : Type) : Type where
-  []    : FMSet A
-  _::_  : (x : A) -> (xs : FMSet A) -> FMSet A
+data SList (A : Type) : Type where
+  []    : SList A
+  _::_  : (x : A) -> (xs : SList A) -> SList A
   swap  : forall x y xs -> x :: y :: xs == y :: x :: xs
-  trunc : isSet (FMSet A)
+  trunc : isSet (SList A)
 
 _++_ : ∀ (xs ys : FMSet A) → FMSet A
 [] ++ ys = ys
@@ -498,12 +527,11 @@ trunc xs zs p q i j ++ ys =
 
 \begin{frame}[fragile]
 \frametitle{Higher Inductive Types}
-
 \begin{code}
 -- Set quotient
 data _/_ (A : Type) (R : A → A → Type) : Type where
   [_] : (a : A) → A / R
-  eq/ : (a b : A) → (r : R a b) → [ a ] ≡ [ b ]
+  q/ : (a b : A) → (r : R a b) → [ a ] ≡ [ b ]
   squash/ : (x y : A / R) → (p q : x ≡ y) → p ≡ q
 
 data Perm {A : Type} : List A -> List A -> Type where
@@ -527,7 +555,7 @@ PList A = List A / Perm
   \item The project is formalized in \alert{Cubical Agda}, an implementation of Cubical Type Theory
   \item Cubical Type Theory is a variant of HoTT that doesn't lose \alert{computational properties} of type theory
         (no axioms, has \alert{canonicity})
-  \item Univalence is not postulated and can be computationally derived
+  \item Univalence is not an axiom, it is provable, and it computes!
   \item Designed to preserve \alert{canonicity}, using univalence won't destroy computational content of a proof
 
 \end{itemize}
@@ -537,18 +565,19 @@ PList A = List A / Perm
 
 \begin{frame}{Universal Algebra}
 \frametitle{Universal Algebra}
-A \alert{signature} $\sigma$ =
+
+A \alert{signature} $\sigma$ is:
 \begin{itemize}
-    \item a set of \alert{operation symbols} $op : \mathsf{Set}$
-    \item an \alert{arity function} $ar : \sigma \rightarrow \mathsf{Set}$
+    \item a set of \alert{operation symbols} $op : \mathsf{hSet}$
+    \item an \alert{arity function} $ar : \sigma \rightarrow \mathsf{hSet}$
 \end{itemize}
 
 This gives a signature endofunctor $F_{\sigma}(X) := \sum_{f : op} X^{ar(f)}$
 
-A $F_{\sigma}$-algebra is:
+A $\sigma$-structure is a $F_{\sigma}$-algebra:
 \begin{itemize}
-    \item a \alert{carrier set} $X : Set$
-    \item an \alert{evaluation function}: $\alpha_X\colon\Sig(X) \to X$
+    \item a \alert{carrier set} $X : hSet$
+    \item an \alert{interpretation function}: $\alpha_X\colon\Sig(X) \to X$
 \end{itemize}
 
 A $\sigma$-algebra homomorphism $h: A \rightarrow B$ is a function such that \\
@@ -563,19 +592,19 @@ $F_{\sigma}$-algebras and their morphisms form a category $\sigma$-Alg.
 
 \begin{frame}
 \frametitle{Universal Algebra}
-Example: $\mathbb{N}$ as a monoid
+Example: $\mathbb{N}$ as a \alert{monoid}
 
-The signature $\sigma$ =
+The signature $\sigma_{\mathsf{Mon}}$ has:
 \begin{itemize}
-    \item the set of operation symbols $op : \mathsf{Set} = \{e, +\}$
-    \item the arity function $ar : \sigma \rightarrow \mathsf{Set} = \{e \mapsto \mathbf{0}, + \mapsto \mathbb{B}\}$
+    \item the set of \alert{operation symbols} $op : \mathsf{hSet} = \{\munit, \mmult\}$ (or $\Fin[2]$ or $\Bool$)
+    \item the \alert{arity function} $ar : \sigma \rightarrow \mathsf{hSet} = \{\munit \mapsto \Void,, \mmult \mapsto \Bool\}$
 \end{itemize}
 
-The algebra has the carrier set $\mathbb{N}$ and the evaluation function:
+The algebra has the carrier set $\Nat$ and the interpretation function:
 
 \begin{align*}
-\alpha(e) & = 0 \\
-\alpha(+, a, b) & = a + b 
+\alpha(\munit) & = 0 \\
+\alpha(\mmult, a, b) & = a + b 
 \end{align*} 
 
 
@@ -590,8 +619,7 @@ The forgetful functor $\sigma$-Alg to $Set$ admits a left adjoint
 This gives us a free $\sigma$-algebra construction on a carrier set
 
 \begin{dblock}[The universal property of a free object]
-For any object \( \mathfrak{Y} \) in $\sigma$-Alg and any map between sets \( g : X \to U(\mathfrak{Y}) \),
-there exists a unique morphism \( f : F(X) \to \mathfrak{Y} \) in $\sigma$-Alg such that \( g = U(f) \circ \eta \):
+For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $U(\blank) \circ \eta$ is a equivalence:
 
 % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiVShBKSJdLFsyLDIsIlUoQikiXSxbMCwxLCJpIiwwLHsiY29sb3VyIjpbMSwxMDAsNjBdfSxbMSwxMDAsNjAsMV1dLFswLDIsImciLDJdLFsxLDIsIlUoZikiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
 \[
@@ -625,7 +653,55 @@ We can construct a a free $\sigma$-algebra on $V$ as an inductive type $Tr_\sigm
     \item $\text{node} : \sum_f(Tr_\sigma(V)^{ar(f)}) \rightarrow Tr_\sigma(V)$
 \end{itemize}
 
-node is our \alert{evaluation function} $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_\sigma(V)$
+\only<1>{
+\vspace{1cm}
+\adjustbox{scale=1,center}{%
+% https://q.uiver.app/#q=WzAsMixbMCw0XSxbMCwwLCJlIl0sWzAsMSwiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	e \\
+	\\
+	\\
+	\\
+	{ e }
+	\arrow[no head, from=5-1, to=1-1]
+\end{tikzcd}
+
+\hspace{10mm}
+
+% https://q.uiver.app/#q=WzAsNCxbMiwyLCJcXG11bml0Il0sWzAsMCwieF8xIl0sWzIsNCwiXFxidWxsZXQiXSxbNCwwLCJ4XzIiXSxbMSwwLCIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzAsMl0sWzAsM11d
+\begin{tikzcd}[ampersand replacement=\&,cramped, column sep=tiny, row sep=normal]
+	{x_1} \&\&\&\& {x_2} \\
+	\\
+	\&\& \mmult \\
+	\\
+	\&\& { x_1 \mmult x_2 }
+	\arrow[no head, from=1-1, to=3-3]
+	\arrow[no head, from=3-3, to=5-3]
+	\arrow[no head, from=3-3, to=1-5]
+\end{tikzcd}
+
+\hspace{10mm}
+
+% https://q.uiver.app/#q=WzAsNixbMiwyLCJcXG11bml0Il0sWzMsMSwiXFxtdW5pdCJdLFsyLDAsInhfMSJdLFs0LDAsInhfMiJdLFswLDAsImUiXSxbMiw0LCJlIFxcbXVuaXQgKHhfMSBcXG11bml0IHhfMikiXSxbMCwxLCIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzIsMSwiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dLFszLDEsIiIsMix7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbNCwwLCIiLDAseyJzdHlsZSI6eyJoZWFkIjp7Im5hbWUiOiJub25lIn19fV0sWzUsMCwiIiwwLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped, column sep=tiny, row sep=normal]
+	\munit \&\& {x_1} \&\& {x_2} \\
+	\&\&\& \mmult \\
+	\&\& \mmult \\
+	\\
+	\&\& { \munit \mmult (x_1 \mmult x_2) }
+	\arrow[no head, from=3-3, to=2-4]
+	\arrow[no head, from=1-3, to=2-4]
+	\arrow[no head, from=1-5, to=2-4]
+	\arrow[no head, from=1-1, to=3-3]
+	\arrow[no head, from=5-3, to=3-3]
+\end{tikzcd}
+}
+
+}
+
+\only<2>{
+
+node is our \alert{interpretation function} $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_\sigma(V)$
 
 leaf is our \alert{canonical injection} $\eta : V \rightarrow Tr_\sigma(V)$
 
@@ -636,6 +712,8 @@ By the \alert{universal property}: $(\blank) \comp \eta \colon \sigAlg(\str{T}(V
 The inverse to the equivalence: the \alert{extension operation} $\ext{(\blank)}$,
 maps $f\colon V \to X$ to a homomorphism $\ext{f}\colon \str{T}(V) \to \str{X}$
 
+In functional programming (recursion schemes), $\ext{(\blank)}$ is a \alert{fold}/\alert{catamorphism}.
+}
 \end{frame}
 
 \begin{frame}
@@ -653,13 +731,35 @@ $l, r : (e : eq) \to Tr_\sigma(fv(e))$
 $\mathfrak{X}$ satisfies $T$ ($\mathfrak{X} \entails T$) if for all $e : eq$ and $\rho : fv(e) \to X$,
 $\ext{\rho}(l(e)) = \ext{\rho}(r(e))$
 
-Essentially:
+Concretely:
 \begin{itemize}
     \item $\rho : fv(e) \to X$ maps free variables in equations to elements of $X$
     \item $\ext{\rho} : Tr_\sigma(fv(e)) \to X$ evaluates a tree given some variables
 \end{itemize}
 
 Because $\ext{\rho}$ is a \alert{homomorphism}, it must evaluate the tree correctly!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Universal Algebra}
+Example: $\mathbb{N}$ as a \alert{monoid}
+
+The equation signature $\sigma_{\mathsf{Mon}}$ has:
+\begin{itemize}
+    \item the set of \alert{equation symbols} $op : \mathsf{hSet} = \{\text{unitl}, \text{unitr}, \text{assocr}\}$
+    (or $\Fin[3]$)
+    \item the \alert{arity function}
+    $fv : \sigma \rightarrow \mathsf{hSet} = \{\text{unitl} \mapsto \mathbf{1}, \text{unitr} \mapsto \mathbf{1}, \text{assocr} \mapsto \mathbf{3}\}$
+\end{itemize}
+
+To show $(\Nat,+) \entails \text{Mon}$:
+\begin{align*}
+unitl  & : \forall \rho. \, \rho(0) + \munit = \rho(0) \\
+unitr  & : \forall \rho. \, \munit + \rho(0) = \rho(0) \\
+assocr & : \forall \rho. \, (\rho(0) + \rho(1)) + \rho(2) = \rho(0) + (\rho(1) + \rho(2))
+\end{align*} 
+
 
 \end{frame}
 
@@ -671,9 +771,15 @@ data List (A : UU) : UU where
   _cons_ : A -> List A -> List A
         \end{code}
     \end{dblock}
+    
+    \alert{Example:} \inline{3 cons 1 cons 2 cons nil}
+    
     \begin{dblock}[Array]
         $\type{Array}(A) = \dsum{n\colon\Nat}{f : \Fin[n] \to A}$
     \end{dblock}
+
+    \alert{Example:} $(3, \lambda\{ 0 \mapsto 3 ; 1 \mapsto 1 ; 2 \mapsto 2 \})$
+    
     Each construction satisfies the universal property of free monoids.
 \end{frame}
 
@@ -707,7 +813,7 @@ List satisfies the \alert{universal property} of free monoid. Therefore, List is
 
 The monoid operation:
 \begin{align*}
-    (n , f) + (m , g) & = (n + m , f \oplus g) \\
+    (n , f) \mmult (m , g) & = (n + m , f \oplus g) \\
     (f \oplus g)(o) & = \begin{cases}
       f(o), & \text{if}\ o < n \\
       g(o - n), & \text{otherwise}
@@ -720,7 +826,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     \ext{f}(S(n) , g) & = f(g(0)) + \ext{f}(n , g \circ S)
 \end{align*} 
 
-Array satisfies the \alert{universal property} of free monoid!
+Array satisfies the \alert{universal property} of free monoids!
 
 \end{frame}
 
@@ -729,10 +835,10 @@ Array satisfies the \alert{universal property} of free monoid!
     \begin{dblock}[Arrays quotiented by symmetries]
         \vspace{-0.4cm}
         \begin{align*}
-            \type{Bag}(A) &= Array(A) / \sim          
+            \type{Bag}(A) &= Array(A) / \reln
             \\
-            (n,f) \sim (m,g) &= 
-                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+            (n,f) \reln (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f \id g \comp \phi}
         \end{align*}
     \end{dblock}
     \begin{dblock}[Swapped Cons lists]
@@ -744,31 +850,31 @@ data SList (A : UU) : UU where
         \end{code}
     \end{dblock}
     \begin{dblock}[Cons lists quotiented by permutations]
-        $\type{PList}(A) = \type{List}(A) / \type{Perm}$
+        $\type{PList}(A) = \type{List}(A) / \type{Perm}_{\reln}$
     \end{dblock}
-    Each construction satisfies the universal proeprty of free commutative monoids.    
+    What is a correct permutation relation? The quotient must satisfy the universal property of free commutative monoids!  
 \end{frame}
 
 \begin{frame}[fragile]{Arrays quotiented by symmetries}
     \begin{dblock}[Arrays quotiented by symmetries]
         \vspace{-0.4cm}
         \begin{align*}
-            \type{Bag}(A) &= Array(A) / \sim          
+            \type{Bag}(A) &= Array(A) / \reln
             \\
-            (n,f) \sim (m,g) &= 
-                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+            (n,f) \reln (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f \id g \comp \phi}
         \end{align*}
     \end{dblock}
     \begin{dblock}[Cons lists quotiented by permutations]
-        $\type{PList}(A) = \type{List}(A) / \type{Perm}$
+        $\type{PList}(A) = \type{List}(A) / \type{Perm}_{\reln}$
     \end{dblock}
 
-    A free monoid quotiented by a \alert{permutation relation} is a free commutative monoid:
+    A free monoid quotiented by a \alert{permutation relation} must be a free commutative monoid. From this, a relation $\reln$ is a correct permutation relation iff it:
     \begin{itemize}
-        \item reflexivity, symmetry, transitivity: equality relation
-        \item congruence: $a \simeq b \to c \simeq d \to a + c \simeq b + d$
-        \item commutativity: $a + b \simeq b + a$
-        \item respect $\ext{(\blank)}$: $\forall f. \, a \simeq b \to \ext{f}(a) = \ext{f}(b)$
+        \item is reflexive, symmetric, transitive
+        \item is a congruence wrt $\mmult$: $a \reln b \to c \reln d \to a \mmult c \reln b \mmult d$
+        \item is commutative: $a \mmult b \reln b \mmult a$
+        \item respects $\ext{(\blank)}$: $\forall f. \, a \reln b \to \ext{f}(a) \id \ext{f}(b)$
     \end{itemize}
 \end{frame}
 
@@ -776,19 +882,20 @@ data SList (A : UU) : UU where
     \begin{dblock}[Arrays quotiented by symmetries]
         \vspace{-0.4cm}
         \begin{align*}
-            \type{Bag}(A) &= Array(A) / \sim          
+            \type{Bag}(A) &= Array(A) / \reln
             \\
-            (n,f) \sim (m,g) &= 
+            (n,f) \reln (m,g) &= 
                 \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
         \end{align*}
     \end{dblock}
-    How to show $\simeq$ respects \alert{commutativity}: $a + b \simeq b + a$?
+    How to show $\reln$ respects \alert{commutativity}: $a + b \reln b + a$?
 
-    Let $a = (n , f)$ and $b = (m , g)$, w.t.s. there exists an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$
-    such that: $(f \oplus g) = (g \oplus f) \circ \phi$
+    Let $a = (n , f)$ and $b = (m , g)$, we need to compute an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$,
+    such that: $(f \oplus g) = (g \oplus f) \circ \phi$.
 
+    Define,\footnote{These are using formal operations in symmetric rig groupoids~\footcite{choudhurySymmetriesReversibleProgramming2022}.}
     \begin{align*}
-        \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{inl,inr \xto{\sim} inr,inl} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
+        \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
     \end{align*}
 
         \vspace{-0.6cm}
@@ -806,22 +913,23 @@ data SList (A : UU) : UU where
     \begin{dblock}[Arrays quotiented by symmetries]
         \vspace{-0.4cm}
         \begin{align*}
-            \type{Bag}(A) &= Array(A) / \sim          
+            \type{Bag}(A) &= Array(A) / \reln
             \\
-            (n,f) \sim (m,g) &= 
-                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f = g \comp \phi}
+            (n,f) \reln (m,g) &= 
+                \exis{\phi\colon \Fin[n]\xto{\sim}\Fin[m]}{f \id g \comp \phi}
         \end{align*}
     \end{dblock}
-    How to show $\simeq$ respects $\ext{(\blank)}$: $\forall f. \, a \simeq b \to \ext{f}(a) = \ext{f}(b)$?
+    How to show $\reln$ respects $\ext{(\blank)}$: $\forall f. \, a \reln b \to \ext{f}(a) \id \ext{f}(b)$?
 
-    We can prove this by showing $\ext{f}$ is \alert{invariant to permutation}: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
-    $\ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
+    We can prove this by showing $\ext{f}$ is \alert{invariant under permutation}: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
+    $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
     
 \end{frame}
 
 \begin{frame}[fragile]{Arrays quotiented by symmetries}
     W.T.S. for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$ $\ext{f}(n, i) = \ext{f}(n, i \circ \phi)$.
 
+    \vc{Theorem statement or proof?}
     \begin{tblock}
     Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, assuming $\phi(0) = 0$, there is a 
     $\psi\colon \Fin[n]\xto{\sim}\Fin[n]$ such that $\phi \circ S = S \circ \psi$.
@@ -847,14 +955,14 @@ data SList (A : UU) : UU where
 
     \begin{tblock}
     Assuming $\phi(0) = 0$, $\forall \phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]. \, \ext{f}(S(n), i) = \ext{f}(S(n), i \circ \phi)$.
-    \begin{align*}
-        & \ext{f}(S(n), i \circ \phi) \\
-        & = f(i(\phi(0))) + \ext{f}(n, i \circ \phi \circ S) & \quad\text{(by definition)} \\
-        & = f(i(0)) + \ext{f}(n, i \circ \phi \circ S)       & \quad\text{(by assumption)} \\
-        & = f(i(0)) + \ext{f}(n, i \circ S \circ \psi)       & \quad\text{(by previous theorem)} \\
-        & = f(i(0)) + \ext{f}(n, i \circ S)                  & \quad\text{(by induction)} \\
-        & = \ext{f}(S(n), i)                                 & \quad\text{(by definition)} \\
-    \end{align*}
+    \[\begin{array}{rlr}
+        & \ext{f}(S(n), i \circ \phi) & \\
+        =& f(i(\phi(0))) + \ext{f}(n, i \circ \phi \circ S) & \quad\text{(by definition)} \\
+        =& f(i(0)) + \ext{f}(n, i \circ \phi \circ S)       & \quad\text{(by assumption)} \\
+        =& f(i(0)) + \ext{f}(n, i \circ S \circ \psi)       & \quad\text{(by previous theorem)} \\
+        =& f(i(0)) + \ext{f}(n, i \circ S)                  & \quad\text{(by induction)} \\
+        =& \ext{f}(S(n), i)                                 & \quad\text{(by definition)} \\
+    \end{array}\]
     \end{tblock}
     
 \end{frame}
@@ -891,14 +999,14 @@ data SList (A : UU) : UU where
     Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
     such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
 
-    Let $k$ be $\phi^{-1}(0)$, $j + k = S(n)$:
+    Let $k$ be $\phi^{-1}(0)$, $k + j = S(n)$:
     
     \begin{align*}
         & \ext{f}(S(n), i \circ \phi) \\
-        & = \ext{f}(j + k, g \oplus h) \\
-        & = \ext{f}(j, g) + \ext{f}(k, h) & \quad \text{(by homomorphism)} \\
-        & = \ext{f}(k, h) + \ext{f}(j, g) & \quad \text{(by commutativity in codomain of $\ext{f}$)}\\
-        & = \ext{f}(k + j, h \oplus g)    & \quad \text{(by homomorphism)} \\
+        & = \ext{f}(k + j, g \oplus h) \\
+        & = \ext{f}(k, g) + \ext{f}(j, h) & \quad \text{(by homomorphism)} \\
+        & = \ext{f}(j, h) + \ext{f}(k, g) & \quad \text{(by commutativity in codomain of $\ext{f}$)}\\
+        & = \ext{f}(j + k, h \oplus g)    & \quad \text{(by homomorphism)} \\
         & = \ext{f}(S(n), i \circ \tau)
     \end{align*}
     
@@ -923,12 +1031,243 @@ data SList (A : UU) : UU where
 \end{frame}
 
 \begin{frame}[fragile]{\inline{List}s vs \inline{SList}s}
-    \begin{itemize}
-        \item length
-        \item membership
-        \item \inline{Any} and \inline{All}
-        \item \inline{head} function
-    \end{itemize}
+    \inline{Length}
+
+    By the \alert{universal property}: $f : A \to \mathbb{N} := f(x) = 1$,
+    $\ext{f} : (S)List(A) \to \mathbb{N}$ gives us the length function!
+
+    
+\vspace{1cm}
+\adjustbox{scale=1.3,center}{%
+% https://q.uiver.app/#q=WzAsMyxbMCwwLCIoUylMaXN0KEEpIl0sWzIsMCwiXFxtYXRoYmJ7Tn0iXSxbMCwyLCJBIl0sWzIsMCwiXFxldGEiXSxbMCwxLCJcXGV4dHtcXGxhbWJkYSB4LiBcXCwgMX0iXSxbMiwxLCJcXGxhbWJkYSB4LiBcXCwgMSIsMl1d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{(S)List(A)} \&\& {(\mathbb{N}, +)} \\
+	\\
+	A
+	\arrow["\eta", from=3-1, to=1-1]
+	\arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
+	\arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
+\end{tikzcd}
+}
+\end{frame}
+
+\begin{frame}[fragile]{\inline{List}s vs \inline{SList}s}
+    \inline{Membership}
+
+    Assuming $A$ is a set, to define membership proof for $x$: $f : A \to \text{hProp} := f(y) = x \equiv y$.
+
+    hProp forms a \alert{commutative monoid} under $\vee$, $\ext{f} : (S)List(A) \to \text{hProp}$ gives us
+    the type for membership proof for $x$!
+
+    
+\vspace{1cm}
+\adjustbox{scale=1.3,center}{%
+% https://q.uiver.app/#q=WzAsMyxbMCwwLCIoUylMaXN0KEEpIl0sWzIsMCwiXFxtYXRoYmJ7Tn0iXSxbMCwyLCJBIl0sWzIsMCwiXFxldGEiXSxbMCwxLCJcXGV4dHtcXGxhbWJkYSB4LiBcXCwgMX0iXSxbMiwxLCJcXGxhbWJkYSB4LiBcXCwgMSIsMl1d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{(S)List(A)} \&\& {(\text{hProp}, \vee)} \\
+	\\
+	A
+	\arrow["\eta", from=3-1, to=1-1]
+	\arrow["{\ext{(\lambda y. \, x = y)}}", from=1-1, to=1-3]
+	\arrow["{\lambda y. \, x = y}"', from=3-1, to=1-3]
+\end{tikzcd}
+}
+\end{frame}
+
+\begin{frame}{\inline{List}s vs \inline{SList}s}
+    \inline{Any} and \inline{All}
+
+    Given a \alert{proposition} on $A$, $f : A \to hProp$,
+    $\ext{f} : (S)List(A) \to (hProp, \vee)$ gives us Any and 
+    $\ext{f} : (S)List(A) \to (hProp, \wedge)$ gives us All!
+   
+\vspace{1cm}
+
+\[
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{(S)List(A)} \&\& {(\text{hProp}, \vee)} \\
+	\\
+	A
+	\arrow["\eta", from=3-1, to=1-1]
+	\arrow["{\ext{f}}", from=1-1, to=1-3]
+	\arrow["{f}"', from=3-1, to=1-3]
+\end{tikzcd}
+\hspace{1cm}
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{(S)List(A)} \&\& {(\text{hProp}, \wedge)} \\
+	\\
+	A
+	\arrow["\eta", from=3-1, to=1-1]
+	\arrow["{\ext{f}}", from=1-1, to=1-3]
+	\arrow["{f}"', from=3-1, to=1-3]
+\end{tikzcd}
+\]
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]{\inline{List}s vs \inline{SList}s}
+How do we define \inline{head} for List and SList?
+
+The type is \inline{head : List A -> A}.
+
+We consider by cases on the length of the List/SList.
+
+For \alert{empty} List and SList, \inline{head} cannot be defined.
+
+For \alert{singleton} List and SList, \inline{head} is a equivalence.
+
+For List with \alert{of length \geq 2}, we can just take the first element.
+
+For SList with \alert{of length \geq 2}, \inline{head} can only be defined iff there is a \alert{total order}!
+
+By swap, \inline{\{x,y\} = \{y,x\}}, so \inline{head(\{x,y\}) = head(\{y,x\})}.    
+\end{frame}
+
+\begin{frame}{\inline{List}s vs \inline{SList}s}
+Let $\LL(A)$ be the \alert{free monoid} on $A$ and $\MM(A)$ be the \alert{free commutative monoid} on $A$.
+
+\adjustbox{scale=1.5,center}{%
+% https://q.uiver.app/#q=WzAsMixbMCwwLCJcXExMKEEpIl0sWzMsMCwiXFxNTShBKSJdLFsxLDAsInMiLDAseyJjdXJ2ZSI6LTF9XSxbMCwxLCJxIiwwLHsiY3VydmUiOi0xfV1d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{\LL(A)} \&\&\& {\MM(A)}
+	\arrow["s", curve={height=-6pt}, from=1-4, to=1-1]
+	\arrow["q", curve={height=-6pt}, from=1-1, to=1-4]
+\end{tikzcd}
+}
+
+
+$q$ is the \alert{canonical map} from $\LL(A)$ to $\MM(A)$, given by $\ext{\eta}$.
+
+$s$ is the \alert{section} to $q$, so for all $x$, $q(s(x)) = x$.
+
+$s$ picks a canonical representation out of the equivalence classes generated by commutativity,
+is it doing sorting?
+    
+\end{frame}
+
+\begin{frame}{Sorting}
+
+\begin{qblock}
+Total order implies a sorting function, does a sorting function imply total order?
+\end{qblock}
+
+Axioms of \alert{total order}:
+\begin{itemize}
+    \item reflexivity: $x \leq x$
+    \item transitivity: if $x \leq y$ and $y \leq z$, then $x \leq z$
+    \item antisymmetry: if $x \leq y$ and $y \leq x$, then $x = y$
+    \item totality: forall $x$ and $y$, either $x \leq y$ or $y \leq x$ 
+\end{itemize}
+
+Given a section $s$, we can construct a relation that satisfies \alert{reflexivity}, \alert{antisymmetry}, and \alert{totality}!
+
+\end{frame}
+
+\begin{frame}{Sorting}
+
+Given a section $s$, let $\text{least}(xs) = \text{head}(s(xs))$. We say $x \, R \, y$ iff $\text{least}(\{x, y\}) = x$
+
+\begin{tblock}
+    $\text{least}(s(\{x, y\}))$ must either be $x$ or $y$.
+\end{tblock}
+
+\begin{itemize}
+    \item \alert{reflexivity}: $x \, R \, x$
+    
+    $\text{least}(\{x, x\}))$ must be x.
+    
+    \item \alert{antisymmetry}: if $x \, R \, y$ and $y \, R \, x$, then $x = y$
+    
+    $x = \text{least}(\{x, y\}) = \text{least}(\{y, x\}) = y$
+    
+    \item \alert{totality}: forall $x$ and $y$, either $x \, R \, y$ or $y \, R \, x$ 
+    
+    $\text{least}(\{x, y\})$ must either be $x$ or $y$.
+    
+\end{itemize}
+
+But what about \alert{transitivity}?
+
+\end{frame}
+
+\begin{frame}{Sorting}
+
+But what about \alert{transitivity}?
+
+Consider a section like $s : SList(\Nat) \to List(\Nat)$:
+
+\begin{align*}
+    s(xs) & = \begin{cases}
+        \text{sort}(xs)                  & \text{if length($xs$) is odd}   \\
+        \text{reverse}(\text{sort}(xs))  & \text{otherwise}
+    \end{cases} \\
+    s(\{2,3,1,4\}) & = [4,3,2,1] \\
+    s(\{2,3,1\}) & = [1, 2, 3]
+\end{align*}
+
+$s$ doesn't sort and violate \alert{transitivity}!
+
+More constraint is needed...
+    
+\end{frame}
+
+\begin{frame}{Sorting}
+
+But what about \alert{transitivity}?
+More constraint is needed...
+
+\begin{dblock}
+    A list $xs$ is sorted if $\exists ys. \, s(ys) = xs$.
+\end{dblock}
+
+\begin{dblock}
+    A section $s$ satisfies \textit{is-head-least} if \\
+    $\forall x \, xs. \, \text{is-sorted}(x :: xs) \to y \in (x :: xs) \to \text{is-sorted}([x, y])$.
+\end{dblock}
+
+With \alert{\textit{is-head-least}}, we can prove $R$ is \alert{transitive}.
+   
+\end{frame}
+
+\begin{frame}{Sorting}
+
+Given a \alert{decidable total order} $R$, we can use it to construct a sort function (e.g. insertion sort).
+
+Insertion sort satisfies \textit{is-head-least}, we can use it to construct a total order $R'$.
+
+\begin{tblock}
+    R' = R
+\end{tblock}
+
+Does this mean \textit{is-head-least} is enough to axiomtize sorting functions?
+
+If we use $s$ to construct $R'$, can we reconstruct $s$ from $R'$? 
+    
+\end{frame}
+
+\begin{frame}{Sorting}
+
+If we use $s$ to construct $R'$, can we reconstruct $s$ from $R'$? 
+
+Consider a section like $s : SList(\Nat) \to List(\Nat)$:
+
+\begin{align*}
+    s(xs) & = \text{least}(xs) :: \text{reverse(sort($xs \setminus x$))} \\
+    s(\{2,3,1,4\}) & = [1,4,3,2] \\
+    s(\{2,3,1\}) & = [1, 3, 2]
+\end{align*}
+
+Both $s$ and insertion sort would give us the same $R$!
+
+We need another constraint to get a \alert{full equivalence}:
+
+\begin{dblock}
+    A section $s$ satisfies \textit{is-tail-sort} if \\
+    $\forall x \, xs. \, \text{is-sorted}(x :: xs) \to \text{is-sorted}(xs)$.
+\end{dblock}
+    
 \end{frame}
 
 
@@ -937,7 +1276,9 @@ data SList (A : UU) : UU where
 \begin{dblock}
     $\type{DecTotOrd}(A)$ = type of decidable total orders on $A$
 
-    $\type{Sort}(A)$ = type of sections $s\colon \MM(A) \to \LL(A)$ to $q$ satisfying $\term{is-sort}$
+    $\type{Sort}(A)$ = type of sections $s\colon \MM(A) \to \LL(A)$ to $q$
+    satisfying $\term{is-head-least}$ and $\term{is-tail-sort}$
+    where $A$ has decidable equality
 \end{dblock}
 
 \begin{tblock}
@@ -946,8 +1287,50 @@ data SList (A : UU) : UU where
 
 \end{frame}
 
+\begin{frame}{Main Result}
+
+  \begin{qblock}
+    What is a correct sorting algorithm?
+  \end{qblock}
+
+  A sort function is a section $s\colon \MM(A) \to \LL(A)$ to the canonical map $\LL(A) \to \MM(A)$,
+  satisfying:
+
+\begin{dblock}
+    A section $s$ satisfies \textit{is-head-least} if \\
+    $\forall x \, xs. \, \text{is-sorted}(x :: xs) \to y \in (x :: xs) \to \text{is-sorted}([x, y])$.
+\end{dblock}
+
+\begin{dblock}
+    A section $s$ satisfies \textit{is-tail-sort} if \\
+    $\forall x \, xs. \, \text{is-sorted}(x :: xs) \to \text{is-sorted}(xs)$.
+\end{dblock}
+
+
+\end{frame}
+
+\begin{frame}{Future work}
+
+How does sorting relates to \alert{axiom of choice}?
+
+\begin{itemize}
+    \item The canonical map $q : \LL(A) \to \MM(A)$ is a surjection
+    \item AC says every surjection has a section \\
+    i.e. we can always choose a canonical representative for each equivalence class
+    \item A sorting algorithm produces this representative
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}[standout]
     Thank you!
+\end{frame}
+
+% \nocite{*}
+
+\begin{frame}[allowframebreaks]
+    \frametitle{References}
+    \printbibliography[heading=none]
 \end{frame}
 
 \end{document}
