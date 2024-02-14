@@ -1,6 +1,6 @@
 TARGETS = main.pdf
 DEPS_DIR = .deps
-LATEXMK = latexmk -recorder -use-make -deps
+LATEXMK = latexmk -pdflua -recorder -use-make -deps
 
 all: $(TARGETS)
 continuous: LATEXMK += -f -interaction=nonstopmode -pvc
@@ -15,7 +15,7 @@ $(DEPS_DIR) :
 
 %.pdf : %.tex
 	if [ ! -e $(DEPS_DIR) ]; then mkdir $(DEPS_DIR); fi
-	$(LATEXMK) -pdflua -f -deps-out=$(DEPS_DIR)/$@P $<
+	$(LATEXMK) -f -deps-out=$(DEPS_DIR)/$@P $<
 
 clean:
 	latexmk -c
