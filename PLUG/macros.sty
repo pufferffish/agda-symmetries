@@ -63,6 +63,13 @@
 \newcommand{\sort}{\mathsf{sort}}
 \newcommand{\sect}{\mathscr{s}}
 
+% yoneda
+\DeclareFontFamily{U}{min}{}
+\DeclareFontShape{U}{min}{m}{n}{<-> udmj30}{}
+\newcommand{\yo}
+{\!\text{\usefont{U}{min}{m}{n}\symbol{'210}}\!}
+%{\mathbf{y}}
+
 % code listings
 \lstloadlanguages{Haskell}
 \lstdefinelanguage{Agda}{
@@ -77,7 +84,7 @@
   basewidth        = {0em,0em},
   morekeywords     = {},
   deletekeywords   = {List},
-  emph             = [1]{List,SList,PList,Mset,SMC,FMSet,Perm},
+  emph             = [1]{List,SList,PList,Mset,SMC,FMSet,Perm,Maybe,hProp,hSet},
   emph             = [2]{swap,trunc,eq,squash,perm-refl,perm-swap},
   emph             = [3]{i0,i1,hcomp,Nat},
   alsoletter       = {_,-},
@@ -97,6 +104,7 @@
                      {lambda}{{λ\!}}2
                      {forall}{{∀}}2
                      {times}{{×}}2 {plus}{{+}}2 {uplus}{{$\uplus$}}2
+                     {mem}{{$\in$}}2
                      {top}{{$\top$}}2 {bot}{{$\bot$}}2
                      {land}{{∧}}2 {lor}{{∨}}2
                      {exists}{{∃}}2
