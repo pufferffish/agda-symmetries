@@ -140,3 +140,140 @@ Slight refactor on the free object isomorphism proof
 
 * 06/11/2023 [10 minutes]
 Another slight refactor on the free object isomorphism proof
+
+* 13/11/2023 [3 hours]
+Meeting with Dr. Vikraman Choudhury to discuss strategies to prove direct isomorphism from Bag to CList
+
+* 14/11/2023 [3 hours]
+Some work on proving direct isomorphism from Bag to CList
+
+* 15/11/2023 [4 hours]
+Meeting with Dr. Vikraman Choudhury to discuss strategies to prove direct isomorphism from Bag to CList,
+then meeting with Dr. Simon Gay, also some work on the proof in terms of punchIn/punchOut relations
+
+* 16/11/2023 [1 hours]
+Prove some lemmas for Bag to CList isomorphism
+
+* 18/11/2023 [3 hours]
+Complete the definition of `toCList : Bag -> CList`
+
+* 20/11/2023 [2 hours]
+Start work on `fromCList : CList -> Bag`
+
+* 21/11/2023 [2 hours]
+Meeting with Dr. Simon Gay and Dr. Vikraman Choudhury, experimenting with ways to deal with
+Agda getting stuck
+
+* 22/11/2023 [2 hours]
+Work on some necessary lemmas about array to list isomorphism being a homomorphism.
+Went to SPLS where Dr. Vikraman Choudhury did a talk on the project (this is not counted towards the time)
+
+* 23/11/2023 [2 hours]
+Prove lemmas about array to list isomorphism being a homomorphism, and completing the entire Bag to CList
+isomorphism proof
+
+* 25/11/2023 [30 minutes]
+Minor cleanup on Bag to CList isomorphism proof
+
+* 29/11/2023 [30 minutes]
+Meeting with Dr. Simon Gay and Dr. Vikraman Choudhury, some discussion on what to do next
+
+* 30/11/2023 [4 hours]
+Begin work on formalizing sort functions, refactor SList, add lemmas about SList, experimentation with different sorted list representations
+
+* 1/12/2023 [4 hours]
+Showed sort cannot be a homomorphism (contrary to what we assumed in the SPLS talk), proved some axioms of total orders
+
+* 2/12/2023 [4 hours]
+Proved least-choice under decidable equality assumption, experimentation with different constructions of total order to see if transitivity can be derived
+
+* 3/12/2023 [3 hours]
+Formalizing membership proofs of List and SList by their universal property, removed decidable equality assumption in least-choice
+
+* 4/12/2023 [2 hours]
+Experimentation in trying to prove transitivity
+
+* 10/12/2023 [2 hours]
+Reduced the proof for transitivity down to least-removed
+
+* 3/1/2023 [2 hours]
+Meeting with Dr. Vikraman Choudhury to discuss how sorting relates to axiom of choice
+
+* 10/1/2023 [2 hours]
+Define sort function under decidable total order
+
+* 14/1/2023 [1 hours]
+Some experimentations with total order
+
+* 15/1/2023 [4 hours]
+Try to prove least-removed, meeting with Dr. Vikraman Choudhury to discuss abstract for HoTT/UF workshop
+
+* 16/1/2023 [1 hour]
+Some draft on the abstract
+
+* 17/1/2023 [2 hour]
+Meeting with Dr. Simon Gay to catch up on progress, add proof sketch on total order can be constructed to abstract
+
+* 18/1/2023 [1 hour]
+Add explanation of the framework for universal algebra to abstract
+
+* 19/1/2023 [2 hours]
+Show transitivity cannot be proven without extra assumptions, proved transitivity under new assumption,
+added explanation on transitivity to abstract
+
+* 20/1/2023 [2 hours]
+Work with Dr. Vikraman Choudhury to write the abstract for HoTT/UF workshop
+
+* 21/1/2023 [3 hours]
+Fix insertion sort definition to `SList -> List`
+
+* 22/1/2023 [2 hours]
+Prove order can be used to construct section, section can be used to reconstruct the same order
+
+* 24/1/2023 [2 hours]
+Some work on proving reconstructing a section by section -> order -> section
+
+* 26/1/2023 [1 hour]
+Some more work on proving reconstructing a section by section -> order -> section
+
+* 27/1/2023 [30 minutes]
+Clean up and merge progress into main branch
+
+* 30/1/2023 [2 hours]
+Meeting with Dr. Vikraman Choudhury to discuss overall status of the project, and potentially extending the proof to relationship with axiom of choice
+
+* 31/1/2023 [30 minutes]
+Meeting with Dr. Simon Gay to discuss potentially submitting to ICFP
+
+* 2/2/2023 [1 hour]
+Explore other possible potential axioms of sorting
+
+* 3/2/2023 [3 hours]
+Meeting with Dr. Vikraman Choudhury to discuss overall status of the project, cleaned up the proof
+
+* 4/2/2023 [2 hours]
+Add second axiom of sorting to complete the full equivlence of total order and sorting proof
+
+* 8/2/2023 [2 hours]
+Meeting with Dr. Simon Gay to catch up on progress, add counterexample that satifies is-head-least but not is-tail-sort, and formalize the proof for seely isomorphism
+
+* 9/2/2023 [1 hours]
+Start draft on PLUG talk slides
+
+* 10/2/2023 [3 hours]
+Add HIT intro to the slides
+
+* 11/2/2023 [3 hours]
+Add h-level explanation to the slides, collaboration with Dr. Vikraman Choudhury on some aesthetics of the slide
+
+* 12/2/2023 [3 hours]
+Work with Dr. Vikraman Choudhury on the slides, add explanation on universal algebra
+
+* 13/2/2023 [3 hours]
+Work with Dr. Vikraman Choudhury on the slides, add explanation on sorting
+
+* 14/2/2023 [3 hours]
+Meeting with Dr. Vikraman Choudhury to discuss the slides and do a practice talk, then a talk on the project in PLUG
+
+* 15/2/2023 [30 minutes]
+Meeting with Dr. Simon Gay to catch up on progress and also get some advice on thesis
