@@ -196,84 +196,84 @@ Experimentation in trying to prove transitivity
 * 10/12/2023 [2 hours]
 Reduced the proof for transitivity down to least-removed
 
-* 3/1/2023 [2 hours]
+* 3/1/2024 [2 hours]
 Meeting with Dr. Vikraman Choudhury to discuss how sorting relates to axiom of choice
 
-* 10/1/2023 [2 hours]
+* 10/1/2024 [2 hours]
 Define sort function under decidable total order
 
-* 14/1/2023 [1 hours]
+* 14/1/2024 [1 hours]
 Some experimentations with total order
 
-* 15/1/2023 [4 hours]
+* 15/1/2024 [4 hours]
 Try to prove least-removed, meeting with Dr. Vikraman Choudhury to discuss abstract for HoTT/UF workshop
 
-* 16/1/2023 [1 hour]
+* 16/1/2024 [1 hour]
 Some draft on the abstract
 
-* 17/1/2023 [2 hour]
+* 17/1/2024 [2 hour]
 Meeting with Dr. Simon Gay to catch up on progress, add proof sketch on total order can be constructed to abstract
 
-* 18/1/2023 [1 hour]
+* 18/1/2024 [1 hour]
 Add explanation of the framework for universal algebra to abstract
 
-* 19/1/2023 [2 hours]
+* 19/1/2024 [2 hours]
 Show transitivity cannot be proven without extra assumptions, proved transitivity under new assumption,
 added explanation on transitivity to abstract
 
-* 20/1/2023 [2 hours]
+* 20/1/2024 [2 hours]
 Work with Dr. Vikraman Choudhury to write the abstract for HoTT/UF workshop
 
-* 21/1/2023 [3 hours]
+* 21/1/2024 [3 hours]
 Fix insertion sort definition to `SList -> List`
 
-* 22/1/2023 [2 hours]
+* 22/1/2024 [2 hours]
 Prove order can be used to construct section, section can be used to reconstruct the same order
 
-* 24/1/2023 [2 hours]
+* 24/1/2024 [2 hours]
 Some work on proving reconstructing a section by section -> order -> section
 
-* 26/1/2023 [1 hour]
+* 26/1/2024 [1 hour]
 Some more work on proving reconstructing a section by section -> order -> section
 
-* 27/1/2023 [30 minutes]
+* 27/1/2024 [30 minutes]
 Clean up and merge progress into main branch
 
-* 30/1/2023 [2 hours]
+* 30/1/2024 [2 hours]
 Meeting with Dr. Vikraman Choudhury to discuss overall status of the project, and potentially extending the proof to relationship with axiom of choice
 
-* 31/1/2023 [30 minutes]
+* 31/1/2024 [30 minutes]
 Meeting with Dr. Simon Gay to discuss potentially submitting to ICFP
 
-* 2/2/2023 [1 hour]
+* 2/2/2024 [1 hour]
 Explore other possible potential axioms of sorting
 
-* 3/2/2023 [3 hours]
+* 3/2/2024 [3 hours]
 Meeting with Dr. Vikraman Choudhury to discuss overall status of the project, cleaned up the proof
 
-* 4/2/2023 [2 hours]
+* 4/2/2024 [2 hours]
 Add second axiom of sorting to complete the full equivlence of total order and sorting proof
 
-* 8/2/2023 [2 hours]
+* 8/2/2024 [2 hours]
 Meeting with Dr. Simon Gay to catch up on progress, add counterexample that satifies is-head-least but not is-tail-sort, and formalize the proof for seely isomorphism
 
-* 9/2/2023 [1 hours]
+* 9/2/2024 [1 hours]
 Start draft on PLUG talk slides
 
-* 10/2/2023 [3 hours]
+* 10/2/2024 [3 hours]
 Add HIT intro to the slides
 
-* 11/2/2023 [3 hours]
+* 11/2/2024 [3 hours]
 Add h-level explanation to the slides, collaboration with Dr. Vikraman Choudhury on some aesthetics of the slide
 
-* 12/2/2023 [3 hours]
+* 12/2/2024 [3 hours]
 Work with Dr. Vikraman Choudhury on the slides, add explanation on universal algebra
 
-* 13/2/2023 [3 hours]
+* 13/2/2024 [3 hours]
 Work with Dr. Vikraman Choudhury on the slides, add explanation on sorting
 
-* 14/2/2023 [3 hours]
+* 14/2/2024 [3 hours]
 Meeting with Dr. Vikraman Choudhury to discuss the slides and do a practice talk, then a talk on the project in PLUG
 
-* 15/2/2023 [30 minutes]
+* 15/2/2024 [30 minutes]
 Meeting with Dr. Simon Gay to catch up on progress and also get some advice on thesis
