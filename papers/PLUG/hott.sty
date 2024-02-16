@@ -1,0 +1,153 @@
+\ProvidesPackage{hott}
+
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
+\RequirePackage{mathtools}
+\RequirePackage{relsize}
+\RequirePackage{amsmath}
+\RequirePackage{extarrows}
+\RequirePackage{perfectcut}
+\let\ps\perfectparens%
+
+% meta
+\newcommand{\defeq}{\mathrel{\vcentcolon\equiv}}
+\newcommand{\jdgeq}{\mathrel{\equiv}}
+\newcommand{\blank}{{\scriptstyle{-}}}
+
+% types and terms
+\newcommand{\type}[1]{\mathsf{#1}}
+\newcommand{\term}[1]{\operatorname{\mathsf{#1}}}
+\newcommand{\typef}[1]{\operatorname{\mathsf{#1}}}
+
+% Fin
+\newcommand{\Nat}{\mathbb{N}}
+\NewDocumentCommand{\Fin}{O{}}{
+  \type{Fin{\ifstrempty{#1}{}{_{\mathsmaller{#1}}}}}
+}
+
+% universes
+\newcommand{\UU}{\mathcal{U}}
+\NewDocumentCommand{\UFin}{O{}}{
+  \ifstrempty{#1}
+  {\UU_{\Fin}}
+  {\UU_{\Fin[#1]}}
+}
+\newcommand{\El}{\term{El}}
+\newcommand{\SubP}[2]{\Trunc[-1]{{#1} \id_{\UU} {#2}}}
+\newcommand{\Sub}[1]{\dsum{X\colon\UU}{\SubP{X}{#1}}}
+
+\newcommand{\hProp}{\type{hProp}}
+\newcommand{\hSet}{\type{hSet}}
+\newcommand{\Set}{\type{Set}}
+
+% unit type
+\newcommand{\unit}{{\mathbf{1}}}
+\newcommand{\ttt}{\star}
+
+% empty type
+\newcommand{\emptyt}{{\mathbf{0}}}
+\newcommand{\Void}{\mathbf{0}}
+
+% Bool
+\newcommand{\Bool}{{\mathbf{2}}}
+
+% identity type
+\NewDocumentCommand{\id}{E{^_}{{}{}}}{
+  \mathrel{
+    \ifstrempty{#1}
+    {\ifstrempty{#2}{\mathrel{\boldsymbol{=}}}{\mathrel{{\boldsymbol{=}}_{\mathsmaller{#2}}}}}
+    {{\boldsymbol{=}}^{#1}_{#2}}
+  }
+}
+\NewDocumentCommand{\refl}{E{_}{{}}}{
+  \ifstrempty{#1}
+  {\term{refl}}
+  {\term{refl}_{#1}}
+}
+\newcommand{\ap}[2]{\term{ap}_{#1}({#2})}
+\newcommand{\apd}[2]{\term{apd}_{#1}({#2})}
+\newcommand{\coe}[1]{\term{coe}({#1})}
+\NewDocumentCommand{\transport}{smmm}{
+  \IfBooleanTF{#1}
+  {\term{tr}_{#2}^{#3}({#4})}
+  {\term{transport}_{#2}^{#3}({#4})}
+}
+\newcommand{\tr}[2]{{#1}_{\star}({#2})}
+\newcommand{\ua}{\term{ua}}
+\newcommand{\tptEqv}[1]{\term{transport-equiv}({#1})}
+\NewDocumentCommand{\loopspace}{O{}}{
+  \ifstrempty{#1}
+  {\Omega}
+  {\Omega}{(#1)}
+}
+
+% functions
+\newcommand{\inv}[1]{{#1}^{\mathsmaller{-1}}}
+\newcommand{\comp}{\mathrel{\circ}}
+\newcommand{\htpy}{\mathrel{\sim}}
+\NewDocumentCommand{\im}{O{}m}{\term{im\ifstrempty{#1}{}{_{#1}}}(#2)}
+\newcommand{\fib}{\term{fib}}
+
+% equivalences
+\newcommand{\eqv}{\mathrel{\simeq}}
+\newcommand{\idfunc}{\term{id}}
+\newcommand{\natiso}{\eqv}
+
+% truncations
+\NewDocumentCommand{\Trunc}{O{}m}{
+  \ifstrempty{#1}
+  {\left\Vert #2\right\Vert}
+  {\left\Vert #2\right\Vert_{\mathsmaller{#1}}}
+}
+\newcommand{\trunc}[1]{\vert #1\vert}
+
+% quotients
+\newcommand{\quot}[2]{{#1}/{#2}}
+\newcommand{\quotinc}{\term{q}}
+\newcommand{\quotrel}{\term{q-rel}}
+
+% propositions
+\newcommand{\isContr}[1]{\mathop{\term{isContr}}({#1})}
+\newcommand{\isProp}[1]{\mathop{\term{isProp}}({#1})}
+\newcommand{\isSet}[1]{\mathop{\term{isSet}}({#1})}
+\newcommand{\isGpd}[1]{\mathop{\term{isGpd}}({#1})}
+\newcommand{\isEquiv}[1]{\mathop{\term{isEquiv}}({#1})}
+
+% loops
+\newcommand{\B}[1]{\mathcal{B}{#1}}
+\newcommand{\pt}{\term{\star}}
+
+% aut
+\NewDocumentCommand{\Aut}{O{}}{\mathsf{Aut}\ifstrempty{#1}{}{\ps{#1}}}
+\NewDocumentCommand{\BAut}{O{}}{\B{\mathsf{Aut}\ifstrempty{#1}{}{\ps{#1}}}}
+
+% dependent function
+\NewDocumentCommand{\dfun}{smm}{
+  \IfBooleanTF{#1}
+  {\prod_{({#2})}{#3}}
+  {({#2}) \to {#3}}
+  % {\prod\limits_{\mathsmaller{#2}}{#3}}
+}
+
+% dependent sum
+\NewDocumentCommand{\dsum}{smm}{
+  \IfBooleanTF{#1}
+  {\sum_{({#2})}{#3}}
+  {({#2}) \times ({#3})}
+  % {\sum\limits_{\mathsmaller{#2}}{#3}}
+}
+\newcommand{\pair}[1]{\ps{#1}}
+\newcommand{\fst}{\pi_1}
+\newcommand{\snd}{\pi_2}
+
+% propositions
+\NewDocumentCommand{\fora}{smm}{
+  \IfBooleanTF{#1}
+  {\forall_{{(#2).}}{#3}}
+  {\forall{\textstyle{(#2).}}{#3}}
+}
+\NewDocumentCommand{\exis}{smm}{
+  \IfBooleanTF{#1}
+  {\exists_{{(#2).\;}}{#3}}
+  {\exists{\textstyle{(#2).\;}}{#3}}
+}

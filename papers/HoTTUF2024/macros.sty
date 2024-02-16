@@ -1,0 +1,56 @@
+\ProvidesPackage{macros}
+
+\RequirePackage{xparse}
+\RequirePackage{amsmath}
+\RequirePackage{perfectcut}
+\let\ps\perfectparens%
+
+\RequirePackage{hott}
+
+% math
+\newcommand{\xto}[1]{\xlongrightarrow{#1}}
+
+% universal algebra
+
+\newcommand{\op}{\term{op}}
+\newcommand{\ar}{\term{ar}}
+
+\newcommand{\sig}{\sigma}
+\NewDocumentCommand{\Sig}{O{\sig}}{
+  F_{#1}
+}
+
+\newcommand{\Alg}{\type{Alg}}
+\NewDocumentCommand{\sigAlg}{O{\sig}}{
+  {#1}\text{-}\Alg
+}
+\NewDocumentCommand{\SigAlg}{O{\Sig}}{
+  {#1}\text{-}\Alg
+}
+
+\NewDocumentCommand{\tree}{O{\sigma}m}{
+  \mathsf{Tr}{_{#1}}\ps{#2}
+}
+\newcommand{\str}[1]{\mathfrak{#1}}
+
+\newcommand{\ext}[1]{{#1}^{\sharp}}
+
+\newcommand{\eq}{\term{eq}}
+\newcommand{\fv}{\term{fv}}
+
+\newcommand{\lhs}{\mathscr{l}}
+\newcommand{\rhs}{\mathscr{r}}
+
+\newcommand{\entails}{\vDash}
+
+% monoids
+\newcommand{\Mon}{\type{Mon}}
+\newcommand{\CMon}{\type{CMon}}
+
+%
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\MM}{\mathcal{M}}
+
+% sort
+\newcommand{\sort}{\mathsf{sort}}
+\newcommand{\sect}{\mathscr{s}}
