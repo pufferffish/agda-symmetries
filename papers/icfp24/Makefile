@@ -5,7 +5,7 @@ ARXIV_SOURCES = $(filter-out $(wildcard *icfp*),$(wildcard *.tex *.cls *.sty *.b
 # sources for the camera-ready version
 ICFP_SOURCES = icfp24-sort-final.tex $(filter-out $(wildcard *arxiv*)$(wildcard *icfp*),$(wildcard *.tex *.cls *.sty *.bib *.bbl))
 # targets to build: full paper, and the stripped submission
-TARGETS = icfp24-sort.pdf icfp24-sort-submission.pdf
+TARGETS = arxiv-sort.tex icfp24-sort-strip.tex icfp24-sort.pdf icfp24-sort-submission.pdf
 # latexmk setup
 DEPS_DIR = .deps
 ENGINE = -pdf
@@ -15,8 +15,14 @@ PDFTK = pdftk
 
 all: $(TARGETS)
 
+icfp24-sort-strip.tex: icfp24-sort.tex
+	cp -f $< $@
+
 icfp24-sort.pdf: $(SOURCES)
 	$(LATEXMK) icfp24-sort.tex
+
+arxiv-sort.tex: icfp24-sort.tex
+	cp -f $< $@
 
 arxiv-sort.pdf: ENGINE = -pdf
 arxiv-sort.pdf: $(SOURCES)
