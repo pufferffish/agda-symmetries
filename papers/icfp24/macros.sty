@@ -1,0 +1,44 @@
+\ProvidesPackage{macros}
+
+\RequirePackage{xcolor-solarized}
+% cleveref setup
+\RequirePackage[nameinlink]{cleveref}
+% lists
+\RequirePackage[inline]{enumitem}
+
+%% itemize margin
+\newenvironment{myitemize}
+    {\begin{itemize}[leftmargin=*]}
+    {\end{itemize}}
+
+% editing marks
+\newcommand{\todo}[1]{\color{solarized-red}{TODO: #1}}
+\ifx\note\undefined
+\newcommand{\note}[1]{\textcolor{solarized-green}{NOTE: #1}}
+\fi
+\newcommand{\redtext}[1]{\textcolor{solarized-red}{#1}}
+\newcommand{\newtext}[1]{\textcolor{solarized-blue}{#1}}
+
+% author marks
+\newcommand{\vc}[1]{\textcolor{solarized-magenta}{VC: #1}}
+\newcommand{\amr}[1]{\textcolor{solarized-blue}{Amr: #1}}
+
+% references
+\makeatletter
+\newcommand{\crefnames}[3]{%
+  \@for\next:=#1\do{%
+    \expandafter\crefname\expandafter{\next}{#2}{#3}%
+  }%
+}
+\makeatother
+\crefnames{part,chapter,section,subsection}{\S}{\S\S}
+\crefnames{paragraph}{\P}{\P\P}
+
+% paragraphs
+\newcommand{\myparagraph}[1]{\noindent\textbf{#1.}}
+\makeatletter
+\renewcommand{\@subsubsecfont}{\sffamily\bfseries}
+\makeatother
+
+% frenchquotes
+\newcommand{\frenchquote}[1]{\guillemotleft{}#1\guillemotright{}}

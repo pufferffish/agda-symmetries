@@ -1,0 +1,11 @@
+lookForAlignDelims:
+    eqdefs: 1
+    eqdefs2: 1
+    grammar: 1
+    judgements: 1
+    mathpar: 1
+
+verbatimEnvironments:
+    code: 1
+    lcode: 1
+    mpcode: 1
