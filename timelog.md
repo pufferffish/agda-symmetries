@@ -277,3 +277,9 @@ Meeting with Dr. Vikraman Choudhury to discuss the slides and do a practice talk
 
 * 15/2/2024 [30 minutes]
 Meeting with Dr. Simon Gay to catch up on progress and also get some advice on thesis
+
+* 18/2/2024 [30 minutes]
+Move HTML rendering of the code from GitHub Pages to Netlify 
+
+* 19/2/2024 [30 minutes]
+Fix CI where Everything.agda is not generated 
