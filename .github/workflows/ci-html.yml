@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - main
+      - html-render
 
 ########################################################################
 ## CONFIGURATION
@@ -52,13 +53,6 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-      contents: read
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Install cabal
@@ -134,24 +128,13 @@ jobs:
         run: |
           cd symmetries
           agda --html --html-dir=html index.agda
-          tar \
-            --dereference --hard-dereference \
-            --directory "./html" \
-            -cvf "$RUNNER_TEMP/artifact.tar" \
-            --exclude=.git \
-            --exclude=.github \
-            .
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: github-pages
-          path: ${{ runner.temp }}/artifact.tar
-          retention-days: ${{ inputs.retention-days }}
-          if-no-files-found: error
+      - name: Deploy to netlify
+        uses: netlify/actions/cli@master
         env:
-          INPUT_PATH: ${{ inputs.path }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=symmetries/html --prod
+          secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]'
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
