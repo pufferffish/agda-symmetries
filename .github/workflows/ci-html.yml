@@ -124,6 +124,12 @@ jobs:
       ## HTML GENERATION
       ########################################################################
 
+      - name: Generate Everything.agda
+        run: |
+          cd symmetries
+          chmod +x create-everything.sh
+          ./create-everything.sh
+
       - name: Htmlize cubical
         run: |
           cd symmetries
