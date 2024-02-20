@@ -1,8 +1,94 @@
 \section{Introduction}
 \label{sec:introduction}
 
+Another way: start with a puzzle!
+
+\subsection*{A puzzle about sorting}
+
+Suppose $A$ is the 3-element set $\{a,b,c\}$. There are many possible orderings of these element, eg, $[a,b,c]$, or $[a,c,b]$, $[b,c,a]$, 6 of them. Consider lists of $A$, such as $[a,b,c,a,c,b,c,c]$, and we want to sort this list, so we want to write a sort function $s\colon List(A) \to List(A)$. 
+
+Puzzle: how many functions $s$? Answer: countably many!
+
+Puzzle: how many correct sorting functions $s$? Answer: only 6, how?
+
+\subsection*{Solving the puzzle}
+
+Let's try to write some functions $List(A) \to List(A)$.
+Example 1:
+\begin{align*}
+    s1(nil) &= nil \\
+    s1(x:xs) &= if x = a then ...
+\end{align*}
+
+$s1$ is a sort function only if $A$ is ordered by $a < c < b$.
+In fact, this goes both ways!
+If we write a correct sort function $s$, we will get a total order on $A$.
+
+%% Now, suppose you have lists of elements of $A$, such as, $[(a,"foo"), (b, "bar"), (c, "baz")]$, and we want to sort this list using the first element of the tuple as the key -- in how many ways can we sort correctly?
+
+Main insight: fixing a permutation on $\{a,b,c\}$ fixes an ordering on the elements which determines a correct sort function for lists of $A$.
+
+\begin{itemize}
+    \item What exactly is special about commutativity? We study this from the ordinateur science point of view, using monoids and commutative monoids, which are important data structures.
+    \item In some sense, commutativity or unordering is formally understood as non-determinism, such as in concurrency using finite powersets or free commutative monoids. When can a commutative structure be linearised?
+    \item Commutativity is a way of enforcing unordering, or forgetting ordering, there are many ways of doing it: by using adjacent transpositions to generate all symmetries, or quotienting by symmetries
+    \item if you forget the ordering and get an unordered list (or data structure), can you recover the ordering? Of course, it's a sorting algorithm, that is very basic to computer science. In fact, this gives us a specification for sorting, which is our application.
+    \item Why do we want to write intrinsically verified sorting algorithms?
+        \begin{itemize}
+        \item Using HITs, the sort function is correct by construction. This is unlike verifying 
+            sort externally in Coq.
+        \item Can we structure the program in a better way? This is already solved by the bialgebraic sorting point of view, are we doing anything new?
+        \item We give a more conceptual understanding of the correctness of sorting algorithms, using an abstract framework.      
+        \item Conventional way: a sort function turns a list into an ordered list.
+        \item Our way: a sort function is a function satisfying some abstract properties, independent of a given ordering.
+        \end{itemize}            
+\end{itemize}
+
+% overall plan: with the universal algebra
+
+
+Sorting algorithm is a common algorithm we introduce to undergraduate students
+when we teach them algorithmics. For example, a sort algorithm can be a function
+$\text{List} \, \mathbb{N} \to \text{List} \, \mathbb{N}$, which produces $[1,2,3,4]$
+given the input $[2,3,1,4]$. However, what exactly makes this sort function correct?
+The common formalization of a correct sort algorithm is to say a sort algorithm produces
+an "orederd list", for example, one such formalization would be the definition
+from Verified Functional Algorithms \cite{appel2016verified}, translated into Agda.
+
+\begin{lstlisting}[language=Haskell]
+data Sorted : List A $\to$ Type where
+  sorted-nil : Sorted []
+  sorted-one : $\forall$ x $\to$ Sorted [ x ]
+  sorted-cons : $\forall$ x y zs $\to$ x $\leq$ y $\to$ Sorted (y :: zs) $\to$ Sorted (x :: y :: zs)
+\end{lstlisting}
+
+This is a perfectly valid formalization of an ordered list! Empty lists and singleton lists
+are ordered, and we can inductively construct an "orderness witness" by prepending a new element
+to an ordered list, provided that the new element is less than the head of the old ordered list of
+course. This definition, however, assumes an existing total order on $A$. This is
+unsatisfactory, in a way, because a sorting algorithm is fundamentally just a function. Can we
+axiomatize the correctness of a sorting algorithm purely by the properties of functions?
+
+In a sense, this problem has already been solved, first by Hinze et al. \cite{10.1145/2364394.2364405}
+and later extended by Alexandru in their thesis \cite{alexandru_intrinsically_2023}.
+Their formalization is defined in terms of bialgebras, which not
+only captures the correctness of sorting algorithms purely in a categorical settings, but
+also isolate the computational essence of sorting algorithms in terms of distributive laws,
+allowing us to construct more sorting algorithms "for free". Their work are thus necessarily
+below the level of extensional equality, i.e. input-output behavior, and allow us to reason
+with the structures of the sorting algorithms themselves. Our work only concerns the correctness
+of sorting algorithms, with the goal to find a "pure" axiom of sorting, which allows us to gain
+insight into how sorting relates to order and vice versa, and its implications on axiom of
+choice. % maybe write more on its relationship to AC, in a sepreate paragraph?
+
 \subsubsection*{Outline and Contributions}
 
 \begin{myitemize}
-    \item 
+    \item In~\cref{sec:type-theory}, we discuss the basics of HoTT and Cubical Agda, and describe the notation we use in the paper.
+    \item In~\cref{sec:universal-algebra}, we give some background on a categorical framework for universal algebra including equations, and its formalization in HoTT. We give the definition of free algebras and their universal property. \vc{We do not give the construction of free algbras for arbitrary signatures, because we show that their existence implies non-constructive principles.}
+    \item In~\cref{sec:monoids}, we give various constructions of free monoids, and their proofs of universal property.
+    \item In~\cref{sec:commutative-monoids}, we add commutativity to free monoids, and show how to extend the proofs of universal property appropriately, to get the universal property of free commutative monoids.
+    \item \vc{In~\cref{sec:combinatorics}, we show how free monoids and free commutative monoids are different, by discussing various combinatorial properties and operations, which can be defined for both, and ones which cannot be defined for both}.
+    \item In \cref{sec:sorting}, we build on the constructions of the previous sections and study intrinsically verified sorting function. The main result in this section is to connect total orders and sorting and commutativity, by proving an equivalence between decidable total orders on a carrier set $A$, and correct sorting algorithms on lists of elements of $A$.
+    \item In~\cref{sec:discussion}, we discuss connections to related work, and future work.
 \end{myitemize}

@@ -14,7 +14,7 @@
 \acmYear{2024}
 % \acmDOI{XXXXXXX.XXXXXXX}
 
-%% These commands are for a PROCEEDINGS abstract or paper.
+%% These commands are for a PROCEEDINGS abstract or papier.
 \acmConference[ICFP'24]{International Conference on Functional Programming}{Sep 2--7, 2024}{Milan, Italy}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
@@ -88,6 +88,16 @@
 \usepackage{stmaryrd}
 \usepackage{quiver}
 \usepackage{ebproof}
+\usepackage{listings}
+
+\lstset{%
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  keepspaces=true,
+  mathescape=true,      % Allow escaping to LaTeX math mode within $$
+  escapechar=\%,        % Set the escape character (e.g., % for LaTeX commands)
+}
+
 
 %% typesetting
 %% fancy quotation
