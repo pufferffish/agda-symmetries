@@ -1,0 +1,63 @@
+\section{Sorting}
+\label{sec:sorting}
+
+We can now study sort functions as sections and their relationship with total orders.
+First, we recall the axioms of total order are:
+\begin{itemize}
+    \item reflexivity: $x \leq x$
+    \item transitivity: if $x \leq y$ and $y \leq z$, then $x \leq z$
+    \item antisymmetry: if $x \leq y$ and $y \leq x$, then $x = y$
+    \item totality: forall $x$ and $y$, we have merely either $x \leq y$ or $y \leq x$ 
+\end{itemize}
+
+In the context of this paper, we also want to make a distinction between "decidable total order"
+and just "total order". A decidable total order should also satisfy
+\begin{itemize}
+    \item decidability: forall $x$ and $y$, we have either $x \leq y$ or $\neg(x \leq y)$ 
+\end{itemize}
+
+This is a stronger version of the totality axiom, where with totality we have 
+either $x \leq y$ or $y \leq x$ merely as a proposition, but decidability allows us to actually
+compute if $x \leq y$ is true.
+
+\begin{proposition}
+Assume there is a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
+which constructs a section to $q : \LL(A) \twoheadrightarrow \MM(A)$
+\end{proposition}
+
+We can easily construct such a section by any sorting algorithm. In our formalization we chose
+insertion sort due to its inductive properties and simple definition. It is easy to see how this
+proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$, and re-discard the order again by
+$q$, the act of imposing then forgetting an order on $xs$ does nothing, therefore $q(s(xs)) = xs$ holds.
+
+\subsection{Order from section}
+At this point one may ask if we can construct a section from order, can we construct an order from section?
+Indeed, just by the virtue of $s$ being a section, we can almost construct a relation that satisfies
+all axioms of total order except transitivity. 
+
+\begin{definition}
+Given a section $s$, we define $\term{least}(xs) := \term{head}(s(xs))$.
+Further, we define $x \preccurlyeq y := \term{least}(\{x, y\}) = x$. 
+\end{definition}
+
+Conceptually, $\term{least}$ sorts $xs$ by $s$, and pick the first element of the sorted list.
+With this we can easily prove the following properties of $\preccurlyeq$.
+
+\begin{theorem}
+$\preccurlyeq$ is reflexive.
+\end{theorem}
+For all $x$, $\term{least}(\{x, x\})$ must be $x$, therefore $x \preccurlyeq x$.
+
+\begin{theorem}
+$\preccurlyeq$ is antisymmetric.
+\end{theorem}
+For all $x$ and $y$, given $x \preccurlyeq y$ and $y \preccurlyeq x$,
+we have $\term{least}(\{x, y\}) = x$ and $\term{least}(\{y, x\}) = y$.
+Since $\{x, y\} = \{y, x\}$, $\term{least}(\{x, y\}) = \term{least}(\{y, x\})$,
+therefore we have $x = y$.
+
+\begin{theorem}
+$\preccurlyeq$ is total.
+\end{theorem}
+For all $x$ and $y$, $\term{least}(\{x, y\})$ is merely either $x$ or $y$,
+therefore we have merely either $x \preccurlyeq y$ or $y \preccurlyeq x$.

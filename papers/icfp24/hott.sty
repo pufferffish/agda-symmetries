@@ -1,14 +1,5 @@
 \ProvidesPackage{hott}
 
-\RequirePackage{xparse}
-\RequirePackage{etoolbox}
-\RequirePackage{mathtools}
-\RequirePackage{relsize}
-\RequirePackage{amsmath}
-\RequirePackage{extarrows}
-\RequirePackage{perfectcut}
-\let\ps\perfectparens%
-
 % meta
 \newcommand{\defeq}{\mathrel{\vcentcolon\equiv}}
 \newcommand{\jdgeq}{\mathrel{\equiv}}
@@ -24,6 +15,7 @@
 \NewDocumentCommand{\Fin}{O{}}{
   \type{Fin{\ifstrempty{#1}{}{_{#1}}}}
 }
+
 
 % universes
 \newcommand{\UU}{\mathcal{U}}
@@ -130,9 +122,7 @@
 
 % dependent sum
 \NewDocumentCommand{\dsum}{smm}{
-  \IfBooleanTF{#1}
-  {\sum_{({#2})}{#3}}
-  {({#2}) \times ({#3})}
+  \textstyle\sum_{({#2})}{#3}
   % {\sum\limits_{\mathsmaller{#2}}{#3}}
 }
 \newcommand{\pair}[1]{\ps{#1}}

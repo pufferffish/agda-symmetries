@@ -1,0 +1,202 @@
+\section{Construction of Free Monoids}
+\label{sec:monoids}
+
+Free monoids are well-known to functional programmers. In this section, we consider various constructions of them in type theory, and prove their universal property. Because we are working in univalent type theory, these constructions are equivalent as types (and as monoids).
+
+\subsection{List}
+
+The simplest inductive data structure is a cons-list, which is a free monoid~\cite{dubucFreeMonoids1974}. As a type, this is given by:
+
+\begin{definition}{Lists}
+The type of lists on a type $A$ is given by:
+\vspace{1em}
+\begin{code}
+data List (A : UU) : UU where
+  nil : List A
+  _cons_ : A -> List A -> List A
+\end{code}
+\vspace{1em}
+\end{definition}
+
+An example of a list would be $3 :: 1 :: 2 :: []$, alternatively denoted as $[3, 1, 2]$ for convenience.
+
+The generators map is the singleton: $\eta_A(a) =$~[ a ]~$= a :: []$, 
+the identity element is the empty list $[]$,
+and the monoid operation $\doubleplus$ is given by the concatenation operation.
+
+\begin{definition}[Concatenation]
+We define the concatenation operation $\doubleplus : List(A) \to List(A) \to List(A)$ inductively.
+\begin{align*}
+    [] \doubleplus ys & = ys \\
+    (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys)
+\end{align*}
+\end{definition}
+
+We leave the proof that concatenation satisfies the unit laws and associativity law of monoids to the readers.
+
+\begin{definition}[Extension/fold]
+We define the $\ext{(\blank)}$ on $f : A \to X$ as:
+\begin{align*}
+    \ext{f}([]) & = e \\
+    \ext{f}(x :: xs) & =  f(x) \otimes \ext{f}(xs)
+\end{align*} 
+\end{definition}
+
+\begin{proposition}
+    $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : List(A) \to \mathfrak{X}$.
+\end{proposition}
+
+\begin{proof}
+    To show that $\ext{f}$ is a monoid homomorphism,
+    we need to show $\ext{f}(xs \doubleplus ys) = \ext{f}(xs) \otimes \ext{f}(ys)$.
+    We can do so by induction on $xs$.
+
+    Case []:
+    $\ext{f}([] \doubleplus ys) = \ext{f}(ys)$,
+    and $\ext{f}([]) \otimes \ext{f}(ys) = e \otimes \ext{f}(ys) = \ext{f}(ys)$
+    by definition of $\ext{(\blank)}$. Therefore, we have
+    $\ext{f}([] \doubleplus ys) = \ext{f}([]) \otimes \ext{f}(ys)$.
+
+    Case $x :: xs$:
+    \begin{align*}
+        & \ext{f}((x :: xs) \doubleplus ys) \\
+        & = \ext{f}(([ x ] \doubleplus xs) \doubleplus ys) & \text{by definition of concatenation} \\
+        & = \ext{f}([ x ] \doubleplus (xs \doubleplus ys)) & \text{by associativity} \\
+        & = \ext{f}(x :: (xs \doubleplus ys)) & \text{by definition of concatenation} \\
+        & = f(x) \otimes \ext{f}(xs \doubleplus ys) & \text{by definition of $\ext{(\blank)}$} \\
+        & = f(x) \otimes (\ext{f}(xs) \otimes \ext{f}(ys)) & \text{by induction} \\
+        & = (f(x) \otimes \ext{f}(xs)) \otimes \ext{f}(ys) & \text{by associativity} \\
+        & = \ext{f}(x :: xs) \otimes \ext{f}(ys) & \text{by definition of $\ext{(\blank)}$} \\
+    \end{align*}
+
+    Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
+\end{proof}
+
+\begin{proposition}[Universal property for List]
+    $(List(A),\eta_A)$ is the free monoid on $A$.
+\end{proposition}
+
+\begin{proof}
+    To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
+    we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
+    For all $f$ and $x$, $(\ext{f} \circ \eta_A)(x) = \ext{f}(x :: []) = f(x) \otimes e = f(x)$,
+    therefore by function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
+    and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
+    
+    To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
+    for any monoid homomorphism $f : List(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    We can do so by induction on $xs$.
+
+    Case []: $\ext{(f \comp \eta_A)}([]) = e$ by definition of the $\ext{(\blank)}$ operation,
+    and $f([]) = e$ by homomorphism properties of $f$. Therefore, $\ext{(f \comp \eta_A)}([]) = f([])$.
+
+    Case $x :: xs$: 
+    \begin{align*}
+        & \ext{(f \comp \eta_A)}(x :: xs) \\
+        & = (f \comp \eta_A)(x) \otimes \ext{(f \comp \eta_A)}(xs) & \text{by definition of $\ext{(\blank)}$} \\
+        & = (f \comp \eta_A)(x) \otimes f(xs) & \text{by induction} \\
+        & = f([x]) \otimes f(xs) & \text{by definition of $\eta_A$} \\
+        & = f([x] \doubleplus xs) & \text{by homomorphism properties of $f$} \\
+        & = f(x :: xs) & \text{by definition of concatenation}
+    \end{align*}
+
+    By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
+    Therefore, $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are inverse of each other.
+
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from monoid homomorphisms $List(A) \to \mathfrak{X}$
+    to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
+    functions $A \to X$ to monoid homomorphisms $List(A) \to \mathfrak{X}$. Therefore, lists are indeed
+    free monoids.
+    
+\end{proof}
+\subsection{Array}
+
+Alternatively, we can construct free monoid as a pair of natural number $n$, denoting the length of the array,
+and a lookup function $\Fin[n] \to A$, mapping each index to an element of $A$.
+
+\begin{definition}{Arrays}
+The types of arrays on a type $A$ and $\Fin[n]$ are given by:
+\vspace{1em}
+\begin{code}
+Fin : $\mathbb{N}$ -> UU
+Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
+
+Array : UU -> UU
+Array A = $\Sigma$[ n $\in$ $\mathbb{N}$ ] (Fin n $\to$ A)
+\end{code}
+\vspace{1em}
+\end{definition}
+
+An example of an array would be $(3, \lambda\{ 0 \mapsto 3, 1 \mapsto 1, 2 \mapsto 2 \})$, which would
+be equivalent to the list $[3, 1, 2]$.
+
+The generators map is the singleton: $\eta_A(a) = (1, \lambda\{ 0 \mapsto a \})$, 
+the identity element is $(0, \lambda\{\})$
+and the monoid operation $\doubleplus$ is given by the concatenation operation.
+
+\begin{definition}[Concatenation]
+We define the concatenation operation $\doubleplus : Array(A) \to Array(A) \to Array(A)$,
+and the combine operation $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fin[n+m] \to\nolinebreak A)$.
+\begin{align*}
+    (n , f) \doubleplus (m , g) & = (n + m , f \oplus g) \\
+    (f \oplus g)(k) & = \begin{cases}
+      f(k), & \text{if}\ k < n \\
+      g(k - n), & \text{otherwise}
+    \end{cases}
+\end{align*} 
+\end{definition}
+
+\begin{proposition}[Left unit]
+$(Array(A), \doubleplus)$ satisfies left unit law.
+\end{proposition}
+
+\begin{proof}
+We want to show $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
+\begin{align*}
+    (0 , \lambda\{\}) \doubleplus (n , f) & = (0 + n , \lambda\{\} \oplus f) \\
+    (\lambda\{\} \oplus f)(k) & = \begin{cases}
+      (\lambda\{\})(k), & \text{if}\ k < 0 \\
+      f(k - 0), & \text{otherwise}
+    \end{cases}
+\end{align*} 
+
+It is trivial to see the length matches: $0 + n = n$. We also need to show $\lambda\{\} \oplus f = f$.
+Since $n < 0$ for any $n : \mathbb{N}$ is impossible, $(\lambda\{\} \oplus f)(k)$ would always reduce to
+$f(k - 0) = f(k)$, therefore $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
+\end{proof}
+
+\begin{proposition}[Right unit]
+$(Array(A), \doubleplus)$ satisfies right unit law.
+\end{proposition}
+
+\begin{proof}
+We want to show $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
+\begin{align*}
+    (n, f) \doubleplus (0 , \lambda\{\}) & = (n + 0, f \oplus \lambda\{\}) \\
+    (f \oplus \lambda\{\})(k) & = \begin{cases}
+      f(k), & \text{if}\ k < n \\
+      (\lambda\{\})(k - 0), & \text{otherwise}
+    \end{cases}
+\end{align*} 
+
+It is trivial to see the length matches: $n + 0 = n$. We also need to show $f \oplus \lambda\{\} = f$.
+We note that the type of $f \oplus \lambda\{\}$ is $\Fin[n + 0] \to A$, therefore $k$ is of the type $\Fin[n + 0]$.
+Since $\Fin[n+0] \cong \Fin[n]$, it must always hold that $k < n$, therefore $(f \oplus \lambda\{\})(k)$ must
+always reduce to $f(k)$. Thus, $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
+\end{proof}
+
+
+\begin{proposition}[Associativity]
+$(Array(A), \doubleplus)$ satisfies associativity law.
+\end{proposition}
+
+\begin{proof}
+    \todo{associativity proof here}
+\end{proof}
+
+We define the $\ext{(\blank)}$ on $f : A \to X$:
+\begin{align*}
+    \ext{f}(0 , g) & = e \\
+    \ext{f}(S(n) , g) & = f(g(0)) \otimes \ext{f}(n , g \circ S)
+\end{align*} 
+

@@ -1,0 +1,144 @@
+\section{Construction of Free Commutative Monoids}
+\label{sec:commutative-monoids}
+
+We can use HITs where adjacent swaps generate all symmetries,
+for example swap-list taken from \cite{Choudhury_2023}.
+
+\begin{lstlisting}[language=Haskell]
+data SList (A : Type) : Type where
+  [] : SList A
+  _::_ : A -> SList A -> SList A
+  swap : $\forall$ x y xs -> x :: y :: xs $\equiv$ y :: x :: xs 
+  trunc : $\forall$ x y -> (p q : x $\equiv$ y) -> p $\equiv$ q
+\end{lstlisting}
+
+\noindent
+Alternatively, we can also quotient Array with symmetries to get commutativity.
+This construction is taken from \cite{Choudhury_2023}. \cite{joram_et_al:LIPIcs.ITP.2023.20}
+also gave a similar construction, where only the index function is quotiented, instead of
+the entire array.
+
+\begin{lstlisting}
+_$\approx$_ : Array A $\to$ Array A $\to$ Type
+(n , f) $\approx$ (m , g) = $\Sigma$[ $\sigma$ $\in$ Iso (Fin n) (Fin m) ] v $\equiv$ w $\circ$ $\sigma$ .fun
+
+Bag : Type -> Type
+Bag A = Array A / _$\approx$_
+\end{lstlisting}
+
+\noindent
+We can also do the same to List, quotienting it with permutation to get commutativity.
+This construction is taken from \cite{joram_et_al:LIPIcs.ITP.2023.20}.
+
+\begin{lstlisting}
+PList : Type -> Type
+PList A = Array A / Perm
+\end{lstlisting}
+
+More generally, if $F : \mathcal{U} \to \mathcal{U}$ satisfies the universal property of free monoid,
+then $F(X)$ quotiented by a permutation relation would be a free commutative monoid on $X$.
+
+A relation $\approx$ is a correct permutation relation iff it:
+\begin{itemize}
+    \item is reflexive, symmetric, transitive (equivalence),
+    \item is a congruence wrt $\otimes$: $a \otimes b \to c \otimes d \to a \otimes c \approx b \otimes d$,
+    \item is commutative: $a \otimes b \approx b \otimes a$, and
+    \item respects $\ext{(\blank)}$: $\forall f. \, a \approx b \to \ext{f}(a) = \ext{f}(b)$.
+\end{itemize}
+
+\subsection{Bag}
+How to show $\approx$ respects commutativity: $a \otimes b \approx b \otimes a$?
+
+Let $a = (n , f)$ and $b = (m , g)$, we need to compute an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$,
+such that: $(f \oplus g) = (g \oplus f) \circ \phi$.
+
+We can use combinators from formal operations in symmetric rig groupoids \cite{10.1145/3498667} to define $\phi$:
+\begin{align*}
+    \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \vspace{-1em}
+      % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+m-1 \color{black}\}} \\
+	{ \{\color{blue}n,n+1\dots,n+m-1, \color{red}0,1,\dots,n-1 \color{black}\}}
+    \arrow["\phi", maps to, from=1-1, to=2-1]
+\end{tikzcd}
+    \caption{Operation of $\phi$}
+    \label{fig:enter-label}
+\end{figure}
+
+To show $\approx$ respects $\ext{(\blank)}$: $\forall f. \, a \approx b \to \ext{f}(a) = \ext{f}(b)$,
+we need to prove $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
+$\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
+
+\begin{lemma}
+Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
+such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
+\end{lemma}
+
+Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$:
+\begin{align*}
+    \tau := \Fin[S(n)] \xto{\phi} \Fin[S(n)] \xto{\sim} \Fin[k+j] \xto{\sim} \Fin[k] + \Fin[j]
+    \xto{\term{swap}_{+}} \Fin[j] + \Fin[k] \xto{\sim} \Fin[j+k] \xto{\sim} \Fin[S(n)]
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
+    	{ \{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
+        \arrow["\phi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}
+    \hspace{1em}
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
+    	{ \{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
+        \arrow["\tau", maps to, from=1-1, to=2-1]
+    \end{tikzcd}
+    \caption{Operation of $\tau$ constructed from $\phi$}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{lemma}
+Given $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$ where $\tau(0) = 0$,
+there is a $\psi : \Fin[n] \xto{\sim} \Fin[n]$ such that $\tau \circ S = S \circ \psi$.
+\end{lemma}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{blue}0, \color{red}1, 2, 3, \dots \color{black}\}} \\
+    	{ \{\color{blue}0, \color{red} x, y, z \dots \color{black}\}}
+        \arrow["\tau", maps to, from=1-1, to=2-1]
+    \end{tikzcd}
+    \hspace{1em}
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{red}0, 1, 2, \dots \color{black}\}} \\
+    	{ \{\color{red} x-1, y-1, z-1 \dots \color{black}\}}
+        \arrow["\psi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}
+    \caption{Operation of $\psi$ constructed from $\tau$}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{theorem}
+For all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
+\end{theorem}
+
+\begin{itemize}
+    \item On $n = 0$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi) = e$.
+    \item On $n = S(m)$,
+        \begin{align*}
+        & \ext{f}(S(m), i \circ \phi) \\
+        & = \ext{f}(S(m), i \circ \tau) \\
+        & = f(i(\tau(0))) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{(by definition)} \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{(by property of $\tau$)} \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ S \circ \psi) \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ S) & \text{(induction)} \\
+        & = \ext{f}(S(m), i)
+        \end{align*}
+\end{itemize}
+
