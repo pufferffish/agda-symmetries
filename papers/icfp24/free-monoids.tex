@@ -112,7 +112,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
 \subsection{Array}
 
 Alternatively, we can construct free monoid as a pair of natural number $n$, denoting the length of the array,
-and a lookup function $\Fin[n] \to A$, mapping each index to an element of $A$.
+and a lookup function $\Fin[n] \to A$, mapping each index to an element of $A$~\cite{dubucFreeMonoids1974}.
 
 \begin{definition}{Arrays}
 The types of arrays on a type $A$ and $\Fin[n]$ are given by:
@@ -298,11 +298,13 @@ On $k \geq n$, $((f \oplus g) \comp S)(k)$ reduces to $g(S(k) - S(n)) = g(k - n)
 and $((f \comp S) \oplus g)(k)$ reduces to $g(k - n)$ by definition, therefore they are equal.
 \end{proof}
 
+\begin{definition}
 We define the $\ext{(\blank)}$ on $f : A \to X$:
 \begin{align*}
     \ext{f}(0 , g) & = e \\
     \ext{f}(S(n) , g) & = f(g(0)) \otimes \ext{f}(n , g \circ S)
 \end{align*} 
+\end{definition}
 
 \begin{proposition}
     $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : Array(A) \to \mathfrak{X}$.
