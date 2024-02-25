@@ -14,7 +14,7 @@
 \acmYear{2024}
 % \acmDOI{XXXXXXX.XXXXXXX}
 
-%% These commands are for a PROCEEDINGS abstract or paper.
+%% These commands are for a PROCEEDINGS abstract or papier.
 \acmConference[ICFP'24]{International Conference on Functional Programming}{Sep 2--7, 2024}{Milan, Italy}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
@@ -53,7 +53,7 @@
   backend=biber,
   ]{biblatex}
 
-\addbibresource{sort.bib}
+\addbibresource{../symmetries.bib}
 
 %%
 %% The majority of ACM publications use numbered citations and
@@ -79,6 +79,10 @@
 \usepackage{afterpage}
 %\usepackage[section,above]{placeins}
 
+%% tikz
+\usepackage{tikz}
+\usepackage{xifthen}
+
 %% math
 \let\Bbbk\relax
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
@@ -88,6 +92,16 @@
 \usepackage{stmaryrd}
 \usepackage{quiver}
 \usepackage{ebproof}
+\usepackage{listings}
+
+\lstset{%
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  keepspaces=true,
+  mathescape=true,      % Allow escaping to LaTeX math mode within $$
+  escapechar=\%,        % Set the escape character (e.g., % for LaTeX commands)
+}
+
 
 %% typesetting
 %% fancy quotation
@@ -118,6 +132,9 @@
 \usepackage{microtype}
 
 %% custom macros
+\usepackage{hott}
+\usepackage{math}
+\usepackage{code}
 \usepackage{macros}
 
 %%
@@ -225,6 +242,12 @@
 \end{acks}
 
 \input{introduction}
+\input{type-theory}
+\input{universal-algebra}
+\input{free-monoids}
+\input{free-commutative-monoids}
+\input{combinatorics}
+\input{sorting}
 \input{discussion}
 
 \renewcommand{\appendixsectionformat}[2]{
