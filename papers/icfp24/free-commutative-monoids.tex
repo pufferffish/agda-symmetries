@@ -1,42 +1,29 @@
 \section{Construction of Free Commutative Monoids}
 \label{sec:commutative-monoids}
 
-We can use HITs where adjacent swaps generate all symmetries,
-for example swap-list taken from \cite{Choudhury_2023}.
+We now extend our constructions of free monoids to free commutative monoids.
 
-\begin{lstlisting}[language=Haskell]
-data SList (A : Type) : Type where
+\subsection{Swap-List}
+We can use HITs where adjacent swaps generate all symmetries,
+for example swap-list taken from \cite{Choudhury_2023}, where they have
+also given a proof of its universal property.
+
+\vspace{1em}
+\begin{code}
+data SList (A : UU) : UU where
   [] : SList A
   _::_ : A -> SList A -> SList A
-  swap : $\forall$ x y xs -> x :: y :: xs $\equiv$ y :: x :: xs 
-  trunc : $\forall$ x y -> (p q : x $\equiv$ y) -> p $\equiv$ q
-\end{lstlisting}
+  swap : forall x y xs -> x :: y :: xs == y :: x :: xs 
+  trunc : forall x y -> (p q : x == y) -> p == q
+\end{code}
+\vspace{1em}
 
-\noindent
-Alternatively, we can also quotient Array with symmetries to get commutativity.
-This construction is taken from \cite{Choudhury_2023}. \cite{joram_et_al:LIPIcs.ITP.2023.20}
-also gave a similar construction, where only the index function is quotiented, instead of
-the entire array.
-
-\begin{lstlisting}
-_$\approx$_ : Array A $\to$ Array A $\to$ Type
-(n , f) $\approx$ (m , g) = $\Sigma$[ $\sigma$ $\in$ Iso (Fin n) (Fin m) ] v $\equiv$ w $\circ$ $\sigma$ .fun
-
-Bag : Type -> Type
-Bag A = Array A / _$\approx$_
-\end{lstlisting}
-
-\noindent
-We can also do the same to List, quotienting it with permutation to get commutativity.
-This construction is taken from \cite{joram_et_al:LIPIcs.ITP.2023.20}.
-
-\begin{lstlisting}
-PList : Type -> Type
-PList A = Array A / Perm
-\end{lstlisting}
-
-More generally, if $F : \mathcal{U} \to \mathcal{U}$ satisfies the universal property of free monoid,
-then $F(X)$ quotiented by a permutation relation would be a free commutative monoid on $X$.
+\subsection{Free monoid quotiented with permutation}
+We give a general construction of free commutative monoid as a free monoid quotient.
+Specific instances of this construction are given in \ref{cmon:plist} and \ref{cmon:bag}.
+If $(F, \mu)$ satisfies the universal property of free monoid,
+then $(F(A), i, \otimes)$ quotiented by a permutation relation $(F(A) / \approx, e, \doubleplus)$
+would be a free commutative monoid on $A$.
 
 A relation $\approx$ is a correct permutation relation iff it:
 \begin{itemize}
@@ -46,7 +33,90 @@ A relation $\approx$ is a correct permutation relation iff it:
     \item respects $\ext{(\blank)}$: $\forall f. \, a \approx b \to \ext{f}(a) = \ext{f}(b)$.
 \end{itemize}
 
-\subsection{Bag}
+Let $q : F(A) \to F(A) / \approx$ by the quotient map.
+The generator map $\eta_A$ is given by $q \comp \mu$, and the identity element is $q(i)$.
+
+\begin{proposition}
+$(F(A) / \approx, \doubleplus, q(i))$ is a commutative monoid.
+\end{proposition}
+
+\begin{proof}
+Since $\approx$ is congruence wrt $\otimes$,
+we can lift $\otimes : F(A) \to F(A) \to F(A)$ to the quotient to obtain
+$\doubleplus : F(A) / \approx \to F(A) / \approx \to F(A) / \approx$.
+$\doubleplus$ would also satisfy the unit laws and associativity law which $\otimes$ satisfy.
+Commutativity of $\doubleplus$ follows from the commutativity requirement of $\approx$,
+therefore $(F(A) / \approx, \doubleplus, q(i))$ forms a commutative monoid.
+\end{proof}
+
+For clarity, we will use $\hat{(\blank)}$ to denote the extension operation of $F(A)$, 
+and $\ext{(\blank)}$ for the extension operation of $F(A) / \approx$.
+
+\begin{definition}
+We define the $\ext{(\blank)}$ on $f : A \to X$ to $\ext{f} : F(A) / \approx \to \mathfrak{X}$ as follow:
+we first obtain $\hat{f} : F(A) \to \mathfrak{X}$ by universal property of $F$, and lift it
+to $F(A) / \approx \to \mathfrak{X}$, which is allowed since $\approx$ respects $\ext{(\blank)}$.
+\end{definition}
+
+\begin{proposition}
+    For all $f : A \to X$, $x : F(A)$, $\ext{f}(q(x))$ reduces to $\hat{f}(x)$.
+\end{proposition}
+
+\begin{proposition}[Universal property for $F(A) / \approx$]
+    $(F(A) / \approx,\eta_A)$ is the free commutative monoid on $A$.
+\end{proposition}
+
+\begin{proof}
+    To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
+    we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
+    For all $f$ and $x$, $(\ext{f} \comp \eta_A)(x) = (\ext{f} \comp q)(\mu_A(x)) = \hat{f}(\mu_A(x))$.
+    By universal property of $F$, $\hat{f}(\mu_A(x)) = f(x)$, therefore $(\ext{f} \comp \eta_A)(x) = f(x)$.
+    By function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
+    and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
+
+    To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
+    for any commutative monoid homomorphism $f : F(A) / \approx \to \mathfrak{X}$ and $x : F(A) / \approx$,
+    $\ext{(f \comp \eta_A)}(x) = f(x)$. To prove this it is suffice to show for all $x : F(A)$,
+    $\ext{(f \comp \eta_A)}(q(x)) = f(q(x))$. 
+    $\ext{(f \comp \eta_A)}(q(x))$ reduces to $\widehat{(f \comp q \comp \mu_A)}(x)$.
+    Note that both $f$ and $q$ are homomorphism, therefore $f \comp q$ is a homomorphism. By
+    universal property of $F$ we get $\widehat{(f \comp q \comp \mu_A)}(x) = (f \comp q)(x)$,
+    therefore $\ext{(f \comp \eta_A)}(q(x)) = f(q(x))$.
+
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
+    commutative monoid homomorphisms $F(A) / \approx \to \mathfrak{X}$
+    to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
+    functions $A \to X$ to commutative monoid homomorphisms $F(A) / \approx \to \mathfrak{X}$.
+    Therefore, $F(A) / \approx$ is indeed a free commutative monoid on $A$.
+\end{proof}
+
+
+\subsection{List quotiented with permutation}\label{cmon:plist}
+A specific instance of this construction would be List quotiented with permutation to get commutativity.
+This construction is taken from \cite{joram_et_al:LIPIcs.ITP.2023.20}, who gave a proof on how
+$\term{PList}$ is isomorphic to free commutative monoid as a HIT. We give a direct proof of its universal
+property instead.
+
+\begin{lstlisting}
+PList : Type -> Type
+PList A = Array A / Perm
+\end{lstlisting}
+
+\subsection{Bag}\label{cmon:bag}
+Alternatively, we can also quotient Array with symmetries to get commutativity.
+This construction is taken from \cite{Choudhury_2023}. \cite{joram_et_al:LIPIcs.ITP.2023.20}
+also gave a similar construction, where only the index function is quotiented, instead of
+the entire array. Both proved $\term{Bag}$ is a free commutative monoid by isomorphism to
+other constructions. We give a direct proof of its universal property instead.
+
+\begin{lstlisting}
+_$\approx$_ : Array A $\to$ Array A $\to$ Type
+(n , f) $\approx$ (m , g) = $\Sigma$[ $\sigma$ $\in$ Iso (Fin n) (Fin m) ] v $\equiv$ w $\circ$ $\sigma$ .fun
+
+Bag : Type -> Type
+Bag A = Array A / _$\approx$_
+\end{lstlisting}
+
 How to show $\approx$ respects commutativity: $a \otimes b \approx b \otimes a$?
 
 Let $a = (n , f)$ and $b = (m , g)$, we need to compute an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$,
