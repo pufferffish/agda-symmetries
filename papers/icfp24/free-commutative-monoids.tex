@@ -8,7 +8,6 @@ We can use HITs where adjacent swaps generate all symmetries,
 for example swap-list taken from \cite{Choudhury_2023}, where they have
 also given a proof of its universal property.
 
-\vspace{1em}
 \begin{code}
 data SList (A : UU) : UU where
   [] : SList A
@@ -16,7 +15,6 @@ data SList (A : UU) : UU where
   swap : forall x y xs -> x :: y :: xs == y :: x :: xs 
   trunc : forall x y -> (p q : x == y) -> p == q
 \end{code}
-\vspace{1em}
 
 \subsection{Free monoid quotiented with permutation}
 We give a general construction of free commutative monoid as a free monoid quotient.
