@@ -60,7 +60,7 @@ We give a general construction of free commutative monoid as a free monoid quoti
 Specific instances of this construction are given in \ref{cmon:plist} and \ref{cmon:bag}.
 If $(F, \mu)$ satisfies the universal property of free monoid,
 then $(F(A), i, \otimes)$ quotiented by a permutation relation $(F(A) / \approx, e, \doubleplus)$
-would be a free commutative monoid on $A$.
+would be the free commutative monoid on $A$.
 
 A relation $\approx$ is a correct permutation relation iff it:
 \begin{itemize}
@@ -124,7 +124,7 @@ to $F(A) / \approx \to \mathfrak{X}$, which is allowed since $\approx$ respects 
     commutative monoid homomorphisms $F(A) / \approx \to \mathfrak{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
     functions $A \to X$ to commutative monoid homomorphisms $F(A) / \approx \to \mathfrak{X}$.
-    Therefore, $F(A) / \approx$ is indeed a free commutative monoid on $A$.
+    Therefore, $F(A) / \approx$ is indeed the free commutative monoid on $A$.
 \end{proof}
 
 
@@ -143,9 +143,9 @@ PList : UU -> UU
 PList A = List A / Perm
 \end{code}
 
-We have already given a proof of $\List$ being a free monoid in~\ref{mon:list}.
+We have already given a proof of $\List$ being the free monoid in~\ref{mon:list}.
 By~\ref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
-to show $\PList$ is a free commutative monoid.
+to show $\PList$ is the free commutative monoid.
 
 It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
 We can also prove $\Perm$ is congruent wrt to $\doubleplus$ by induction.
@@ -173,7 +173,7 @@ With this we can prove $\Perm$ respects $\ext{(\blank)}$.
 Alternatively, we can also quotient $\Array$ with symmetries to get commutativity.
 This construction is taken from \cite{choudhuryFreeCommutativeMonoids2023}. \cite{joramConstructiveFinalSemantics2023}
 also gave a similar construction, where only the index function is quotiented, instead of
-the entire array. Both proved $\Bag$ is a free commutative monoid by isomorphism to
+the entire array. Both proved $\Bag$ is the free commutative monoid by isomorphism to
 other constructions. We give a direct proof of its universal property instead.
 
 \begin{code}
@@ -187,9 +187,9 @@ Bag A = Array A / _$\approx$_
 Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$. Conceptually,
 we are quotienting array by a permutation or an automorphism on the index.
 
-We have already given a proof of $\Array$ being a free monoid in~\ref{mon:array}.
+We have already given a proof of $\Array$ being the free monoid in~\ref{mon:array}.
 By~\ref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relation
-to show $\Bag$ is a free commutative monoid.
+to show $\Bag$ is the free commutative monoid.
 
 \begin{proposition}
     $\approx$ is a equivalence relation.
@@ -217,7 +217,6 @@ to show $\Bag$ is a free commutative monoid.
    
     \begin{figure}[H]
         \centering
-        \vspace{-2em}
           % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
     \begin{tikzcd}[ampersand replacement=\&,cramped]
     	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+u-1 \color{black}\}} \\
@@ -245,7 +244,6 @@ We can use combinators from formal operations in symmetric rig groupoids \cite{c
 
 \begin{figure}[H]
     \centering
-    \vspace{-2em}
       % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
 \begin{tikzcd}[ampersand replacement=\&,cramped]
 	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+m-1 \color{black}\}} \\

@@ -3,6 +3,8 @@
 
 Free monoids are well-known to functional programmers. In this section, we consider various constructions of them in type theory, and prove their universal property. Because we are working in univalent type theory, these constructions are equivalent as types (and as monoids).
 
+\vc{some stuff about universal property and how it is useful}
+
 \subsection{List}\label{mon:list}
 
 The simplest inductive data structure is a cons-list, which is a free monoid~\cite{dubucFreeMonoids1974}. As a type, this is given by:
@@ -40,9 +42,9 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
 \end{align*} 
 \end{definition}
 
-\begin{proposition}
+\begin{propositionrep}
     $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : \List(A) \to \mathfrak{X}$.
-\end{proposition}
+\end{propositionrep}
 
 \begin{proof}
     To show that $\ext{f}$ is a monoid homomorphism,
@@ -70,9 +72,16 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
     Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
 \end{proof}
 
-\begin{proposition}[Universal property for List]
-    $(List(A),\eta_A)$ is the free monoid on $A$.
-\end{proposition}
+\begin{propositionrep}[Universal property for List]
+    $(\List(A),\eta_A)$ is the free monoid on $A$.
+\end{propositionrep}
+
+\begin{proofsketch}
+    We need to show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$.
+    It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
+    To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \List(A) \to \mathfrak{X}$,
+    we need to show $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$, which we can prove by induction on $xs$.
+\end{proofsketch}
 
 \begin{proof}
     To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
@@ -82,7 +91,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
     and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
     
     To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
-    for any monoid homomorphism $f : List(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    for any monoid homomorphism $f : \List(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
     We can do so by induction on $xs$.
 
     Case []: $\ext{(f \comp \eta_A)}([]) = e$ by definition of the $\ext{(\blank)}$ operation,
@@ -101,10 +110,11 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
     By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
     Therefore, $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are inverse of each other.
 
-    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from monoid homomorphisms $List(A) \to \mathfrak{X}$
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
+    monoid homomorphisms $\List(A) \to \mathfrak{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
-    functions $A \to X$ to monoid homomorphisms $List(A) \to \mathfrak{X}$. Therefore, $\List$ is indeed
-    a free monoid.
+    functions $A \to X$ to monoid homomorphisms $\List(A) \to \mathfrak{X}$. Therefore, $\List$ is indeed
+    the free monoid.
     
 \end{proof}
 \subsection{Array}
@@ -122,8 +132,11 @@ Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
 Array : UU -> UU
 Array A = $\Sigma$[ n $\in$ $\mathbb{N}$ ] (Fin n $\to$ A)
 \end{code}
-\vspace{1em}
 \end{definition}
+
+There are multiple ways to define $\Fin$, one example being an indexed inductive type.
+In our construction we opted to use this definition because cubical Agda does not behave well
+when pattern matching on indexed inductive types. 
 
 An example of an $\Array$ would be $(3, \lambda\{ 0 \mapsto 3, 1 \mapsto 1, 2 \mapsto 2 \})$, which would
 be equivalent to the list $[3, 1, 2]$.
@@ -143,7 +156,7 @@ Therefore, any array $(0, f)$ is equal to $(0, \lambda\{\})$.
 \end{proof}
 
 \begin{definition}[Concatenation]
-We define the concatenation operation $\doubleplus : Array(A) \to Array(A) \to Array(A)$,
+We define the concatenation operation $\doubleplus : \Array(A) \to \Array(A) \to \Array(A)$,
 and the combine operation $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fin[n+m] \to\nolinebreak A)$.
 \begin{align*}
     (n , f) \doubleplus (m , g) & = (n + m , f \oplus g) \\
@@ -154,12 +167,21 @@ and the combine operation $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fi
 \end{align*} 
 \end{definition}
 
-\begin{proposition}[Left unit]\label{array:unitl}
-$(Array(A), \doubleplus)$ satisfies left unit law.
-\end{proposition}
+\begin{propositionrep}[Monoidal laws]
+$(\Array(A), \doubleplus)$ is a monoid.
+\end{propositionrep}
+
+\begin{proofsketch}
+We can prove $(\Array(A), \doubleplus)$ satisfy the unit laws by showing
+$(\lambda\{\} \oplus f)(k) = (f \oplus \lambda\{\})(k) = f(k)$ for all $k : \Fin[n]$,
+then proving that it is impossible for $k < 0$ and $k \geq n$. For associativity,
+we need to show $((f \oplus g) \oplus h)(k) = (f \oplus (g \oplus h))(k)$ for all $k : \Fin[n+m+o]$.
+We can do show by first case matching on $k < n+m$, then on $k < n$.
+\end{proofsketch}
 
 \begin{proof}
-We want to show $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
+To show $\Array$ satisfies left unit,
+we want to show $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
 \begin{align*}
     (0 , \lambda\{\}) \doubleplus (n , f) & = (0 + n , \lambda\{\} \oplus f) \\
     (\lambda\{\} \oplus f)(k) & = \begin{cases}
@@ -171,14 +193,9 @@ We want to show $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
 It is trivial to see the length matches: $0 + n = n$. We also need to show $\lambda\{\} \oplus f = f$.
 Since $n < 0$ for any $n : \mathbb{N}$ is impossible, $(\lambda\{\} \oplus f)(k)$ would always reduce to
 $f(k - 0) = f(k)$, therefore $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
-\end{proof}
 
-\begin{proposition}[Right unit]
-$(Array(A), \doubleplus)$ satisfies right unit law.
-\end{proposition}
-
-\begin{proof}
-We want to show $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
+To show $\Array$ satisfies right unit,
+we want to show $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
 \begin{align*}
     (n, f) \doubleplus (0 , \lambda\{\}) & = (n + 0, f \oplus \lambda\{\}) \\
     (f \oplus \lambda\{\})(k) & = \begin{cases}
@@ -191,15 +208,8 @@ It is trivial to see the length matches: $n + 0 = n$. We also need to show $f \o
 We note that the type of $f \oplus \lambda\{\}$ is $\Fin[n + 0] \to A$, therefore $k$ is of the type $\Fin[n + 0]$.
 Since $\Fin[n+0] \cong \Fin[n]$, it must always hold that $k < n$, therefore $(f \oplus \lambda\{\})(k)$ must
 always reduce to $f(k)$. Thus, $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
-\end{proof}
 
-
-\begin{proposition}[Associativity]
-$(Array(A), \doubleplus)$ satisfies associativity law.
-\end{proposition}
-
-\begin{proof}
-We want to show for any array $(n, f)$, $(m, g)$, $(o, h)$,
+For associativity, we want to show for any array $(n, f)$, $(m, g)$, $(o, h)$,
 $((n, f) \doubleplus (m, g)) \doubleplus (o, h) = (n, f) \doubleplus ((m, g) \doubleplus (o, h))$.
 
 \begin{align*}
@@ -241,9 +251,9 @@ and is equal to $h(k - (n + m))$, therefore $(f \oplus (g \oplus h))(k) = (f \op
 In all cases $(f \oplus (g \oplus h))(k) = ((f \oplus g) \oplus h)(k)$, therefore associativity holds.
 \end{proof}
 
-\begin{lemma}[Array cons]\label{array:eta-suc}
+\begin{lemmarep}[Array cons]\label{array:eta-suc}
 Any array $(S(n), f)$ is equal to $\eta_A (f(0)) \doubleplus (n, f \comp S)$.
-\end{lemma}
+\end{lemmarep}
 
 \begin{proof}
 We want to show $\eta_A (f(0)) \doubleplus (n, f \comp S) = (S(n), f)$.
@@ -268,9 +278,9 @@ when $k \geq 1$.
 Thus, in both cases, $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S)) = f$.
 \end{proof}
 
-\begin{lemma}[Array split]\label{array:split}
+\begin{lemmarep}[Array split]\label{array:split}
 For any array $(S(n), f)$ and $(m, g)$, $(n + m, (f \oplus g) \comp S) = (n, f \comp S) \doubleplus (m, g)$.
-\end{lemma}
+\end{lemmarep}
 
 Informally, this means given an non-empty array $xs$ and any array $ys$,
 concatenating $xs$ with $ys$ then dropping the first element is the same as
@@ -304,9 +314,9 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
 \end{align*} 
 \end{definition}
 
-\begin{proposition}
+\begin{propositionrep}
     $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : Array(A) \to \mathfrak{X}$.
-\end{proposition}
+\end{propositionrep}
 
 \begin{proof}
     To show that $\ext{f}$ is a monoid homomorphism,
@@ -335,9 +345,19 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
 \end{proof}
 
-\begin{proposition}[Universal property for Array]
-    $(Array(A),\eta_A)$ is the free monoid on $A$.
-\end{proposition}
+\begin{propositionrep}[Universal property for Array]
+    $(\Array(A),\eta_A)$ is the free monoid on $A$.
+\end{propositionrep}
+
+\begin{proofsketch}
+    We need to show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$.
+    It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
+    To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \Array(A) \to \mathfrak{X}$,
+    we need to show $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    Lemma \ref{array:eta-suc} and \ref{array:split} allow us to perform induction on arrays,
+    therefore we can prove $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$ by induction $xs$
+    very similarly to how this was proved for $\List$.
+\end{proofsketch}
 
 \begin{proof}
     To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
@@ -347,7 +367,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
     
     To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
-    for any monoid homomorphism $f : Array(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    for any monoid homomorphism $f : \Array(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
     We can do so by induction on $xs$.
 
     Case $(0, g)$:
@@ -372,7 +392,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     monoid homomorphisms $\Array(A) \to \mathfrak{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
     functions $A \to X$ to monoid homomorphisms $\Array(A) \to \mathfrak{X}$. Therefore, $\Array$ is indeed
-    a free monoid.
+    the free monoid.
     
 \end{proof}
 
