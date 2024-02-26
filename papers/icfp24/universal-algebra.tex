@@ -1,42 +1,73 @@
 \section{Universal Algebra}
 \label{sec:universal-algebra}
 
-To explain our results, we first develop some basic notions from universal algebra and equational logic~\cite{birkhoffStructureAbstractAlgebras1935} -- this gives us a vocabulary and framework.
-.~\vc{How much is necessary and how much is overkill?}
+We first develop some basic notions from universal algebra and equational
+logic~\cite{birkhoffStructureAbstractAlgebras1935}.
 %
-This is standard following any textbook on model theory of logic, and predates the Lawvere theory or abstract clone point of view.
-
-Universal algebra is the abstract study of algebraic structures, which have (algebraic) operations and (universal) equations.
+Universal algebra is the abstract study of algebraic structures, which have (algebraic) operations and (universal)
+equations.
+%
+This gives us some vocabulary and a framework to express our results in.
+%
+The point of view we take is the standard category-theoretic approach to universal algebra, which predates the Lawvere
+theory or abstract clone point of view.
 %
 We keep a running example of monoids in mind, while explaining and defining the abstract concepts.
-%
-For example, a monoid, is a carrier set, with an identity element (or a nullary operation), and a binary multiplication operation. In the language of universal algebra, such a structure is formalized by giving a signature of operations, and a structure being a carrier set with functions that interpret these operations. We describe such a framework for universal algebra in HoTT, as follows.
+% In the language of universal algebra, such a structure is formalized by giving a signature of operations, and a
+% structure being a carrier set with functions that interpret these operations. We describe such a framework for universal
+% algebra in HoTT, as follows.
 
 \begin{definition}[Signature]
-    A signature, denoted $\sigma$, is a pair consisting of:
+    A signature, denoted $\sigma$, is a (dependent) pair consisting of:
     \begin{itemize}
-        \item a set of operations, $\term{op}\colon \Set$,
-        \item an arity function, $\term{ar}\colon \term{op} \to \Set$.
+        \item a set of operations, $\term{op} : \Set$,
+        \item an arity function for each symbol, $\term{ar} : \term{op} \to \Set$.
     \end{itemize}
 \end{definition}
 
 \begin{example}
-    The signature for monoids $\sigma_{\Mon}$ is given by: 
-    $(\Fin[2],\lambda \{0 \mapsto \emptyt ; 1 \mapsto \boolt \})$.
-    Informally, the set of operations is the two-element set: $\{e,\mult\}$ which is written as $\Fin[2]$, and the arity functions picks out a finite type denoting the (finite) arity of each operation.
+    A monoid is a set with an identity element (or a nullary operation), and a binary multiplication operation.
+    %
+    The signature for monoids $\sigma_{\Mon}$ is encoded as:
+    $(\Fin[2],\lambda \{0 \mapsto \Fin[0] ; 1 \mapsto \Fin[2] \})$.
+    %
+    Informally, the set of operations is the two-element set $\{e,\mult\}$, which is written as $\Fin[2]$,
+    and the arity function picks out a (finite) set denoting the (finite) arity of each operation.
+    %
+    Of course, this is an example of a finitary signature,
+    but in general the arity function can be any (not necessarily finite) set.
 \end{example}
 
 Every signature $\sigma$ induces a signature functor on $\Set$, written $F_{\sigma}$.
+
 \begin{definition}[Signature functor]
-    \[\begin{aligned}
-            F_{\sigma} \colon \Set &\to \Set \\
-            X &\mapsto \dsum{o:\term{op}}{X^{\term{ar}(o)}} \\
-            X \xto{f} Y &\mapsto \dsum{o:\term{op}}{X^{\term{ar}(o)} \xto{{f}^{\term{ar}(o)}} Y^{\term{ar}(o)}}
-      \end{aligned}\]
-    \todo{fix dsum macro}
+    \begin{align*}
+        F_{\sigma} \colon \Set & \to \Set                                     \\
+        X                      & \mapsto \dsum{o:\term{op}}{X^{\term{ar}(o)}} \\
+        X \xto{f} Y            & \mapsto
+        \dsum{o:\term{op}}{X^{\term{ar}(o)}}
+        \xto{(o, \blank \comp f)}
+        \dsum{o:\term{op}}{Y^{\term{ar}(o)}}
+    \end{align*}
 \end{definition}
 
-A $\sigma$-structure, say $\str{X}$, is given by a carrier set, with functions for each operation symbol. Formally, this is exactly an algebra for the $F_{\sigma}$ functor.
+\begin{example}
+    The signature functor for monoids, $F_{\sigma_{\Mon}}$, assigns to a carrier set $X$,
+    the sets of inputs for each operation.
+    %
+    Expanding the dependent product on $\Fin[2]$, we obtain a coproduct or disjoint union of sets:
+    $F_{\sigma_{\Mon}}(X) \eqv X^{\Fin[0]} + X^{\Fin[2]}$.
+\end{example}
+
+A $\sigma$-structure is given by a carrier set, with functions interpreting each operation symbol.
+%
+The signature functor applied to a carrier set gives the inputs to each operation, and the output is simply a map back
+to the carrier set.
+%
+Formally, these two pieces of data are an algebra for the $F_{\sigma}$ functor.
+%
+We write $\str{X}$ for a $\sigma$-structure with carrier set $X$, following the model-theoretic notational convention.
+
 \begin{definition}[Structure]
     A $\sigma$-structure $\str{X}$ is an $F_{\sigma}$ algebra, that is:
     \begin{itemize}
@@ -46,17 +77,19 @@ A $\sigma$-structure, say $\str{X}$, is given by a carrier set, with functions f
 \end{definition}
 
 \begin{example}
-    A well-known example of a monoid is the natural numbers $\Nat$, with $0$ and $+$.
-    To see how this is an $F_{\sigma_{\Mon}}$-algebra, notice that
+    Concretely, an $F_{\sigma_{\Mon}}$-algebra has the type
     \[
-        \begin{array}{rl}
-            \alpha_{\Nat} &= \dsum{o:\Fin[2]}{\Nat^{\term{ar}(o)}} \to \Nat \\
-                          &\eqv (\Nat^{\Fin[0] + \Fin[2]}) \to \Nat \\
-                          &\eqv (\Nat^{\Fin[0]} \to \Nat) \times (\Nat^{\Fin[2]} \to \Nat) \\
-                          &\eqv (\unitt \to \Nat) \times (\Nat \times \Nat \to \Nat)
+        \begin{array}{rcl}
+            \alpha_{X} & :    & \dsum{o:\Fin[2]}{X^{\term{ar}(o)}} \to X       \\
+                       & \eqv & (X^{\Fin[0] + \Fin[2]}) \to X                  \\
+                       & \eqv & (X^{\Fin[0]} \to X) \times (X^{\Fin[2]} \to X) \\
+                       & \eqv & (\unitt \to X) \times (X \times X \to X)
         \end{array}
     \]
-    which is given by the $0$ and $+$ operations, respectively.
+    The natural numbers with the carrier set $\Nat$,
+    and the constant $0$ and the addition operation $+$ give an example of such a structure.
+    %
+    Similarly, with the constant $1$ and the multiplication operation $\times$, we have another monoid structure.
 \end{example}
 
 \begin{definition}[Homomorphism]
@@ -69,20 +102,20 @@ For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $(\blank) \circ \eta_X$ is an
     \centering
     % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiVShBKSJdLFsyLDIsIlUoQikiXSxbMCwxLCJpIiwwLHsiY29sb3VyIjpbMSwxMDAsNjBdfSxbMSwxMDAsNjAsMV1dLFswLDIsImciLDJdLFsxLDIsIlUoZikiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
     \[\begin{tikzcd}[ampersand replacement=\&]
-    	\mathfrak{F}(X) \\
-    	\\
-    	\mathfrak{Y}
-    	\arrow["f", dotted, from=1-1, to=3-1]
-    \end{tikzcd}
-    \mapsto
-    \begin{tikzcd}[ampersand replacement=\&]
-    	X \&\& {F(X)} \\
-    	\\
-    	\&\& {Y}
-    	\arrow["\eta_X", color={rgb,255:red,255;green,54;blue,51}, from=1-1, to=1-3]
-    	\arrow["f \circ \eta_X"', from=1-1, to=3-3]
-    	\arrow["{f}", dotted, from=1-3, to=3-3]
-    \end{tikzcd}\]
+            \mathfrak{F}(X) \\
+            \\
+            \mathfrak{Y}
+            \arrow["f", dotted, from=1-1, to=3-1]
+        \end{tikzcd}
+        \mapsto
+        \begin{tikzcd}[ampersand replacement=\&]
+            X \&\& {F(X)} \\
+            \\
+            \&\& {Y}
+            \arrow["\eta_X", color={rgb,255:red,255;green,54;blue,51}, from=1-1, to=1-3]
+            \arrow["f \circ \eta_X"', from=1-1, to=3-3]
+            \arrow["{f}", dotted, from=1-3, to=3-3]
+        \end{tikzcd}\]
     \caption{Universal property of free algebras}
     \label{fig:universal-property}
 \end{figure}

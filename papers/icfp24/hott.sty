@@ -122,8 +122,9 @@
 
 % dependent sum
 \NewDocumentCommand{\dsum}{smm}{
-  \textstyle\sum_{({#2})}{#3}
-  % {\sum\limits_{\mathsmaller{#2}}{#3}}
+  \IfBooleanTF{#1}
+  {\displaystyle\sum\limits_{\mathsmaller{#2}}{#3}}
+  {\textstyle\sum_{({#2})}{#3}}
 }
 \newcommand{\pair}[1]{\ps{#1}}
 \newcommand{\fst}{\pi_1}
