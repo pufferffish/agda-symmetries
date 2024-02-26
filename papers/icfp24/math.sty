@@ -3,27 +3,24 @@
 % math
 \newcommand{\xto}[1]{\xrightarrow{#1}}
 
-% universal algebra
+% monoids
+\newcommand{\Mon}{\type{Mon}}
+\newcommand{\CMon}{\type{CMon}}
 
+% universal algebra
 \newcommand{\op}{\term{op}}
 \newcommand{\ar}{\term{ar}}
 
 \newcommand{\sig}{\sigma}
-\NewDocumentCommand{\Sig}{O{\sig}}{
-  F_{#1}
-}
+\NewDocumentCommand{\Sig}{O{\sig}}{F_{#1}}
+\newcommand{\sigMon}{\sig_{\Mon}}
+\newcommand{\SigMon}{\Sig[\sigMon]}
 
 \newcommand{\Alg}{\type{Alg}}
-\NewDocumentCommand{\sigAlg}{O{\sig}}{
-  {#1}\text{-}\Alg
-}
-\NewDocumentCommand{\SigAlg}{O{\Sig}}{
-  {#1}\text{-}\Alg
-}
+\NewDocumentCommand{\sigAlg}{O{\sig}}{{#1}\text{-}\Alg}
+\NewDocumentCommand{\SigAlg}{O{\Sig}}{{#1}\text{-}\Alg}
 
-\NewDocumentCommand{\tree}{O{\sigma}m}{
-  \mathsf{Tr}{_{#1}}\ps{#2}
-}
+\NewDocumentCommand{\tree}{O{\sigma}m}{\mathsf{Tr}{_{#1}}\ps{#2}}
 \newcommand{\str}[1]{\mathfrak{#1}}
 
 \newcommand{\ext}[1]{{#1}^{\sharp}}
@@ -35,10 +32,6 @@
 \newcommand{\rhs}{\mathscr{r}}
 
 \newcommand{\entails}{\vDash}
-
-% monoids
-\newcommand{\Mon}{\type{Mon}}
-\newcommand{\CMon}{\type{CMon}}
 
 %
 \newcommand{\LL}{\mathcal{L}}

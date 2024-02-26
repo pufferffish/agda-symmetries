@@ -18,17 +18,17 @@ We keep a running example of monoids in mind, while explaining and defining the 
 % algebra in HoTT, as follows.
 
 \begin{definition}[Signature]
-    A signature, denoted $\sigma$, is a (dependent) pair consisting of:
+    A signature, denoted $\sig$, is a (dependent) pair consisting of:
     \begin{itemize}
-        \item a set of operations, $\term{op} : \Set$,
-        \item an arity function for each symbol, $\term{ar} : \term{op} \to \Set$.
+        \item a set of operations, $\op : \Set$,
+        \item an arity function for each symbol, $\ar : \op \to \Set$.
     \end{itemize}
 \end{definition}
 
 \begin{example}
     A monoid is a set with an identity element (or a nullary operation), and a binary multiplication operation.
     %
-    The signature for monoids $\sigma_{\Mon}$ is encoded as:
+    The signature for monoids $\sigMon$ is encoded as:
     $(\Fin[2],\lambda \{0 \mapsto \Fin[0] ; 1 \mapsto \Fin[2] \})$.
     %
     Informally, the set of operations is the two-element set $\{e,\mult\}$, which is written as $\Fin[2]$,
@@ -38,46 +38,46 @@ We keep a running example of monoids in mind, while explaining and defining the 
     but in general the arity function can be any (not necessarily finite) set.
 \end{example}
 
-Every signature $\sigma$ induces a signature functor on $\Set$, written $F_{\sigma}$.
+Every signature $\sig$ induces a signature functor on $\Set$, written $\Sig$.
 
 \begin{definition}[Signature functor]
     \begin{align*}
-        F_{\sigma} \colon \Set & \to \Set                                     \\
-        X                      & \mapsto \dsum{o:\term{op}}{X^{\term{ar}(o)}} \\
-        X \xto{f} Y            & \mapsto
-        \dsum{o:\term{op}}{X^{\term{ar}(o)}}
+        \Sig \colon \Set & \to \Set                         \\
+        X                & \mapsto \dsum{o:\op}{X^{\ar(o)}} \\
+        X \xto{f} Y      & \mapsto
+        \dsum{o:\op}{X^{\ar(o)}}
         \xto{(o, \blank \comp f)}
-        \dsum{o:\term{op}}{Y^{\term{ar}(o)}}
+        \dsum{o:\op}{Y^{\ar(o)}}
     \end{align*}
 \end{definition}
 
 \begin{example}
-    The signature functor for monoids, $F_{\sigma_{\Mon}}$, assigns to a carrier set $X$,
+    The signature functor for monoids, $\SigMon$, assigns to a carrier set $X$,
     the sets of inputs for each operation.
     %
     Expanding the dependent product on $\Fin[2]$, we obtain a coproduct or disjoint union of sets:
-    $F_{\sigma_{\Mon}}(X) \eqv X^{\Fin[0]} + X^{\Fin[2]}$.
+    $\SigMon(X) \eqv X^{\Fin[0]} + X^{\Fin[2]}$.
 \end{example}
 
-A $\sigma$-structure is given by a carrier set, with functions interpreting each operation symbol.
+A $\sig$-structure is given by a carrier set, with functions interpreting each operation symbol.
 %
 The signature functor applied to a carrier set gives the inputs to each operation, and the output is simply a map back
 to the carrier set.
 %
-Formally, these two pieces of data are an algebra for the $F_{\sigma}$ functor.
+Formally, these two pieces of data are an algebra for the $\Sig$ functor.
 %
-We write $\str{X}$ for a $\sigma$-structure with carrier set $X$, following the model-theoretic notational convention.
+We write $\str{X}$ for a $\sig$-structure with carrier set $X$, following the model-theoretic notational convention.
 
 \begin{definition}[Structure]
-    A $\sigma$-structure $\str{X}$ is an $F_{\sigma}$ algebra, that is:
+    A $\sig$-structure $\str{X}$ is an $\Sig$-algebra, that is, a pair consisting of:
     \begin{itemize}
         \item a carrier set $X$, and
-        \item an algebra map $\alpha_{X}\colon F_{\sigma}(X) \to X$.
+        \item an algebra map $\alpha_{X}\colon \Sig(X) \to X$.
     \end{itemize}
 \end{definition}
 
 \begin{example}
-    Concretely, an $F_{\sigma_{\Mon}}$-algebra has the type
+    Concretely, an $\SigMon$-algebra has the type
     \[
         \begin{array}{rcl}
             \alpha_{X} & :    & \dsum{o:\Fin[2]}{X^{\term{ar}(o)}} \to X       \\
@@ -92,11 +92,25 @@ We write $\str{X}$ for a $\sigma$-structure with carrier set $X$, following the 
     Similarly, with the constant $1$ and the multiplication operation $\times$, we have another monoid structure.
 \end{example}
 
+One of the advantages of an abstract framework is that we can readily leverage existing abstract machinery.
+%
+The notion of a homomorphism between two $\sig$-structures is a standard concept --
+in the categorical framework, this is simply a map between the two $\Sig$-algebras.
+
 \begin{definition}[Homomorphism]
-    A homomorphism is
+    A homomorphism between two $\sig$-structures $\str{X}$ and $\str{Y}$ is a morphism of $\Sig$-algebras,
+    that is, a map $f : X \to Y$ such that the following diagram commutes:
+    \[
+        \begin{tikzcd}
+            \Sig(X) \arrow[r, "\alpha_{X}"] \arrow[d, "\Sig(f)"']
+            & X \arrow[d, "f"] \\
+            \Sig(Y) \arrow[r, "\alpha_{Y}"']
+            & Y
+        \end{tikzcd}
+    \]
 \end{definition}
 
-For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $(\blank) \circ \eta_X$ is an equivalence:
+Free algebras: For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $(\blank) \circ \eta_X$ is an equivalence:
 
 \begin{figure}[H]
     \centering
