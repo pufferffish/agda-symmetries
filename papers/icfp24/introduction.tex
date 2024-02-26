@@ -87,9 +87,15 @@ data Sorted : List A $\to$ Type where
 This is a perfectly valid formalization of an ordered list! Empty lists and singleton lists
 are ordered, and we can inductively construct an "orderness witness" by prepending a new element
 to an ordered list, provided that the new element is less than the head of the old ordered list of
-course. This definition, however, assumes an existing total order on $A$. This is
+course. 
+
+A correct sort function then has the type: \inline{sort : List A -> Sg(xs:List A).Sorted xs}.\vc{How is ours better?}
+This definition, however, assumes an existing total order on $A$. This is
 unsatisfactory, in a way, because a sorting algorithm is fundamentally just a function. Can we
 axiomatize the correctness of a sorting algorithm purely by the properties of functions?
+
+\vc{Can you sort anything that doesn't have a total order?}
+\vc{Can you sort binary trees?}
 
 In a sense, this problem has already been solved, first by Hinze et al. \cite{10.1145/2364394.2364405}
 and later extended by Alexandru in their thesis \cite{alexandru_intrinsically_2023}.

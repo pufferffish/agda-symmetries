@@ -7,12 +7,12 @@
 % code listings
 \lstloadlanguages{Haskell}
 \lstdefinelanguage{Agda}{
-  aboveskip        = 0pt,
-  belowskip        = -1\baselineskip,
+  aboveskip        = \baselineskip,
+  belowskip        = \baselineskip,
   language         = Haskell,
   showstringspaces = false,
-  xleftmargin      = .01\textwidth,
-  xrightmargin     = .01\textwidth,
+  xleftmargin      = \parindent,
+  xrightmargin     = \parindent,
   columns          = fullflexible,
   keepspaces       = true,
   basewidth        = {0em,0em},
@@ -37,6 +37,7 @@
                      {->cm}{{\ensuremath{\xrightarrow{CMon}}}}2
                      {lambda}{{\ensuremath{\lambda\!}}}2
                      {forall}{{\ensuremath{\forall}}}2
+                     {Sg}{{\ensuremath{\Sigma}}}2
                      {times}{{\ensuremath{\times}}}2 {plus}{{+}}2 {uplus}{{\ensuremath{\uplus}}}2
                      {mem}{{\ensuremath{\in}}}2
                      {top}{{\ensuremath{\top}}}2 {bot}{{\ensuremath{\bot}}}2
