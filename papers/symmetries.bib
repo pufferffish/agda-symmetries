@@ -93,9 +93,10 @@
   keywords = {Computer Science - Logic in Computer Science,Computer Science - Programming Languages,Cubical Type Theory,Higher Inductive Types,Proof Assistants,Representation Independence,Univalence}
 }
 
-@book{appelVerifiedFunctionalAlgorithms,
+@book{appelVerifiedFunctionalAlgorithms2023,
   title = {Verified {{Functional Algorithms}}},
   author = {Appel, Andrew W.},
+  date = {2023-08-23},
   volume = {3},
   number = {Software Foundations},
   url = {https://softwarefoundations.cis.upenn.edu/vfa-current/index.html}
@@ -146,6 +147,22 @@
   isbn = {978-3-540-47890-4},
   langid = {english},
   keywords = {Categorical Model,Intuitionistic Logic,Linear Logic,Monoidal Category,Natural Deduction}
+}
+
+@article{birkhoffStructureAbstractAlgebras1935,
+  title = {On the {{Structure}} of {{Abstract Algebras}}},
+  author = {Birkhoff, Garrett},
+  date = {1935-10},
+  journaltitle = {Mathematical Proceedings of the Cambridge Philosophical Society},
+  volume = {31},
+  number = {4},
+  pages = {433--454},
+  issn = {1469-8064, 0305-0041},
+  doi = {10.1017/S0305004100013463},
+  url = {https://www.cambridge.org/core/journals/mathematical-proceedings-of-the-cambridge-philosophical-society/article/on-the-structure-of-abstract-algebras/D142B3886A3B7A218D8DF8E6DDA2B5B1},
+  urldate = {2024-02-26},
+  abstract = {The following paper is a study of abstract algebras qua abstract algebras. As no vocabulary suitable for this purpose is current, I have been forced to use a number of new terms, and extend the meaning of some accepted ones.},
+  langid = {english}
 }
 
 @article{blassWordsFreeAlgebras1983,
@@ -447,6 +464,24 @@
   urldate = {2021-09-22},
   abstract = {Several categorical aspects of localisation to compact closed categories and free compact closed categories are discussed.},
   langid = {english}
+}
+
+@article{demeoMachineCheckedProofBirkhoff2022,
+  title = {A {{Machine-Checked Proof}} of {{Birkhoff}}'s {{Variety Theorem}} in {{Martin-L\"of Type Theory}}},
+  author = {DeMeo, William and Carette, Jacques},
+  editora = {Basold, Henning and Cockx, Jesper and Ghilezan, Silvia},
+  editoratype = {collaborator},
+  date = {2022},
+  pages = {21 pages, 474672 bytes},
+  publisher = {{Schloss Dagstuhl -- Leibniz-Zentrum f\"ur Informatik}},
+  issn = {1868-8969},
+  doi = {10.4230/LIPICS.TYPES.2021.4},
+  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.TYPES.2021.4},
+  urldate = {2024-02-26},
+  abstract = {The Agda Universal Algebra Library is a project aimed at formalizing the foundations of universal algebra, equational logic and model theory in dependent type theory using Agda. In this paper we draw from many components of the library to present a self-contained, formal, constructive proof of Birkhoff's HSP theorem in Martin-L\"of dependent type theory. This achieves one of the project's initial goals: to demonstrate the expressive power of inductive and dependent types for representing and reasoning about general algebraic and relational structures by using them to formalize a significant theorem in the field.},
+  isbn = {9783959772549},
+  langid = {english},
+  keywords = {Agda,Computing methodologies  Representation of mathematical objects,constructive mathematics,dependent types,equational logic,formal verification,Martin-Lof type theory,model theory,Theory of computation  Logic and verification,Theory of computation  Type theory,universal algebra}
 }
 
 @book{dijkstraDisciplineProgramming1997,
@@ -836,6 +871,23 @@
   url = {https://www.cambridge.org/core/journals/bulletin-of-the-australian-mathematical-society/article/unified-treatment-of-transfinite-constructions-for-free-algebras-free-monoids-colimits-associated-sheaves-and-so-on/FE2E25E4959E4D8B4DE721718E7F55EE},
   urldate = {2024-02-14},
   abstract = {Many problems lead to the consideration of ``algebras'', given by an object A of a category A together with ``actions'' TkA {$\rightarrow$} A on A of one or more endofunctors of A, subjected to equational axioms. Such problems include those of free monads and free monoids, of cocompleteness in categories of monads and of monoids, of orthogonal subcategories (= generalized sheaf-categories), of categories of continuous functors, and so on; apart from problems involving the algebras for their own sake.Desirable properties of the category of algebras - existence of free ones, cocompleteness, existence of adjoints to algebraic functors - all follow if this category can be proved reflective in some well-behaved category: for which we choose a certain comma-category T/AWe show that the reflexion exists and is given as the colimit of a simple transfinite sequence, if A is cocomplete and the Tk preserve either colimits or unions of suitably-long chains of subobjects.The article draws heavily on the work of earlier authors, unifies and simplifies this, and extends it to new problems. Moreover the reflectivity in T/A is stronger than any earlier result, and will be applied in forthcoming articles, in an enriched version, to the study of categories with structure.},
+  langid = {english}
+}
+
+@article{kidneyAlgebraicEffectsMeet2024,
+  title = {Algebraic {{Effects Meet Hoare Logic}} in {{Cubical Agda}}},
+  author = {Kidney, Donnacha Ois\'in and Yang, Zhixuan and Wu, Nicolas},
+  date = {2024-01-05},
+  journaltitle = {Proceedings of the ACM on Programming Languages},
+  shortjournal = {Proc. ACM Program. Lang.},
+  volume = {8},
+  pages = {1663--1695},
+  issn = {2475-1421},
+  doi = {10.1145/3632898},
+  url = {https://dl.acm.org/doi/10.1145/3632898},
+  urldate = {2024-02-26},
+  abstract = {This paper presents a novel formalisation of algebraic effects with equations in Cubical Agda. Unlike previous work in the literature that employed               setoids               to deal with equations, the library presented here uses quotient types to faithfully encode the type of terms quotiented by laws. Apart from tools for equational reasoning, the library also provides an               effect-generic Hoare logic               for algebraic effects, which enables reasoning about effectful programs in terms of their pre- and post- conditions. A particularly novel aspect is that equational reasoning and Hoare-style reasoning are related by an elimination principle of Hoare logic.},
+  issue = {POPL},
   langid = {english}
 }
 
