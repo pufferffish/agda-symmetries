@@ -1,7 +1,109 @@
 \section{Combinatorics}
 \label{sec:combinatorics}
 
-We denote free monoid on $A$ with $\LL(A)$ and free commutative monoid on $A$ with $\MM(A)$.
-$\MM(A + B) \eqv \MM(A) \times \MM(B)$.
+With universal properties we can structure our programs using ideas from algebra.
+For example $\term{length}$ is a common operation defined inductively for $\List$,
+but to state properties about $\term{length}$, e.g.
+$\term{length}(xs \doubleplus ys) = \term{length}(xs) + \term{length}(ys)$,
+we would need to prove them externally. With our framework we can define operations like $\term{length}$
+using the $\ext{(\blank)}$ operation, which would also give us a proof that they are homomorphisms for free.
+We can also use universal property to prove two different types are equal by showing they both
+satisfy the same universal property, which is desirable especially if proving a direct equivalence between
+the two types is very difficult.
+
+To illustrate this, we give some examples of how some common operations can be defined
+in terms of universal property.
+We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$.
+
+\subsection{Length}
+
+Any presentation of free monoids or free commutative monoids has a $\term{length} : \FF(A) \to \Nat$ function.
+$\Nat$ is a (commutative) monoid with $(0,+)$, so we can extend $\lambda x.\, 1\,:\,A \to \Nat$.
+This allows us to define $\term{length}$ for any construction of free (commutative) monoid, and also
+gives us a proof of $\term{length}$ being a homomorphism for free.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
+    	\\
+    	A
+    	\arrow["\eta_A", from=3-1, to=1-1]
+    	\arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
+    	\arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
+    \end{tikzcd}
+    \caption{Definition of $\term{length}$ by universal property}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{Membership}
+Any presentation of free monoids or free commutative monoids has a membership predicate:
+$\_\in\_ : A \to \FF(A) \to \hProp$. By fixing an element $x: A$, the element we want to define
+the membership proof for, and 
+assuming $A$ is a set, we can define $\yo_A(x) = \lambda y.\, x \id y : A \to \hProp$.
+Since $\hProp$ forms a (commutative) monoid under $\vee$,
+we can extend $\yo_A(x)$ to obtain $x \in \blank : \FF(A) \to \hProp$, giving us the membership predicate for $x$.
+
+\begin{figure}[H]
+    \centering
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
+    	\\
+    	A
+    	\arrow["{\eta_A}", from=3-1, to=1-1]
+    	\arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
+    	\arrow["{\yo_A(x)}"', from=3-1, to=1-4]
+    \end{tikzcd}
+    \caption{Definition of membership proof for $x$ by universal property}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{Any and All predicate}
+
+Any presentation of free monoids or free commutative monoids $\FF(A)$ has the
+$\term{Any}$ and $\term{All}$ predicates, which allow us to lift a predicate $A \to \hProp$
+to any or all elements of $xs : \FF(A)$. We note that
+$\hProp$ forms a (commutative) monoid in two different ways: $(\bot,\vee)$ and $(\top,\wedge)$,
+therefore given a predicate $P : A \to \hProp$, we get:
+\begin{align*}
+    Any(P) &= \ext{P} : \FF(A) \to (\hProp, \bot, \vee) \\
+    All(P) &= \ext{P} : \FF(A) \to (\hProp, \top, \wedge)
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+        	{\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
+        	\\
+        	A
+        	\arrow["\eta_A", from=3-1, to=1-1]
+        	\arrow["{\ext{P}}", from=1-1, to=1-3]
+        	\arrow["{P}"', from=3-1, to=1-3]
+        \end{tikzcd}
+        \caption{Definition of $\term{All}$ by universal property}
+        \label{fig:enter-label}
+    \end{minipage}
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+        	{\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
+        	\\
+        	A
+        	\arrow["\eta_A", from=3-1, to=1-1]
+        	\arrow["{\ext{P}}", from=1-1, to=1-3]
+        	\arrow["{P}"', from=3-1, to=1-3]
+        \end{tikzcd}
+        \caption{Definition of $\term{Any}$ by universal property}
+        \label{fig:enter-label}
+    \end{minipage}
+\end{figure}
+
+% We denote free monoid on $A$ with $\LL(A)$ and free commutative monoid on $A$ with $\MM(A)$.
+% $\MM(A + B) \eqv \MM(A) \times \MM(B)$.
 
 
