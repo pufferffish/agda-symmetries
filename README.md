@@ -37,4 +37,4 @@ $ agda index.agda
 With the exception of the `papers/` directory, all files in this project are
 licensed under the terms of the MIT License, see [LICENSE](LICENSE).
 
-Code under the `papers/` directory is distributed under the terms of [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+All rights reserved for content under the `papers/` directory.
