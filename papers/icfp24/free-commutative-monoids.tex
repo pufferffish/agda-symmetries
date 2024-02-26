@@ -5,7 +5,7 @@ We now extend our constructions of free monoids to free commutative monoids.
 
 \subsection{Swap-List}
 We can use HITs where adjacent swaps generate all symmetries,
-for example swap-list taken from \cite{Choudhury_2023}, where they have
+for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have
 also given a proof of its universal property.
 
 \begin{code}
@@ -16,9 +16,46 @@ data SList (A : UU) : UU where
   trunc : forall x y -> (p q : x == y) -> p == q
 \end{code}
 
-\vc{Explain trunc, why SList does but List doesn't? They both form endofunctors on $\Set$.}
+The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
+thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
+This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
+because it does not have any path constructors, therefore it can be proven that $\List(A)$
+is a set assuming $A$ is a set.
 
-\subsection{Free monoid quotiented with permutation}
+\begin{definition}[Concatenation]
+    We define the concatenation operation $\doubleplus : \SList(A) \to \SList(A) \to \SList(A)$
+    inductively.
+    \begin{align*}
+        [] \doubleplus ys & = ys \\
+        (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys) \\
+        \term{cong}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
+    \end{align*}
+\end{definition}
+
+\cite{choudhuryFreeCommutativeMonoids2023} has already given a proof of $(\SList(A), \doubleplus, [])$
+satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
+
+\begin{lemma}[Head rearrange]\label{slist:cons}
+    For all $x : A$, $xs : \SList(A)$, $x :: xs = xs \doubleplus [ x ]$.
+\end{lemma}
+
+\begin{proof}
+We can prove this by induction on $xs$.
+For $xs = []$ this is trivial. For $xs = y :: ys$, we have the induction hypothesis $x :: ys = ys \doubleplus [ x ]$.
+By applying $y :: \blank$ on both side and then apply $\term{swap}$, we can complete the proof.
+\end{proof}
+
+\begin{theorem}[Commutativity]\label{slist:comm}
+    For all $xs,\,ys : \SList(A)$, $xs \doubleplus ys = ys \doubleplus xs$.
+\end{theorem}
+
+\begin{proof}
+    By induction on $xs$ we can iteratively apply~\ref{slist:cons} to move all elements of $xs$
+    to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
+    $xs \doubleplus ys = ys \doubleplus xs$.
+\end{proof}
+
+\subsection{Free monoid quotiented with permutation}\label{cmon:qfreemon}
 We give a general construction of free commutative monoid as a free monoid quotient.
 Specific instances of this construction are given in \ref{cmon:plist} and \ref{cmon:bag}.
 If $(F, \mu)$ satisfies the universal property of free monoid,
@@ -58,9 +95,9 @@ we first obtain $\hat{f} : F(A) \to \mathfrak{X}$ by universal property of $F$, 
 to $F(A) / \approx \to \mathfrak{X}$, which is allowed since $\approx$ respects $\ext{(\blank)}$.
 \end{definition}
 
-\begin{proposition}
+\begin{lemma}
     For all $f : A \to X$, $x : F(A)$, $\ext{f}(q(x))$ reduces to $\hat{f}(x)$.
-\end{proposition}
+\end{lemma}
 
 \begin{proposition}[Universal property for $F(A) / \approx$]
     $(F(A) / \approx,\eta_A)$ is the free commutative monoid on $A$.
@@ -92,44 +129,123 @@ to $F(A) / \approx \to \mathfrak{X}$, which is allowed since $\approx$ respects 
 
 
 \subsection{List quotiented with permutation}\label{cmon:plist}
-A specific instance of this construction would be List quotiented with permutation to get commutativity.
-This construction is taken from \cite{joram_et_al:LIPIcs.ITP.2023.20}, who gave a proof on how
-$\term{PList}$ is isomorphic to free commutative monoid as a HIT. We give a direct proof of its universal
+A specific instance of this construction would be $\List$ quotiented with permutation to get commutativity.
+This construction is taken from \cite{joramConstructiveFinalSemantics2023}, who gave a proof on how
+$\PList$ is isomorphic to free commutative monoid as a HIT. We give a direct proof of its universal
 property instead.
 
-\begin{lstlisting}
-PList : Type -> Type
-PList A = Array A / Perm
-\end{lstlisting}
+\begin{code}
+data Perm (A : UU) : List A -> List A -> UU where
+  perm-refl : forall {xs} -> Perm xs xs
+  perm-swap : forall {x y xs ys zs} -> Perm (xs ++ x :: y :: ys) zs
+                               -> Perm (xs ++ y :: x :: ys) zs 
+PList : UU -> UU
+PList A = List A / Perm
+\end{code}
+
+We have already given a proof of $\List$ being a free monoid in~\ref{mon:list}.
+By~\ref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
+to show $\PList$ is a free commutative monoid.
+
+It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
+We can also prove $\Perm$ is congruent wrt to $\doubleplus$ by induction.
+Commutativity can also be proven very similarly from the proof for $\SList$ in~\ref{slist:comm}.
+
+\begin{theorem}
+    For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \SList(A)$,
+    $\ext{f}(xs\,\doubleplus\,x :: y :: ys) = \ext{f}(xs\,\doubleplus\,y :: x :: ys)$.
+\end{theorem}
+
+With this we can prove $\Perm$ respects $\ext{(\blank)}$.
+
+\begin{proof}
+    We can prove this by induction on $xs$. For $xs = []$, by homomorphism properties of $\ext{f}$,
+    we can prove $\ext{f}(x :: y :: ys) = \ext{f}([ x ]) \otimes \ext{f}([ y ]) \otimes \ext{f}(ys)$.
+    Since the image of $\ext{f}$ is a commutative monoid, we have
+    $\ext{f}([ x ]) \otimes \ext{f}([ y ]) = \ext{f}([ y ]) \otimes \ext{f}([ x ])$, therefore proving
+    $\ext{f}(x :: y :: ys) = \ext{f}(y :: x :: ys)$. For $xs = z :: zs$, we can prove
+    $\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \otimes \ext{f}(zs\,\doubleplus\,x :: y :: ys)$.
+    We can then complete the proof by induction on $\ext{f}(zs\,\doubleplus\,x :: y :: ys)$ and reassembling
+    back to $\ext{f}((z :: zs)\,\doubleplus\,y :: x :: ys)$ by homomorphism properties of $\ext{f}$.
+\end{proof}
 
 \subsection{Bag}\label{cmon:bag}
-Alternatively, we can also quotient Array with symmetries to get commutativity.
-This construction is taken from \cite{Choudhury_2023}. \cite{joram_et_al:LIPIcs.ITP.2023.20}
+Alternatively, we can also quotient $\Array$ with symmetries to get commutativity.
+This construction is taken from \cite{choudhuryFreeCommutativeMonoids2023}. \cite{joramConstructiveFinalSemantics2023}
 also gave a similar construction, where only the index function is quotiented, instead of
-the entire array. Both proved $\term{Bag}$ is a free commutative monoid by isomorphism to
+the entire array. Both proved $\Bag$ is a free commutative monoid by isomorphism to
 other constructions. We give a direct proof of its universal property instead.
 
-\begin{lstlisting}
-_$\approx$_ : Array A $\to$ Array A $\to$ Type
+\begin{code}
+_$\approx$_ : Array A $\to$ Array A $\to$ UU
 (n , f) $\approx$ (m , g) = $\Sigma$[ $\sigma$ $\in$ Iso (Fin n) (Fin m) ] v $\equiv$ w $\circ$ $\sigma$ .fun
 
-Bag : Type -> Type
+Bag : UU -> UU
 Bag A = Array A / _$\approx$_
-\end{lstlisting}
+\end{code}
 
-How to show $\approx$ respects commutativity: $a \otimes b \approx b \otimes a$?
+Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$. Conceptually,
+we are quotienting array by a permutation or an automorphism on the index.
 
-Let $a = (n , f)$ and $b = (m , g)$, we need to compute an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$,
-such that: $(f \oplus g) = (g \oplus f) \circ \phi$.
+We have already given a proof of $\Array$ being a free monoid in~\ref{mon:array}.
+By~\ref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relation
+to show $\Bag$ is a free commutative monoid.
 
-We can use combinators from formal operations in symmetric rig groupoids \cite{10.1145/3498667} to define $\phi$:
+\begin{proposition}
+    $\approx$ is a equivalence relation.
+\end{proposition}
+
+\begin{proof}
+    We can show any array $xs$ is related to itself by the identity isomorphism, therefore $\approx$ is reflexive.
+    If $xs \approx ys$ by $\sigma$, we can show $ys \approx xs$ by $\sigma^{-1}$, therefore $\approx$ is symmetric.
+    If $xs \approx ys$ by $\sigma$ and $ys \approx zs$ by $\phi$, we can show $xs \approx zs$ by $\sigma \comp \phi$,
+    therefore $\approx$ is transitive.
+\end{proof}
+
+\begin{proposition}
+    $\approx$ is congruent wrt to $\doubleplus$.
+\end{proposition}
+
+\begin{proof}
+    Given $(n, f) \approx (m, g)$ by $\sigma$ and $(u, p) \approx (v, q)$ by $\phi$,
+    we want to show $(n, f) \doubleplus (u, p) \approx (m, g) \doubleplus (v, q)$ by some $\tau$.
+    We can construct $\tau$ as follow:
+
+    \begin{align*}
+        \tau := \Fin[n+u] \xto{\sim} \Fin[n] + \Fin[u] \xto{\sigma,\,\phi} \Fin[m] + \Fin[v] \xto{\sim} \Fin[m+v] \\
+    \end{align*}
+   
+    \begin{figure}[H]
+        \centering
+        \vspace{-2em}
+          % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+u-1 \color{black}\}} \\
+    	{ \{\color{red}\sigma(0),\sigma(1)\dots,\sigma(n-1), \color{blue}\phi(0),\phi(1),\dots,\phi(u-1) \color{black}\}}
+        \arrow["\phi", maps to, from=1-1, to=2-1]
+    \end{tikzcd}
+        \caption{Operation of $\tau$}
+        \label{fig:enter-label}
+    \end{figure}
+    
+\end{proof}
+
+\begin{proposition}
+    $\approx$ is commutative.
+\end{proposition}
+
+\begin{proof}
+We want to show for any arrays $(n, f)$ and $(m, g)$, $(n, f) \otimes (m, g) \approx (m, g) \otimes (n, f)$
+by some $\phi$.
+
+We can use combinators from formal operations in symmetric rig groupoids \cite{choudhurySymmetriesReversibleProgramming2022} to define $\phi$:
 \begin{align*}
     \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
 \end{align*}
 
 \begin{figure}[H]
     \centering
-    \vspace{-1em}
+    \vspace{-2em}
       % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
 \begin{tikzcd}[ampersand replacement=\&,cramped]
 	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+m-1 \color{black}\}} \\
@@ -140,16 +256,22 @@ We can use combinators from formal operations in symmetric rig groupoids \cite{1
     \label{fig:enter-label}
 \end{figure}
 
-To show $\approx$ respects $\ext{(\blank)}$: $\forall f. \, a \approx b \to \ext{f}(a) = \ext{f}(b)$,
-we need to prove $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
-$\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
+\end{proof}
 
-\begin{lemma}
+\begin{proposition}
+    $\approx$ respects $\ext{(\blank)}$.
+\end{proposition}
+
+It suffices to show $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
+$\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need some lemmas.
+
+\begin{lemma}\label{bag:tau}
 Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
 such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
 \end{lemma}
 
-Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$:
+\begin{proof}
+Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$, we can construct $\tau$ as follow:
 \begin{align*}
     \tau := \Fin[S(n)] \xto{\phi} \Fin[S(n)] \xto{\sim} \Fin[k+j] \xto{\sim} \Fin[k] + \Fin[j]
     \xto{\term{swap}_{+}} \Fin[j] + \Fin[k] \xto{\sim} \Fin[j+k] \xto{\sim} \Fin[S(n)]
@@ -172,10 +294,26 @@ Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$:
     \label{fig:enter-label}
 \end{figure}
 
-\begin{lemma}
+It is trivial to prove $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$ since the only
+operation on indices in $\tau$ is $\term{swap}_{+}$. It suffices to show $(S(n), i \circ \phi)$
+can be decomposed into two arrays such that $(S(n), i \circ \phi) = (k, g) \doubleplus (j, h)$
+for some $g$ and $h$. Since the image of $\ext{f}$ is a commutative monoid and $\ext{f}$ is a homomorphism,
+$\ext{f}((k, g) \doubleplus (j, h)) = \ext{f}(k, g) \otimes \ext{f}(j, h) = \ext{f}(j, h) \otimes \ext{f}(k, g) =
+\ext{f}((j, h) \doubleplus (k, g))$, thereby proving $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
+
+\end{proof}
+
+
+\begin{lemma}\label{bag:punch}
 Given $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$ where $\tau(0) = 0$,
 there is a $\psi : \Fin[n] \xto{\sim} \Fin[n]$ such that $\tau \circ S = S \circ \psi$.
 \end{lemma}
+
+\begin{proof}
+We can construct $\psi$ by $\psi(x) = \tau(S(x)) - 1$.
+Since $\tau$ maps only 0 to 0 by assumption, $\forall x. \, \tau(S(x)) > 0$, therefore
+the $(- 1)$ is well defined. This can be thought of as a special case $k = 0$ of the punch-in and punch-out
+equivalence used to construct Lehmer codes in~\cite{choudhurySymmetriesReversibleProgramming2022}.
 
 \begin{figure}[H]
     \centering
@@ -193,22 +331,29 @@ there is a $\psi : \Fin[n] \xto{\sim} \Fin[n]$ such that $\tau \circ S = S \circ
     \caption{Operation of $\psi$ constructed from $\tau$}
     \label{fig:enter-label}
 \end{figure}
+\end{proof}
 
-\begin{theorem}
+
+We now prove our main theorem.
+
+\begin{theorem}[Permutation invariance]
 For all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
 \end{theorem}
 
+\begin{proof}
+We can prove this by induction on $n$.
 \begin{itemize}
-    \item On $n = 0$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi) = e$.
+    \item On $n = 0$, $\ext{f}(0, i) \id \ext{f}(0, i \circ \phi) = e$.
     \item On $n = S(m)$,
         \begin{align*}
         & \ext{f}(S(m), i \circ \phi) \\
-        & = \ext{f}(S(m), i \circ \tau) \\
-        & = f(i(\tau(0))) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{(by definition)} \\
-        & = f(i(0)) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{(by property of $\tau$)} \\
-        & = f(i(0)) \otimes \ext{f}(m, i \circ S \circ \psi) \\
-        & = f(i(0)) \otimes \ext{f}(m, i \circ S) & \text{(induction)} \\
-        & = \ext{f}(S(m), i)
+        & = \ext{f}(S(m), i \circ \tau) & \text{by~\ref{bag:tau}} \\
+        & = f(i(\tau(0))) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{by definition of $\ext{(\blank)}$} \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ \tau \circ S) & \text{by construction of $\tau$} \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ S \circ \psi) &\text{by~\ref{bag:punch}} \\
+        & = f(i(0)) \otimes \ext{f}(m, i \circ S) & \text{induction} \\
+        & = \ext{f}(S(m), i) & \text{by definition of $\ext{(\blank)}$}
         \end{align*}
 \end{itemize}
+\end{proof}
 

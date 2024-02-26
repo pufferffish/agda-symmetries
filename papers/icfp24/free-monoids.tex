@@ -3,7 +3,7 @@
 
 Free monoids are well-known to functional programmers. In this section, we consider various constructions of them in type theory, and prove their universal property. Because we are working in univalent type theory, these constructions are equivalent as types (and as monoids).
 
-\subsection{List}
+\subsection{List}\label{mon:list}
 
 The simplest inductive data structure is a cons-list, which is a free monoid~\cite{dubucFreeMonoids1974}. As a type, this is given by:
 
@@ -16,14 +16,14 @@ data List (A : UU) : UU where
 \end{code}
 \end{definition}
 
-An example of a list would be $3 :: 1 :: 2 :: []$, alternatively denoted as $[3, 1, 2]$ for convenience.
+An example of a $\List$ would be $3 :: 1 :: 2 :: []$, alternatively denoted as $[3, 1, 2]$ for convenience.
 
 The generators map is the singleton: $\eta_A(a) =$~[ a ]~$= a :: []$, 
 the identity element is the empty list $[]$,
 and the monoid operation $\doubleplus$ is given by the concatenation operation.
 
 \begin{definition}[Concatenation]
-We define the concatenation operation $\doubleplus : List(A) \to List(A) \to List(A)$ inductively.
+We define the concatenation operation $\doubleplus : \List(A) \to \List(A) \to \List(A)$ inductively.
 \begin{align*}
     [] \doubleplus ys & = ys \\
     (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys)
@@ -41,7 +41,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
 \end{definition}
 
 \begin{proposition}
-    $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : List(A) \to \mathfrak{X}$.
+    $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : \List(A) \to \mathfrak{X}$.
 \end{proposition}
 
 \begin{proof}
@@ -103,8 +103,8 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
 
     We have now shown that $(\blank) \comp \eta_A$ is an equivalence from monoid homomorphisms $List(A) \to \mathfrak{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
-    functions $A \to X$ to monoid homomorphisms $List(A) \to \mathfrak{X}$. Therefore, lists are indeed
-    free monoids.
+    functions $A \to X$ to monoid homomorphisms $List(A) \to \mathfrak{X}$. Therefore, $\List$ is indeed
+    a free monoid.
     
 \end{proof}
 \subsection{Array}
@@ -112,8 +112,8 @@ We define the $\ext{(\blank)}$ on $f : A \to X$ as:
 Alternatively, we can construct free monoid as a pair of natural number $n$, denoting the length of the array,
 and a lookup function $\Fin[n] \to A$, mapping each index to an element of $A$~\cite{dubucFreeMonoids1974}.
 
-\begin{definition}{Arrays}
-The types of arrays on a type $A$ and $\Fin[n]$ are given by:
+\begin{definition}{Arrays}\label{mon:array}
+The types of $\Array$ on a type $A$ and $\Fin[n]$ are given by:
 \vc{These are weird notations.}
 \begin{code}
 Fin : $\mathbb{N}$ -> UU
@@ -125,7 +125,7 @@ Array A = $\Sigma$[ n $\in$ $\mathbb{N}$ ] (Fin n $\to$ A)
 \vspace{1em}
 \end{definition}
 
-An example of an array would be $(3, \lambda\{ 0 \mapsto 3, 1 \mapsto 1, 2 \mapsto 2 \})$, which would
+An example of an $\Array$ would be $(3, \lambda\{ 0 \mapsto 3, 1 \mapsto 1, 2 \mapsto 2 \})$, which would
 be equivalent to the list $[3, 1, 2]$.
 
 The generators map is the singleton: $\eta_A(a) = (1, \lambda\{ 0 \mapsto a \})$, 
@@ -368,10 +368,11 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
     Therefore, $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are inverse of each other.
 
-    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from monoid homomorphisms $List(A) \to \mathfrak{X}$
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
+    monoid homomorphisms $\Array(A) \to \mathfrak{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
-    functions $A \to X$ to monoid homomorphisms $Array(A) \to \mathfrak{X}$. Therefore, arrays are indeed
-    free monoids.
+    functions $A \to X$ to monoid homomorphisms $\Array(A) \to \mathfrak{X}$. Therefore, $\Array$ is indeed
+    a free monoid.
     
 \end{proof}
 

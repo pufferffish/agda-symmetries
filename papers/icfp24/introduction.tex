@@ -75,7 +75,7 @@ We gain our main insight: fixing a permutation on $\{a,b,c\}$ fixes an ordering 
 However, how do we formalize the correctness of this sort function?
 The common formalization of a correct sort algorithm is to say a sort algorithm produces
 an "orederd list", for example, one such formalization would be the definition
-from Verified Functional Algorithms \cite{appel2016verified}, translated into Agda.
+from Verified Functional Algorithms \cite{appelVerifiedFunctionalAlgorithms}, translated into Agda.
 
 \begin{lstlisting}[language=Haskell]
 data Sorted : List A $\to$ Type where
@@ -97,8 +97,8 @@ axiomatize the correctness of a sorting algorithm purely by the properties of fu
 \vc{Can you sort anything that doesn't have a total order?}
 \vc{Can you sort binary trees?}
 
-In a sense, this problem has already been solved, first by Hinze et al. \cite{10.1145/2364394.2364405}
-and later extended by Alexandru in their thesis \cite{alexandru_intrinsically_2023}.
+In a sense, this problem has already been solved, first by Hinze et al. \cite{hinzeSortingBialgebrasDistributive2012}
+and later extended by Alexandru in their thesis \cite{alexandruIntrinsicallyCorrectSorting2023}.
 Their formalization is defined in terms of bialgebras, which not
 only captures the correctness of sorting algorithms purely in a categorical settings, but
 also isolate the computational essence of sorting algorithms in terms of distributive laws,
