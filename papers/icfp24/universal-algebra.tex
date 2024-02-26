@@ -1,7 +1,16 @@
 \section{Universal Algebra}
 \label{sec:universal-algebra}
 
-Universal algebra is the study of algebraic structures, which have operations and equations. For example, a monoid, is a carrier set, with an identity element (or a nullary operation), and a binary multiplication operation. In the language of universal algebra, such a structure is formalized by giving a signature of operations, and a structure being a carrier set with functions that interpret these operations. We describe such a framework for universal algebra in HoTT, as follows.
+To explain our results, we first develop some basic notions from universal algebra and equational logic~\cite{birkhoffStructureAbstractAlgebras1935} -- this gives us a vocabulary and framework.
+.~\vc{How much is necessary and how much is overkill?}
+%
+This is standard following any textbook on model theory of logic, and predates the Lawvere theory or abstract clone point of view.
+
+Universal algebra is the abstract study of algebraic structures, which have (algebraic) operations and (universal) equations.
+%
+We keep a running example of monoids in mind, while explaining and defining the abstract concepts.
+%
+For example, a monoid, is a carrier set, with an identity element (or a nullary operation), and a binary multiplication operation. In the language of universal algebra, such a structure is formalized by giving a signature of operations, and a structure being a carrier set with functions that interpret these operations. We describe such a framework for universal algebra in HoTT, as follows.
 
 \begin{definition}[Signature]
     A signature, denoted $\sigma$, is a pair consisting of:
@@ -42,6 +51,7 @@ A $\sigma$-structure, say $\str{X}$, is given by a carrier set, with functions f
     \[
         \begin{array}{rl}
             \alpha_{\Nat} &= \dsum{o:\Fin[2]}{\Nat^{\term{ar}(o)}} \to \Nat \\
+                          &\eqv (\Nat^{\Fin[0] + \Fin[2]}) \to \Nat \\
                           &\eqv (\Nat^{\Fin[0]} \to \Nat) \times (\Nat^{\Fin[2]} \to \Nat) \\
                           &\eqv (\unitt \to \Nat) \times (\Nat \times \Nat \to \Nat)
         \end{array}
