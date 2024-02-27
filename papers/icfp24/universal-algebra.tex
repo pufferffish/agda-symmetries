@@ -18,6 +18,7 @@ We keep a running example of monoids in mind, while explaining and defining the 
 % algebra in HoTT, as follows.
 
 \subsection{Algebras}
+\label{sec:universal-algebra:algebras}
 
 \begin{definition}[Signature]
     A signature, denoted $\sig$, is a (dependent) pair consisting of:
@@ -120,32 +121,61 @@ in the categorical framework, this is simply a map between the two $\Sig$-algebr
     interpretation of the monoid operations, or simply, preserves the monoid structure.
 \end{example}
 
+For a fixed signature $\sig$,
+the category of $\Sig$-algebras and their morphisms form a category of algebras,
+written $\SigAlg$, or simply, $\sigAlg$,
+given by the obvious definitions of identity and composition of the underlying functions.
+
 \subsection{Free Algebras}
+\label{sec:universal-algebra:free-algebras}
 
-Free algebras: For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $(\blank) \circ \eta_X$ is an equivalence:
+The category $\sigAlg$ is a category of structured sets and structure-preserving maps,
+which is an example of a concrete category, that admits a forgetful functor to $U : \sigAlg \to \Set$,
+which forgets the structure and retains only the carrier set.
+%
+Note that in our notation, $U(\str{X})$ is simply $X$, a fact that we can exploit to simplify our notation.
+%
+The natural question to ask is whether this forgetful functor has a left adjoint, and further, if it is monadic.
 
-\begin{figure}[H]
-    \centering
-    % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiVShBKSJdLFsyLDIsIlUoQikiXSxbMCwxLCJpIiwwLHsiY29sb3VyIjpbMSwxMDAsNjBdfSxbMSwxMDAsNjAsMV1dLFswLDIsImciLDJdLFsxLDIsIlUoZikiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
-    \[\begin{tikzcd}[ampersand replacement=\&]
-            \mathfrak{F}(X) \\
+This is the construction of the free $\sig$-algebra on a set, which is a standard construction in universal algebra,
+known as the term algebra (or the absolutely free algebra without equations).
+%
+Rather than defining the left adjoint directly, we rephrase the universal property of free algebras in more concrete
+terms.
+
+\begin{definition}[Free Algebras]
+    A free $\sig$-algebra on a set $X$ is a $\sig$-structure $\str{F}(X)$,
+    together with a universal map $\eta_X : X \to F(X)$, such that,
+    for any $\sig$-algebra $\str{Y}$, the operation (post-composition with $\eta_X$)
+    assigning to each homomorphism $f : \str{X} \to \str{Y}$, the function $f \comp \eta_X : X \to Y$,
+    is an equivalence.
+    \[
+        \begin{tikzcd}[ampersand replacement=\&]
+            \str{F}(X) \\
             \\
-            \mathfrak{Y}
-            \arrow["f", dotted, from=1-1, to=3-1]
+            \str{Y}
+            \arrow["f"', dotted, from=1-1, to=3-1]
         \end{tikzcd}
         \mapsto
-        \begin{tikzcd}[ampersand replacement=\&]
+        % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiRihYKSJdLFsyLDIsIlkiXSxbMCwxLCJcXGV0YV97WH0iLDAseyJjb2xvdXIiOlswLDYwLDYwXX0sWzAsNjAsNjAsMV1dLFswLDIsImYgXFxjb21wIFxcZXRhX3tYfSIsMl0sWzEsMiwiZiIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRvdHRlZCJ9fX1dXQ==
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
             X \&\& {F(X)} \\
             \\
-            \&\& {Y}
-            \arrow["\eta_X", color={rgb,255:red,255;green,54;blue,51}, from=1-1, to=1-3]
-            \arrow["f \circ \eta_X"', from=1-1, to=3-3]
-            \arrow["{f}", dotted, from=1-3, to=3-3]
-        \end{tikzcd}\]
-    \caption{Universal property of free algebras}
-    \label{fig:universal-property}
-\end{figure}
+            \&\& Y
+            \arrow["{\eta_{X}}", color={rgb,255:red,214;green,92;blue,92}, from=1-1, to=1-3]
+            \arrow["{f \comp \eta_{X}}"', from=1-1, to=3-3]
+            \arrow["f", dotted, from=1-3, to=3-3]
+        \end{tikzcd}
+    \]
+\end{definition}
 
-
+Concretely, we are asking for a bijection between the set of homomorphisms from the free algebra to any other algebra,
+and the set of functions from the carrier set of the free algebra to the carrier set of the other algebra.
+%
+In other words, there should be no more data in homomorphisms out of the free algebra than there is in functions out of
+the carrier set.
+%
+\vc{Extension operation.}
+\vc{Monadicity and functoriality etc.}
 
 In this paper, we are interested in the constructions of free monoids and free commutative monoids.
