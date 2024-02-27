@@ -70,7 +70,10 @@ $q$, the act of imposing then forgetting an order on $xs$ does nothing, therefor
 \subsection{Order from section}
 At this point one may ask if we can construct a section from order, can we construct an order from section?
 Indeed, just by the virtue of $s$ being a section, we can almost construct a relation that satisfies
-all axioms of total order except transitivity. 
+all axioms of total order except transitivity.
+We use $\{x,y,\dots\}$ to denote $\eta_A(x) \otimes \eta_A(y) \otimes \dots : \MM(A)$,
+and $[x, y, \dots]$ to denote $\eta_A(x) \otimes \eta_A(y) \otimes \dots : \LL(A)$,
+or $x :: xs$ to denote $\eta_A(x) \otimes xs : \LL(A)$.
 
 \begin{definition}
 Given a section $s$, we define $\term{least}(xs) := \term{head}(s(xs))$.
@@ -79,6 +82,10 @@ Further, we define $x \preccurlyeq y := \term{least}(\{x, y\}) = x$.
 
 Conceptually, $\term{least}$ sorts $xs$ by $s$, and pick the first element of the sorted list.
 With this we can prove the following properties of $\preccurlyeq$.
+
+\begin{proposition}
+    $\preccurlyeq$ is decidable iff $A$ has decidable equality.
+\end{proposition}
 
 \begin{proposition}
 $\preccurlyeq$ is reflexive, antisymmetric, and total.
@@ -118,11 +125,47 @@ We first define a notion of a sorted list:
     a $ys : \MM(A)$ such that $s(ys) = xs$.
 \end{definition}
 
+\begin{proposition}\label{sort:sort-to-order}
+    $x \preccurlyeq y$ iff $\issorted([x, y])$.
+\end{proposition}
+
+\begin{proposition}
+    If $A$ has a total order $\leq$, insertion sort $\MM(A) \to \LL(A)$ defined with $\leq$
+    satisfies $\isheadleast$.
+\end{proposition}
+
+\noindent
 We then introduce our first axiom of sorting:
-\begin{definition}
+\begin{definition}\label{sort:head-least}
     A section $s$ to $q$ satisfies $\isheadleast$ iff
-    $\forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted(x :: y :: [])$.
+    $\forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted([x,y])$.
 \end{definition}
-Here we use the definition of $\in$ from~\ref{comb:member}.
+Here we use the definition of $\in$ from~\ref{comb:member}. Informally, this states if
+$x$ is the smallest element of a sorted list $ys$, then for any element $y \in ys$,
+$[x, y]$ should be a sorted list. This ensures that $s$ would correctly sort 2-element lists.
+
+\begin{proposition}
+    Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
+\end{proposition}
+\begin{proof}
+    We use a weaker version of the axiom where $x :: xs$ is fixed to have length of 3.
+    We are given $x \preccurlyeq y$ and $y \preccurlyeq z$, we want to show $x \preccurlyeq z$.
+    Consider the 3-element $\{x,y,z\} : \MM(A)$. Let $u$ be $\term{least}(\{x,y,z\})$,
+    by~\ref{sort:head-least} and~\ref{sort:sort-to-order},
+    we have $u \preccurlyeq x \land u \preccurlyeq y \land u \preccurlyeq z$.
+    Since $u \in \{x,y,z\}$, $u$ must be one of the element. We prove transitivity by case splitting.
+    If $u = x$ we have $x \preccurlyeq z$. If $u = y$ we have $y \preccurlyeq x$, and since
+    $x \preccurlyeq y$ and $y \preccurlyeq z$ by assumption,
+    we have $x = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
+    Finally, if $u = z$, we have $z \preccurlyeq y$, and since
+    $y \preccurlyeq z$ and $x \preccurlyeq y$ by assumption,
+    we have $z = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
+\end{proof}
+
+We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
+$x \preccurlyeq y := \term{least}(\{x, y\}) = x$,
+and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
+be constructed by insertion sort by $\leq$. Now, can we construct a full equivalence
+between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
 
 \vc{Case study: we test these axioms on a few sorting algorithms.}
