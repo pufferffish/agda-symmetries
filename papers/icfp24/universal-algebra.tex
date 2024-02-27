@@ -144,6 +144,7 @@ Rather than defining the left adjoint directly, we rephrase the universal proper
 terms.
 
 \begin{definition}[Free Algebras]
+    \label{def:free-algebras}
     A free $\sig$-algebra construction consists of the following data:
     \begin{itemize}
         \item a set $F(X)$, for every set $X$,
@@ -204,7 +205,7 @@ This can be easily verified with the following lemma.
     \label{lem:free-algebras-unique}
     Suppose that $\str{F}(X)$ and $\str{G}(X)$ are both free $\sig$-algebras on $X$.
     %
-    Then, it follows that $\str{F}(X) \eqv \str{G}(X)$.
+    Then, it follows that $\str{F}(X) \eqv \str{G}(X)$, natural in $X$.
 \end{lemma}
 \begin{proofsketch}
     The maps in each direction are given by extending $\eta_X$ for each free algebra construction:
@@ -237,8 +238,37 @@ By left adjoints preserve colimits, we have:
               \[
                   \sigAlg(\str{F}(X + Y), \str{Z}) \eqv
                   \sigAlg(\str{F}(X), \str{Z}) \times \sigAlg(\str{F}(Y), \str{Z})
-              \].
+                  \enspace.
+              \]
     \end{itemize}
+\end{proposition}
+
+So far, we've only discussed abstract properties of free algebras, but not actually given a construction!
+%
+In type theory, \emph{free} constructions are often given by inductive types,
+where the constructors are the pieces of data that freely generate the structure,
+and the type-theoretic induction principle enforces the category-theoretic universal property.
+
+\begin{definition}[Construction of Free Algebras]
+    \label{def:free-algebra-construction}
+    The free $\sig$-algebra on a type $X$ is given by the inductive type:
+    \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
+    \begin{code}
+data Tree (X : UU) : UU where
+  leaf : X -> Tree X
+  node : F$_\sig$(Tree X) -> Tree X
+    \end{code}
+\end{definition}
+The constructors \inline{leaf} and \inline{node} are, abstractly,
+the generators for the universal map, and the algebra map, respectively.
+%
+Concretely, this can be seen as the type of abstract syntax trees for terms in the signature $\sig$,
+-- the leaves are the free variables, and the nodes are the branching operations of the tree,
+marked by the operations in the signature $\sig$.
+
+\begin{proposition}
+    \label{prop:free-algebra-construction-is}
+    \inline{(Tree(X), leaf)} is the free $\sig$-algebra on $X$, for any set $X$.
 \end{proposition}
 
 \subsection{Equations}

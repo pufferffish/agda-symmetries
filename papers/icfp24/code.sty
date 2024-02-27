@@ -8,7 +8,7 @@
 \lstloadlanguages{Haskell}
 \lstdefinelanguage{Agda}{
   aboveskip        = \baselineskip,
-  belowskip        = \baselineskip,
+  belowskip        = -0.5\baselineskip,
   language         = Haskell,
   showstringspaces = false,
   xleftmargin      = \parindent,
@@ -18,8 +18,8 @@
   basewidth        = {0em,0em},
   morekeywords     = {},
   deletekeywords   = {List},
-  emph             = [1]{List,SList,PList,Mset,SMC,FMSet,Perm,Maybe,hProp,hSet,Array,Bag,Fin},
-  emph             = [2]{swap,trunc,eq,squash,perm-refl,perm-swap},
+  emph             = [1]{Tree,List,SList,PList,Mset,SMC,FMSet,Perm,Maybe,hProp,hSet,Array,Bag,Fin},
+  emph             = [2]{leaf,node,swap,trunc,eq,squash,perm-refl,perm-swap},
   emph             = [3]{i0,i1,hcomp,Nat},
   alsoletter       = {_,-},
   escapeinside     = ||,
@@ -38,6 +38,7 @@
                      {lambda}{{\ensuremath{\lambda\!}}}2
                      {forall}{{\ensuremath{\forall}}}2
                      {Sg}{{\ensuremath{\Sigma}}}2
+                     {sig}{{\ensuremath{\sigma}}}2
                      {times}{{\ensuremath{\times}}}2 {plus}{{+}}2 {uplus}{{\ensuremath{\uplus}}}2
                      {mem}{{\ensuremath{\in}}}2
                      {top}{{\ensuremath{\top}}}2 {bot}{{\ensuremath{\bot}}}2
