@@ -4,6 +4,24 @@
 \vc{This theorem works for any presentation.}
 \vc{Different presentations can be advantageous to different kinds of sorting algorithms.}
 
+Consider the canonical map $q : \LL(A) \to \MM(A)$ given by $\ext{\eta_A}$. $q$ would be a surjective
+function which "forgets" the order on a free monoid and turns it into a free commutative monoid.
+The axiom of choice says every surjection $f$ has a section $s$ such that $\forall x.\, f(s(x)) = x$.
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.3}{
+        % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXExMKEEpIl0sWzMsMCwiXFxNTShBKSJdLFsxLDAsInMiLDAseyJjdXJ2ZSI6LTF9XSxbMCwxLCJxIiwwLHsiY3VydmUiOi0xfV1d
+    \begin{tikzcd}[ampersand replacement=\&,cramped]
+    	{\LL(A)} \&\&\& {\MM(A)}
+    	\arrow["s", curve={height=-6pt}, from=1-4, to=1-1]
+    	\arrow["q", curve={height=-6pt}, two heads, from=1-1, to=1-4]
+    \end{tikzcd}
+    }
+    \caption{Relationship of $\LL(A)$ and $\MM(A)$}
+    \label{fig:enter-label}
+\end{figure}
+
 We can now study sort functions as sections and their relationship with total orders.
 First, we recall the axioms of total order are:
 \begin{itemize}
