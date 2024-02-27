@@ -17,6 +17,8 @@ We keep a running example of monoids in mind, while explaining and defining the 
 % structure being a carrier set with functions that interpret these operations. We describe such a framework for universal
 % algebra in HoTT, as follows.
 
+\subsection{Algebras}
+
 \begin{definition}[Signature]
     A signature, denoted $\sig$, is a (dependent) pair consisting of:
     \begin{itemize}
@@ -56,7 +58,7 @@ Every signature $\sig$ induces a signature functor on $\Set$, written $\Sig$.
     the sets of inputs for each operation.
     %
     Expanding the dependent product on $\Fin[2]$, we obtain a coproduct or disjoint union of sets:
-    $\SigMon(X) \eqv X^{\Fin[0]} + X^{\Fin[2]}$.
+    $\SigMon(X) \eqv X^{\Fin[0]} + X^{\Fin[2]} \eqv \unitt + (X \times X)$.
 \end{example}
 
 A $\sig$-structure is given by a carrier set, with functions interpreting each operation symbol.
@@ -79,13 +81,9 @@ We write $\str{X}$ for a $\sig$-structure with carrier set $X$, following the mo
 \begin{example}
     Concretely, an $\SigMon$-algebra has the type
     \[
-        \begin{array}{rcl}
-            \alpha_{X} & :    & \dsum{o:\Fin[2]}{X^{\term{ar}(o)}} \to X       \\
-                       & \eqv & (X^{\Fin[0] + \Fin[2]}) \to X                  \\
-                       & \eqv & (X^{\Fin[0]} \to X) \times (X^{\Fin[2]} \to X) \\
-                       & \eqv & (\unitt \to X) \times (X \times X \to X)
-        \end{array}
+        \alpha_{X} : \SigMon(X) \to X \eqv \unitt + (X \times X) \to X \eqv (\unitt \to X) \times (X \times X \to X)
     \]
+    which is the pair of functions interpreting the two operations.
     The natural numbers with the carrier set $\Nat$,
     and the constant $0$ and the addition operation $+$ give an example of such a structure.
     %
@@ -109,6 +107,20 @@ in the categorical framework, this is simply a map between the two $\Sig$-algebr
         \end{tikzcd}
     \]
 \end{definition}
+
+\begin{example}
+    To see concretely that this definition captures the notion of a homomorphism between two monoids ($\Sig$-algebras)
+    $\str{X}$ and $\str{Y}$, we note that the top half of the diagram produces the map:
+    $\unitt + (X \times X) \xto{\alpha_{X}} X \xto{f} Y$, which applies $f$ to the output of each operation,
+    and the bottom half of the diagram produces the map:
+    $\unitt + (X \times X) \xto{\SigMon(f)} \unitt + (Y \times Y) \xto{\alpha_{Y}} Y$,
+    and the commutativity of the diagram says that these two maps are equal.
+    %
+    In other words, a homomorphism between $X$ and $Y$ is a map $f$ on the carrier sets that commutes with the
+    interpretation of the monoid operations, or simply, preserves the monoid structure.
+\end{example}
+
+\subsection{Free Algebras}
 
 Free algebras: For any object \( \mathfrak{Y} \) in $\sigma$-Alg, $(\blank) \circ \eta_X$ is an equivalence:
 
