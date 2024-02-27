@@ -144,11 +144,16 @@ Rather than defining the left adjoint directly, we rephrase the universal proper
 terms.
 
 \begin{definition}[Free Algebras]
-    A free $\sig$-algebra on a set $X$ is a $\sig$-structure $\str{F}(X)$,
-    together with a universal map $\eta_X : X \to F(X)$, such that,
-    for any $\sig$-algebra $\str{Y}$, the operation (post-composition with $\eta_X$)
-    assigning to each homomorphism $f : \str{X} \to \str{Y}$, the function $f \comp \eta_X : X \to Y$,
-    is an equivalence.
+    A free $\sig$-algebra construction consists of the following data:
+    \begin{itemize}
+        \item a set $F(X)$, for every set $X$,
+        \item a $\sig$-structure on $F(X)$, written as $\str{F}(X)$,
+        \item a universal map $\eta_X : X \to F(X)$, for every $X$, such that,
+        \item for any $\sig$-algebra $\str{Y}$, the operation
+              assigning to each homomorphism $f : \str{X} \to \str{Y}$,
+              the function $f \comp \eta_X : X \to Y$ (or, post-composition with $\eta_X$),
+              is an equivalence.
+    \end{itemize}
     \[
         \begin{tikzcd}[ampersand replacement=\&]
             \str{F}(X) \\
@@ -162,20 +167,58 @@ terms.
             X \&\& {F(X)} \\
             \\
             \&\& Y
-            \arrow["{\eta_{X}}", color={rgb,255:red,214;green,92;blue,92}, from=1-1, to=1-3]
+            \arrow["{\eta_{X}}", color={solarized-red}, from=1-1, to=1-3]
             \arrow["{f \comp \eta_{X}}"', from=1-1, to=3-3]
             \arrow["f", dotted, from=1-3, to=3-3]
         \end{tikzcd}
     \]
 \end{definition}
-
-Concretely, we are asking for a bijection between the set of homomorphisms from the free algebra to any other algebra,
+More concretely,
+we are asking for a bijection between the set of homomorphisms from the free algebra to any other algebra,
 and the set of functions from the carrier set of the free algebra to the carrier set of the other algebra.
 %
 In other words, there should be no more data in homomorphisms out of the free algebra than there is in functions out of
-the carrier set.
+the carrier set, which is the property of \emph{freeness}.
 %
-\vc{Extension operation.}
+The inverse operation to post-composition with $\eta_X$ is the \emph{extension} of a function to a homomorphism,
+which is common in the functional programming and recursion schemes literature, and known as a \emph{fold},
+or a \emph{catamorphism}.
+%
+\begin{definition}[Universal extension]
+    \label{def:universal-extension}
+    The universal extension of a function $f : X \to Y$ to a homomorphism out of the free $\sig$-algebra on $X$ is written
+    as $\ext{f} : \str{F}(X) \to \str{Y}$.
+    %
+    It satisfies the identities:
+    \begin{itemize}
+        \item $\ext{f} \comp \eta_X \htpy f$,
+        \item $\ext{\eta_{X}} \htpy \idfunc_{\str{F}(X)}$,
+        \item $\ext{(\ext{g} \comp f)} \htpy \ext{g} \comp \ext{f}$.
+    \end{itemize}
+\end{definition}
+
+The universal property of the free algebra construction makes it unique up to (unique) isomorphism.
+%
+This can be easily verified with the following lemma.
+\begin{lemma}
+    \label{lem:free-algebras-unique}
+    Suppose that $\str{F}(X)$ and $\str{G}(X)$ are both free $\sig$-algebras on $X$.
+    %
+    Then, it follows that $\str{F}(X) \eqv \str{G}(X)$.~\vc{Mention SIP}
+\end{lemma}
+\begin{proofsketch}
+    The maps in each direction are given by extending $\eta_X$ for each free algebra construction:
+    $\ext{G\fdot\eta_{X}} : \str{F}(X) \to \str{G}(X)$, and vice versa.
+    %
+    Finally, using~\cref{def:universal-extension}, we have
+    \(
+    \ext{F\fdot\eta_{X}} \comp \ext{G\fdot\eta_{X}} \htpy
+    \ext{(\ext{F\fdot\eta_{X}} \comp G\fdot\eta_{X})} \htpy
+    \ext{F\fdot\eta_{X}} \htpy
+    \idfunc_{\str{F}(X)}
+    \).
+\end{proofsketch}
+
 \vc{Monadicity and functoriality etc.}
 
 In this paper, we are interested in the constructions of free monoids and free commutative monoids.
