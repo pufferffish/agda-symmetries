@@ -327,7 +327,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
 
     Case $(0, g)$:
     We have $g = \lambda\{\}$ by~\ref{array:zero-is-id}.
-    $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(ys)$ by ~\ref{array:unitl},
+    $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(ys)$ by left unit,
     and $\ext{f}(0, \lambda\{\}) \otimes \ext{f}(ys) = e \otimes \ext{f}(ys) = \ext{f}(ys)$
     by definition of $\ext{(\blank)}$. Therefore,
     $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(0, \lambda\{\}) \otimes \ext{f}(ys)$.
@@ -347,7 +347,7 @@ We define the $\ext{(\blank)}$ on $f : A \to X$:
     Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
 \end{proof}
 
-\begin{propositionrep}[Universal property for Array]
+\begin{propositionrep}[Universal property for Array]\label{array:univ}
     $(\Array(A),\eta_A)$ is the free monoid on $A$.
 \end{propositionrep}
 

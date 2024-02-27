@@ -85,7 +85,7 @@ We gain our main insight: fixing a permutation on $\{a,b,c\}$ fixes an ordering 
 However, how do we formalize the correctness of this sort function?
 The common formalization of a correct sort algorithm is to say a sort algorithm produces
 an "orederd list", for example, one such formalization would be the definition
-from Verified Functional Algorithms \cite{appelVerifiedFunctionalAlgorithms}, translated into Agda.
+from Verified Functional Algorithms \cite{appelVerifiedFunctionalAlgorithms2023}, translated into Agda.
 
 \begin{lstlisting}[language=Haskell]
 data Sorted : List A $\to$ Type where
@@ -171,7 +171,7 @@ algorithms and their relationship to total orders.
   \item In~\cref{sec:universal-algebra}, we give some background on a categorical framework for universal algebra including equations, and its formalization in HoTT. We give the definition of free algebras and their universal property. \vc{We do not give the construction of free algbras for arbitrary signatures, because we show that their existence implies non-constructive principles.}
   \item In~\cref{sec:monoids}, we give various constructions of free monoids, and their proofs of universal property.
   \item In~\cref{sec:commutative-monoids}, we add commutativity to free monoids, and show how to extend the proofs of universal property appropriately, to get the universal property of free commutative monoids.
-  \item \vc{In~\cref{sec:combinatorics}, we show how free monoids and free commutative monoids are different, by discussing various combinatorial properties and operations, which can be defined for both, and ones which cannot be defined for both}.
+  \item In~\cref{sec:combinatorics}, we show how free monoids and free commutative monoids are different, by discussing various combinatorial properties and operations, which can be defined for both, and ones which cannot be defined for both.
   \item In \cref{sec:sorting}, we build on the constructions of the previous sections and study intrinsically verified sorting function. The main result in this section is to connect total orders and sorting and commutativity, by proving an equivalence between decidable total orders on a carrier set $A$, and correct sorting algorithms on lists of elements of $A$.
   \item All the work in this paper is formalized in Cubical Agda, which is discussed in~\cref{sec:formalization}, and the accompanying code is available as supplementary material. Although the formalization is a contribution in itself, the purpose of the paper is not to discuss the formalization, but to present the results in un-formalized form, using HoTT/UF as a foundation, so the ideas are accessible to a wider audience, even without a background in type theory or formalization.
   \item In~\cref{sec:discussion}, we discuss connections to related work, and future work.

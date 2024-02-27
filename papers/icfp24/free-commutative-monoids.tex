@@ -4,58 +4,6 @@
 We now extend our constructions of free monoids to free commutative monoids.
 \vc{Discuss what's good and what's bad about each presentation.}
 
-\subsection{Swap-List}
-We can use HITs where adjacent swaps generate all symmetries,
-for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have
-also given a proof of its universal property.
-
-\begin{code}
-data SList (A : UU) : UU where
-  nil : SList A
-  _cons_ : A -> SList A -> SList A
-  swap : forall x y xs -> x :: y :: xs == y :: x :: xs 
-  trunc : forall x y -> (p q : x == y) -> p == q
-\end{code}
-
-The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
-thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
-This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
-because it does not have any path constructors, therefore it can be proven that $\List(A)$
-is a set assuming $A$ is a set.
-
-\begin{definition}[Concatenation]
-    We define the concatenation operation $\doubleplus : \SList(A) \to \SList(A) \to \SList(A)$
-    inductively.
-    \begin{align*}
-        [] \doubleplus ys & = ys \\
-        (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys) \\
-        \term{cong}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
-    \end{align*}
-\end{definition}
-
-\cite{choudhuryFreeCommutativeMonoids2023} has already given a proof of $(\SList(A), \doubleplus, [])$
-satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
-
-\begin{lemma}[Head rearrange]\label{slist:cons}
-    For all $x : A$, $xs : \SList(A)$, $x :: xs = xs \doubleplus [ x ]$.
-\end{lemma}
-
-\begin{proof}
-We can prove this by induction on $xs$.
-For $xs = []$ this is trivial. For $xs = y :: ys$, we have the induction hypothesis $x :: ys = ys \doubleplus [ x ]$.
-By applying $y :: \blank$ on both side and then apply $\term{swap}$, we can complete the proof.
-\end{proof}
-
-\begin{theorem}[Commutativity]\label{slist:comm}
-    For all $xs,\,ys : \SList(A)$, $xs \doubleplus ys = ys \doubleplus xs$.
-\end{theorem}
-
-\begin{proof}
-    By induction on $xs$ we can iteratively apply~\ref{slist:cons} to move all elements of $xs$
-    to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
-    $xs \doubleplus ys = ys \doubleplus xs$.
-\end{proof}
-
 \subsection{Free monoid quotiented with permutation}\label{cmon:qfreemon}
 We give a general construction of free commutative monoid as a free monoid quotient.
 Specific instances of this construction are given in \ref{cmon:plist} and \ref{cmon:bag}.
@@ -152,7 +100,7 @@ It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
 We can also prove $\Perm$ is congruent wrt to $\doubleplus$ by induction.
 Commutativity can also be proven very similarly from the proof for $\SList$ in~\ref{slist:comm}.
 
-\begin{theorem}
+\begin{theorem}\label{plist:sharp-sat}
     For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \SList(A)$,
     $\ext{f}(xs\,\doubleplus\,x :: y :: ys) = \ext{f}(xs\,\doubleplus\,y :: x :: ys)$.
 \end{theorem}
@@ -160,15 +108,119 @@ Commutativity can also be proven very similarly from the proof for $\SList$ in~\
 With this we can prove $\Perm$ respects $\ext{(\blank)}$.
 
 \begin{proof}
-    We can prove this by induction on $xs$. For $xs = []$, by homomorphism properties of $\ext{f}$,
-    we can prove $\ext{f}(x :: y :: ys) = \ext{f}([ x ]) \otimes \ext{f}([ y ]) \otimes \ext{f}(ys)$.
-    Since the image of $\ext{f}$ is a commutative monoid, we have
-    $\ext{f}([ x ]) \otimes \ext{f}([ y ]) = \ext{f}([ y ]) \otimes \ext{f}([ x ])$, therefore proving
-    $\ext{f}(x :: y :: ys) = \ext{f}(y :: x :: ys)$. For $xs = z :: zs$, we can prove
-    $\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \otimes \ext{f}(zs\,\doubleplus\,x :: y :: ys)$.
-    We can then complete the proof by induction on $\ext{f}(zs\,\doubleplus\,x :: y :: ys)$ and reassembling
-    back to $\ext{f}((z :: zs)\,\doubleplus\,y :: x :: ys)$ by homomorphism properties of $\ext{f}$.
+We can prove this by induction on $xs$. For $xs = []$, by homomorphism properties of $\ext{f}$,
+we can prove $\ext{f}(x :: y :: ys) = \ext{f}([ x ]) \otimes \ext{f}([ y ]) \otimes \ext{f}(ys)$.
+Since the image of $\ext{f}$ is a commutative monoid, we have
+$\ext{f}([ x ]) \otimes \ext{f}([ y ]) = \ext{f}([ y ]) \otimes \ext{f}([ x ])$, therefore proving
+$\ext{f}(x :: y :: ys) = \ext{f}(y :: x :: ys)$. For $xs = z :: zs$, we can prove
+$\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \otimes \ext{f}(zs\,\doubleplus\,x :: y :: ys)$.
+We can then complete the proof by induction to obtain
+$\ext{f}(zs\,\doubleplus\,x :: y :: ys) = \ext{f}(zs\,\doubleplus\,y :: x :: ys)$ and reassembling
+back to $\ext{f}((z :: zs)\,\doubleplus\,y :: x :: ys)$ by homomorphism properties of $\ext{f}$.
 \end{proof}
+
+\subsubsection{Representation}\label{plist:rep}
+With this representation it is very easy to lift functions and properties defined on $\List$
+to $\PList$ since $\PList$ is a quotient of $\List$. The inductive nature of $\PList$ makes it
+very easy to define algorithms and proofs that are inductive in nature, e.g. defining insertion sort
+on $\PList$ is very simple since insertion sort inductively sorts a list, which we can easily do by
+pattern matching on $\PList$ since the construction of $\PList$ is definitionally inductive.
+This property also makes it such that oftentimes inductively constructed $\PList$ would normalize to the
+simplest form of the $\PList$, e.g. $q([ x ]) \doubleplus q([y, z])$ normalizes to $q([x,y,z])$ by
+definition, saving the efforts of defining auxillary lemmas to prove their equality.
+
+This inductive nature, however, makes it difficult to define efficient operations on $\PList$. Consider a
+divide-and-conquer algorithm such as merge sort, which involves partitioning a $\PList$ of length $n+m$ into
+two smaller $\PList$ of length $n$ and length $m$. The inductive nature of $\PList$ makes it such that
+we must iterate all $n$ elements before we can make such a partition, thus making $\PList$ unintuitive
+to work with when we want to reason with operations that involve arbitrary partitioning.
+
+Also, whenever we define a function on $\PList$ by pattern matching we would also need to show 
+the function respects $\Perm$, i.e. $\Perm as\,bs \to f(as) = f(bs)$. This can be annoying because
+of the many auxiliary variables in the constructor $\term{perm-swap}$, namely $xs$, $ys$, $zs$.
+We need to show $f$ would respect a swap in the list anywhere between $xs$ and $ys$, which can 
+unnecessarily complicate the proof. For example in the inductive step of~\ref{plist:sharp-sat},
+$\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \otimes \ext{f}(zs\,\doubleplus\,x :: y :: ys)$,
+to actually prove this in Cubical Agda would involve first applying associativity to prove
+$(z :: zs)\,\doubleplus\,x :: y :: ys = z :: (zs\,\doubleplus\,x :: y :: ys)$, before we can actually
+apply homomorphism properties of $f$. In the final reassembling step, similarly,
+we also need to re-apply associativity to go from $z :: (zs\,\doubleplus\,y :: x :: ys)$
+to $(z :: zs)\,\doubleplus\,y :: x :: ys$. Also since we are working with an equivalence relation we
+defined ($\Perm$) and not the equality type directly, we cannot exploit the many combinators defined
+in the standard library for the equality type and often needing to re-define combinators ourselves.
+
+\subsection{Swap-List}
+We can use HITs where adjacent swaps generate all symmetries,
+for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have
+also given a proof of its universal property.
+
+\begin{code}
+data SList (A : UU) : UU where
+  nil : SList A
+  _cons_ : A -> SList A -> SList A
+  swap : forall x y xs -> x :: y :: xs == y :: x :: xs 
+  trunc : forall x y -> (p q : x == y) -> p == q
+\end{code}
+
+The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
+thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
+This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
+because it does not have any path constructors, therefore it can be proven that $\List(A)$
+is a set assuming $A$ is a set.
+
+\begin{definition}[Concatenation]
+    We define the concatenation operation $\doubleplus : \SList(A) \to \SList(A) \to \SList(A)$
+    inductively.
+    \begin{align*}
+        [] \doubleplus ys & = ys \\
+        (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys) \\
+        \term{cong}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
+    \end{align*}
+\end{definition}
+
+\cite{choudhuryFreeCommutativeMonoids2023} has already given a proof of $(\SList(A), \doubleplus, [])$
+satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
+
+\begin{lemma}[Head rearrange]\label{slist:cons}
+    For all $x : A$, $xs : \SList(A)$, $x :: xs = xs \doubleplus [ x ]$.
+\end{lemma}
+
+\begin{proof}
+We can prove this by induction on $xs$.
+For $xs = []$ this is trivial. For $xs = y :: ys$, we have the induction hypothesis $x :: ys = ys \doubleplus [ x ]$.
+By applying $y :: \blank$ on both side and then apply $\term{swap}$, we can complete the proof.
+\end{proof}
+
+\begin{theorem}[Commutativity]\label{slist:comm}
+    For all $xs,\,ys : \SList(A)$, $xs \doubleplus ys = ys \doubleplus xs$.
+\end{theorem}
+
+\begin{proof}
+    By induction on $xs$ we can iteratively apply~\ref{slist:cons} to move all elements of $xs$
+    to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
+    $xs \doubleplus ys = ys \doubleplus xs$.
+\end{proof}
+
+\subsubsection{Representation}\label{slist:rep}
+Much like $\PList$ and $\List$, $\SList$ is inductively defined, therefore making it very intuitive to reason
+with when defining inductive operations or inductive proofs on $\SList$, however difficult to reason with
+when defining operations that involve arbitrary partitioning, for reasons similar to those given
+in~\ref{plist:rep}.
+
+Unlike $\PList$ which is defined as a set quotient, this is defined as a HIT, therefore handling equalities
+between $\SList$ is much simpler than $\PList$. We would still need to prove a function $f$ respects
+the path constructor of $\SList$ when pattern matching, i.e. $f(x :: y :: xs) = f(y :: x :: xs)$.
+Unlike $\PList$ we do not need to worry about as many auxiliary variables since swap
+only happens at the head of the list, whereas with $\PList$ we would need to prove
+$f(xs\,\doubleplus\,x :: y :: ys) = f(xs\,\doubleplus\,y :: x :: ys)$. One may be tempted to just remove $xs$
+from the $\term{perm-swap}$ constructor such that it becomes
+$\term{perm-swap} : \forall x\,y\,ys\,zs \to \Perm\,(x :: y :: ys)\,zs \to \Perm\,(y :: x :: ys)\,zs$.
+However this would break $\Perm$'s congruence wrt to $\doubleplus$, therefore violating the axioms of
+permutation relations. Also, since we are working with the identity type directly, properties we would
+expect from $\term{swap}$, such as reflexivity, transitivity, symmetry, congruence and such all comes directly by
+construction, whereas with $\Perm$ we would have to prove these properties manually.
+We can also use the many combinatorics defined in the standard library for equational reasoning,
+making the handling of $\SList$ equalities a lot simpler.
 
 \subsection{Bag}\label{cmon:bag}
 Alternatively, we can also quotient $\Array$ with symmetries to get commutativity.
@@ -203,7 +255,7 @@ to show $\Bag$ is the free commutative monoid.
     therefore $\approx$ is transitive.
 \end{proof}
 
-\begin{proposition}
+\begin{proposition}\label{bag:cong}
     $\approx$ is congruent wrt to $\doubleplus$.
 \end{proposition}
 
@@ -222,7 +274,7 @@ to show $\Bag$ is the free commutative monoid.
     \begin{tikzcd}[ampersand replacement=\&,cramped]
     	{\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+u-1 \color{black}\}} \\
     	{ \{\color{red}\sigma(0),\sigma(1)\dots,\sigma(n-1), \color{blue}\phi(0),\phi(1),\dots,\phi(u-1) \color{black}\}}
-        \arrow["\phi", maps to, from=1-1, to=2-1]
+        \arrow["{\sigma,\phi}", maps to, from=1-1, to=2-1]
     \end{tikzcd}
         \caption{Operation of $\tau$}
         \label{fig:enter-label}
@@ -230,7 +282,7 @@ to show $\Bag$ is the free commutative monoid.
     
 \end{proof}
 
-\begin{proposition}
+\begin{proposition}\label{bag:comm}
     $\approx$ is commutative.
 \end{proposition}
 
@@ -335,7 +387,7 @@ equivalence used to construct Lehmer codes in~\cite{choudhurySymmetriesReversibl
 
 We now prove our main theorem.
 
-\begin{theorem}[Permutation invariance]
+\begin{theorem}[Permutation invariance]\label{bag:perm-sat}
 For all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
 \end{theorem}
 
@@ -356,4 +408,30 @@ We can prove this by induction on $n$.
 \end{itemize}
 \end{proof}
 
-\vc{Say that everything henceforth holds for any presentation of free monoids and free commutative monoids, by univalence and SIP.}
+\subsubsection{Representation}\label{bag:rep}
+Unlike $\PList$ and $\SList$, $\Bag$ and its underlying construction $\Array$ are not inductively defined,
+making it difficult to work with when trying to do induction on them. For example,
+in the proof~\ref{array:univ}, two lemmas~\ref{array:eta-suc} and~\ref{array:split} are needed to do
+induction on $\Array$, as opposed to $\List$ and its quotients, where we can do induction simply by
+pattern matching. Much like $\PList$, when defining functions on $\Bag$, we need to show they respect
+$\approx$, i.e. $as \approx bs \to f(as) = f(bs)$. This is notably much more difficult than
+$\PList$ and $\SList$, because whereas with $\PList$ and $\SList$ we only need to consider "small permutations"
+(i.e. swapping adjacent elements), with $\Bag$ we need to consider all possible permutations. For example,
+in the proof of~\ref{bag:perm-sat}, we need to first construct a $\tau$ which satisfies $\tau(0) = 0$ and prove
+$\ext{f}(n, i \comp \sigma) = \ext{f}(n, i \comp \tau)$ before we can apply induction.
+
+Also, on a more technical note, since $\Array$ and $\Bag$ are not simple data types, the definition of
+the monoid operation on them $\doubleplus$ are necessarily more complicated, and unlike $\List$, $\PList$
+and $\SList$, constructions of $\Array$ and $\Bag$ via $\doubleplus$ often would not normalize into a
+very simple form, but would instead expand into giant trees of terms. This makes it such that when working
+with $\Array$ and $\Bag$ we need to be very careful or otherwise Agda would be stuck trying to display
+the normalized form of $\Array$ and $\Bag$ in the goal and context menu. Type-checking also becomes a lengthy
+process that tests if the user possesses the virtue of patience.
+
+However, performing arbitrary partitioning with $\Array$ and $\Bag$ is much easier than
+$\List$, $\SList$, $\PList$. For example,
+one can simply use the combinator $\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]$ to partition the array,
+then perform operations on the partitions such as swapping in~\ref{bag:comm},
+or perform operations on the partitions individually such as two individual permutation in~\ref{bag:cong}.
+This makes it such that when defining divide-and-conquer algorithms such as merge sort,
+$\Bag$ and $\Array$ are more natural to work with than $\List$, $\SList$, and $\PList$.

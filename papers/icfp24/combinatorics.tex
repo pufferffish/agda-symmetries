@@ -1,11 +1,12 @@
 \section{Combinatorics}
 \label{sec:combinatorics}
 
-\redtext{Outline: what works for both, what doesn't work for both? head.}
-\redtext{Coproducts of free algebras, coproducts of free commutative monoids, draw a picture.}
-\redtext{Point to conical and Riesz refinement property}
-\redtext{Say something about Path space.}
-\redtext{Cons is injective.}
+We now explore various combinatorial properties and operations we can define for both
+free monoids and free commutative monoids. By univalence and structure identity principle,
+everything henceforth holds for any presentation of free monoids and free commutative monoids, 
+therefore we avoid naming any specific constructions.
+We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$,
+$\LL(A)$ to exclusively denote free monoid and $\MM(A)$ to exclusively denote free commutative monoid.
 
 With universal properties we can structure our programs using ideas from algebra.
 For example $\term{length}$ is a common operation defined inductively for $\List$,
@@ -19,7 +20,6 @@ the two types is very difficult.
 
 To illustrate this, we give some examples of how some common operations can be defined
 in terms of universal property.
-We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$.
 
 \subsection{Length}
 
@@ -109,7 +109,60 @@ therefore given a predicate $P : A \to \hProp$, we get:
     \end{minipage}
 \end{figure}
 
-% We denote free monoid on $A$ with $\LL(A)$ and free commutative monoid on $A$ with $\MM(A)$.
-% $\MM(A + B) \eqv \MM(A) \times \MM(B)$.
+\subsection{Conical-monoid relation}
+Free commutative monoids and free monoids also share some common properties, one for example being
+they are conical~\cite{wehrungTensorProductsStructures1996},
+in other words, $\forall as,\, bs : \FF(A),\,as \otimes bs = e \to as = bs = e$.
 
+\subsection{Seely isomorphism}
+These common properties break down however when we study combinatorics exclusive to free commutative monoids.
+One such property is that the products of free commutative monoids
+is equal to the free commutative monoids of coproducts by univalence.
+\begin{equation*}
+    \MM(A) \times \MM(B) = \MM(A + B)\quad,\quad\unitt = \MM(\emptyt)
+\end{equation*}
+
+\cite{choudhuryFreeCommutativeMonoids2023} have given a proof on this property. We give a diagram here
+showing how this equivlance can be constructed.
+
+\begin{center}
+% https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXE1NKEEpXFx0aW1lc1xcTU0oQikiXSxbMSwxLCJcXE1NKEErQikgXFx0aW1lcyBcXE1NKEErQikiXSxbMiwwLCJcXE1NKEEgKyBCKSJdLFswLDEsIlxcTU0oaV8xKSBcXHRpbWVzIFxcTU0oaV8yKSIsMix7ImxhYmVsX3Bvc2l0aW9uIjowfV0sWzEsMiwiXFxvdGltZXNfeyhBK0IpfSIsMix7ImxhYmVsX3Bvc2l0aW9uIjoxMDB9XSxbMCwyLCJcXHNpbWVxIl1d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	{\MM(A)\times\MM(B)} \&\& {\MM(A + B)} \\
+	\& {\MM(A+B) \times \MM(A+B)}
+	\arrow["{\MM(i_1) \times \MM(i_2)}"'{pos=0}, from=1-1, to=2-2]
+	\arrow["{\otimes_{(A+B)}}"'{pos=1}, from=2-2, to=1-3]
+	\arrow["\simeq", from=1-1, to=1-3]
+\end{tikzcd}
+\end{center}
+
+This property does not hold for free monoids, because $\LL(A + B)$ is larger than $\LL(A) \times \LL(B)$.
+Given $a: A$ and $b: B$, we can only construct $([a], [b]) : \LL(A) \times \LL(B)$, however we can
+construct both $[\term{inl}(a), \term{inr}(b)]$ and $[\term{inr}(b), \term{inl}(a)]$ for $\LL(A + B)$.
+By forgetting the order with commutativity,
+$[\term{inl}(a), \term{inr}(b)]$ and $[\term{inr}(b), \term{inl}(a)]$ would count as the same elements
+of $\MM(A + B)$, allowing us to construct an isomorphism from $\MM(A + B)$ to $\MM(A) \times \MM(B)$.
+
+\subsection{Riesz refinement property}
+Another property exclusive to free commutative monoids is the Riesz refinement
+property~\cite{dobbertinRefinementMonoidsVaught1983}.
+\begin{equation*}
+\begin{gathered}
+    as \otimes bs = cs \otimes ds \\
+    \iff \\
+    \exists (xs_{1}, xs_{2}, ys_{1}, ys_{2} : \MM(A)).
+    (as = xs_{1} \otimes xs_{2}) \land (bs = ys_{1} \otimes ys_{2}) \land
+    (xs_{1} \otimes ys_{1} = cs) \land (xs_{2} \otimes ys_{2} = ds).
+\end{gathered}
+\end{equation*}
+
+Concretely, this means we can break down $as$ into $xs_1 \otimes xs_2$,
+$bs$ into $ys_2 \otimes ys_2$, and show that $as \otimes bs = (xs_1 \otimes ys_1) \otimes (xs_2 \otimes ys_2)$.
+The swapping of $xs_{1,2}$ and $ys_{1,2}$ is inherently commutative in nature,
+therefore $\LL(A)$ does not satisfy this property.
+
+\subsection{Path space}
+\redtext{Say something about Path space. Cons is injective.}
+
+\subsection{Head}
 
