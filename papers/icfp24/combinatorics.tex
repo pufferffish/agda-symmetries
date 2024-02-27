@@ -123,9 +123,10 @@ is equal to the free commutative monoids of coproducts by univalence.
 \end{equation*}
 
 \cite{choudhuryFreeCommutativeMonoids2023} have given a proof on this property. We give a diagram here
-showing how this equivlance can be constructed.
+showing how this equivalence can be constructed.
 
-\begin{center}
+\begin{figure}[H]
+    \centering
 % https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXE1NKEEpXFx0aW1lc1xcTU0oQikiXSxbMSwxLCJcXE1NKEErQikgXFx0aW1lcyBcXE1NKEErQikiXSxbMiwwLCJcXE1NKEEgKyBCKSJdLFswLDEsIlxcTU0oaV8xKSBcXHRpbWVzIFxcTU0oaV8yKSIsMix7ImxhYmVsX3Bvc2l0aW9uIjowfV0sWzEsMiwiXFxvdGltZXNfeyhBK0IpfSIsMix7ImxhYmVsX3Bvc2l0aW9uIjoxMDB9XSxbMCwyLCJcXHNpbWVxIl1d
 \begin{tikzcd}[ampersand replacement=\&,cramped]
 	{\MM(A)\times\MM(B)} \&\& {\MM(A + B)} \\
@@ -134,7 +135,9 @@ showing how this equivlance can be constructed.
 	\arrow["{\otimes_{(A+B)}}"'{pos=1}, from=2-2, to=1-3]
 	\arrow["\simeq", from=1-1, to=1-3]
 \end{tikzcd}
-\end{center}
+    \caption{Construction of the Seely isomorphism}
+    \label{fig:enter-label}
+\end{figure}
 
 This property does not hold for free monoids, because $\LL(A + B)$ is larger than $\LL(A) \times \LL(B)$.
 Given $a: A$ and $b: B$, we can only construct $([a], [b]) : \LL(A) \times \LL(B)$, however we can
@@ -165,4 +168,19 @@ therefore $\LL(A)$ does not satisfy this property.
 \redtext{Say something about Path space. Cons is injective.}
 
 \subsection{Head}
+Consider the $\term{head} : \FF(A) \to A$ function which takes an element out of $\FF(A)$.
+We consider by cases on the length of $\FF(A)$.
 
+Case 0: $\term{head}$ cannot be defined, for example if $A = \emptyt$, such a function would lead to
+a contradiction.
+
+Case 1: $\term{head}$ can be defined for both $\MM(A)$ and $\LL(A)$. In fact, it is a equivalence
+if we only consider $xs : \FF(A)$ where $\term{length}(xs) = 1$, with its inverse given by $\eta_A$.
+
+Case $n \geq 2$: $\term{head}$ can be defined for any $\LL(A)$. Using $\List$ as an example, one can simply
+take the first element of the list. However, for $\MM(A)$, $\term{head}$ can only be defined if it
+respects commutativity. Using $\SList$ as an example, this means $\term{head}$ must satisfy:
+$\term{head}(x :: y :: xs) = \term{head}(y :: x :: xs)$ for any $x, y : A$ and $xs : \SList(A)$.
+This implies if we were to define $\term{head}$ for $\MM(A)$, we must be able to order or sort a
+list $xs$ of $A$ somehow, so we can pick a "least" or "biggest" element $x \in xs$ such that for any
+permutation of $xs$ $xs^*$, $\term{head}(xs^*) = x$.
