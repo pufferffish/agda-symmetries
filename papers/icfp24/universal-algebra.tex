@@ -204,7 +204,7 @@ This can be easily verified with the following lemma.
     \label{lem:free-algebras-unique}
     Suppose that $\str{F}(X)$ and $\str{G}(X)$ are both free $\sig$-algebras on $X$.
     %
-    Then, it follows that $\str{F}(X) \eqv \str{G}(X)$.~\vc{Mention SIP}
+    Then, it follows that $\str{F}(X) \eqv \str{G}(X)$.
 \end{lemma}
 \begin{proofsketch}
     The maps in each direction are given by extending $\eta_X$ for each free algebra construction:
@@ -217,8 +217,31 @@ This can be easily verified with the following lemma.
     \ext{F\fdot\eta_{X}} \htpy
     \idfunc_{\str{F}(X)}
     \).
+    \vc{Mention SIP.}
 \end{proofsketch}
+\todo{Revisit.}
+The free algebra construction automatically turns $F$ into an endofunctor on $\Set$,
+where the action on functions is given by:
+$X \xto{f} Y \mapsto F(X) \xto{\ext{(\eta_{Y} \comp f)}} F(Y)$.
+%
+Further, this is gives a monad on $\Set$, where the unit is given by $\eta$,
+and the multiplication is given by $\mu_{X}\colon F(F(X)) \xto{\idfunc_{F(X)}} F(X)$.
+%
+By left adjoints preserve colimits, we have:
+\begin{proposition}
+    \label{prop:free-algebra-colimits}
+    \leavevmode
+    \begin{itemize}
+        \item $\str{F}(\emptyt) \eqv \unitt$, is a zero object in $\sigAlg$,
+        \item $\str{F}(X + Y)$ is the coproduct of $\str{F}(X)$ and $\str{F}(Y)$ in $\sigAlg$:
+              \[
+                  \sigAlg(\str{F}(X + Y), \str{Z}) \eqv
+                  \sigAlg(\str{F}(X), \str{Z}) \times \sigAlg(\str{F}(Y), \str{Z})
+              \].
+    \end{itemize}
+\end{proposition}
 
-\vc{Monadicity and functoriality etc.}
+\subsection{Equations}
+\label{sec:universal-algebra:equations}
 
 In this paper, we are interested in the constructions of free monoids and free commutative monoids.
