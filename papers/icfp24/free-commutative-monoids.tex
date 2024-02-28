@@ -2,6 +2,13 @@
 \label{sec:commutative-monoids}
 
 We now extend our constructions of free monoids to free commutative monoids.
+Conceptually, adding commutativity to free monoids is "forgetting" the order
+of free monoids. Finite multiset for example would be a commutative structure,
+where $xs \cup ys = ys \cup xs$. Its order is "forgotten" in the sense that for example,
+$\{a, a, b, c\} = \{b, a, c, a\}$. This is unlike free monoids, using $\List$ for example, 
+where $[a, a, b, c] \neq [b, a, c, a]$. By formalizing free commutative monoids
+we can study sorting as functions from free commutative monoids to free monoids,
+which we would later demonstrate in~\ref{sec:sorting}.
 
 \subsection{Free monoid quotiented with permutation}\label{cmon:qfreemon}
 We give a general construction of free commutative monoid as a free monoid quotient.

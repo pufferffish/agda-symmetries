@@ -5,3 +5,21 @@ To conclude, our framework of universal algebra can be generalised from sets to 
 coherences on top of the system of equations.
 
 Hinze's work: Sorting and Searching by Distribution: From Generic Discrimination to Generic Trie, see 4.6 on page 324
+
+
+\vc{Can you sort anything that doesn't have a total order?}
+\vc{Can you sort binary trees?}
+
+In a sense, this problem has already been solved, first by Hinze et al. \cite{hinzeSortingBialgebrasDistributive2012}
+and later extended by Alexandru in their thesis \cite{alexandruIntrinsicallyCorrectSorting2023}.
+Their formalization is defined in terms of bialgebras, which not
+only captures the correctness of sorting algorithms purely in a categorical settings, but
+also isolate the computational essence of sorting algorithms in terms of distributive laws,
+allowing us to construct more sorting algorithms "for free". Their work are thus necessarily
+below the level of extensional equality, i.e. input-output behavior, and allow us to reason
+with the structures of the sorting algorithms themselves. Our work only concerns the correctness
+of sorting algorithms, with the goal to axiomatize sorting functions as functions satisfying
+some abstract properties, independent of a given ordering, which allows us to gain
+insight into how sorting relates to order and vice versa.
+% and its implications on axiom of choice.
+% maybe write more on its relationship to AC, in a sepreate paragraph?

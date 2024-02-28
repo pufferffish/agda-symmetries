@@ -1,7 +1,7 @@
 \section{Sorting}
 \label{sec:sorting}
 
-Consider the canonical map $q : \LL(A) \to \MM(A)$ given by $\ext{\eta_A}$. $q$ would be a surjective
+Now consider the canonical map $q : \LL(A) \to \MM(A)$ given by $\ext{\eta_A}$. $q$ would be a surjective
 function which "forgets" the order on a free monoid and turns it into a free commutative monoid.
 The axiom of choice says every surjection $f$ has a section $s$ such that $\forall x.\, f(s(x)) = x$.
 
@@ -167,5 +167,18 @@ $x \preccurlyeq y := \term{least}(\{x, y\}) = x$,
 and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
 be constructed by insertion sort by $\leq$. Now, can we construct a full equivalence
 between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
+
+\begin{proposition}
+    Assume $A$ has a decidable total order $\leq$, we can construct a section $s$ that
+    satisfies $\isheadleast$, such that $\preccurlyeq$ constructed from $s$ is equivalent
+    to $\leq$.
+\end{proposition}
+
+\begin{proof}
+    Let $\term{sort} : \MM(A) \to \LL(A)$ be insertion sort defined on $A$ by $\leq$.
+    We define $\term{sort}$ to be our section $s$ which satisfy $\isheadleast$.
+    It is trivial to see $\term{is-sorted}_{\term{sort}}([x, y])$ iff $x \leq y$ by the definition
+    of insertion sort. By 
+\end{proof}
 
 \vc{Case study: we test these axioms on a few sorting algorithms.}
