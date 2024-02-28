@@ -9,13 +9,13 @@
 
 %% itemize margin
 \newenvironment{myitemize}
-    {\begin{itemize}[leftmargin=*]}
-    {\end{itemize}}
+  {\begin{itemize}[leftmargin=*]}
+  {\end{itemize}}
 
 % editing marks
 \newcommand{\todo}[1]{{\color{solarized-red}TODO: #1}}
 \ifx\note\undefined
-\newcommand{\note}[1]{\textcolor{solarized-green}{NOTE: #1}}
+  \newcommand{\note}[1]{\textcolor{solarized-green}{NOTE: #1}}
 \fi
 \newcommand{\redtext}[1]{\textcolor{solarized-red}{#1}}
 \newcommand{\newtext}[1]{\textcolor{solarized-blue}{#1}}
@@ -70,6 +70,16 @@
 \DeclareFontShape{U}{min}{m}{n}{<-> udmj30}{}
 \newcommand{\yo}
 {\!\text{\usefont{U}{min}{m}{n}\symbol{'210}}\!}
+
+% colored balls and flags
+\newcommand{\rwb}{
+  \tikz[baseline]{%
+    \foreach \x/\color in {1/red,2/white,3/blue} {
+        \node[circle,draw,fill=\color,line width=0.1em,minimum size=0.25em,anchor=base] at (\x,0.225em) {};
+        \ifthenelse{\NOT 1 = \x}{\node at ({\x-0.5},0) {,};}{}
+      }
+  }
+}
 
 % sort
 \newcommand{\issortedany}{\term{in-image}}
