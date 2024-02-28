@@ -50,7 +50,7 @@ In more formal terms: let $A = \{\term{red}, \term{white}, \term{blue}\}$.
 We define the set $\setord(A)$ to be the set of orderings on $A$,
 the set $\setmtol(A)$ to be the set of functions $\term{FiniteMultiset}(A) \to \List(A)$.
 There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
-some subset of $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
+some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
 
 \begin{center}
     \begin{tikzpicture}
@@ -87,10 +87,10 @@ some subset of $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
 This \textit{seems} trivial to prove: we can just construct such a mapping $\otof(R)$ by parameterizing
 any sorting algorithms, e.g. insertion sort, by $R$ and we are done!
 This however is not enough: we want to show there are exactly 6 sorting functions because
-there are exactly 6 orderings. In order words, $\setord(A)$ and $\setsort(A)$ should be
+there are exactly 6 orderings. In other words, $\setord(A)$ and $\setsort(A)$ should be
 isomorphic, there should exist an inverse mapping to $\otof$ that allows us to construct
-an ordering $r$ back given a function $f \in \setsort(A)$, such that
-$\forall f \in \setsort(A).\, \otof(\otof^{-1}(f)) = f \land \forall r \in \setord(A).\, \otof^{-1}(\otof(r)) = r$.
+an ordering $\preccurlyeq$ back given a function $s \in \setsort(A)$, such that
+$\forall s \in \setsort(A).\, \otof(\otof^{-1}(s)) = s \land \forall r \in \setord(A).\, \otof^{-1}(\otof(r)) = r$.
 
 \pagebreak
 Therefore, to complete this proof formally, we need a plan:

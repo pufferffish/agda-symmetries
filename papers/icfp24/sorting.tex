@@ -1,4 +1,4 @@
-\section{Sorting}
+\section{Total orders and Sorting}
 \label{sec:sorting}
 
 Now consider the canonical map $q : \LL(A) \to \MM(A)$ given by $\ext{\eta_A}$. $q$ would be a surjective
@@ -11,8 +11,8 @@ The axiom of choice says every surjection $f$ has a section $s$ such that $\fora
         % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXExMKEEpIl0sWzMsMCwiXFxNTShBKSJdLFsxLDAsInMiLDAseyJjdXJ2ZSI6LTF9XSxbMCwxLCJxIiwwLHsiY3VydmUiOi0xfV1d
     \begin{tikzcd}[ampersand replacement=\&,cramped]
     	{\LL(A)} \&\&\& {\MM(A)}
-    	\arrow["s", curve={height=-6pt}, from=1-4, to=1-1]
-    	\arrow["q", curve={height=-6pt}, two heads, from=1-1, to=1-4]
+    	\arrow["s", curve={height=-10pt}, from=1-4, to=1-1]
+    	\arrow["q", two heads, from=1-1, to=1-4]
     \end{tikzcd}
     }
     \caption{Relationship of $\LL(A)$ and $\MM(A)$}
@@ -119,11 +119,14 @@ to construct $s$.
 \end{proof}
 
 As we can see, we need more constraint on $s$ to prove $\preccurlyeq$ is transitive.
-We first define a notion of a sorted list:
+We first give some definitions:
 \begin{definition}
-    Given a list $xs : \LL(A)$, we say $xs$ is sorted by s $\issorted(xs)$ if there merely exists
+    Given a list $xs : \LL(A)$, we say $xs$ is in the image of s $\issorted(xs)$ if there merely exists
     a $ys : \MM(A)$ such that $s(ys) = xs$.
 \end{definition}
+
+If $s$ is a sort function, then the image of $s$ would be the set of sorted list, therefore
+$\issorted(xs)$ would imply $xs$ is a sorted list.
 
 \begin{proposition}\label{sort:sort-to-order}
     $x \preccurlyeq y$ iff $\issorted([x, y])$.
@@ -140,7 +143,8 @@ We then introduce our first axiom of sorting:
     A section $s$ to $q$ satisfies $\isheadleast$ iff
     $\forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted([x,y])$.
 \end{definition}
-Here we use the definition of $\in$ from~\ref{comb:member}. Informally, this states if
+Here we use the definition of $\in$ from~\ref{comb:member}. Informally,
+if we assume $s$ is a sort function, this states if
 $x$ is the smallest element of a sorted list $ys$, then for any element $y \in ys$,
 $[x, y]$ should be a sorted list. This ensures that $s$ would correctly sort 2-element lists.
 
@@ -162,13 +166,15 @@ $[x, y]$ should be a sorted list. This ensures that $s$ would correctly sort 2-e
     we have $z = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
 \end{proof}
 
+\subsection{Embedding of order into sections}
+
 We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
 $x \preccurlyeq y := \term{least}(\{x, y\}) = x$,
 and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
 be constructed by insertion sort by $\leq$. Now, can we construct a full equivalence
 between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
 
-\begin{proposition}
+\begin{proposition}\label{sort:o2s2o}
     Assume $A$ has a decidable total order $\leq$, we can construct a section $s$ that
     satisfies $\isheadleast$, such that $\preccurlyeq$ constructed from $s$ is equivalent
     to $\leq$.
@@ -177,8 +183,139 @@ between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total order
 \begin{proof}
     Let $\term{sort} : \MM(A) \to \LL(A)$ be insertion sort defined on $A$ by $\leq$.
     We define $\term{sort}$ to be our section $s$ which satisfy $\isheadleast$.
-    It is trivial to see $\term{is-sorted}_{\term{sort}}([x, y])$ iff $x \leq y$ by the definition
-    of insertion sort. By 
+    It is trivial to see $\issortedany_{\term{sort}}([x, y])$ iff $x \leq y$ by the definition
+    of insertion sort. By~\ref{sort:sort-to-order} we can see $x \preccurlyeq y$ iff $x \leq y$.
+    We now have a total order $x \preccurlyeq y$ equivalent to $x \leq y$.
+
+    To show $x \preccurlyeq y$ is also decidable, we need to show $A$ has decidable equality.
+    Since $\leq$ is decidable, we can use it to show $A$ has decidable equality as follow:
+    We decide if $x \leq y$ and $y \leq x$ and perform case splitting:
+
+    Case $x \leq y$ and $y \leq x$: by antisymmetry, $x = y$.
+    
+    Case $\neg(x \leq y)$ and $y \leq x$: if $x = y$, then $x \leq y$,
+    leading to contradiction by $\neg(x \leq y)$. Therefore $x \neq y$.
+    
+    Case $x \leq y$ and $\neg(y \leq x)$: Similar logic as above.
+
+    Case $\neg(x \leq y)$ and $\neg(y \leq x)$: by totality we must have either
+    $x \leq y$ or $y \leq x$, therefore contradiction, this case would never occur.
 \end{proof}
 
-\vc{Case study: we test these axioms on a few sorting algorithms.}
+We now have one side of the isomorphism, and showed the set of decidable total order of $A$
+can be embedded into the set of sections $s$ that satisfy $\isheadleast$.
+
+\subsection{Equivalence of order and sections}
+To upgrade the embedding into an isomorphism, all that is left
+is to show we can turn a section satisfying $\isheadleast$ to a total order $\preccurlyeq$, and construct the
+same section back from $\preccurlyeq$. Unfortunately, this is not the case.
+
+\begin{proposition}
+    Assume $A$ is a set with different elements, i.e. $\exists x, y: A.\,x \neq y$,
+    we cannot construct a full equivalence between sections that satisfy $\isheadleast$
+    and total orders on $A$.
+\end{proposition}
+
+\begin{proof}
+    We give a counter-example of $s$ that satisfy $\isheadleast$ but is not a sort function.
+    Consider the insertion sort function $\term{sort} : \MM(\Nat) \to \LL(\Nat)$
+    parameterized by $\leq$:
+    \begin{align*}
+    \term{reverseTail}([]) & = [] \\
+    \term{reverseTail}(x :: xs) & = x :: \term{reverse}(xs) \\
+    s(xs) & = \term{reverseTail}(\term{sort}(xs)) \\
+    s(\{2,3,1,4\}) & = [1,4,3,2] \\
+    s(\{2,3,1\}) & = [1, 3, 2] \\
+    s(\{2,3\}) & = [2, 3] \\
+    \end{align*}
+    By~\ref{sort:o2s2o} we can use $\term{sort}$ to construct $\preccurlyeq$ which would be
+    equivalent to $\leq$. However, the $\preccurlyeq$ constructed by $s$ would also be equivalent
+    to $\leq$. This is because $s$ sorts 2-element list correctly, despite $s \neq \term{sort}$.
+    Since two different sections satisfying $\isheadleast$ maps to the same total order,
+    there cannot be a full equivalence.
+\end{proof}
+
+As we can see, we need more constraint to prove a full equivalence.
+We introduce our second axiom of sorting:
+\begin{definition}
+    A section $s$ to $q$ satisfies $\istailsort$ iff
+    $\forall x\,xs.\,\issorted(x :: xs) \to \issorted(xs)$.
+\end{definition}
+
+To prove that this axiom is correct, we need to show a section $s$ satisfying
+$\isheadleast$ and $\istailsort$ would be equal to insertion sort parameterized by
+the $\preccurlyeq$ constructed from $s$. To prove this, we introduce an inductive data type
+for a witness of sorted lists, taken from~\cite{appelVerifiedFunctionalAlgorithms2023}.
+
+\begin{code}
+data Sorted ($\leq$ : A -> A -> UU) : List A -> UU where
+  sorted-nil : Sorted []
+  sorted-one : forall x -> Sorted [ x ]
+  sorted-cons : forall x y zs -> x $\leq$ y -> Sorted (y :: zs) -> Sorted (x :: y :: zs)
+\end{code}
+
+\begin{proposition}
+    Given an order $\leq$, for any $xs, ys : \LL(A)$,
+    $q(xs) = q(ys) \land \term{Sorted}_{\leq}(xs) \land \term{Sorted}_{\leq}(ys) \to xs = ys$.
+\end{proposition}
+
+Informally, this states if $xs$ and $ys$ have the same elements, i.e. they belong to the same
+equivalence class generated by permutation, and if they are both sorted by $\leq$, then they would be the same.
+
+\begin{corollary}\label{sort:sort-uniq}
+    Given an order $\leq$,
+    if a section $s$ always produces sorted list, i.e. $\forall xs.\,\term{Sorted}_{\leq}(s(xs))$,
+    $s$ is equal to insertion sort by $\leq$.
+\end{corollary}
+It is trivial to see how insertion sort by $\leq$ would always produce lists that satisfy
+$\term{Sorted}_{\leq}$. Therefore, any functions that also always produce lists that satisfy
+$\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
+
+We can now prove the full equivalence:
+\begin{proposition}\label{sort:s2o2s}
+Assume $A$ has decidable equality and given a section $s$ that satisfies $\isheadleast$ and $\istailsort$, 
+we can construct a section $t$ that also satisfies $\isheadleast$ and $\istailsort$, such that $s = t$.
+\end{proposition}
+\begin{proof}
+    From $s$ we can construct a decidable total order $\preccurlyeq$ since $s$ satisfies
+    $\isheadleast$ and $A$ has decidable equality by assumption.
+    We construct $t$ as insertion sort parameterized by $\preccurlyeq$ constructed from $s$.
+    By~\ref{sort:sort-uniq} it remains to show $\forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$.
+    For lists of length 0 and 1 this is trivial. For further cases we need to prove by induction:
+    given a $xs : \MM(A)$ of length $\geq 2$, let $s(xs) = x :: y :: ys$. We need to show
+    $x \preccurlyeq y \land \term{Sorted}_{\preccurlyeq}(y :: ys)$ to construct
+    $\term{Sorted}_{\preccurlyeq}(x :: y :: ys)$.
+    By $\isheadleast$ we have $x \preccurlyeq y$, and by $\istailsort$ we an
+    inductively $\term{Sorted}_{\preccurlyeq}(y :: ys)$.
+    Therefore, $s = t$.
+\end{proof}
+
+We can now state our main theorem: a well-behaved section $s : \MM(A) \to \LL(A)$ to
+the canonical map $q : \LL(A) \to \MM(A)$ should satisfy the following two axioms,
+which axiomatizes a correct sorting algorithm.
+\begin{definition}
+    \leavevmode
+    \begin{itemize}[leftmargin=*]
+        \item $\isheadleast$: any 2-element list can be correctly sorted\\
+              \(
+              \forall x \: y \: xs. \issorted(x :: xs) \land y \in (x :: xs) \to \issorted(x :: y :: [])
+              \),
+        \item $\istailsort$: the first axiom can be coherently lifted to 2+-element list\\
+              \(
+              \forall x \: xs. \issorted(x :: xs) \to \issorted(xs)
+              \).
+    \end{itemize}
+\end{definition}
+\begin{theorem}
+    Let $\term{DecTotOrd}(A)$ be the set of decidable total orders on $A$,
+    $\term{Sort}(A)$ be the set of correct sorting functions with carrier set $A$,
+    and $\term{isDiscrete}(A)$ be a predicate which states $A$ has decidable equality.
+    We have the function $o2s \colon \term{DecTotOrd}(A) \to \term{Sort}(A) \times \term{isDiscrete}(A)$
+    is an equivalence.
+\end{theorem}
+\begin{proof}
+    By~\ref{sort:o2s2o} we show a decidable total order on $A$ implies a sort function
+    on $A$ and that $A$ has decidable equality.
+    By~\ref{sort:s2o2s} we show a sort function on $A$ assuming $A$ has decidable equality
+    implies a decidable total order on $A$.
+\end{proof}

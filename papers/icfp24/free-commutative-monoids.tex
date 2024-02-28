@@ -97,6 +97,7 @@ data Perm (A : UU) : List A -> List A -> UU where
 PList : UU -> UU
 PList A = List A / Perm
 \end{code}
+\vspace{1em}
 
 We have already given a proof of $\List$ being the free monoid in~\ref{mon:list}.
 By~\ref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
@@ -167,6 +168,7 @@ data SList (A : UU) : UU where
   swap : forall x y xs -> x :: y :: xs == y :: x :: xs 
   trunc : forall x y -> (p q : x == y) -> p == q
 \end{code}
+\vspace{1em}
 
 The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
 thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
