@@ -56,21 +56,21 @@ some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
     \begin{tikzpicture}
         % draw the sets
         \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
-        \filldraw[fill=red!20, draw=red!60] (1.5,0) circle (1cm);
-        \filldraw[fill=green!20, draw=green!60] (1,0) circle (0.5cm);
+        \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
+        \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
     
         % the texts
-        \node at (-1.5,0) {$\setord(A)$};
-        \node at (1,0) {\tiny$\setsort(A)$};
-        \node at (2,0) {\tiny$\setmtol(A)$};
+        \node at (-1.5,0) {$\Ord(A)$};
+        \node at (0.7, 0) {\tiny$\Sort(A)$};
+        \node at (2,0) {$\setmtol(A)$};
 
     
         % the points in the sets (here I just create nodes to use them later on to position
         % the circles and the arrows
         \node (x1) at (-1,0.7) {};
         \node (x2) at (-1.3,-0.7) {};
-        \node (y1) at (1,0.3) {};
-        \node (y2) at (1.3,-0.15) {};
+        \node (y1) at (0.8,0.3) {};
+        \node (y2) at (1,-0.15) {};
     
         % position the elements in the sets (at the nodes we just created)
         \fill[blue] (x1) circle (1pt);
