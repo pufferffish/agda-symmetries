@@ -1,7 +1,7 @@
 \section{Introduction}
 \label{sec:introduction}
 
-We consider a puzzle about sorting,
+Consider a puzzle about sorting,
 inspired by Dijkstra's Dutch National Flag problem~\cite[Ch.14]{dijkstraDisciplineProgramming1997}.
 Suppose there are balls of three colors,
 corresponding to the colors of the Dutch flag: red, white, and blue.
@@ -26,7 +26,7 @@ Given a finite multiset of such balls, how many ways can you sort them into the 
       }
     \}
 \]
-Well obviously there is only 1 way to sort it, which is given by the order
+Obviously there is only one way, which is given by the order
 $\term{red} < \term{white} < \term{blue}$.
 \[
   [
@@ -41,14 +41,14 @@ $\term{red} < \term{white} < \term{blue}$.
 
 What if we are avid enjoyers of vexillology who also want to consider other flags?
 We might ask: how many ways can we sort our finite mulitset of balls?
-Well, we know that there are only $3! = 6$ permutations of
+We know that there are only $3! = 6$ permutations of
 $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define.
 We posit that because there are exactly 6 orderings, we can only define 6 correct sorting
 functions (up to function extensionality).
 
-In more formal terms: let $A = \{\term{red}, \term{white}, \term{blue}\}$.
-We define the set $\setord(A)$ to be the set of orderings on $A$,
-the set $\setmtol(A)$ to be the set of functions $\term{FiniteMultiset}(A) \to \List(A)$.
+In more formal terms: let $A = \{\term{red}, \term{white}, \term{blue}\}$
+let $\setord(A)$ be the set of orderings on $A$ and let 
+ $\setmtol(A)$  be the set of functions $\term{FiniteMultiset}(A) \to \List(A)$.
 There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
 some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
 
@@ -84,48 +84,46 @@ some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
     \end{tikzpicture}
 \end{center}
 
-This \textit{seems} trivial to prove: we can just construct such a mapping $\otof(R)$ by parameterizing
-any sorting algorithms, e.g. insertion sort, by $R$ and we are done!
-This however is not enough: we want to show there are exactly 6 sorting functions because
+This \textit{seems} trivial to prove: we can construct $\otof(r)$ by parameterizing
+any sorting algorithm, e.g.\ insertion sort, by the order relation $r$ and we are done!
+This however is not enough: we want to show that there are exactly 6 sorting functions because
 there are exactly 6 orderings. In other words, $\setord(A)$ and $\setsort(A)$ should be
-isomorphic, there should exist an inverse mapping to $\otof$ that allows us to construct
-an ordering $\preccurlyeq$ back given a function $s \in \setsort(A)$, such that
+isomorphic. There should exist an inverse mapping to $\otof$ that allows us to construct
+an ordering $\preccurlyeq$ given a function $s \in \setsort(A)$, such that
 $\forall s \in \setsort(A).\, \otof(\otof^{-1}(s)) = s \land \forall r \in \setord(A).\, \otof^{-1}(\otof(r)) = r$.
 
-\pagebreak
-Therefore, to complete this proof formally, we need a plan:
+To complete this proof formally we need to execute the following plan.
 \begin{enumerate}
-    \item We need to formalize what exactly $\term{FiniteMultiset}(A)$ and $\List(A)$ are.
-    We formalize them in terms of universal algebra: $\term{FiniteMultiset}(A)$ is actually
+    \item We need to formalize exactly what $\term{FiniteMultiset}(A)$ and $\List(A)$ are.
+    We formalize them in terms of universal algebra: $\term{FiniteMultiset}(A)$ is 
     the free commutative monoid on $A$ and $\List(A)$ is the free monoid on $A$. We give
-    different constructions of them in~\ref{sec:monoids} and ~\ref{sec:commutative-monoids},
-    proving these constructions are correct by universal property.
+    different constructions of them in~\cref{sec:monoids} and ~\cref{sec:commutative-monoids},
+    proving these constructions correct by verifying their universal properties.
     We also explore the relationship between commutativity and ordering in
-    ~\ref{sec:commutative-monoids} and ~\ref{sec:head},
-    showing how imposing commutativity on free monoid is same as "forgetting" the order.
-    \item We need to exactly nail down what the subset $\Sort(A)$ is, in other words, we need to
+    ~\cref{sec:commutative-monoids} and ~\cref{sec:head},
+    showing how imposing commutativity on a free monoid is same as "forgetting" the order.
+    \item We need to nail down exactly what the subset $\Sort(A)$ is. In other words, we need to
     identify what properties functions $f \in \Sort(A) \subset \setmtol(A)$ satisfy which separate
-    them from other functions $g \in \setmtol(A)$. We identify two properties in~\ref{sec:sorting},
-    giving us two axioms of sorting functions which do not assume a pre-existing total order,
-    separating it from other formalizations of correctness of sorting such as 
+    them from other functions $g \in \setmtol(A)$. We identify two properties in~\cref{sec:sorting},
+    giving us two axioms for sorting functions which do not assume a pre-existing total order. This distinguishes our approach 
+    from other formalizations of the correctness of sorting such as 
     \cite{appelVerifiedFunctionalAlgorithms2023}.
-    \item Using these properties we have identified, we need to construct a full equivalence
-    $\Sort(A) \simeq \Ord(A)$, showing how orders can be mapped to sort functions, which is
-    trivial by parameterizing insertion sort with an order, and more interestingly how sort functions
+    \item Using the properties we have identified, we need to construct a full equivalence
+    $\Sort(A) \simeq \Ord(A)$. Mapping orders to sorting functions is
+    trivial by parameterizing insertion sort on an order relation. More interestingly we need to show how sorting functions
     can be mapped to orders, showing that the properties we have identified for $\Sort(A)$ indeed
-    correctly identify our usual notion of sort functions.
+    correctly identify the usual notion of soringt functions.
 \end{enumerate}
 
-We would be constantly working with set quotients and commutativity, which do not behave well
-in MLTT since oftentimes they can only be modelled via setoids. While setoids would suffice for
-formalizing these structures, they also bring a lot of proof burden which leads to a
+The term "formalize" in the above plan means exactly that, and we therefore need to choose a proof system in which to work. Martin-L\"of Type Theory (MLTT) would not be convenient because of the large amount of work with set quotients and commutativity in our theory. These concepts do not behave well in MLTT and often can only be modelled via setoids. While setoids would suffice for
+our purposes, they carry a high proof burden which leads to a
 phenomenon (un)affectionately named "setoid hell". We have therefore decided to formalize our proofs
-for this paper in Cubical Agda~\cite{vezzosiCubicalAgdaDependently2019}, which allows us to work with these structures very naturally with
-higher inductive types, and allow for a very simple method to transport proofs between
+for this paper in Cubical Agda~\cite{vezzosiCubicalAgdaDependently2019}. This allows us to work  naturally with
+higher inductive types, and allows for a very simple method of transporting proofs between
 different constructions of free algebras by univalence. What also makes Cubical Agda attractive
-is that Cubical Type Theory allows us to enjoy the full power of univalence given by Homotopy Type Theory
-without losing canonicity and computational content of the proof, therefore proofs and functions
-transported by univalence would actually compute!
+is that Cubical Type Theory allows us to enjoy the full power of univalence given by Homotopy Type Theory, 
+without losing canonicity and computational content of the proofs. This means that proofs and functions
+transported by univalence actually compute!
 We give a table of our formalization in the appendix \vc{where?}.
 
 % MOVE SOME OF THESE TO DISCUSSION AND OTHER SECTIONS
