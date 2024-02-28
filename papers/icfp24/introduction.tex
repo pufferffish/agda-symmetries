@@ -67,7 +67,7 @@ some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
     
         % the points in the sets (here I just create nodes to use them later on to position
         % the circles and the arrows
-        \node (x1) at (-1,0.7) {};
+        \node (x1) at (-1,0.6) {};
         \node (x2) at (-1.3,-0.7) {};
         \node (y1) at (0.8,0.3) {};
         \node (y2) at (1,-0.15) {};
@@ -120,7 +120,7 @@ We would be constantly working with set quotients and commutativity, which do no
 in MLTT since oftentimes they can only be modelled via setoids. While setoids would suffice for
 formalizing these structures, they also bring a lot of proof burden which leads to a
 phenomenon (un)affectionately named "setoid hell". We have therefore decided to formalize our proofs
-for this paper in Cubical Agda, which allows us to work with these structures very naturally with
+for this paper in Cubical Agda~\cite{vezzosiCubicalAgdaDependently2019}, which allows us to work with these structures very naturally with
 higher inductive types, and allow for a very simple method to transport proofs between
 different constructions of free algebras by univalence. What also makes Cubical Agda attractive
 is that Cubical Type Theory allows us to enjoy the full power of univalence given by Homotopy Type Theory
