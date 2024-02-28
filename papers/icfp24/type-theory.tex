@@ -79,17 +79,17 @@ get $P(B)$ from $P(A)$ by transport (or substitution).
 
 To explain the univalence axiom, we first need to define equivalence:
 \begin{definition}
-      Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
-  equivalence $A \rightarrow B$.
-  A function $f$ is said to be an equivalence if
-  $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
+    Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
+    equivalence $A \rightarrow B$.
+    A function $f$ is said to be an equivalence if
+    $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
 \end{definition}
 
 We note that this is very similar to an isomorphism, however an isomorphism would have the same function
 for right inverse and left inverse, i.e. just an inverse function, whereas an equivalence allows
 for different functions for right and left inverse. The univalence axiom states that:
 \begin{definition}[Univalence axiom]
-     $(A = B) \simeq (A \simeq B)$
+    $(A = B) \simeq (A \simeq B)$
 \end{definition}
 
 This is directly incompatible with uniqueness of identity proof, which states
@@ -124,3 +124,12 @@ where we want to show to propositions are commutative: i.e. $\forall p, q: \hPro
 Since $p$ and $q$ are types, we need univalence to show $p \vee q = q \vee p$ are in fact equal.
 
 \vc{Explain Fin here.}
+\begin{code}
+Fin : $\mathbb{N}$ -> UU
+Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
+\end{code}
+
+There are multiple ways to define $\Fin$, one example being an indexed inductive type.
+In our construction we opted to use this definition because cubical Agda does not behave well
+when pattern matching on indexed inductive types.
+\vc{Write the other definitions also.}
