@@ -327,8 +327,9 @@ dropping the first element of $xs$ then concatenating with $ys$.
     and $((f \comp S) \oplus g)(k)$ reduces to $g(k - n)$ by definition, therefore they are equal.
 \end{proof}
 
-\begin{definition}
-    We define the $\ext{(\blank)}$ on $f : A \to X$:
+\begin{definition}[Universal extension (fold)]
+    Given a monoid $\mathfrak{X}$, and a map $f : A \to X$,
+    we define $\ext{f} : \Array(A) \to X$, by induction on the length of the array:
     \begin{align*}
         \ext{f}(0 , g)    & = e                                    \\
         \ext{f}(S(n) , g) & = f(g(0)) \mult \ext{f}(n , g \circ S)
