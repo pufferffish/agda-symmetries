@@ -123,13 +123,26 @@ Another instance where univalence is used is the definition of membership proofs
 where we want to show to propositions are commutative: i.e. $\forall p, q: \hProp, p \vee q = q \vee p$.
 Since $p$ and $q$ are types, we need univalence to show $p \vee q = q \vee p$ are in fact equal.
 
-\vc{Explain Fin here.}
+\subsection{Notation}
+We use $\Fin[n]$ to denote finite sets of cardinality $n$ in HoTT~\cite{yorgeyCombinatorialSpeciesLabelled2014a}.
+This is defined as follow:
+\vspace{-1em}
 \begin{code}
 Fin : $\mathbb{N}$ -> UU
 Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
 \end{code}
 
-There are multiple ways to define $\Fin$, one example being an indexed inductive type.
+There are multiple ways to define $\Fin$, one example being an indexed inductive type,
+for example:
+\vspace{-1em}
+\begin{code}
+data Fin : $\mathbb{N}$ -> UU where
+    fzero : $\forall$ {n : $\mathbb{N}$} -> Fin (fsuc n)
+    fsuc  : $\forall$ {n : $\mathbb{N}$} -> Fin n -> Fin (fsuc n)
+\end{code}
 In our construction we opted to use this definition because cubical Agda does not behave well
 when pattern matching on indexed inductive types.
-\vc{Write the other definitions also.}
+
+We also use $\times$ to denote product types and $+$ to denote coproduct types.
+For mere propositions, we use $\land$ to denote logical and, and $\vee$ to denote logical or.
+In Cubical Agda these are defined as propositionally-truncated products and coproducts.
