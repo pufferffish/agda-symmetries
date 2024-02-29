@@ -356,3 +356,30 @@ which axiomatizes a correct sorting algorithm.
     implies a decidable total order on $A$.
 \end{proof}
 
+\subsubsection*{Remarks}
+
+The sorting axioms we have come up with are abstract properties of functions.
+%
+As a sanity check, we can verify that the colluquial correctness specification of a sorting function (starting from a
+total order) matches our axioms.
+%
+\begin{proposition}
+    \label{prop:sort-correctness}
+    Assume a totally ordered set $A$.
+    %
+    A sorting algorithm is a function $\term{sort} : \LL(A) \to \type{O}\LL(A)$,
+    that turns lists into ordered lists,
+    where $\type{O}\LL(A)$ is $\dsum{xs : \LL(A)}{\term{Sorted}_{\leq}(xs)}$,
+    such that:
+    % https://q.uiver.app/#q=WzAsMyxbMCwwLCJcXExMKEEpIl0sWzIsMCwiXFx0eXBle099XFxMTChBKSJdLFsxLDEsIlxcTU0oQSkiXSxbMCwxLCJcXHRlcm17c29ydH0iXSxbMCwyLCJxIiwyXSxbMSwyLCJxIFxcY29tcCBcXHBpXzEiXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&,cramped]
+            {\LL(A)} \&\& {\type{O}\LL(A)} \\
+            \& {\MM(A)}
+            \arrow["{\term{sort}}", from=1-1, to=1-3]
+            \arrow["q"', from=1-1, to=2-2]
+            \arrow["{q \comp \pi_1}", from=1-3, to=2-2]
+        \end{tikzcd}\]
+\end{proposition}
+\begin{proofsketch}
+    Using our section, we set $\term{sort} = s \comp q$, and the rest follows by calculation.
+\end{proofsketch}
