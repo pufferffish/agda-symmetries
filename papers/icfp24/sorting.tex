@@ -58,15 +58,17 @@ First, we recall the axioms of a total order $\leq$ on a set $A$:
     \item totality: forall $x$ and $y$, we have \emph{merely} either $x \leq y$ or $y \leq x$
 \end{itemize}
 
-In the context of this paper, we also want to make a distinction between "decidable total order"
-and just "total order". A decidable total order should also satisfy
+In the context of this paper, we also want to make a distinction between ``decidable total order''
+and just ``total order''. A decidable total order should also satisfy
 \begin{itemize}
     \item decidability: forall $x$ and $y$, we have either $x \leq y$ or $\neg(x \leq y)$
 \end{itemize}
 
 This is a stronger version of the totality axiom, where with totality we have
 either $x \leq y$ or $y \leq x$ merely as a proposition, but decidability allows us to actually
-compute if $x \leq y$ is true.
+compute if $x \leq y$ is true. Given this assumption on $A$, we can sort!
+
+\subsection{Section from Order}
 
 \begin{proposition}
     Assume there is a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
@@ -74,31 +76,42 @@ compute if $x \leq y$ is true.
 \end{proposition}
 
 \begin{proof}
-    We can easily construct such a section by any sorting algorithm. In our formalization we chose
+    We can construct such a section by any sorting algorithm. In our formalization we chose
     insertion sort $\SList(A) \to \List(A)$ due to its inductive properties and simple definition.
     However, if we want to define other sorting algorithms, e .g. merge-sort,
     other representations such as $\Bag \to \Array$ would be more suitable as we have explained in~\cref{bag:rep}.
     It is easy to see how this
-    proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$, and re-discard the order again by
-    $q$, the act of imposing then forgetting an order on $xs$ does nothing, therefore $q(s(xs)) = xs$ holds.
+    proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$, and re-discards the order again by
+    $q$, the act of imposing and then forgetting an order on $xs$ simply \emph{permutes} the elements of $xs$,
+    which is the proof of $q(s(xs)) = xs$.
 \end{proof}
 
+\subsection{Order from Section}
 
-\subsection{Order from section}
-At this point one may ask if we can construct a section from order, can we construct an order from section?
+The previous section allowed us to construct a section -- how do we know this is a \emph{correct} sort function?
+%
+At this point we ask: if we can construct a section from order, can we construct an order from section?
+%
 Indeed, just by the virtue of $s$ being a section, we can almost construct a relation that satisfies
-all axioms of total order except transitivity.
-We use $\{x,y,\dots\}$ to denote $\eta_A(x) \otimes \eta_A(y) \otimes \dots : \MM(A)$,
-and $[x, y, \dots]$ to denote $\eta_A(x) \otimes \eta_A(y) \otimes \dots : \LL(A)$,
-or $x :: xs$ to denote $\eta_A(x) \otimes xs : \LL(A)$.
+all axioms of total order, except transitivity!
+We use $\{x,y,\dots\}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
+and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
+or $x :: xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
 
 \begin{definition}
-    Given a section $s$, we define $\term{least}(xs) := \term{head}(s(xs))$.
-    Further, we define $x \preccurlyeq y := \term{least}(\{x, y\}) = x$.
+    \label{def:least}
+    Given a section $s$, we define:
+    \[
+        \begin{aligned}
+            \term{least}(xs) & := \term{head}(s(xs))                    \\
+            x \preccurlyeq y & := \term{least}(\{x, y\}) = x \enspace .
+        \end{aligned}
+    \]
 \end{definition}
 
-Conceptually, $\term{least}$ sorts $xs$ by $s$, and pick the first element of the sorted list.
-With this we can prove the following properties of $\preccurlyeq$.
+Conceptually, $\term{least}$ sorts $xs$ by $s$, and picks the first element of the sorted list by~$\term{head}$.
+This is the main insight, using which we establish our result.
+First, we observe some properties of $\preccurlyeq$.
 
 \begin{proposition}
     $\preccurlyeq$ is decidable iff $A$ has decidable equality.
@@ -134,19 +147,18 @@ With this we can prove the following properties of $\preccurlyeq$.
         s([2,3,1])   & = [1,2,3]
     \end{align*}
 \end{proof}
-
-As we can see, we need more constraint on $s$ to prove $\preccurlyeq$ is transitive.
-We first give some definitions:
+As we can see, we need more constraints on $s$ to prove $\preccurlyeq$ is transitive.
+These constraints lead to the axioms of sorting!
 \begin{definition}
-    Given a list $xs : \LL(A)$, we say $xs$ is in the image of s $\issorted(xs)$ if there merely exists
+    Given a list $xs : \LL(A)$, we say $xs$ is in the image of s $\issorted(xs)$ if there \emph{merely exists}
     a $ys : \MM(A)$ such that $s(ys) = xs$.
 \end{definition}
 
-If $s$ is a sort function, then the image of $s$ would be the set of sorted list, therefore
-$\issorted(xs)$ would imply $xs$ is a sorted list.
+If $s$ were a sort function, the image of $s$ would be the set of sorted lists, therefore
+$\issorted(xs)$ would imply $xs$ is a sorted (or ordered) list.
 
 \begin{proposition}\label{sort:sort-to-order}
-    $x \preccurlyeq y$ iff $\issorted([x, y])$.
+    $x \preccurlyeq y$ \; iff \; $\issorted([x, y])$.
 \end{proposition}
 
 \begin{proposition}
@@ -155,15 +167,20 @@ $\issorted(xs)$ would imply $xs$ is a sorted list.
 \end{proposition}
 
 \noindent
-We then introduce our first axiom of sorting:
+We now introduce our first axiom of sorting:
 \begin{definition}\label{sort:head-least}
-    A section $s$ to $q$ satisfies $\isheadleast$ iff
-    $\forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted([x,y])$.
+    A section $s$ to $q$ satisfies $\isheadleast$ iff:
+    \[
+        \forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted([x,y])
+        \enspace .
+    \]
 \end{definition}
 Here we use the definition of $\in$ from~\cref{comb:member}. Informally,
-if we assume $s$ is a sort function, this states if
+if $s$ were a sort function, this states if
 $x$ is the smallest element of a sorted list $ys$, then for any element $y \in ys$,
-$[x, y]$ should be a sorted list. This ensures that $s$ would correctly sort 2-element lists.
+$[x, y]$ should be also a sorted list.
+%
+This ensures that $s$ behaves correctly on 2-element lists.
 
 \begin{proposition}
     Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
@@ -183,12 +200,12 @@ $[x, y]$ should be a sorted list. This ensures that $s$ would correctly sort 2-e
     we have $z = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
 \end{proof}
 
-\subsection{Embedding of order into sections}
+\subsection{Embedding orders into sections}
 
 We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
 $x \preccurlyeq y := \term{least}(\{x, y\}) = x$,
 and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
-be constructed by insertion sort by $\leq$. Now, can we construct a full equivalence
+be constructed by insertion sort with $\leq$. Now, can we construct a full equivalence
 between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
 
 \begin{proposition}\label{sort:o2s2o}
@@ -207,25 +224,27 @@ between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total order
     To show $x \preccurlyeq y$ is also decidable, we need to show $A$ has decidable equality.
     Since $\leq$ is decidable, we can use it to show $A$ has decidable equality as follow:
     We decide if $x \leq y$ and $y \leq x$ and perform case splitting:
-
-    Case $x \leq y$ and $y \leq x$: by antisymmetry, $x = y$.
-
-    Case $\neg(x \leq y)$ and $y \leq x$: if $x = y$, then $x \leq y$,
-    leading to contradiction by $\neg(x \leq y)$. Therefore $x \neq y$.
-
-    Case $x \leq y$ and $\neg(y \leq x)$: Similar logic as above.
-
-    Case $\neg(x \leq y)$ and $\neg(y \leq x)$: by totality we must have either
-    $x \leq y$ or $y \leq x$, therefore contradiction, this case would never occur.
+    \begin{itemize}
+        \item
+              Case $x \leq y$ and $y \leq x$: by antisymmetry, $x = y$.
+        \item
+              Case $\neg(x \leq y)$ and $y \leq x$: if $x = y$, then $x \leq y$,
+              leading to contradiction by $\neg(x \leq y)$. Therefore $x \neq y$.
+        \item
+              Case $x \leq y$ and $\neg(y \leq x)$: Similar logic as above.
+        \item
+              Case $\neg(x \leq y)$ and $\neg(y \leq x)$: by totality we must have either
+              $x \leq y$ or $y \leq x$, therefore contradiction, this case would never occur.
+    \end{itemize}
 \end{proof}
 
 We now have one side of the isomorphism, and showed the set of decidable total order of $A$
 can be embedded into the set of sections $s$ that satisfy $\isheadleast$.
 
 \subsection{Equivalence of order and sections}
-To upgrade the embedding into an isomorphism, all that is left
+To upgrade the embedding to an isomorphism, all that is left
 is to show we can turn a section satisfying $\isheadleast$ to a total order $\preccurlyeq$, and construct the
-same section back from $\preccurlyeq$. Unfortunately, this is not the case.
+same section back from $\preccurlyeq$. Unfortunately, this fails!
 
 \begin{proposition}
     Assume $A$ is a set with different elements, i.e. $\exists x, y: A.\,x \neq y$,
@@ -252,7 +271,7 @@ same section back from $\preccurlyeq$. Unfortunately, this is not the case.
     there cannot be a full equivalence.
 \end{proof}
 
-As we can see, we need more constraint to prove a full equivalence.
+As we can see, we need more constraints to prove a full equivalence.
 We introduce our second axiom of sorting:
 \begin{definition}
     A section $s$ to $q$ satisfies $\istailsort$ iff
@@ -277,7 +296,7 @@ data Sorted ($\leq$ : A -> A -> UU) : List A -> UU where
 \end{proposition}
 
 Informally, this states if $xs$ and $ys$ have the same elements, i.e. they belong to the same
-equivalence class generated by permutation, and if they are both sorted by $\leq$, then they would be the same.
+equivalence class generated by permutations, and if they are both sorted by $\leq$, then they would be the same.
 
 \begin{corollary}\label{sort:sort-uniq}
     Given an order $\leq$,
@@ -336,3 +355,4 @@ which axiomatizes a correct sorting algorithm.
     By~\cref{sort:s2o2s} we show a sort function on $A$ assuming $A$ has decidable equality
     implies a decidable total order on $A$.
 \end{proof}
+
