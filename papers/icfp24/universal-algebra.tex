@@ -220,9 +220,9 @@ This can be easily verified with the following lemma.
     \ext{F\fdot\eta_{X}} \htpy
     \idfunc_{\str{F}(X)}
     \).
-    \vc{Mention SIP.}
+    % \vc{Mention SIP.}
 \end{proofsketch}
-\todo{Revisit.}
+% \todo{Revisit.}
 The free algebra construction automatically turns $F$ into an endofunctor on $\Set$,
 where the action on functions is given by:
 $X \xto{f} Y \mapsto F(X) \xto{\ext{(\eta_{Y} \comp f)}} F(Y)$.
@@ -254,7 +254,7 @@ and the type-theoretic induction principle enforces the category-theoretic unive
 \begin{definition}[Construction of Free Algebras]
     \label{def:free-algebra-construction}
     The free $\sig$-algebra on a type $X$ is given by the inductive type:
-    \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
+    % \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
     \begin{code}
 data Tree (X : UU) : UU where
   leaf : X -> Tree X
@@ -269,9 +269,34 @@ Concretely, this can be seen as the type of abstract syntax trees for terms in t
 marked by the operations in the signature $\sig$.
 
 \begin{example}
-    Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
-    %
-    \todo{Expand the signature functor and show how this produces binary trees.}
+A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
+\begin{center}
+\scalebox{0.7}{
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	2 \&\& 1 \&\& 1 \\
+	\&\&\& {+} \\
+	\&\& {+} \\
+	\&\& 4
+	\arrow[from=3-3, to=4-3]
+	\arrow[from=2-4, to=3-3]
+	\arrow[from=1-3, to=2-4]
+	\arrow[from=1-5, to=2-4]
+	\arrow[from=1-1, to=3-3]
+\end{tikzcd}
+}
+\hspace{2em}
+% https://q.uiver.app/#q=WzAsMixbMCwwLCJlIl0sWzAsMiwiMCJdLFswLDFdXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	e \\
+	\\
+	0
+	\arrow[from=1-1, to=3-1]
+\end{tikzcd}
+\end{center}
+    % Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
+    % %
+    % \todo{Expand the signature functor and show how this produces binary trees.}
 \end{example}
 
 \begin{proposition}
@@ -287,7 +312,32 @@ The algebraic framework of universal algebra we have described so far only captu
 These algebras are \emph{lawless} (or \emph{wild} or \emph{absolutely free}) --
 saying the $\SigMon$-algebras are monoids, or $\str{F}_{\sigMon}$-algebras are free monoids is not justified.
 %
-For example, these two trees should be identified as equal, but they're not.~\todo{draw trees}.
+For example, these two trees of $(\Nat, +)$ should be identified as equal, but they're not.
+\begin{center}
+    \scalebox{0.7}{
+    % https://q.uiver.app/#q=WzAsNCxbMSwxLCIrIl0sWzAsMCwiMSJdLFsyLDAsIjIiXSxbMSwyLCIwIl0sWzEsMF0sWzIsMF0sWzAsM11d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	1 \&\& 2 \\
+	\& {+} \\
+	\& 0
+	\arrow[from=1-1, to=2-2]
+	\arrow[from=1-3, to=2-2]
+	\arrow[from=2-2, to=3-2]
+\end{tikzcd}
+    }
+\hspace{2em}
+    \scalebox{0.7}{
+    % https://q.uiver.app/#q=WzAsNCxbMSwxLCIrIl0sWzAsMCwiMSJdLFsyLDAsIjIiXSxbMSwyLCIwIl0sWzEsMF0sWzIsMF0sWzAsM11d
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	2 \&\& 1 \\
+	\& {+} \\
+	\& 0
+	\arrow[from=1-1, to=2-2]
+	\arrow[from=1-3, to=2-2]
+	\arrow[from=2-2, to=3-2]
+\end{tikzcd}
+    }
+\end{center}
 %
 To impose equations on the operations, we adopt the point of view of equational logic.
 
@@ -349,9 +399,19 @@ this is simply a natural transformation!
 \end{definition}
 
 \begin{example}
-    The system of equations for monoids: \vc{this is too tedious to typeset, see the Agda code instead.}
-\end{example}
+The equational signature $\sigma_{\mathsf{Mon}}$ has
+the set of equation symbols $eq = \{\term{unitl}, \term{unitr}, \term{assocr}\}$
+(or $\Fin[3]$ or $\mathbf{3}$),
+and the arity function
+$fv : eq \rightarrow \mathcal{U} = \{\term{unitl} \mapsto \mathbf{1}, \term{unitr} \mapsto \mathbf{1}, \term{assocr} \mapsto \mathbf{3}\}$.
 
+To show $(\Nat,0,+) \entails \term{Mon}$:
+\begin{align*}
+\term{unitl}  & : \forall (\rho : \Nat^{\Fin[1]}). \, \rho(0) + 0 \id \rho(0) \\
+\term{unitr}  & : \forall (\rho : \Nat^{\Fin[1]}). \, 0 + \rho(0) \id \rho(0) \\
+\term{assocr} & : \forall (\rho : \Nat^{\Fin[3]}). \, (\rho(0) + \rho(1)) + \rho(2) \id \rho(0) + (\rho(1) + \rho(2))
+\end{align*} 
+\end{example}
 Finally, given a $\sig$-structure $\str{X}$,
 we can say that it \emph{satisfies} the system of equations $T_{(\sig,\eqsig)}$.
 %
@@ -359,7 +419,7 @@ Informally, we need to assign a value to each free variable in the equation, pic
 which is the function $\rho : V \to X$.
 %
 Given such an assignment, we can evaluate the left and right trees of the equation,
-simply by extending $\rho$ (using~\cref{def:universal-extension}),
+simply by extending $\rho\,$ (using~\cref{def:universal-extension}),
 that is by construction, a homomorphism from the free algebra $\str{F}(V)$ to the structure $\str{X}$.
 %
 To satisfy an equation, these two evaluations should agree!
@@ -377,9 +437,9 @@ To satisfy an equation, these two evaluations should agree!
         \end{tikzcd}\]
 \end{definition}
 
-\todo{Full subcategory of $\sigAlg$ is a variety of $(\sig,\eqsig)$-algebras.}
-\todo{Construction of the free object, requires non-constructive principles~\cite{blassWordsFreeAlgebras1983}.}
-\todo{HITs are another way to write higher generators for equations~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.}
+% \todo{Full subcategory of $\sigAlg$ is a variety of $(\sig,\eqsig)$-algebras.}
+% \todo{Construction of the free object, requires non-constructive principles~\cite{blassWordsFreeAlgebras1983}.}
+% \todo{HITs are another way to write higher generators for equations~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.}
 
 We have now developed the basic notions of universal algebra and equational logic,
 and we only consider the constructions of free monoids and free commutative monoids in the next sections.
