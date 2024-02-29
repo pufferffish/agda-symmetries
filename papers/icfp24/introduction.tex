@@ -43,6 +43,18 @@ What if we are avid enjoyers of vexillology who also want to consider other flag
 We might ask: how many ways can we sort our finite multiset of balls?
 We know that there are only $3! = 6$ permutations of
 $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define.
+
+\begin{center}
+    \foreach \colorA/\colorB/\colorC in {red/white/blue, red/blue/white, white/red/blue, white/blue/red, blue/red/white, blue/white/red}{
+    \begin{tikzpicture}[scale=0.5]
+    \begin{flagdescription}{3/4}
+    \hstripesIII{\colorA}{\colorB}{\colorC}
+    \framecode{}
+    \end{flagdescription}
+    \end{tikzpicture}
+    }
+\end{center}
+
 We posit that because there are exactly 6 orderings, we can only define 6 correct sorting
 functions (up to function extensionality).
 
@@ -112,7 +124,7 @@ To complete this proof formally we need to execute the following plan.
     $\Sort(A) \simeq \Ord(A)$. Mapping orders to sorting functions is
     trivial by parameterizing insertion sort on an order relation. More interestingly we need to show how sorting functions
     can be mapped to orders, showing that the properties we have identified for $\Sort(A)$ indeed
-    correctly identify the usual notion of soringt functions.
+    correctly identify the usual notion of soring functions.
 \end{enumerate}
 
 The term "formalize" in the above plan means exactly that, and we therefore need to choose a proof system in which to work. Martin-L\"of Type Theory (MLTT) would not be convenient because of the large amount of work with set quotients and commutativity in our theory. These concepts do not behave well in MLTT and often can only be modelled via setoids. While setoids would suffice for

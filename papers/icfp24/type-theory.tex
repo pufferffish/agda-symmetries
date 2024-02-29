@@ -75,44 +75,17 @@ giving rise to the infamous setoid hell.
 In MLTT we cannot construct equalities between types. Univalence, the core of Homotopy Type Theory,
 gives us equalities between types by the univalence axiom. To see how this is useful,
 consider $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$, we can
-get $P(B)$ from $P(A)$ by transport (or substitution).
+get $P(B)$ from $P(A)$ by transport (or substitution).  
 
-To explain the univalence axiom, we first need to define equivalence:
-\begin{definition}
-    Given types $A$ and $B$, $A$ is equivalent to $B$ ($A \simeq B$) if there exists an
-    equivalence $A \rightarrow B$.
-    A function $f$ is said to be an equivalence if
-    $\left( \sum_{g :B \rightarrow A} (f \circ g \sim \mathrm{id}_B) \right) \times \left( \sum_{g:B \rightarrow A} (g \circ f \sim \mathrm{id}_A) \right)$.
-\end{definition}
-
-We note that this is very similar to an isomorphism, however an isomorphism would have the same function
-for right inverse and left inverse, i.e. just an inverse function, whereas an equivalence allows
-for different functions for right and left inverse. The univalence axiom states that:
 \begin{definition}[Univalence axiom]
     $(A = B) \simeq (A \simeq B)$
 \end{definition}
-
-This is directly incompatible with uniqueness of identity proof, which states
-$\forall p, q: x = y, p = q$. For example, consider the boolean type
-$\boolt = \{\term{true}, \term{false}\}$. We can construct two $\boolt = \boolt$
-by univalence:
-\begin{itemize}
-    \item $\term{id} := \lambda \{ \term{true} \mapsto \term{true}, \term{false} \mapsto \term{false} \}$
-    \item $\term{not} := \lambda \{ \term{true} \mapsto \term{false}, \term{false} \mapsto \term{true} \}$
-\end{itemize}
-
-Both functions are equivalences yet they are different, therefore they give rise to different equalities.
-We now introduce to notion of propositions, sets, groupoids, and so on.
-A mere proposition $A$ is a type such that $\forall x, y : A.\, x = y$.
-A set $A$ is a type such that for all $x, y : A$, the type $x = y$ is a mere proposition.
-A groupoid $A$ is a type such that for all $x, y : A$, the type $x = y$ is a set,
-and we can inductively define higher structures:
-A (n+1)-groupoid $A$ is a type such that for all $x, y : A$, the type $x = y$ is a n-groupoid.
-For example, $\unitt, \emptyt$ are propositions, $\unitt, \emptyt, \Nat$,
-the type for all types that are mere propositions $\hProp$ are sets.
-The type for all types that are sets $\hSet$ is a groupoid, and we have demonstrated how an element $\boolt$
-of $\hSet$ has more than one equality. When we are working with groupoids and higher-dimension
-types, the notion of equivalence and isomorphism becomes different.
+Essentially, if we can construct an equivalence between two types $A$ and $B$,
+we can obtain a equality of the types $A$ and $B$. While in HoTT we cannot
+compute with elements constructed with univalence since it is postulated as an
+axiom, Cubical Type Theory allows us to derive univalence as a computable
+theorem, therefore we can transport functions and proofs from one type to
+another freely without worrying about terms not being able to normalize!
 
 Within the scope of our work, we want to primarily work with
 sets, therefore we add the truncation constructor whenever necessary so we need not concern ourselves
@@ -124,6 +97,10 @@ where we want to show to propositions are commutative: i.e. $\forall p, q: \hPro
 Since $p$ and $q$ are types, we need univalence to show $p \vee q = q \vee p$ are in fact equal.
 
 \subsection{Notation}
+In this paper, we denote the type of types with $\mathcal{U}$. 
+In practice, $\mathcal{U}$ would be indexed by a type level 
+à la Russell for consistency, however we opted to omit the type level
+for simplicity and clarity.
 We use $\Fin[n]$ to denote finite sets of cardinality $n$ in HoTT~\cite{yorgeyCombinatorialSpeciesLabelled2014a}.
 This is defined as follow:
 \vspace{-1em}
@@ -132,6 +109,7 @@ Fin : $\mathbb{N}$ -> UU
 Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
 \end{code}
 
+\noindent
 There are multiple ways to define $\Fin$, one example being an indexed inductive type,
 for example:
 \vspace{-1em}
