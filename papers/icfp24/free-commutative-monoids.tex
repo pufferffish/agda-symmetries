@@ -99,7 +99,7 @@ PList A = List A / Perm
 \end{code}
 \vspace{1em}
 
-We have already given a proof of $\List$ being the free monoid in~\ref{mon:list}.
+We have already given a proof of $\List$ being the free monoid in~\ref{mon:lists}.
 By~\ref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
 to show $\PList$ is the free commutative monoid.
 
@@ -156,7 +156,7 @@ to $(z :: zs)\,\doubleplus\,y :: x :: ys$. Also since we are working with an equ
 defined ($\Perm$) and not the equality type directly, we cannot exploit the many combinators defined
 in the standard library for the equality type and often needing to re-define combinators ourselves.
 
-\subsection{Swap-List}
+\subsection{Swap-List}\label{cmon:slist}
 We can use HITs where adjacent swaps generate all symmetries,
 for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have
 also given a proof of its universal property.

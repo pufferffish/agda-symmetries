@@ -2,7 +2,38 @@
 \label{sec:formalization}
 
 In this section, we discuss some aspects of the formalization.
-The rest of the paper uses informal type theoretic language, and is accessible without understanding any details of the formalization.
+The rest of the paper uses informal type theoretic language,
+and is accessible without understanding any details of the formalization.
+Our formalization is done in cubical Agda, which has a few differences and a few
+shortcomings due to proof engineering issues.
+
 \vc{The formalization has a few differences from the paper and a few shortcomings due to proof engineering issues.}
 \vc{If this is too short, move to a subsection of~\cref{sec:discussion}}.
 \vc{Powerful abstractions lend themselves to elegant formalizations.}
+
+We note the axioms of sorting in the formalization is named differently,
+$\issorted$ is $\term{is-sorted}$
+$\isheadleast$ is $\term{is-head-least}$, and
+$\istailsort$ is $\term{is-tail-sort}$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Code} & \textbf{Description} & \textbf{Reference}               \\ \hline
+\texttt{Cubical.Structures.Free}         & Free algebras            & (Section~\ref{sec:universal-algebra}) \\
+\texttt{Cubical.Structures.Set.Mon.List} & $\term{List}$  & (Section~\ref{mon:lists}) \\
+\texttt{Cubical.Structures.Set.Mon.Array} & $\term{Array}$  & (Section~\ref{mon:array})\\
+\texttt{Cubical.Structures.Set.CMon.QFreeMon} & Quotiented-free monoid & (Section~\ref{cmon:qfreemon}) \\
+\texttt{Cubical.Structures.Set.CMon.PList} & Quotiented-list & (Section~\ref{cmon:plist}) \\
+\texttt{Cubical.Structures.Set.CMon.SList} & Swapped-list & (Section~\ref{cmon:slist}) \\
+\texttt{Cubical.Structures.Set.CMon.Bag} & Bag & (Section~\ref{cmon:bag}) \\
+\texttt{Cubical.Structures.Set.CMon.SList.Sort} & Sort and order relationship & (Section~\ref{sec:sorting}) \\
+\texttt{Cubical.Structures.Set.CMon.SList.Sort.Equiv} & Sort and order equivalence & (Section~\ref{sort:main}) \\
+\hline
+\end{tabular}
+\caption{Status of formalised results}
+\label{tab:formalised_results}
+\end{table}
+
+
