@@ -25,7 +25,7 @@ Perhaps it is worth noting what this observation means for functional programmer
 In programming practice, it is usually the case that all user-defined types have some sort of total order on them,
 either because they're finite, or they can be enumerated in some way.
 %
-Therefore, under these assumptions, the construction of fresh lists is a perfectly reasonable way to represent free
+Therefore, under these assumptions, the construction of fresh lists is a very reasonable way to represent free
 commutative monoids, or finite multisets.
 
 \subsection*{Sorting}
@@ -49,33 +49,48 @@ starting from bialgebraic semantics and distributive laws.
 Our work is complementary to theirs, in that we are not concerned with the computational content of sorting, but rather
 the abstract properties of sorting functions, which are independent of a given ordering.
 %
-It remains to be seen how these ideas could be combined, and that is a direction for future work.
+It remains to be seen how these ideas could be combined -- the abstract property of sorting, with the intrinsic essence
+of sorting algortihms -- and that is a direction for future work.
 %
 We do want to point out a fascinating connection between our work and theirs: our observation of recovering $\leq$ from
 the section, by ``sorting'' a 2-element list actually appears in a correctness proof
 in~\cite[Section~4.6,pg.324]{hengleinSortingSearchingDistribution2013}!
 
-\emph{Groupoidification}
+This paper only talks about sorting lists and bags, but the abstract property of correct sorting functions could be
+applied to more general inductive types! We speculate that this could lead to some interesting connections with sorting
+(binary) trees, and constructions of (binary) search trees, from classical computer science.
 
-To conclude, our framework of universal algebra can be generalised from sets to groupoids, using a system of
-coherences on top of the system of equations.
+\emph{Algebra}
 
-Hinze's work: Sorting and Searching by Distribution: From Generic Discrimination to Generic Trie, see 4.6 on page 324
+One of the contributions of our work is also a rudimentary framework for universal algebra, but done in a more
+categorical style, which lends itself to an elegant formalization in type theory.
+%
+We believe this framework could be improved and generalised to higher dimensions, moving from sets to groupoids,
+and using a system of coherences on top of a system of equations, which we are already pursuing.
+%
+Groupoidyfing free (commutative) monoids to free (symmetric) monoidal groupoids is a natural next step, and its
+connections to assumptions about total orders on the type of objects would be an important direction to explore.
 
 
-\vc{Can you sort anything that doesn't have a total order?}
-\vc{Can you sort binary trees?}
+% To conclude, our framework of universal algebra can be generalised from sets to groupoids, using a system of
+% coherences on top of the system of equations.
 
-In a sense, this problem has already been solved, first by Hinze et al. \cite{hinzeSortingBialgebrasDistributive2012}
-and later extended by Alexandru in their thesis \cite{alexandruIntrinsicallyCorrectSorting2023}.
-Their formalization is defined in terms of bialgebras, which not
-only captures the correctness of sorting algorithms purely in a categorical settings, but
-also isolate the computational essence of sorting algorithms in terms of distributive laws,
-allowing us to construct more sorting algorithms "for free". Their work are thus necessarily
-below the level of extensional equality, i.e. input-output behavior, and allow us to reason
-with the structures of the sorting algorithms themselves. Our work only concerns the correctness
-of sorting algorithms, with the goal to axiomatize sorting functions as functions satisfying
-some abstract properties, independent of a given ordering, which allows us to gain
-insight into how sorting relates to order and vice versa.
-% and its implications on axiom of choice.
-% maybe write more on its relationship to AC, in a sepreate paragraph?
+% Hinze's work: Sorting and Searching by Distribution: From Generic Discrimination to Generic Trie, see 4.6 on page 324
+
+
+% \vc{Can you sort anything that doesn't have a total order?}
+% \vc{Can you sort binary trees?}
+
+% In a sense, this problem has already been solved, first by Hinze et al. \cite{hinzeSortingBialgebrasDistributive2012}
+% and later extended by Alexandru in their thesis \cite{alexandruIntrinsicallyCorrectSorting2023}.
+% Their formalization is defined in terms of bialgebras, which not
+% only captures the correctness of sorting algorithms purely in a categorical settings, but
+% also isolate the computational essence of sorting algorithms in terms of distributive laws,
+% allowing us to construct more sorting algorithms "for free". Their work are thus necessarily
+% below the level of extensional equality, i.e. input-output behavior, and allow us to reason
+% with the structures of the sorting algorithms themselves. Our work only concerns the correctness
+% of sorting algorithms, with the goal to axiomatize sorting functions as functions satisfying
+% some abstract properties, independent of a given ordering, which allows us to gain
+% insight into how sorting relates to order and vice versa.
+% % and its implications on axiom of choice.
+% % maybe write more on its relationship to AC, in a sepreate paragraph?
