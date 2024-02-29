@@ -49,13 +49,13 @@ If we assumed AC our problem would be trivial!
 Instead we study how to constructively define such a section, and in fact, that is exactly a sorting algorithm,
 and the implications of its existence is that $A$ can be ordered, or sorted.
 
-We can now study sort functions as sections and their relationship with total orders.
-First, we recall the axioms of total order are:
+We now study sort functions as sections and their relationship with total orders.
+First, we recall the axioms of a total order $\leq$ on a set $A$:
 \begin{itemize}
     \item reflexivity: $x \leq x$
     \item transitivity: if $x \leq y$ and $y \leq z$, then $x \leq z$
     \item antisymmetry: if $x \leq y$ and $y \leq x$, then $x = y$
-    \item totality: forall $x$ and $y$, we have merely either $x \leq y$ or $y \leq x$
+    \item totality: forall $x$ and $y$, we have \emph{merely} either $x \leq y$ or $y \leq x$
 \end{itemize}
 
 In the context of this paper, we also want to make a distinction between "decidable total order"
@@ -76,7 +76,7 @@ compute if $x \leq y$ is true.
 \begin{proof}
     We can easily construct such a section by any sorting algorithm. In our formalization we chose
     insertion sort $\SList(A) \to \List(A)$ due to its inductive properties and simple definition.
-    However, if we want to define other sorting algorithms, e.g. merge-sort,
+    However, if we want to define other sorting algorithms, e .g. merge-sort,
     other representations such as $\Bag \to \Array$ would be more suitable as we have explained in~\cref{bag:rep}.
     It is easy to see how this
     proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$, and re-discard the order again by
