@@ -15,7 +15,7 @@ corresponding to the colors of the Dutch flag: red, white, and blue.
   }
   \}
 \]
-Given a finite multiset of such balls, how many ways can you sort them into the Dutch flag?
+Given a sequence of such balls, how many ways can you sort them into the Dutch flag?
 \[
   \{
       \tikz[anchor=base, baseline]{%
@@ -38,12 +38,13 @@ $\term{red} < \term{white} < \term{blue}$.
       }
     ]
 \]
-
 What if we are avid enjoyers of vexillology who also want to consider other flags?
-We might ask: how many ways can we sort our finite multiset of balls?
+We might ask: how many ways can we sort our sequence of balls?
 We know that there are only $3! = 6$ permutations of
-$\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define \footnote{We have no allegiance to any of the countries presented by the flags, hypothetical or otherwise. This is purely combinatorics!}.
-
+$\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define.
+In fact, there are exactly 6 such categories of tricolor flags (\href{https://en.wikipedia.org/wiki/List_of_flags_with_blue,_red,_and_white_stripes#Triband}{Wikipedia}).
+We have no allegiance to any of the countries presented by the flags, hypothetical or otherwise -- this is purely combinatorics!
+\vspace{0.5em}
 \begin{center}
     \foreach \colorA/\colorB/\colorC in {red/white/blue, red/blue/white, white/red/blue, white/blue/red, blue/red/white, blue/white/red}{
     \begin{tikzpicture}[scale=0.5]
@@ -54,9 +55,10 @@ $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderi
     \end{tikzpicture}
     }
 \end{center}
+\vspace{0.5em}
 
-We posit that because there are exactly 6 orderings, we can only define 6 correct sorting
-functions (up to function extensionality).
+We posit that because there are exactly 6 orderings, we can only define 6 \emph{correct} sorting
+functions.% (up to function extensionality).
 
 In more formal terms: let $A = \{\term{red}, \term{white}, \term{blue}\}$
 let $\setord(A)$ be the set of orderings on $A$ and let 

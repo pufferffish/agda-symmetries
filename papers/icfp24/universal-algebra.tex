@@ -379,7 +379,7 @@ Just like the signature functor~\cref{def:signature-functor}, this produces an e
 \end{definition}
 
 To build equations out of this signature,
-we need to use the $\sig$-operations and construct an honest equation -- a system of equations.
+we need to use the $\sig$-operations and construct honest equations -- or a system of equations.
 %
 Informally, this is a pair of trees for each equation,
 one for the left-hand side and one for the right-hand side of the equation,
@@ -427,7 +427,7 @@ To satisfy an equation, these two evaluations should agree!
 
 \begin{definition}[$\str{X} \entails T$]
     A $\sig$-structure $\str{X}$ satisfies the system of equations $T_{(\sig,\eqsig)}$ if for every set $V$,
-    and every assignment $\rho : V \to X$, the following diagram commutes:
+    and every assignment $\rho : V \to X$, $\ext{\rho}$ is a coequalizer:
     % https://q.uiver.app/#q=WzAsMyxbMiwwLCJcXHN0cntGfShWKSJdLFs0LDAsIlxcc3Rye1h9Il0sWzAsMCwiXFxFcVNpZyhWKSJdLFswLDEsIlxcZXh0e1xccmhvfSJdLFsyLDAsIlxcZXFsZWZ0X3tWfSIsMCx7Im9mZnNldCI6LTN9XSxbMiwwLCJcXGVxcmlnaHRfe1Z9IiwyLHsib2Zmc2V0IjozfV1d
     \[\begin{tikzcd}[ampersand replacement=\&,cramped]
             {\EqSig(V)} \&\& {\str{F}(V)} \&\& {\str{X}}
@@ -437,9 +437,11 @@ To satisfy an equation, these two evaluations should agree!
         \end{tikzcd}\]
 \end{definition}
 
-% \todo{Full subcategory of $\sigAlg$ is a variety of $(\sig,\eqsig)$-algebras.}
-% \todo{Construction of the free object, requires non-constructive principles~\cite{blassWordsFreeAlgebras1983}.}
-% \todo{HITs are another way to write higher generators for equations~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.}
-
-We have now developed the basic notions of universal algebra and equational logic,
-and we only consider the constructions of free monoids and free commutative monoids in the next sections.
+There is a full subcategory of $\sigAlg$ which is the variety of algebras satisfying these equations.
+%
+The construction of the free object in this variety requires non-constructive principles~\cite[Section 7, pg 142]{blassWordsFreeAlgebras1983},
+in particular, the arity sets need to be projective, so we do not give the general construction.
+%
+Of course, HITs are another way to write higher generators for equations~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.
+%
+We do not develop the framework further, and instead consider the specific cases of constructions of free monoids and free commutative monoids in the next sections.
