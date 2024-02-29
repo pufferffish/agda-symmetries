@@ -1,95 +1,121 @@
 \section{Combinatorics}
 \label{sec:combinatorics}
 
-We now explore various combinatorial properties and operations we can define for both
-free monoids and free commutative monoids. By univalence and structure identity principle,
-everything henceforth holds for any presentation of free monoids and free commutative monoids, 
-therefore we avoid naming any specific constructions.
-We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$,
-$\LL(A)$ to exclusively denote free monoid and $\MM(A)$ to exclusively denote free commutative monoid.
+The purpose of all the hard work behind establishing the universal properties of our types of (ordered) and unordered
+lists is to be able to define operations on them systematically, which are mathematically sound, and to be able to
+reason about them -- which is a common theme in the Algebra of Programming~\cite{birdAlgebraProgramming1997} community.
+%
+Using our tools, we explore definitions of various combinatorial properties and operations for both
+free monoids and free commutative monoids.
+%
+By univalence (and the structure identity principle), everything henceforth holds for any presentation of free monoids
+and free commutative monoids, therefore we avoid picking a specific construction.
+%
+We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$, $\LL(A)$ to exclusively denote the free
+monoid construction, and $\MM(A)$ to exclusively denote the free commutative monoid construction.
 
-With universal properties we can structure our programs using ideas from algebra.
+With universal properties we can structure and reason about our programs using algebraic ideas.
+%
 For example $\term{length}$ is a common operation defined inductively for $\List$,
-but to state properties about $\term{length}$, e.g.
+but usually in proof engineering, properties about $\term{length}$, e.g.
 $\term{length}(xs \doubleplus ys) = \term{length}(xs) + \term{length}(ys)$,
-we would need to prove them externally. With our framework we can define operations like $\term{length}$
-using the $\ext{(\blank)}$ operation, which would also give us a proof that they are homomorphisms for free.
-We can also use universal property to prove two different types are equal by showing they both
-satisfy the same universal property, which is desirable especially if proving a direct equivalence between
-the two types is very difficult.
+are proven externally.
+%
+Within our framework, where \emph{fold} (or the $\ext{(\blank)}$ operation) is a correct-by-construction homomorphism,
+we can define operations like $\term{length}$ simply by extension,
+which also gives us a proof that they are homomorphisms for free!
+%
+A further application of the universal property is to prove two different types are equal, by showing they both satisfy
+the same universal property (see~\cref{lem:free-algebras-unique}), which is desirable especially when proving a direct
+equivalence between the two types turns out to be a difficult exercise in combinatorics.
 
-To illustrate this, we give some examples of how some common operations can be defined
-in terms of universal property.
+To illustrate this, we give examples of some common operations that are defined in terms of the universal property.
 
 \subsection{Length}
 
 Any presentation of free monoids or free commutative monoids has a $\term{length} : \FF(A) \to \Nat$ function.
-$\Nat$ is a (commutative) monoid with $(0,+)$, so we can extend $\lambda x.\, 1\,:\,A \to \Nat$.
-This allows us to define $\term{length}$ for any construction of free (commutative) monoid, and also
-gives us a proof of $\term{length}$ being a homomorphism for free.
+%
+$\Nat$ is not just a monoid with $(0,+)$, the $+$ operation is also commutative!
+%
+We can extend the constant function $\lambda x.\, 1\,:\,A \to \Nat$
+to obtain $\ext{(\lambda x.\, 1)} : \FF(A) \to \Nat$, which is the length homomorphism.
+%
+This allows us to define $\term{length}$ for any construction of free (commutative) monoids,
+and also gives us a proof of $\term{length}$ being a homomorphism for free.
 
 \begin{figure}[H]
     \centering
     \begin{tikzcd}[ampersand replacement=\&,cramped]
-    	{\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
-    	\\
-    	A
-    	\arrow["\eta_A", from=3-1, to=1-1]
-    	\arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
-    	\arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
+        {\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
+        \\
+        A
+        \arrow["\eta_A", from=3-1, to=1-1]
+        \arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
+        \arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
     \end{tikzcd}
     \caption{Definition of $\term{length}$ by universal property}
     \label{fig:enter-label}
 \end{figure}
 
-
 \subsection{Membership}\label{comb:member}
-Any presentation of free monoids or free commutative monoids has a membership predicate:
-$\_\in\_ : A \to \FF(A) \to \hProp$. By fixing an element $x: A$, the element we want to define
-the membership proof for, and 
-assuming $A$ is a set, we can define $\yo_A(x) = \lambda y.\, x \id y : A \to \hProp$.
-Since $\hProp$ forms a (commutative) monoid under $\vee$,
-we can extend $\yo_A(x)$ to obtain $x \in \blank : \FF(A) \to \hProp$, giving us the membership predicate for $x$.
+
+Going further, any presentation of free monoids or free commutative monoids has a membership predicate:
+$\_\in\_ : A \to \FF(A) \to \hProp$, for any set $A$.
+%
+By fixing an element $x: A$, the element we want to define the membership proof for,
+we define $\yo_A(x) = \lambda y.\, x \id y : A \to \hProp$.
+%
+This is formally the Yoneda map under the ``types are groupoids'' correspondence,
+where $x:A$ is being sent to the Hom-groupoid (formed by the identity type), of type $\hProp$.
+%
+Now, the main observation is that $\hProp$ forms a (commutative) monoid under logical or: $\vee$ and false: $\bot$.
+%
+Note that the proofs of monoid laws use equality, which requires the use of univalence (or at least, propositional
+extensionality).
+%
+Using this (commutative) monoid structure, we extend $\yo_A(x)$ to obtain $x \in \blank : \FF(A) \to \hProp$, which
+gives us the membership predicate for $x$, and its homomorphic properties (the colluquial~$\term{here}/\term{there}$
+constructors for the de Bruijn encoding).
 
 \begin{figure}[H]
     \centering
     % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
     \begin{tikzcd}[ampersand replacement=\&,cramped]
-    	{\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
-    	\\
-    	A
-    	\arrow["{\eta_A}", from=3-1, to=1-1]
-    	\arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
-    	\arrow["{\yo_A(x)}"', from=3-1, to=1-4]
+        {\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
+        \\
+        A
+        \arrow["{\eta_A}", from=3-1, to=1-1]
+        \arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
+        \arrow["{\yo_A(x)}"', from=3-1, to=1-4]
     \end{tikzcd}
     \caption{Definition of membership proof for $x$ by universal property}
     \label{fig:enter-label}
 \end{figure}
 
+\subsection{Any and All predicates}
 
-\subsection{Any and All predicate}
-
-Any presentation of free monoids or free commutative monoids $\FF(A)$ has the
-$\term{Any}$ and $\term{All}$ predicates, which allow us to lift a predicate $A \to \hProp$
-to any or all elements of $xs : \FF(A)$. We note that
-$\hProp$ forms a (commutative) monoid in two different ways: $(\bot,\vee)$ and $(\top,\wedge)$,
-therefore given a predicate $P : A \to \hProp$, we get:
+More generally, any presentation of free (commutative) monoids $\FF(A)$ also supports the
+$\term{Any}$ and $\term{All}$ predicates, which allow us to lift a predicate $A \to \hProp$ (on $A$),
+to \emph{any} or \emph{all} elements of $xs : \FF(A)$, respectively.
+%
+We note that $\hProp$ forms a (commutative) monoid in two different ways: $(\bot,\vee)$ and $(\top,\wedge)$
+(disjunction and conjunction), which are the two different ways to get $\term{Any}$ and $\term{All}$, respectively.
+That is,
 \begin{align*}
-    Any(P) &= \ext{P} : \FF(A) \to (\hProp, \bot, \vee) \\
-    All(P) &= \ext{P} : \FF(A) \to (\hProp, \top, \wedge)
+    \type{Any}(P) & = \ext{P} : \FF(A) \to (\hProp, \bot, \vee)   \\
+    \type{All}(P) & = \ext{P} : \FF(A) \to (\hProp, \top, \wedge)
 \end{align*}
-
 \begin{figure}[H]
     \centering
     \begin{minipage}[t]{0.49\textwidth}
         \centering
         \begin{tikzcd}[ampersand replacement=\&,cramped]
-        	{\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
-        	\\
-        	A
-        	\arrow["\eta_A", from=3-1, to=1-1]
-        	\arrow["{\ext{P}}", from=1-1, to=1-3]
-        	\arrow["{P}"', from=3-1, to=1-3]
+            {\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
+            \\
+            A
+            \arrow["\eta_A", from=3-1, to=1-1]
+            \arrow["{\ext{P}}", from=1-1, to=1-3]
+            \arrow["{P}"', from=3-1, to=1-3]
         \end{tikzcd}
         \caption{Definition of $\term{All}$ by universal property}
         \label{fig:enter-label}
@@ -97,45 +123,87 @@ therefore given a predicate $P : A \to \hProp$, we get:
     \begin{minipage}[t]{0.49\textwidth}
         \centering
         \begin{tikzcd}[ampersand replacement=\&,cramped]
-        	{\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
-        	\\
-        	A
-        	\arrow["\eta_A", from=3-1, to=1-1]
-        	\arrow["{\ext{P}}", from=1-1, to=1-3]
-        	\arrow["{P}"', from=3-1, to=1-3]
+            {\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
+            \\
+            A
+            \arrow["\eta_A", from=3-1, to=1-1]
+            \arrow["{\ext{P}}", from=1-1, to=1-3]
+            \arrow["{P}"', from=3-1, to=1-3]
         \end{tikzcd}
         \caption{Definition of $\term{Any}$ by universal property}
         \label{fig:enter-label}
     \end{minipage}
 \end{figure}
+These constructions are used in the proofs of our main results in~\cref{sec:sorting}.
 
-\subsection{Other properties}
-Free commutative monoid and free monoids also share some common properties,
-for example both are conical~\cite{wehrungTensorProductsStructures1996}. However, more often than not,
-they exhibit different properties. For example, only free commutative monoid exhibits
-the property of mapping coproduct monoidal structure to product monoidal structure:
-i.e. $\MM(A) \times \MM(B) = \MM(A + B)$, and other properties such
-as Riesz refinement property~\cite{dobbertinRefinementMonoidsVaught1983}. We
-refer the reader to~\cite{choudhuryFreeCommutativeMonoids2023} for these proofs.
+\subsection{Other combinatorial properties}
 
-\subsection{Head}\label{sec:head}
-More generally, commutativity is a way of enforcing unordering, or forgetting ordering,
-and by constructing a function from $\MM(A)$ to a structure which is not commutative,
-we must impose some kind of ordering in order to define such a function.
+Free commutative monoid and free monoids also share common combinatorial properties, for example both satisfy the
+conical monoid property.
+%
+However, more often than not, they both do not exhibit the same properties, for example:
+\begin{itemize}
+    \item The coproduct of two (free) commutative monoids is given by their underlying cartesian product
+          (dual of Fox's theorem~\cite{foxCoalgebrasCartesianCategories1976}),
+          that is, $\MM(A + B) \eqv \MM(A) \times \MM(B)$.
+          %
+          This is important in linear logic, and used in the Seely isomorphism.
+          %
+          However, the coproduct of two (free) monoids is given by their free product,
+          which does not have such a characterisation.
+    \item Free commutative monoids satisfy the Riesz refinement property,
+          which is important in the semantics of differential linear logic,
+          however free monoids do not.
+\end{itemize}
+We mention these facts for completeness -- these show that the addition of commutativity leads to \emph{unordering},
+which allows shuffling around the elements of free monoids (lists), leading to interesting combinatorial structure.
+%
+These are explored in more detail and proved in~\cite{choudhuryFreeCommutativeMonoids2023}.
 
-Consider the $\term{head} : \FF(A) \to A$ function which takes an element out of $\FF(A)$.
-We consider by cases on the length of $\FF(A)$.
+\subsection{Heads and Tails}\label{sec:head}
 
-Case 0: $\term{head}$ cannot be defined, for example if $A = \emptyt$, such a function would lead to
-a contradiction.
+More generally, commutativity is a way of enforcing unordering, or forgetting ordering.
+%
+The universal property of free commutative monoids only allows eliminating to another commutative monoid --
+can we define functions from $\MM(A)$ to a non-commutative structure?
+%
+In baby steps, we will consider the very popular $\term{head}$ function on lists.
+% from $\MM(A)$ to a structure which is not commutative, we must impose some kind of ordering in order to define such a
+% function.
 
-Case 1: $\term{head}$ can be defined for both $\MM(A)$ and $\LL(A)$. In fact, it is a equivalence
-if we only consider $xs : \FF(A)$ where $\term{length}(xs) = 1$, with its inverse given by $\eta_A$.
+The $\term{head} : \FF(A) \to A$ function takes the \emph{first} element out of $\FF(A)$, and the rest of the list is
+its tail.
+%
+We analyse this by cases on the length of $\FF(A)$
+(which is definable for both free monoids and free commutative monoids).
 
-Case $n \geq 2$: $\term{head}$ can be defined for any $\LL(A)$. Using $\List$ as an example, one can simply
-take the first element of the list. However, for $\MM(A)$, $\term{head}$ can only be defined if it
-respects commutativity. Using $\SList$ as an example, this means $\term{head}$ must satisfy:
-$\term{head}(x :: y :: xs) = \term{head}(y :: x :: xs)$ for any $x, y : A$ and $xs : \SList(A)$.
-This implies if we were to define $\term{head}$ for $\MM(A)$, we must be able to order or sort a
-list $xs$ of $A$ somehow, so we can pick a "least" or "biggest" element $x \in xs$ such that for any
-permutation of $xs$ $xs^*$, $\term{head}(xs^*) = x$.
+\begin{itemize}
+    \item
+          Case 0: $\term{head}$ cannot be defined, for example if $A = \emptyt$, then $\FF[\emptyt] \eqv \unitt$,
+          so a $\term{head}$ function would produce an element of $\emptyt$, which is impossible.
+
+    \item
+          Case 1: For a singleton, $\term{head}$ can be defined for both $\MM(A)$ and $\LL(A)$.
+          %
+          In fact, it is a equivalence between $xs : \FF(A)$ where $\term{length}(xs) = 1$, and the type $A$,
+          where the inverse is given by $\eta_A$.
+
+    \item
+          Case $n \geq 2$: $\term{head}$ can be defined for any $\LL(A)$, of course.
+          %
+          Using $\List$ as an example, one can simply take the first element of the list:
+          $\term{head}(x :: y :: xs) = x$.
+          %
+          However, for $\MM(A)$, things go wrong!
+          %
+          Using $\SList$ as an example, by $\term{swap}$, $\term{head}$ must satisfy:
+          $\term{head}(x :: y :: xs) = \term{head}(y :: x :: xs)$ for any $x, y : A$ and $xs : \SList(A)$.
+          %
+          Which one do we pick -- $x$ or $y$?
+          %
+          Informally, this means, we somehow need an ordering on $A$, or a sorted list $xs$ of $A$,
+          so we can pick a ``least'' (or ``biggest''?) element $x \in xs$ such that for any permutation $ys$ of $xs$,
+          also $\term{head}(ys) = x$.
+\end{itemize}
+
+This final observation leads to our main result in~\cref{sec:sorting}.
