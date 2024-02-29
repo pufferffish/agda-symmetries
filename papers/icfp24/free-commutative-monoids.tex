@@ -170,7 +170,7 @@ With this we can prove $\Perm$ respects $\ext{(\blank)}$.
     back to $\ext{f}((z :: zs)\,\doubleplus\,y :: x :: ys)$ by homomorphism properties of $\ext{f}$.
 \end{proof}
 
-\subsubsection{Representation}\label{plist:rep}
+\subsubsection*{Remark on representation}\label{plist:rep}
 With this representation it is very easy to lift functions and properties defined on $\List$
 to $\PList$ since $\PList$ is a quotient of $\List$. The inductive nature of $\PList$ makes it
 very easy to define algorithms and proofs that are inductive in nature, e.g. defining insertion sort
@@ -201,9 +201,15 @@ defined ($\Perm$) and not the equality type directly, we cannot exploit the many
 in the standard library for the equality type and often needing to re-define combinators ourselves.
 
 \subsection{Swap-List}\label{cmon:slist}
-We can use HITs where adjacent swaps generate all symmetries,
-for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have
-also given a proof of its universal property.
+
+Informally, quotients generate too many points, then quotient out into equivalence classes by the congruence relation.
+%
+Alternately, HITs use generators (points) and higher generators (paths) (and higher higher generators and so on\ldots).
+%
+We can define free commutative monoids using HITs were adjacent swaps generate all symmetries,
+for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have also given a proof of its
+universal property. We include this presentation for completeness, which is also a good presentation in some of our
+proofs.
 
 \begin{code}
 data SList (A : UU) : UU where
@@ -218,20 +224,20 @@ The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
 thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
 This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
 because it does not have any path constructors, therefore it can be proven that $\List(A)$
-is a set assuming $A$ is a set.
+is a set assuming $A$ is a set (see formalization).
 
 \begin{definition}[Concatenation]
     We define the concatenation operation $\doubleplus : \SList(A) \to \SList(A) \to \SList(A)$
-    inductively.
+    recursively, where we also have to consider the (functorial) action on the $\term{swap}$ path using $\term{ap}$.
     \begin{align*}
-        [] \doubleplus ys                                   & = ys                                   \\
-        (x :: xs) \doubleplus ys                            & = x :: (xs \doubleplus ys)             \\
-        \term{cong}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
+        [] \doubleplus ys                                 & = ys                                   \\
+        (x :: xs) \doubleplus ys                          & = x :: (xs \doubleplus ys)             \\
+        \term{ap}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
     \end{align*}
 \end{definition}
 
-\cite{choudhuryFreeCommutativeMonoids2023} has already given a proof of $(\SList(A), \doubleplus, [])$
-satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
+\cite{choudhuryFreeCommutativeMonoids2023} have already given a proof of $(\SList(A), \doubleplus, [])$ satisfying
+commutative monoid laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
 
 \begin{lemma}[Head rearrange]\label{slist:cons}
     For all $x : A$, $xs : \SList(A)$, $x :: xs = xs \doubleplus [ x ]$.
@@ -253,7 +259,7 @@ satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ sati
     $xs \doubleplus ys = ys \doubleplus xs$.
 \end{proof}
 
-\subsubsection{Representation}\label{slist:rep}
+\subsubsection*{Remark on representation}\label{slist:rep}
 Much like $\PList$ and $\List$, $\SList$ is inductively defined, therefore making it very intuitive to reason
 with when defining inductive operations or inductive proofs on $\SList$, however difficult to reason with
 when defining operations that involve arbitrary partitioning, for reasons similar to those given
@@ -276,25 +282,38 @@ making the handling of $\SList$ equalities a lot simpler.
 
 \subsection{Bag}\label{cmon:bag}
 Alternatively, we can also quotient $\Array$ with symmetries to get commutativity.
-This construction is taken from \cite{choudhuryFreeCommutativeMonoids2023}. \cite{joramConstructiveFinalSemantics2023}
-also gave a similar construction, where only the index function is quotiented, instead of
-the entire array. Both proved $\Bag$ is the free commutative monoid by isomorphism to
-other constructions. We give a direct proof of its universal property instead.
+%
+This construction is partially considered in~\cite{choudhuryFreeCommutativeMonoids2023},
+and also in~\cite{joramConstructiveFinalSemantics2023},
+who gave a similar construction, where only the index function is quotiented, instead of
+the entire array.
+%
+\cite{joramConstructiveFinalSemantics2023} prove that their version of $\Bag$ is the free commutative monoid by
+equivalence to the other HIT constructions.
+%
+We give a direct proof of its universal property instead, using the technology we have developed.
 
-\begin{code}
+\begin{definition}[Bag]
+    \label{def:bag}
+    \leavevmode
+    \begin{code}
 _$\approx$_ : Array A $\to$ Array A $\to$ UU
-(n , f) $\approx$ (m , g) = $\Sigma$[ $\sigma$ $\in$ Iso (Fin n) (Fin m) ] v $\equiv$ w $\circ$ $\sigma$ .fun
+(n , f) $\approx$ (m , g) = Sg(sig : Fin n eqv Fin m) v = w comp sig
 
 Bag : UU -> UU
 Bag A = Array A / _$\approx$_
-\end{code}
+    \end{code}
+\end{definition}
 
-Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$. Conceptually,
-we are quotienting array by a permutation or an automorphism on the index.
+Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$, though this requires a proof in
+type theory (see the formalization).
+%
+Conceptually, we are quotienting array by a permutation or an automorphism on the indices.
 
 We have already given a proof of $\Array$ being the free monoid in~\cref{mon:array}.
-By~\cref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relation
-to show $\Bag$ is the free commutative monoid.
+%
+By~\cref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relations to show that $\Bag$
+is the free commutative monoid.
 
 \begin{proposition}
     $\approx$ is a equivalence relation.
@@ -362,11 +381,13 @@ to show $\Bag$ is the free commutative monoid.
 \end{proof}
 
 \begin{proposition}
-    $\approx$ respects $\ext{(\blank)}$.
+    $\approx$ respects $\ext{(\blank)}$ for arrays.
 \end{proposition}
 
-It suffices to show $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
-$\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need some lemmas.
+It suffices to show that $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
+$\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need to develop some formal combinatorics of
+\emph{punching in} and \emph{punching out} indices. These operations are developed further
+in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation codes.
 
 \begin{lemma}\label{bag:tau}
     Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
@@ -406,7 +427,6 @@ $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need some l
 
 \end{proof}
 
-
 \begin{lemma}\label{bag:punch}
     Given $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$ where $\tau(0) = 0$,
     there is a $\psi : \Fin[n] \xto{\sim} \Fin[n]$ such that $\tau \circ S = S \circ \psi$.
@@ -414,9 +434,10 @@ $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need some l
 
 \begin{proof}
     We can construct $\psi$ by $\psi(x) = \tau(S(x)) - 1$.
+    %
     Since $\tau$ maps only 0 to 0 by assumption, $\forall x. \, \tau(S(x)) > 0$, therefore
-    the $(- 1)$ is well defined. This can be thought of as a special case $k = 0$ of the punch-in and punch-out
-    equivalence used to construct Lehmer codes in~\cite{choudhurySymmetriesReversibleProgramming2022}.
+    the $(- 1)$ is well defined. This is the special case for $k = 0$ in the punch-in and punch-out
+    equivalence for Lehmer codes in~\cite{choudhurySymmetriesReversibleProgramming2022}.
 
     \begin{figure}[H]
         \centering
@@ -436,7 +457,6 @@ $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need some l
     \end{figure}
 \end{proof}
 
-
 We now prove our main theorem.
 
 \begin{theorem}[Permutation invariance]\label{bag:perm-sat}
@@ -450,10 +470,10 @@ We now prove our main theorem.
         \item On $n = S(m)$,
               \begin{align*}
                    & \ext{f}(S(m), i \circ \phi)                                                                       \\
-                   & = \ext{f}(S(m), i \circ \tau)                          & \text{by~\cref{bag:tau}}                  \\
+                   & = \ext{f}(S(m), i \circ \tau)                          & \text{by~\cref{bag:tau}}                 \\
                    & = f(i(\tau(0))) \mult \ext{f}(m, i \circ \tau \circ S) & \text{by definition of $\ext{(\blank)}$} \\
                    & = f(i(0)) \mult \ext{f}(m, i \circ \tau \circ S)       & \text{by construction of $\tau$}         \\
-                   & = f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\cref{bag:punch}}                \\
+                   & = f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\cref{bag:punch}}               \\
                    & = f(i(0)) \mult \ext{f}(m, i \circ S)                  & \text{induction}                         \\
                    & = \ext{f}(S(m), i)                                     & \text{by definition of $\ext{(\blank)}$}
               \end{align*}

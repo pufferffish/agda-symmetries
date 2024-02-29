@@ -2,7 +2,7 @@
 
 \RequirePackage{xcolor-solarized}
 % cleveref setup
-\RequirePackage[nameinlink]{cleveref}
+\RequirePackage[nameinlink,capitalize,noabbrev]{cleveref}
 % lists
 \RequirePackage[inline]{enumitem}
 \RequirePackage{apxproof}
@@ -32,8 +32,9 @@
   }%
 }
 \makeatother
-\crefnames{part,chapter,section,subsection}{\S}{\S\S}
-\crefnames{paragraph}{\P}{\P\P}
+%% shorten cref names
+% \crefnames{part,chapter,section,subsection}{\S}{\S\S}
+% \crefnames{paragraph}{\P}{\P\P}
 
 % paragraphs
 \newcommand{\myparagraph}[1]{\noindent\textbf{#1.}}
