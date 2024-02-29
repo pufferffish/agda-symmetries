@@ -4,24 +4,30 @@
 In this section, we discuss some aspects of the formalization.
 The rest of the paper uses informal type theoretic language,
 and is accessible without understanding any details of the formalization.
-Our formalization is done in cubical Agda, which has a few differences and a few
+Our formalization is done in Cubical Agda, which has a few differences and a few
 shortcomings due to proof engineering issues.
-
-\vc{The formalization has a few differences from the paper and a few shortcomings due to proof engineering issues.}
-\vc{If this is too short, move to a subsection of~\cref{sec:discussion}}.
-\vc{Powerful abstractions lend themselves to elegant formalizations.}
-
-We note the axioms of sorting in the formalization is named differently,
+In our paper we also omitted type levels, in our formalization constructions
+all generalized to all type-levels. The free algebra framework, although is
+parameterized by any h-levels, currently only works with sets.
+We also note the axioms of sorting in the formalization is named differently,
 $\issorted$ is $\term{is-sorted}$
 $\isheadleast$ is $\term{is-head-least}$, and
 $\istailsort$ is $\term{is-tail-sort}$.
+We give a table of the Agda file names and their corresponding sections in the paper
+at~\cref{appendix:formalizations}.
 
-\begin{table}[h]
+\begin{toappendix}
+\begin{table}[h]\label{appendix:formalizations}
 \centering
 \begin{tabular}{lll}
 \hline
 \textbf{Code} & \textbf{Description} & \textbf{Reference}               \\ \hline
-\texttt{Cubical.Structures.Free}         & Free algebras            & (Section~\cref{sec:universal-algebra}) \\
+\texttt{index} & Index of all files & N/A \\
+\texttt{Cubical.Structures.Free}         & Free algebra            & (Section~\cref{sec:universal-algebra:free-algebras}) \\
+\texttt{Cubical.Structures.Sig}         & Algebra signature            & (Section~\cref{algebra:signature}) \\
+\texttt{Cubical.Structures.Str}         & Algebra structure            & (Section~\cref{algebra:struct}) \\
+\texttt{Cubical.Structures.Eq}         & Algebra equations            & (Section~\cref{sec:universal-algebra:equations}) \\
+\texttt{Cubical.Structures.Tree}         & Tree     & (Section~\cref{algebra:tree}) \\
 \texttt{Cubical.Structures.Set.Mon.List} & $\term{List}$  & (Section~\cref{mon:lists}) \\
 \texttt{Cubical.Structures.Set.Mon.Array} & $\term{Array}$  & (Section~\cref{mon:array})\\
 \texttt{Cubical.Structures.Set.CMon.QFreeMon} & Quotiented-free monoid & (Section~\cref{cmon:qfreemon}) \\
@@ -34,5 +40,4 @@ $\istailsort$ is $\term{is-tail-sort}$.
 \caption{Status of formalised results}
 \label{tab:formalised_results}
 \end{table}
-
-
+\end{toappendix}

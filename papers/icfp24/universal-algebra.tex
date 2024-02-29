@@ -20,7 +20,7 @@ We keep a running example of monoids in mind, while explaining and defining the 
 \subsection{Algebras}
 \label{sec:universal-algebra:algebras}
 
-\begin{definition}[Signature]
+\begin{definition}[Signature]\label{algebra:signature}
     \label{def:signature}
     A signature, denoted $\sig$, is a (dependent) pair consisting of:
     \begin{itemize}
@@ -73,7 +73,7 @@ Formally, these two pieces of data are an algebra for the $\Sig$ functor.
 %
 We write $\str{X}$ for a $\sig$-structure with carrier set $X$, following the model-theoretic notational convention.
 
-\begin{definition}[Structure]
+\begin{definition}[Structure]\label{algebra:struct}
     A $\sig$-structure $\str{X}$ is an $\Sig$-algebra, that is, a pair consisting of:
     \begin{itemize}
         \item a carrier set $X$, and
@@ -251,7 +251,7 @@ In type theory, \emph{free} constructions are often given by inductive types,
 where the constructors are the pieces of data that freely generate the structure,
 and the type-theoretic induction principle enforces the category-theoretic universal property.
 
-\begin{definition}[Construction of Free Algebras]
+\begin{definition}[Construction of Free Algebras]\label{algebra:tree}
     \label{def:free-algebra-construction}
     The free $\sig$-algebra on a type $X$ is given by the inductive type:
     % \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
