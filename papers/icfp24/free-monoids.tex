@@ -11,7 +11,7 @@ By showing that these constructions satisfy the universal property of free monoi
 (fold) operation.
 %
 Using fold allows us to structure our programs in an elegant way, and also exploit the properties of homomorphisms,
-which is used in~\ref{sec:combinatorics}.
+which is used in~\cref{sec:combinatorics}.
 
 \subsection{Lists}
 \label{mon:lists}
@@ -346,7 +346,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     We can do so by induction on $xs$.
 
     Case $(0, g)$:
-    We have $g = \lambda\{\}$ by~\ref{array:zero-is-id}.
+    We have $g = \lambda\{\}$ by~\cref{array:zero-is-id}.
     $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(ys)$ by left unit,
     and $\ext{f}(0, \lambda\{\}) \mult \ext{f}(ys) = e \mult \ext{f}(ys) = \ext{f}(ys)$
     by definition of $\ext{(\blank)}$. Therefore,
@@ -358,7 +358,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
          & = \ext{f}(S(n + m), g \oplus h)                                 & \text{by definition of concatenation}            \\
          & = f((g \oplus h)(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S) & \text{by definition of $\ext{(\blank)}$}         \\
          & = f(g(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S)            & \text{by definition of $\oplus$, and $0 < S(n)$} \\
-         & = f(g(0)) \mult \ext{f}((n, g \comp S) \doubleplus (m, h))      & \text{by~\ref{array:split}}                      \\
+         & = f(g(0)) \mult \ext{f}((n, g \comp S) \doubleplus (m, h))      & \text{by~\cref{array:split}}                      \\
          & = f(g(0)) \mult (\ext{f}(n, g \comp S) \mult \ext{f}(m, h)))    & \text{by induction}                              \\
          & = (f(g(0)) \mult \ext{f}(n, g \comp S)) \mult \ext{f}(m, h))    & \text{by associativity}                          \\
          & = \ext{f}(S(n), g) \mult \ext{f}(m, h))                         & \text{by definition of $\ext{(\blank)}$}         \\
@@ -376,7 +376,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
     To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \Array(A) \to \mathfrak{X}$,
     we need to show $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$.
-    Lemma \ref{array:eta-suc} and \ref{array:split} allow us to perform induction on arrays,
+    Lemma \cref{array:eta-suc} and \cref{array:split} allow us to perform induction on arrays,
     therefore we can prove $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$ by induction on $xs$,
     very similarly to how this was proved for $\List$.
 \end{proofsketch}
@@ -393,7 +393,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     We can do so by induction on $xs$.
 
     Case $(0, g)$:
-    By~\ref{array:zero-is-id} we have $g = \lambda\{\}$.
+    By~\cref{array:zero-is-id} we have $g = \lambda\{\}$.
     $\ext{(f \comp \eta_A)}(0, \lambda\{\}) = e$ by definition of the $\ext{(\blank)}$ operation,
     and $f(0, \lambda\{\}) = e$ by homomorphism properties of $f$.
     Therefore, $\ext{(f \comp \eta_A)}(0, g) = f(0, g)$.
@@ -401,7 +401,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     Case $(S(n), g)$, we prove it in reverse:
     \begin{align*}
          & f(S(n), g)                                                                                                     \\
-         & = f(\eta_A(g(0)) \doubleplus (n, g \comp S))                        & \text{by~\ref{array:eta-suc}}            \\
+         & = f(\eta_A(g(0)) \doubleplus (n, g \comp S))                        & \text{by~\cref{array:eta-suc}}            \\
          & = f(\eta_A(g(0))) \mult f(n, g \comp S)                             & \text{by homomorphism properties of $f$} \\
          & = (f \comp \eta_A)(g(0)) \mult \ext{(f \comp \eta_A)}(n, g \comp S) & \text{by induction}                      \\
          & = \ext{(f \comp \eta_A)}(S(n), g)                                   & \text{by definition of $\ext{(\blank)}$}

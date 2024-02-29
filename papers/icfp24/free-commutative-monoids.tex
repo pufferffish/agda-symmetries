@@ -143,8 +143,8 @@ PList A = List A / Perm
     \end{code}
 \end{definition}
 
-We have already given a proof of $\List$ being the free monoid in~\ref{mon:lists}.
-By~\ref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
+We have already given a proof of $\List$ being the free monoid in~\cref{mon:lists}.
+By~\cref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
 to show $\PList$ is the free commutative monoid.
 
 It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
@@ -190,7 +190,7 @@ Also, whenever we define a function on $\PList$ by pattern matching we would als
 the function respects $\Perm$, i.e. $\Perm as\,bs \to f(as) = f(bs)$. This can be annoying because
 of the many auxiliary variables in the constructor $\term{perm-swap}$, namely $xs$, $ys$, $zs$.
 We need to show $f$ would respect a swap in the list anywhere between $xs$ and $ys$, which can
-unnecessarily complicate the proof. For example in the inductive step of~\ref{plist:sharp-sat},
+unnecessarily complicate the proof. For example in the inductive step of~\cref{plist:sharp-sat},
 $\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\doubleplus\,x :: y :: ys)$,
 to actually prove this in Cubical Agda would involve first applying associativity to prove
 $(z :: zs)\,\doubleplus\,x :: y :: ys = z :: (zs\,\doubleplus\,x :: y :: ys)$, before we can actually
@@ -248,7 +248,7 @@ satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ sati
 \end{theorem}
 
 \begin{proof}
-    By induction on $xs$ we can iteratively apply~\ref{slist:cons} to move all elements of $xs$
+    By induction on $xs$ we can iteratively apply~\cref{slist:cons} to move all elements of $xs$
     to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
     $xs \doubleplus ys = ys \doubleplus xs$.
 \end{proof}
@@ -257,7 +257,7 @@ satisfying commutative monoidal laws. We explain the proof of $\doubleplus$ sati
 Much like $\PList$ and $\List$, $\SList$ is inductively defined, therefore making it very intuitive to reason
 with when defining inductive operations or inductive proofs on $\SList$, however difficult to reason with
 when defining operations that involve arbitrary partitioning, for reasons similar to those given
-in~\ref{plist:rep}.
+in~\cref{plist:rep}.
 
 Unlike $\PList$ which is defined as a set quotient, this is defined as a HIT, therefore handling equalities
 between $\SList$ is much simpler than $\PList$. We would still need to prove a function $f$ respects
@@ -292,8 +292,8 @@ Bag A = Array A / _$\approx$_
 Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$. Conceptually,
 we are quotienting array by a permutation or an automorphism on the index.
 
-We have already given a proof of $\Array$ being the free monoid in~\ref{mon:array}.
-By~\ref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relation
+We have already given a proof of $\Array$ being the free monoid in~\cref{mon:array}.
+By~\cref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relation
 to show $\Bag$ is the free commutative monoid.
 
 \begin{proposition}
@@ -450,10 +450,10 @@ We now prove our main theorem.
         \item On $n = S(m)$,
               \begin{align*}
                    & \ext{f}(S(m), i \circ \phi)                                                                       \\
-                   & = \ext{f}(S(m), i \circ \tau)                          & \text{by~\ref{bag:tau}}                  \\
+                   & = \ext{f}(S(m), i \circ \tau)                          & \text{by~\cref{bag:tau}}                  \\
                    & = f(i(\tau(0))) \mult \ext{f}(m, i \circ \tau \circ S) & \text{by definition of $\ext{(\blank)}$} \\
                    & = f(i(0)) \mult \ext{f}(m, i \circ \tau \circ S)       & \text{by construction of $\tau$}         \\
-                   & = f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\ref{bag:punch}}                \\
+                   & = f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\cref{bag:punch}}                \\
                    & = f(i(0)) \mult \ext{f}(m, i \circ S)                  & \text{induction}                         \\
                    & = \ext{f}(S(m), i)                                     & \text{by definition of $\ext{(\blank)}$}
               \end{align*}
@@ -463,13 +463,13 @@ We now prove our main theorem.
 \subsubsection{Representation}\label{bag:rep}
 Unlike $\PList$ and $\SList$, $\Bag$ and its underlying construction $\Array$ are not inductively defined,
 making it difficult to work with when trying to do induction on them. For example,
-in the proof~\ref{array:univ}, two lemmas~\ref{array:eta-suc} and~\ref{array:split} are needed to do
+in the proof~\cref{array:univ}, two lemmas~\cref{array:eta-suc} and~\cref{array:split} are needed to do
 induction on $\Array$, as opposed to $\List$ and its quotients, where we can do induction simply by
 pattern matching. Much like $\PList$, when defining functions on $\Bag$, we need to show they respect
 $\approx$, i.e. $as \approx bs \to f(as) = f(bs)$. This is notably much more difficult than
 $\PList$ and $\SList$, because whereas with $\PList$ and $\SList$ we only need to consider "small permutations"
 (i.e. swapping adjacent elements), with $\Bag$ we need to consider all possible permutations. For example,
-in the proof of~\ref{bag:perm-sat}, we need to first construct a $\tau$ which satisfies $\tau(0) = 0$ and prove
+in the proof of~\cref{bag:perm-sat}, we need to first construct a $\tau$ which satisfies $\tau(0) = 0$ and prove
 $\ext{f}(n, i \comp \sigma) = \ext{f}(n, i \comp \tau)$ before we can apply induction.
 
 Also, on a more technical note, since $\Array$ and $\Bag$ are not simple data types, the definition of
@@ -483,7 +483,7 @@ process that tests if the user possesses the virtue of patience.
 However, performing arbitrary partitioning with $\Array$ and $\Bag$ is much easier than
 $\List$, $\SList$, $\PList$. For example,
 one can simply use the combinator $\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]$ to partition the array,
-then perform operations on the partitions such as swapping in~\ref{bag:comm},
-or perform operations on the partitions individually such as two individual permutation in~\ref{bag:cong}.
+then perform operations on the partitions such as swapping in~\cref{bag:comm},
+or perform operations on the partitions individually such as two individual permutation in~\cref{bag:cong}.
 This makes it such that when defining divide-and-conquer algorithms such as merge sort,
 $\Bag$ and $\Array$ are more natural to work with than $\List$, $\SList$, and $\PList$.
