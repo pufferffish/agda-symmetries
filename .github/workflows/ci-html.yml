@@ -2,6 +2,7 @@
 
 name: HTML deploy
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -61,6 +62,9 @@ jobs:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}
           cabal-update: true
+
+      - name: Install zip
+        run: sudo apt-get install -y zip curl
 
       # This caching step allows us to save a lot of building time by only
       # rebuilding Agda, and re-checking unchanged library files if
@@ -134,13 +138,13 @@ jobs:
         run: |
           cd symmetries
           agda --html --html-dir=html index.agda
+          cd html
+          zip /tmp/html.zip -r .
 
-      - name: Deploy to netlify
-        uses: netlify/actions/cli@master
+      - name: Deploy to website
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        with:
-          args: deploy --dir=symmetries/html --prod
-          secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]'
+          ARCHIVE_KEY: ${{ secrets.ARCHIVE_KEY }}
+        run: |
+          curl --fail --request POST -H "X-File-Auth: $ARCHIVE_KEY" --data-binary "@/tmp/html.zip" https://windtfw.com/api/upload
+
 
