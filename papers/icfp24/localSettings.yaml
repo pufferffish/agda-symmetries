@@ -9,3 +9,6 @@ verbatimEnvironments:
     code: 1
     lcode: 1
     mpcode: 1
+
+indentAfterItems:
+    myitemize: 1

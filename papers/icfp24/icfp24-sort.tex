@@ -14,7 +14,7 @@
 \acmYear{2024}
 % \acmDOI{XXXXXXX.XXXXXXX}
 
-%% These commands are for a PROCEEDINGS abstract or paper.
+%% These commands are for a PROCEEDINGS abstract or papier.
 \acmConference[ICFP'24]{International Conference on Functional Programming}{Sep 2--7, 2024}{Milan, Italy}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
@@ -53,7 +53,7 @@
   backend=biber,
   ]{biblatex}
 
-\addbibresource{sort.bib}
+\addbibresource{../symmetries.bib}
 
 %%
 %% The majority of ACM publications use numbered citations and
@@ -79,6 +79,10 @@
 \usepackage{afterpage}
 %\usepackage[section,above]{placeins}
 
+%% tikz
+\usepackage{tikz}
+\usepackage{xifthen}
+
 %% math
 \let\Bbbk\relax
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
@@ -88,6 +92,16 @@
 \usepackage{stmaryrd}
 \usepackage{quiver}
 \usepackage{ebproof}
+\usepackage{listings}
+
+\lstset{%
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  keepspaces=true,
+  mathescape=true,      % Allow escaping to LaTeX math mode within $$
+  escapechar=\%,        % Set the escape character (e.g., % for LaTeX commands)
+}
+
 
 %% typesetting
 %% fancy quotation
@@ -117,7 +131,21 @@
 %% microtypography
 \usepackage{microtype}
 
+%% space saving magic macro
+\usepackage[
+  all=normal,
+  paragraphs,
+  floats,
+  wordspacing,
+  charwidths,
+  mathdisplays,
+  indent,
+]{savetrees}
+
 %% custom macros
+\usepackage{hott}
+\usepackage{math}
+\usepackage{code}
 \usepackage{macros}
 
 %%
@@ -127,9 +155,9 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Sorting correctly with Universal Algebra}
-\subtitle{Last updated on \DTMnow}
-
+\title{Symmetries and Sorting}
+\subtitle{symmetry kills order, sorting resurrects order}
+%\subtitle{The order is dead. Long live the order!}
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
@@ -211,7 +239,7 @@
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{category theory, type theory, semantics}
+\keywords{universal algebra, category theory, type theory, formalization}
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document, and typically spans the
 %% page.
@@ -224,8 +252,17 @@
 \begin{acks}
 \end{acks}
 
-\input{introduction}
-\input{discussion}
+\input{introduction} %% 2.5 pages
+\input{type-theory} %% 1 page
+\input{universal-algebra} %% 3 pages
+\input{free-monoids} %% 2 pages
+\input{free-commutative-monoids} %% 4 pages
+\input{combinatorics} %% 2 pages
+\input{sorting} %% 3 pages
+\input{formalization} %% 1 page
+\input{discussion} %% 2 pages
+
+%% total: 20.5 pages
 
 \renewcommand{\appendixsectionformat}[2]{
   {Supplementary material for Section~#1 (#2)}

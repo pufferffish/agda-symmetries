@@ -1,14 +1,5 @@
 \ProvidesPackage{hott}
 
-\RequirePackage{xparse}
-\RequirePackage{etoolbox}
-\RequirePackage{mathtools}
-\RequirePackage{relsize}
-\RequirePackage{amsmath}
-\RequirePackage{extarrows}
-\RequirePackage{perfectcut}
-\let\ps\perfectparens%
-
 % meta
 \newcommand{\defeq}{\mathrel{\vcentcolon\equiv}}
 \newcommand{\jdgeq}{\mathrel{\equiv}}
@@ -24,6 +15,9 @@
 \NewDocumentCommand{\Fin}{O{}}{
   \type{Fin{\ifstrempty{#1}{}{_{#1}}}}
 }
+
+% field accessors
+\DeclareMathSymbol{\fdot}{\mathord}{symbols}{"01}
 
 % universes
 \newcommand{\UU}{\mathcal{U}}
@@ -42,6 +36,7 @@
 
 % unit type
 \newcommand{\unit}{{\mathbf{1}}}
+\newcommand{\unitt}{\unit}
 \newcommand{\ttt}{\star}
 
 % empty type
@@ -131,9 +126,8 @@
 % dependent sum
 \NewDocumentCommand{\dsum}{smm}{
   \IfBooleanTF{#1}
-  {\sum_{({#2})}{#3}}
-  {({#2}) \times ({#3})}
-  % {\sum\limits_{\mathsmaller{#2}}{#3}}
+  {\displaystyle\sum\limits_{\mathsmaller{#2}}{#3}}
+  {\textstyle\sum_{({#2})}{#3}}
 }
 \newcommand{\pair}[1]{\ps{#1}}
 \newcommand{\fst}{\pi_1}
