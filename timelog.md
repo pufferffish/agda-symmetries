@@ -281,5 +281,41 @@ Meeting with Dr. Simon Gay to catch up on progress and also get some advice on t
 * 18/2/2024 [30 minutes]
 Move HTML rendering of the code from GitHub Pages to Netlify 
 
-* 19/2/2024 [30 minutes]
-Fix CI where Everything.agda is not generated 
+* 19/2/2024 [3 hours]
+Fix CI where Everything.agda is not generated and meeting with Dr. Vikraman Choudhury to discuss the ICFP paper
+
+* 20/2/2024 [2 hours]
+Begin work on the ICFP paper and some cleanup on the HoTT/UF abstract
+
+* 21/2/2024 [4 hours]
+Meeting with Dr. Simon Gay to discuss the ICFP paper and also work on the paper, work out the rough outline
+
+* 22/2/2024 [1 hours]
+Work on the ICFP paper introduction
+
+* 23/2/2024 [2 hours]
+Meeting with Dr. Vikraman Choudhury to work on the ICFP paper, organize the latex files and assign work
+
+* 24/2/2024 [5 hours]
+Work on the free monoid section
+
+* 25/2/2024 [4 hours]
+More work on the free monoid section, begin the free commutative monoid section
+
+* 26/2/2024 [7 hours]
+Meeting with Dr. Vikraman Choudhury to work on the ICFP paper, clean up the free monoid and free commutative monoid sections, begin work on the combinatoric section
+
+* 27/2/2024 [9 hours]
+Meeting with Dr.Simon Gay and Dr. Vikraman Choudhury to discuss the ICFP paper, start writing the sorting section
+
+* 28/2/2024 [7 hours]
+Meeting with Dr.Simon Gay to discuss the ICFP paper, wrote a better introduction and some work on the sorting section
+
+* 29/2/2024 [4 hours]
+Meeting with Dr. Vikraman Choudhury to work on the ICFP paper and submit it
+
+* 1/3/2024 [30 minutes]
+Fix some slight mistakes on the paper
+
+* 2/3/2024 [30 minutes]
+Migrate the HTML rendering of the code from netlify
