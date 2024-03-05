@@ -169,7 +169,7 @@ corresponding to the colors of the Dutch flag: red, white, and blue.
   }
   \}
 \]
-Given an unordered list of such balls, how many ways can you sort them into the Dutch flag?
+  Given an \alert{unordered list} of such balls, how many ways can you \alert{sort} them into the Dutch flag?
 \[
   \{
       \tikz[anchor=base, baseline]{%
@@ -180,8 +180,8 @@ Given an unordered list of such balls, how many ways can you sort them into the 
       }
     \}
 \]
-Obviously there is only one way, which is given by the order
-$\term{red} < \term{white} < \term{blue}$.
+  Obviously there is \alert{only one} way, which is given by the order
+  \alert{$\term{red} < \term{white} < \term{blue}$}.
 \[
   [
       \tikz[anchor=base, baseline]{%
@@ -202,7 +202,7 @@ $\term{red} < \term{white} < \term{blue}$.
 We might ask: how many ways can we sort our bag of balls?
 
 We know that there are only $3! = 6$ permutations of
-$\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define.
+  $\{\term{red}, \term{white}, \term{blue}\}$, so there are only \alert{6 possible orderings} we can define.
   \footnote{I have no allegiance to any of the countries presented by the flags, hypothetical or otherwise -- this is purely combinatorics!}
 \vspace{0.5em}
 \begin{center}
@@ -215,6 +215,10 @@ $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderi
     \end{tikzpicture}
     }
 \end{center}
+
+  We claim because there are \alert{exactly 6 orderings},
+  we can only define \alert{6 \textit{correct} sorting functions}.
+
 \vspace{0.5em}
 
 \end{frame}
@@ -225,12 +229,12 @@ $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderi
 More formally,
   \begin{itemize}
     \item Let $A = \{\term{red}, \term{white}, \term{blue}\}$
-    \item Let $\setord(A)$ be the set of orderings on $A$
-    \item Let $\setmtol(A)$  be the set of functions $\term{UnorderedList}(A) \to \List(A)$
+    \item Let $\setord(A)$ be the \alert{set of orderings} on $A$
+    \item Let $\setmtol(A)$  be the \alert{set of functions} $\term{UnorderedList}(A) \to \List(A)$
   \end{itemize}
 
 There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
-some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
+  some \alert{subset} $\setsort(A) \subset \setmtol(A)$ which we call \alert{"sort functions"}:
 }
 
 \begin{center}
@@ -273,29 +277,132 @@ some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
 
   But\dots
 
-  We want to show that there are exactly 6 sorting functions because
-  there are exactly 6 orderings.
+  We want to show that there are \alert{exactly 6 sorting functions} because
+  there are \alert{exactly 6 orderings}.
 
-  $\otof(r)$ should be an isomorphism from $\setord(A)$ to $\setsort(A)$.
+  $\otof(r)$ should be an \alert{isomorphism} from $\setord(A)$ to $\setsort(A)$.
 
-  What is the inverse of $\otof(r)$?
+  What is the \alert{inverse} of $\otof(r)$?
 }
 
 \end{frame}
 
-\begin{frame}{Introduction}
-    Thank you!
+\begin{frame}{Plan}
+  To study this we need to execute the following plan:
+  \vspace{2em}
+
+  \only<1>{
+    1. Formalize what \alert{$\term{UnorderedList}(A)$} and \alert{$\List(A)$} are.
+      \begin{itemize}
+        \item  Create a \alert{universal algebra framework} which let us
+          formalize the notion of \alert{free algebras}.
+        \item $\term{UnorderedList}(A)$ is the \alert{free commutative monoid} on $A$.
+        \item $\term{List}(A)$ is the \alert{free monoid} on $A$.
+        \item Give new proofs of \alert{universal property} of existing constructions.
+      \end{itemize}  
+  }
+  \only<2>{
+    2. Nail down what the \alert{subset $\Sort(A)$} is.
+      \begin{itemize}
+        \item How does $f \in \Sort(A) \subset \setmtol(A)$ \alert{differ} from other $g \in \setmtol(A)$?
+        \item In other words, what does $f$ satisfy that $g$ doesn't?
+        \item Identify \alert{two axioms} for sorting which do not assume a pre-existing total order.
+      \end{itemize}  
+  }
+  \only<3>{
+    3. Construct a \alert{full equivalence} $\Sort(A) \simeq \Ord(A)$.
+      \begin{itemize}
+        \item Construct the \alert{inverse} of $\otof(r)$ from our axioms.
+        \item Prove it is indeed an inverse.
+        \item Then we can show our \alert{two axioms} correctly identify sorting functions!
+      \end{itemize}  
+  }
+\end{frame}
+
+\begin{frame}{Plan}
+  All these are done in \alert{Cubical Agda}!
+
+  Why Cubical Type Theory?
+
+  \begin{itemize}
+  \item Function extensionality: $\forall x. \, f(x) = g(x) \rightarrow f = g$)
+  \item Quotient types: $Q = A / R$ (via \alert{higher inductive types})
+  \item Homotopy types: contractible types, propositions, sets, groupoids, 2-groupoids, \ldots
+  \item Richer notion of \alert{equality types} (or Identity types or Path types)
+  \item and many more \ldots
+  \end{itemize}
+
+  \alert{Cubical Type Theory} gives us the full power of \alert{Homotopy Type Theory},
+  while also preserving \alert{computational content} of the proofs!
+
+\end{frame}
+
+\begin{frame}{Dissertation}
+  The dissertation will be split into 3 parts:
+
+  \begin{itemize}
+    \item Background information: HoTT and universal algebra
+    \item Constructions of free monoids and free commutative monoids
+    \item Sorting and order
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Dissertation}
+  Background information:
+
+  HoTT:
+  \begin{itemize}
+    \item Basic overview of HoTT concepts for dependent type programmers
+    \item Some elaboration on the difference between HoTT and Cubical
+    \item Some example on how to program in Cubcal Agda, e.g. \alert{higher inductive types}
+  \end{itemize}
+
+  Universal algebra:
+  \begin{itemize}
+    \item Basic overview of definitions of universal algebra
+    \item Concretely explain what a \alert{free algebra} is (e.g. free monoid)
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Dissertation}
+  Constructions of free algebras
+
+  \begin{itemize}
+    \item Survey existing constructions of \alert{free monoids} and \alert{free commutative monoids}
+    \item Implement them within our framework
+    \item Give new proofs to show they satisfy the \alert{universal property}
+    \item Explain how \alert{commutativity} enforce \alert{"unorderness"}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Dissertation}
+  Sorting and order
+
+  \begin{itemize}
+    \item Formalize sorting in terms of \alert{free monoids} and \alert{free commutative monoids}
+    \item Show where the \alert{two axioms} of sorting come from
+    \item Show how to construct an order from a sorting function
+    \item Construct a \alert{full equivalence} from sorting functions to total orders
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Conclusion}
+  My dissertation contributes:
+  \begin{itemize}
+    \item A \alert{new framework} for universal algebra in Cubical Agda
+    \item \alert{New proofs} of universal property for existing constructions of free monoids and
+          free commutative monoids
+        \item A \alert{new axiomatisation} of sorting functions
+        \item \alert{Formal notion} to the idea of "unordered lists"
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[standout]
     Thank you!
-\end{frame}
-
-% \nocite{*}
-
-\begin{frame}[allowframebreaks]
-    \frametitle{References}
-    \printbibliography[heading=none]
 \end{frame}
 
 \end{document}
