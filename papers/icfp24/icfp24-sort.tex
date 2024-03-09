@@ -2,7 +2,7 @@
 \ifcurrfilename{arxiv-sort.tex}%
 {\documentclass[acmsmall,nonacm,natbib=false]{acmart}}
 {\documentclass[acmsmall,anonymous,screen,review,natbib=false]{acmart}}
-\settopmatter{printfolios=false,printccs=false,printacmref=false}
+\settopmatter{printfolios=true,printccs=false,printacmref=false}
 
 %% Rights management information.  This information is sent to you
 %% when you complete the rights form.  These commands have SAMPLE
@@ -132,15 +132,15 @@
 \usepackage{microtype}
 
 %% space saving magic macro
-\usepackage[
-  all=normal,
-  paragraphs,
-  floats,
-  wordspacing,
-  charwidths,
-  mathdisplays,
-  indent,
-]{savetrees}
+% \usepackage[
+%   all=normal,
+%   paragraphs,
+%   floats,
+%   wordspacing,
+%   charwidths,
+%   mathdisplays,
+%   indent,
+% ]{savetrees}
 
 %% custom macros
 \usepackage{hott}
@@ -164,16 +164,46 @@
 %% Of note is the shared affiliation of the first two authors, and the
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
-\author{Anonymous}
-\orcid{0000-0000-0000-0000}
+\author{Wind Wong}
+% \orcid{0000-0000-0000-0000}
 \affiliation{
-  \department{Department of Ordinateur Science}
-  \institution{University of Algebra}
-  \city{ALgebra City}
-  \postcode{10000}
-  \country{USA}
+  \department{Department of Computer Science}
+  \institution{University of Glasgow}
+  \city{Glasgow}
+  \postcode{G12 8QQ}
+  \country{UK}
 }
-\email{a@a.edu}
+\email{me@windtfw.com}
+
+\author{Vikraman Choudhury}
+\orcid{0000-0003-2030-8056}
+\email{vikraman.choudhury@unibo.it}
+\affiliation{
+  \department{Dipartimento di Informatica -- Scienza e Ingegneria}
+  \institution{Universit\`{a} di Bologna}
+  \city{Bologna}
+  \postcode{40126}
+  \country{Italy}
+}
+\affiliation{
+  \department{OLAS Team}
+  \institution{INRIA}
+  \city{Sophia-Antipolis}
+  \country{France}
+}
+\authornote{Supported by EU Marie Sk\l{}odowska-Curie fellowship 101106046 ReGraDe-CS.}
+
+\author{Simon J. Gay}
+\orcid{0000-0003-3033-9091}
+\email{Simon.Gay@glasgow.ac.uk}
+\affiliation{
+  \department{Department of Computer Science}
+  \institution{University of Glasgow}
+  \city{Glasgow}
+  \postcode{G12 8QQ}
+  \country{UK}
+}
+\authornote{In a supervisory role.}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -181,7 +211,7 @@
 %% other information printed in the page headers. This command allows
 %% the author to define a more concise list
 %% of authors' names for this purpose.
-\renewcommand{\shortauthors}{Last updated on \DTMnow}
+% \renewcommand{\shortauthors}{Last updated on \DTMnow}
 
 %%
 %% The abstract is a short summary of the work to be presented in the
@@ -239,7 +269,7 @@
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{universal algebra, category theory, type theory, formalization}
+\keywords{universal algebra, category theory, type theory, homotopy type theory, combinatorics, formalization}
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document, and typically spans the
 %% page.
