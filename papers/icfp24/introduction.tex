@@ -15,7 +15,7 @@ corresponding to the colors of the Dutch flag: red, white, and blue.
   }
   \}
 \]
-Given a sequence of such balls, how many ways can you sort them into the Dutch flag?
+Given an unordered list of such balls, how many ways can you sort them into the Dutch flag?
 \[
   \{
       \tikz[anchor=base, baseline]{%
@@ -39,7 +39,7 @@ $\term{red} < \term{white} < \term{blue}$.
     ]
 \]
 What if we are avid enjoyers of vexillology who also want to consider other flags?
-We might ask: how many ways can we sort our sequence of balls?
+We might ask: how many ways can we sort our unordered list of balls?
 We know that there are only $3! = 6$ permutations of
 $\{\term{red}, \term{white}, \term{blue}\}$, so there are only 6 possible orderings we can define.
 In fact, there are exactly 6 such categories of tricolor flags (\href{https://en.wikipedia.org/wiki/List_of_flags_with_blue,_red,_and_white_stripes#Triband}{Wikipedia}).
@@ -62,7 +62,7 @@ functions.% (up to function extensionality).
 
 In more formal terms: let $A = \{\term{red}, \term{white}, \term{blue}\}$
 let $\setord(A)$ be the set of orderings on $A$ and let 
- $\setmtol(A)$  be the set of functions $\term{FiniteMultiset}(A) \to \List(A)$.
+ $\setmtol(A)$  be the set of functions $\term{UnorderedList}(A) \to \List(A)$.
 There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
 some subset $\setsort(A) \subset \setmtol(A)$ which we call "sort functions":
 
@@ -108,14 +108,15 @@ $\forall s \in \setsort(A).\, \otof(\otof^{-1}(s)) = s \land \forall r \in \seto
 
 To complete this proof formally we need to execute the following plan.
 \begin{enumerate}
-    \item We need to formalize exactly what $\term{FiniteMultiset}(A)$ and $\List(A)$ are.
-    We formalize them in terms of universal algebra: $\term{FiniteMultiset}(A)$ is 
+    \item We need to formalize exactly what $\term{UnorderedList}(A)$ and $\List(A)$ are.
+    We formalize them in terms of universal algebra: $\term{UnorderedList}(A)$ is 
     the free commutative monoid on $A$ and $\List(A)$ is the free monoid on $A$. We give
     different constructions of them in~\cref{sec:monoids} and ~\cref{sec:commutative-monoids},
     proving these constructions correct by verifying their universal properties.
     We also explore the relationship between commutativity and ordering in
     ~\cref{sec:commutative-monoids} and ~\cref{sec:head},
-    showing how imposing commutativity on a free monoid is same as "forgetting" the order.
+    showing how imposing commutativity on a free monoid is same as "forgetting" the order,
+    giving a formal notion to the idea of unordered list.
     \item We need to nail down exactly what the subset $\Sort(A)$ is. In other words, we need to
     identify what properties functions $f \in \Sort(A) \subset \setmtol(A)$ satisfy which separate
     them from other functions $g \in \setmtol(A)$. We identify two properties in~\cref{sec:sorting},
@@ -126,7 +127,7 @@ To complete this proof formally we need to execute the following plan.
     $\Sort(A) \simeq \Ord(A)$. Mapping orders to sorting functions is
     trivial by parameterizing insertion sort on an order relation. More interestingly we need to show how sorting functions
     can be mapped to orders, showing that the properties we have identified for $\Sort(A)$ indeed
-    correctly identify the usual notion of soring functions.
+    correctly identify the usual notion of sorting functions.
 \end{enumerate}
 
 The term "formalize" in the above plan means exactly that, and we therefore need to choose a proof system in which to work. Martin-L\"of Type Theory (MLTT) would not be convenient because of the large amount of work with set quotients and commutativity in our theory. These concepts do not behave well in MLTT and often can only be modelled via setoids. While setoids would suffice for
