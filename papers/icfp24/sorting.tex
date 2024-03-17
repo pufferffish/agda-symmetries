@@ -161,13 +161,8 @@ $\issorted(xs)$ would imply $xs$ is a sorted (or ordered) list.
     $x \preccurlyeq y$ \; iff \; $\issorted([x, y])$.
 \end{proposition}
 
-\begin{proposition}
-    If $A$ has a total order $\leq$, insertion sort $\MM(A) \to \LL(A)$ defined with $\leq$
-    satisfies $\isheadleast$.
-\end{proposition}
-
 \noindent
-We now introduce our first axiom of sorting:
+To prevent this class of counter-examples, we now introduce our first axiom of sorting:
 \begin{definition}\label{sort:head-least}
     A section $s$ to $q$ satisfies $\isheadleast$ iff:
     \[
@@ -181,6 +176,11 @@ $x$ is the smallest element of a sorted list $ys$, then for any element $y \in y
 $[x, y]$ should be also a sorted list.
 %
 This ensures that $s$ behaves correctly on 2-element lists.
+
+\begin{proposition}
+    If $A$ has a total order $\leq$, insertion sort $\MM(A) \to \LL(A)$ defined with $\leq$
+    satisfies $\isheadleast$.
+\end{proposition}
 
 \begin{proposition}
     Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
@@ -215,27 +215,11 @@ between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total order
 \end{proposition}
 
 \begin{proof}
-    Let $\term{sort} : \MM(A) \to \LL(A)$ be insertion sort defined on $A$ by $\leq$.
-    We define $\term{sort}$ to be our section $s$ which satisfy $\isheadleast$.
-    It is trivial to see $\issortedany_{\term{sort}}([x, y])$ iff $x \leq y$ by the definition
+    We define our section $s : \MM(A) \to \LL(A)$ satisfying $\isheadleast$ to be
+    insertion sort defined on $A$ by $\leq$.
+    It is trivial to see $\issortedany_{\term{s}}([x, y])$ iff $x \leq y$ by the definition
     of insertion sort. By~\cref{sort:sort-to-order} we can see $x \preccurlyeq y$ iff $x \leq y$.
     We now have a total order $x \preccurlyeq y$ equivalent to $x \leq y$.
-
-    To show $x \preccurlyeq y$ is also decidable, we need to show $A$ has decidable equality.
-    Since $\leq$ is decidable, we can use it to show $A$ has decidable equality as follow:
-    We decide if $x \leq y$ and $y \leq x$ and perform case splitting:
-    \begin{itemize}
-        \item
-              Case $x \leq y$ and $y \leq x$: by antisymmetry, $x = y$.
-        \item
-              Case $\neg(x \leq y)$ and $y \leq x$: if $x = y$, then $x \leq y$,
-              leading to contradiction by $\neg(x \leq y)$. Therefore $x \neq y$.
-        \item
-              Case $x \leq y$ and $\neg(y \leq x)$: Similar logic as above.
-        \item
-              Case $\neg(x \leq y)$ and $\neg(y \leq x)$: by totality we must have either
-              $x \leq y$ or $y \leq x$, therefore contradiction, this case would never occur.
-    \end{itemize}
 \end{proof}
 
 We now have one side of the isomorphism, and showed the set of decidable total order of $A$
@@ -309,8 +293,10 @@ $\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
 
 We can now prove the full equivalence:
 \begin{proposition}\label{sort:s2o2s}
-    Assume $A$ has decidable equality and given a section $s$ that satisfies $\isheadleast$ and $\istailsort$,
-    we can construct a section $t$ that also satisfies $\isheadleast$ and $\istailsort$, such that $s = t$.
+    Assume $A$ has a decidable total order $\leq$, then we can construct
+    a section $t_\leq$ that satisfies $\isheadleast$ and $\istailsort$,
+    such that if the order $\preccurlyeq$ is derived from such a section $s$,
+    $t_\preccurlyeq = s$.
 \end{proposition}
 \begin{proof}
     From $s$ we can construct a decidable total order $\preccurlyeq$ since $s$ satisfies
@@ -324,6 +310,27 @@ We can now prove the full equivalence:
     By $\isheadleast$ we have $x \preccurlyeq y$, and by $\istailsort$ we an
     inductively $\term{Sorted}_{\preccurlyeq}(y :: ys)$.
     Therefore, $s = t$.
+\end{proof}
+
+\begin{proposition}\label{sort:decord-to-deceq}
+    Assume $A$ has a decidable total order $\leq$,
+    then $A$ has decidable equality.
+\end{proposition}
+\begin{proof}
+    Since $\leq$ is decidable, we can use it to show $A$ has decidable equality as follow:
+    We decide if $x \leq y$ and $y \leq x$ and perform case splitting:
+    \begin{itemize}
+        \item
+              Case $x \leq y$ and $y \leq x$: by antisymmetry, $x = y$.
+        \item
+              Case $\neg(x \leq y)$ and $y \leq x$: if $x = y$, then $x \leq y$,
+              leading to contradiction by $\neg(x \leq y)$. Therefore $x \neq y$.
+        \item
+              Case $x \leq y$ and $\neg(y \leq x)$: Similar logic as above.
+        \item
+              Case $\neg(x \leq y)$ and $\neg(y \leq x)$: by totality we must have either
+              $x \leq y$ or $y \leq x$, therefore contradiction, this case would never occur.
+    \end{itemize}
 \end{proof}
 
 We can now state our main theorem: a well-behaved section $s : \MM(A) \to \LL(A)$ to
@@ -351,7 +358,7 @@ which axiomatizes a correct sorting algorithm.
 \end{theorem}
 \begin{proof}
     By~\cref{sort:o2s2o} we show a decidable total order on $A$ implies a sort function
-    on $A$ and that $A$ has decidable equality.
+    on $A$, and by~\cref{sort:decord-to-deceq} $A$ has decidable equality.
     By~\cref{sort:s2o2s} we show a sort function on $A$ assuming $A$ has decidable equality
     implies a decidable total order on $A$.
 \end{proof}
@@ -360,7 +367,7 @@ which axiomatizes a correct sorting algorithm.
 
 The sorting axioms we have come up with are abstract properties of functions.
 %
-As a sanity check, we can verify that the colluquial correctness specification of a sorting function (starting from a
+As a sanity check, we can verify that the colloquial correctness specification of a sorting function (starting from a
 total order) matches our axioms.
 %
 \begin{proposition}

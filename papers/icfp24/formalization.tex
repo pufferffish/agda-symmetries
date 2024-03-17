@@ -2,13 +2,15 @@
 \label{sec:formalization}
 
 In this section, we discuss some aspects of the formalization.
-The rest of the paper uses informal type theoretic language,
+The paper uses informal type theoretic language,
 and is accessible without understanding any details of the formalization.
-Our formalization is done in Cubical Agda, which has a few differences and a few
+However, the formalization is done in Cubical Agda, which has a few differences and a few
 shortcomings due to proof engineering issues.
-In our paper we also omitted type levels, in our formalization constructions
-all generalized to all type-levels. The free algebra framework, although is
-parameterized by any h-levels, currently only works with sets.
+
+For simplicity we omitted type levels in the paper, but our formalization constructions
+are generalized to all type-levels.
+The free algebra framework in the formalization is
+parameterized by any h-levels, but it currently only works with sets.
 We also note the axioms of sorting in the formalization is named differently,
 $\issorted$ is $\term{is-sorted}$
 $\isheadleast$ is $\term{is-head-least}$, and

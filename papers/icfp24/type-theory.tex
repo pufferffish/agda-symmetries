@@ -106,23 +106,16 @@ In practice, $\mathcal{U}$ would be indexed by a type level
 à la Russell for consistency, however we opted to omit the type level
 for simplicity and clarity.
 We use $\Fin[n]$ to denote finite sets of cardinality $n$ in HoTT~\cite{yorgeyCombinatorialSpeciesLabelled2014a}.
-This is defined as follow:
+This is defined as follows:
 \vspace{-1em}
 \begin{code}
 Fin : $\mathbb{N}$ -> UU
 Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
 \end{code}
 
-\noindent
-There are multiple ways to define $\Fin$, one example being an indexed inductive type,
-for example:
-\vspace{-1em}
-\begin{code}
-data Fin : $\mathbb{N}$ -> UU where
-    fzero : $\forall$ {n : $\mathbb{N}$} -> Fin (fsuc n)
-    fsuc  : $\forall$ {n : $\mathbb{N}$} -> Fin n -> Fin (fsuc n)
-\end{code}
-In our construction we opted to use this definition because cubical Agda does not behave well
+There are other ways to define $\Fin$, most notably as an indexed inductive type.
+In our construction we opted to use the $\Sigma$-type definition
+because cubical Agda does not behave well
 when pattern matching on indexed inductive types.
 
 We also use $\times$ to denote product types and $+$ to denote coproduct types.

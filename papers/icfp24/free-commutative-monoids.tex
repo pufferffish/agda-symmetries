@@ -1,7 +1,7 @@
 \section{Construction of Free Commutative Monoids}
 \label{sec:commutative-monoids}
 
-THe next step for us is to add commutativity -- extending our constructions of free monoids to free commutative monoids.
+The next step for us is to add commutativity -- extending our constructions of free monoids to free commutative monoids.
 %
 Informally, adding commutativity to free monoids turns ``ordered lists'' to ``unordered lists'',
 where the ordering is the one imposed by the position or index of the elements in the list.
@@ -45,10 +45,10 @@ This is exactly the specification of a \emph{permutation relation}!
 \begin{definition}[Permutation relation]
     \label{def:permutation-relation}
     \leavevmode
-    A relation $\approx$ is a correct permutation relation iff it:
+    A relation $\approx$ on free monoid is a correct permutation relation iff it:
     \begin{itemize}
         \item is reflexive, symmetric, transitive (an equivalence),
-        \item is a congruence wrt $\mult$: $a \mult b \to c \mult d \to a \mult c \approx b \mult d$,
+        \item is a congruence wrt $\mult$: $a \approx b \to c \approx d \to a \mult c \approx b \mult d$,
         \item is commutative: $a \mult b \approx b \mult a$, and
         \item respects $\ext{(\blank)}$: $\forall f, \, a \approx b \to \ext{f}(a) = \ext{f}(b)$.
     \end{itemize}
@@ -152,7 +152,8 @@ We can also prove $\Perm$ is congruent wrt to $\doubleplus$ inductively.
 Commutativity is proven similarly, like the proof for $\SList$ in~\cref{slist:comm}.
 
 \begin{proposition}\label{plist:sharp-sat}
-    For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \SList(A)$,
+    Let $X$ be the carrier set of a commutative monoid $\mathfrak{X}$.
+    For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \PList(A)$,
     $\ext{f}(xs\,\doubleplus\,x :: y :: ys) = \ext{f}(xs\,\doubleplus\,y :: x :: ys)$.
 \end{proposition}
 
@@ -221,7 +222,7 @@ data SList (A : UU) : UU where
 \vspace{1em}
 
 The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
-thereby ignoring any higher paths intrudoced by the $\term{swap}$ constructor.
+thereby ignoring any higher paths introduced by the $\term{swap}$ constructor.
 This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
 because it does not have any path constructors, therefore it can be proven that $\List(A)$
 is a set assuming $A$ is a set (see formalization).

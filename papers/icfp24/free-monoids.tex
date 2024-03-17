@@ -376,7 +376,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
     To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \Array(A) \to \mathfrak{X}$,
     we need to show $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$.
-    Lemma \cref{array:eta-suc} and \cref{array:split} allow us to perform induction on arrays,
+    \cref{array:eta-suc} and \cref{array:split} allow us to perform induction on arrays,
     therefore we can prove $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$ by induction on $xs$,
     very similarly to how this was proved for $\List$.
 \end{proofsketch}
