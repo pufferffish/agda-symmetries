@@ -117,7 +117,7 @@ First, we observe some properties of $\preccurlyeq$.
     $\preccurlyeq$ is decidable iff $A$ has decidable equality.
 \end{proposition}
 
-\begin{proposition}
+\begin{proposition}\label{sort:almost-total}
     $\preccurlyeq$ is reflexive, antisymmetric, and total.
 \end{proposition}
 \begin{proof}
@@ -182,7 +182,7 @@ This ensures that $s$ behaves correctly on 2-element lists.
     satisfies $\isheadleast$.
 \end{proposition}
 
-\begin{proposition}
+\begin{proposition}\label{sort:trans}
     Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
 \end{proposition}
 \begin{proof}
@@ -291,6 +291,20 @@ It is trivial to see how insertion sort by $\leq$ would always produce lists tha
 $\term{Sorted}_{\leq}$. Therefore, any functions that also always produce lists that satisfy
 $\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
 
+\begin{corollary}\label{sort:well-behave-sorts}
+    Given a section $s$ that satisfies $\isheadleast$ and $\istailsort$,
+    let $\preccurlyeq$ be the order derived from $s$,
+    $\forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$.
+\end{corollary}
+\begin{proof}
+    For lists of length 0 and 1 this is trivial. For further cases we need to prove by induction:
+    given a $xs : \MM(A)$ of length $\geq 2$, let $s(xs) = x :: y :: ys$. We need to show
+    $x \preccurlyeq y \land \term{Sorted}_{\preccurlyeq}(y :: ys)$ to construct
+    $\term{Sorted}_{\preccurlyeq}(x :: y :: ys)$.
+    By $\isheadleast$ we have $x \preccurlyeq y$, and by $\istailsort$ we can prove
+    inductively $\term{Sorted}_{\preccurlyeq}(y :: ys)$.
+\end{proof}
+
 We can now prove the full equivalence:
 \begin{proposition}\label{sort:s2o2s}
     Assume $A$ has a decidable total order $\leq$, then we can construct
@@ -301,15 +315,9 @@ We can now prove the full equivalence:
 \begin{proof}
     From $s$ we can construct a decidable total order $\preccurlyeq$ since $s$ satisfies
     $\isheadleast$ and $A$ has decidable equality by assumption.
-    We construct $t$ as insertion sort parameterized by $\preccurlyeq$ constructed from $s$.
-    By~\cref{sort:sort-uniq} it remains to show $\forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$.
-    For lists of length 0 and 1 this is trivial. For further cases we need to prove by induction:
-    given a $xs : \MM(A)$ of length $\geq 2$, let $s(xs) = x :: y :: ys$. We need to show
-    $x \preccurlyeq y \land \term{Sorted}_{\preccurlyeq}(y :: ys)$ to construct
-    $\term{Sorted}_{\preccurlyeq}(x :: y :: ys)$.
-    By $\isheadleast$ we have $x \preccurlyeq y$, and by $\istailsort$ we an
-    inductively $\term{Sorted}_{\preccurlyeq}(y :: ys)$.
-    Therefore, $s = t$.
+    We construct $t_\preccurlyeq$ as insertion sort
+    parameterized by $\preccurlyeq$ constructed from $s$.
+    By ~\cref{sort:sort-uniq} and ~\cref{sort:well-behave-sorts}, $s = t_\preccurlyeq$.
 \end{proof}
 
 \begin{proposition}\label{sort:decord-to-deceq}
@@ -357,10 +365,14 @@ which axiomatizes a correct sorting algorithm.
     is an equivalence.
 \end{theorem}
 \begin{proof}
-    By~\cref{sort:o2s2o} we show a decidable total order on $A$ implies a sort function
-    on $A$, and by~\cref{sort:decord-to-deceq} $A$ has decidable equality.
-    By~\cref{sort:s2o2s} we show a sort function on $A$ assuming $A$ has decidable equality
-    implies a decidable total order on $A$.
+    $o2s(\leq)$ can be constructed by parameterizing insertion sort with $\leq$.
+    By~\cref{sort:decord-to-deceq} we show that $A$ satisfy $\term{isDiscrete}$.
+    The inverse $s2o(s)$ can be constructed by~\cref{def:least}, which is proven to be
+    a total order by~\cref{sort:almost-total} and~\cref{sort:trans}, and decidable
+    since we assume $\term{isDiscrete}(A)$.
+
+    By~\cref{sort:o2s2o} we show that $s2o \comp o2s = id$, and by~\cref{sort:s2o2s}
+    we show that $o2s \comp s2o = id$, therefore we have a full equivalence.
 \end{proof}
 
 \subsubsection*{Remarks}
@@ -388,5 +400,7 @@ total order) matches our axioms.
         \end{tikzcd}\]
 \end{proposition}
 \begin{proofsketch}
-    Using our section, we set $\term{sort} = s \comp q$, and the rest follows by calculation.
+    Using our section $s$,
+    we have $p : \forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$ by~\cref{sort:well-behave-sorts}.
+    We set $\term{sort} = (s \comp q ,\,p \comp q)$, and the rest follows by calculation.
 \end{proofsketch}
