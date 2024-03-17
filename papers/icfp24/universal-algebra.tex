@@ -277,8 +277,8 @@ A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
 	2 \&\& 1 \&\& 1 \\
 	\&\&\& {+} \\
 	\&\& {+} \\
-	\&\& 4
-	\arrow[from=3-3, to=4-3]
+	\&\&
+	\arrow[no head, from=3-3, to=4-3]
 	\arrow[from=2-4, to=3-3]
 	\arrow[from=1-3, to=2-4]
 	\arrow[from=1-5, to=2-4]
@@ -290,8 +290,7 @@ A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
 \begin{tikzcd}[ampersand replacement=\&,cramped]
 	e \\
 	\\
-	0
-	\arrow[from=1-1, to=3-1]
+	\arrow[no head, from=1-1, to=3-1]
 \end{tikzcd}
 \end{center}
     % Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
@@ -312,31 +311,36 @@ The algebraic framework of universal algebra we have described so far only captu
 These algebras are \emph{lawless} (or \emph{wild} or \emph{absolutely free}) --
 saying the $\SigMon$-algebras are monoids, or $\str{F}_{\sigMon}$-algebras are free monoids is not justified.
 %
-For example, these two trees of $(\Nat, +)$ should be identified as equal, but they're not.
+For example, by associativity, these two trees of $(\Nat, +)$ should be identified as equal,
+but they're not.
 \begin{center}
-    \scalebox{0.7}{
-    % https://q.uiver.app/#q=WzAsNCxbMSwxLCIrIl0sWzAsMCwiMSJdLFsyLDAsIjIiXSxbMSwyLCIwIl0sWzEsMF0sWzIsMF0sWzAsM11d
+\scalebox{0.7}{
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
 \begin{tikzcd}[ampersand replacement=\&,cramped]
-	1 \&\& 2 \\
-	\& {+} \\
-	\& 0
-	\arrow[from=1-1, to=2-2]
-	\arrow[from=1-3, to=2-2]
-	\arrow[from=2-2, to=3-2]
+	2 \&\& 1 \&\& 1 \\
+	\&\&\& {+} \\
+	\&\& {+} \\
+	\&\&
+	\arrow[no head, from=3-3, to=4-3]
+	\arrow[from=2-4, to=3-3]
+	\arrow[from=1-3, to=2-4]
+	\arrow[from=1-5, to=2-4]
+	\arrow[from=1-1, to=3-3]
 \end{tikzcd}
-    }
 \hspace{2em}
-    \scalebox{0.7}{
-    % https://q.uiver.app/#q=WzAsNCxbMSwxLCIrIl0sWzAsMCwiMSJdLFsyLDAsIjIiXSxbMSwyLCIwIl0sWzEsMF0sWzIsMF0sWzAsM11d
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
 \begin{tikzcd}[ampersand replacement=\&,cramped]
-	2 \&\& 1 \\
+	2 \&\& 1 \&\& 1 \\
 	\& {+} \\
-	\& 0
+	\&\& {+} \\
+	\&\& {}
+	\arrow[no head, from=3-3, to=4-3]
+	\arrow[from=1-5, to=3-3]
 	\arrow[from=1-1, to=2-2]
 	\arrow[from=1-3, to=2-2]
-	\arrow[from=2-2, to=3-2]
+	\arrow[from=2-2, to=3-3]
 \end{tikzcd}
-    }
+}
 \end{center}
 %
 To impose equations on the operations, we adopt the point of view of equational logic.
@@ -374,7 +378,7 @@ Just like the signature functor~\cref{def:signature-functor}, this produces an e
         X \xto{f} Y        & \mapsto
         \dsum{e:\eqop}{X^{\ar(e)}}
         \xto{(e, \blank \comp f)}
-        \dsum{e:\op}{Y^{\ar(e)}}
+        \dsum{e:\eqop}{Y^{\ar(e)}}
     \end{align*}
 \end{definition}
 
@@ -405,12 +409,77 @@ the set of equation symbols $eq = \{\term{unitl}, \term{unitr}, \term{assocr}\}$
 and the arity function
 $fv : eq \rightarrow \mathcal{U} = \{\term{unitl} \mapsto \mathbf{1}, \term{unitr} \mapsto \mathbf{1}, \term{assocr} \mapsto \mathbf{3}\}$.
 
-To show $(\Nat,0,+) \entails \term{Mon}$:
-\begin{align*}
-\term{unitl}  & : \forall (\rho : \Nat^{\Fin[1]}). \, \rho(0) + 0 \id \rho(0) \\
-\term{unitr}  & : \forall (\rho : \Nat^{\Fin[1]}). \, 0 + \rho(0) \id \rho(0) \\
-\term{assocr} & : \forall (\rho : \Nat^{\Fin[3]}). \, (\rho(0) + \rho(1)) + \rho(2) \id \rho(0) + (\rho(1) + \rho(2))
-\end{align*} 
+Given $x : V$, $\eqleft_{V}(\term{unitl}, (x)),\,\eqright_{V}(\term{unitl}, (x))$
+are defined as:
+\begin{center}
+% https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	e \&\& x \\
+	\& \mult \\
+	\& {}
+	\arrow[from=1-1, to=2-2]
+	\arrow[from=1-3, to=2-2]
+	\arrow[no head, from=2-2, to=3-2]
+\end{tikzcd}
+\hspace{2em}
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	x \\
+	\\
+	\arrow[no head, from=1-1, to=3-1]
+\end{tikzcd}
+\end{center}
+
+Given $x : V$, $\eqleft_{V}(\term{unitr}, (x)),\,\eqright_{V}(\term{unitr}, (x))$
+are defined as:
+\begin{center}
+% https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	x \&\& e \\
+	\& \mult \\
+	\& {}
+	\arrow[from=1-1, to=2-2]
+	\arrow[from=1-3, to=2-2]
+	\arrow[no head, from=2-2, to=3-2]
+\end{tikzcd}
+\hspace{2em}
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	x \\
+	\\
+	\arrow[no head, from=1-1, to=3-1]
+\end{tikzcd}
+\end{center}
+
+Given $x, y, z : V$, $\eqleft_{V}(\term{assocr}, (x,y,z)),\,\eqright_{V}(\term{assocr}, (x,y,z))$
+are defined as:
+\begin{center}
+\scalebox{0.7}{
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	x \&\& y \&\& z \\
+	\&\&\& {\mult} \\
+	\&\& {\mult} \\
+	\&\&
+	\arrow[no head, from=3-3, to=4-3]
+	\arrow[from=2-4, to=3-3]
+	\arrow[from=1-3, to=2-4]
+	\arrow[from=1-5, to=2-4]
+	\arrow[from=1-1, to=3-3]
+\end{tikzcd}
+\hspace{2em}
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	x \&\& y \&\& z \\
+	\& {\mult} \\
+	\&\& {\mult} \\
+	\&\& {}
+	\arrow[no head, from=3-3, to=4-3]
+	\arrow[from=1-5, to=3-3]
+	\arrow[from=1-1, to=2-2]
+	\arrow[from=1-3, to=2-2]
+	\arrow[from=2-2, to=3-3]
+\end{tikzcd}
+}
+\end{center}
 \end{example}
 Finally, given a $\sig$-structure $\str{X}$,
 we can say that it \emph{satisfies} the system of equations $T_{(\sig,\eqsig)}$.

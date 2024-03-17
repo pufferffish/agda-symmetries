@@ -191,7 +191,9 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
 \begin{proofsketch}
     We can prove $(\Array(A), \doubleplus)$ satisfis the unit laws by showing
     $(\lambda\{\} \oplus f)(k) = (f \oplus \lambda\{\})(k) = f(k)$ for all $k : \Fin[n]$,
-    then proving that it is impossible for $k < 0$ and $k \geq n$. For associativity,
+    by proving that it is impossible for $k < 0$ and $k \geq n$, therefore
+    $(\lambda\{\} \oplus f)(k)$ and $(f \oplus \lambda\{\})(k)$ must reduce to $f(k)$.
+    For associativity,
     we need to show $((f \oplus g) \oplus h)(k) = (f \oplus (g \oplus h))(k)$ for all $k : \Fin[n+m+o]$.
     We show this by first case matching on $k < n+m$, then on $k < n$.
 \end{proofsketch}
