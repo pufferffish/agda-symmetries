@@ -235,7 +235,8 @@ By left adjoints preserve colimits, we have:
     \label{prop:free-algebra-colimits}
     \leavevmode
     \begin{itemize}
-        \item $\str{F}(\emptyt) \eqv \unitt$, is a zero object in $\sigAlg$,
+        \item $\sigAlg(\str{F}(\emptyt), \str{X}) \eqv \unitt$, 
+        \item there is a unique algebra map $\str{F}(\unitt) \to \unitt$,
         \item $\str{F}(X + Y)$ is the coproduct of $\str{F}(X)$ and $\str{F}(Y)$ in $\sigAlg$:
               \[
                   \sigAlg(\str{F}(X + Y), \str{Z}) \eqv
@@ -511,6 +512,11 @@ There is a full subcategory of $\sigAlg$ which is the variety of algebras satisf
 The construction of the free object in this variety requires non-constructive principles~\cite[Section 7, pg 142]{blassWordsFreeAlgebras1983},
 in particular, the arity sets need to be projective, so we do not give the general construction.
 %
-Of course, HITs are another way to write higher generators for equations~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.
+The non-constructive principles can be avoided if we limit ourselves to specific constructions
+where everything is finitary.
+%
+Of course, HoTT offers an alternative to non-constructive principles by allowing us
+write higher generators for equations with HITs
+~\cite{univalentfoundationsprogramHomotopyTypeTheory2013}.
 %
 We do not develop the framework further, and instead consider the specific cases of constructions of free monoids and free commutative monoids in the next sections.
