@@ -1,0 +1,66 @@
+\ProvidesPackage{code}
+
+\RequirePackage{xcolor-solarized}
+\RequirePackage{listings}
+\RequirePackage{hott}
+
+% code listings
+\lstloadlanguages{Haskell}
+\lstdefinelanguage{Agda}{
+  aboveskip        = \baselineskip,
+  belowskip        = -0.1\baselineskip,
+  language         = Haskell,
+  showstringspaces = false,
+  xleftmargin      = \parindent,
+  xrightmargin     = \parindent,
+  columns          = fullflexible,
+  keepspaces       = true,
+  basewidth        = {0em,0em},
+  morekeywords     = {},
+  deletekeywords   = {List},
+  emph             = [1]{Tree,List,SList,PList,Mset,SMC,FMSet,Perm,Maybe,hProp,hSet,Array,Bag,Fin,Sorted,Circle},
+  emph             = [2]{leaf,node,swap,trunc,eq,squash,perm-refl,perm-swap,pos,neg,posneg,base,loop,fsuc,fzero},
+  emph             = [3]{i0,i1,hcomp,Nat},
+  alsoletter       = {_,-},
+  escapeinside     = ||,
+  moredelim        = **[is][\only<+>{\color{red}}]{@}{@},
+  basicstyle       = \ttfamily\color{solarized-base00},
+  keywordstyle     = \bfseries\color{solarized-cyan},
+  emphstyle        = [1]\bfseries\color{solarized-orange},
+  emphstyle        = [2]\bfseries\color{solarized-base01},
+  emphstyle        = [3]\color{solarized-blue},
+  identifierstyle  = \color{solarized-base02},
+  stringstyle      = \color{solarized-orange},
+  commentstyle     = \itshape\color{solarized-cyan},
+  literate         = {->}{{\ensuremath{\rightarrow}}}2
+                     {->m}{{\ensuremath{\xrightarrow{Mon}}}}2
+                     {->cm}{{\ensuremath{\xrightarrow{CMon}}}}2
+                     {lambda}{{\ensuremath{\lambda\!}}}2
+                     {forall}{{\ensuremath{\forall}}}2
+                     {Sg}{{\ensuremath{\Sigma}}}2
+                     {sig}{{\ensuremath{\sigma}}}2
+                     {times}{{\ensuremath{\times}}}2 {plus}{{+}}2 {uplus}{{\ensuremath{\uplus}}}2
+                     {mem}{{\ensuremath{\in}}}2
+                     {top}{{\ensuremath{\top}}}2 {bot}{{\ensuremath{\bot}}}2
+                     {land}{{\ensuremath{\land}}}2 {lor}{{\ensuremath{\lor}}}2
+                     {exists}{{\ensuremath{\exists}}}2
+                     {==}{{\ensuremath{\id}}}2
+                     {nil}{{\color{solarized-base01}[]}}2
+                     {cons}{{\color{solarized-base01}::}}2
+                     {append}{{\color{solarized-base01}++}}2
+                     {union}{{\color{solarized-base01}\ensuremath{\bigcup}}}2
+                     {tensor}{{\color{solarized-base01}⊗}}2
+                     {sharp}{{\color{solarized-base01}\ensuremath{^{\text{\#}}}}}2
+                     {UU}{{\color{solarized-base01}\ensuremath{\UU}}}2
+                     {eqv}{{\color{solarized-base01}\ensuremath{\eqv}}}2
+                     {comp}{{\color{solarized-base01}\ensuremath{\comp}}}2
+}
+\lstnewenvironment{code}{\lstset{language=Agda}}{}
+\lstdefinestyle{inline}{
+  breaklines        = true,
+  breakatwhitespace = true
+}
+\newcommand{\inline}[1]{\lstinline[language=Agda,style=inline]{#1}}
+\newcommand{\inlinelabel}[1]{
+  \lstinline[language=Agda,style=inline,basicstyle=\ttfamily\tiny\color{solarized-base01}]{#1}
+}

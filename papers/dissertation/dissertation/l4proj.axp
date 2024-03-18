@@ -1,0 +1,274 @@
+\makeatletter \let \proof \axp@oldproof \let \endproof \endaxp@oldproof \let \claimproof \axp@oldclaimproof \let \endclaimproof \endaxp@oldclaimproof \let \section \axp@oldsection 
+  \chapter{Appendix}
+\makeatletter 
+\global \def \axp@protectref@viii {\ref {axp@sviii}}
+\axp@section {\appendixsectionformat {\protect \axp@protectref@viii }{Lists}}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@ri}]\axp@forward@target {axp@fw@ri}{}\axp@redefinelabels \rpleti \end {axp@propositionrp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    To show that $\ext{f}$ is a monoid homomorphism,
+    we need to show $\ext{f}(xs \doubleplus ys) = \ext{f}(xs) \mult \ext{f}(ys)$.
+    We can do so by induction on $xs$.
+
+    Case []:
+    $\ext{f}([] \doubleplus ys) = \ext{f}(ys)$,
+    and $\ext{f}([]) \mult \ext{f}(ys) = e \mult \ext{f}(ys) = \ext{f}(ys)$
+    by definition of $\ext{(\blank)}$. Therefore, we have
+    $\ext{f}([] \doubleplus ys) = \ext{f}([]) \mult \ext{f}(ys)$.
+
+    Case $x :: xs$:
+    \begin{align*}
+         & \ext{f}((x :: xs) \doubleplus ys)                                                           \\
+         & = \ext{f}(([ x ] \doubleplus xs) \doubleplus ys) & \text{by definition of concatenation}    \\
+         & = \ext{f}([ x ] \doubleplus (xs \doubleplus ys)) & \text{by associativity}                  \\
+         & = \ext{f}(x :: (xs \doubleplus ys))              & \text{by definition of concatenation}    \\
+         & = f(x) \mult \ext{f}(xs \doubleplus ys)          & \text{by definition of $\ext{(\blank)}$} \\
+         & = f(x) \mult (\ext{f}(xs) \mult \ext{f}(ys))     & \text{by induction}                      \\
+         & = (f(x) \mult \ext{f}(xs)) \mult \ext{f}(ys)     & \text{by associativity}                  \\
+         & = \ext{f}(x :: xs) \mult \ext{f}(ys)             & \text{by definition of $\ext{(\blank)}$} \\
+    \end{align*}
+
+    Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
+\makeatletter 
+\end {axp@oldproof}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@rii}\ifdefined \thm@notefont \the \thm@notefont \fi {} ({Universal property for List})]\axp@forward@target {axp@fw@rii}{}\axp@redefinelabels \rpletii \end {axp@propositionrp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
+    we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
+    For all $f$ and $x$, $(\ext{f} \circ \eta_A)(x) = \ext{f}(x :: []) = f(x) \mult e = f(x)$,
+    therefore by function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
+    and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
+
+    To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
+    for any monoid homomorphism $f : \List(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    We can do so by induction on $xs$.
+
+    Case []: $\ext{(f \comp \eta_A)}([]) = e$ by definition of the $\ext{(\blank)}$ operation,
+    and $f([]) = e$ by homomorphism properties of $f$. Therefore, $\ext{(f \comp \eta_A)}([]) = f([])$.
+
+    Case $x :: xs$:
+    \begin{align*}
+         & \ext{(f \comp \eta_A)}(x :: xs)                                                                   \\
+         & = (f \comp \eta_A)(x) \mult \ext{(f \comp \eta_A)}(xs) & \text{by definition of $\ext{(\blank)}$} \\
+         & = (f \comp \eta_A)(x) \mult f(xs)                      & \text{by induction}                      \\
+         & = f([x]) \mult f(xs)                                   & \text{by definition of $\eta_A$}         \\
+         & = f([x] \doubleplus xs)                                & \text{by homomorphism properties of $f$} \\
+         & = f(x :: xs)                                           & \text{by definition of concatenation}
+    \end{align*}
+
+    By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
+    Therefore, $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are inverse of each other.
+
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
+    monoid homomorphisms $\List(A) \to \mathfrak{X}$
+    to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
+    functions $A \to X$ to monoid homomorphisms $\List(A) \to \mathfrak{X}$. Therefore, $\List$ is indeed
+    the free monoid.
+\makeatletter 
+\end {axp@oldproof}
+\global \def \axp@protectref@ix {\ref {axp@six}}
+\axp@section {\appendixsectionformat {\protect \axp@protectref@ix }{Array}}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@riii}]\axp@forward@target {axp@fw@riii}{}\axp@redefinelabels \rpletiii \end {axp@propositionrp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    To show $\Array$ satisfies left unit,
+    we want to show $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
+    \begin{align*}
+        (0 , \lambda\{\}) \doubleplus (n , f) & = (0 + n , \lambda\{\} \oplus f)      \\
+        (\lambda\{\} \oplus f)(k)             & = \begin{cases}
+                                                      (\lambda\{\})(k) & \text{if}\ k < 0 \\
+                                                      f(k - 0)         & \text{otherwise}
+                                                  \end{cases}
+    \end{align*}
+
+    It is trivial to see the length matches: $0 + n = n$. We also need to show $\lambda\{\} \oplus f = f$.
+    Since $n < 0$ for any $n : \mathbb{N}$ is impossible, $(\lambda\{\} \oplus f)(k)$ would always reduce to
+    $f(k - 0) = f(k)$, therefore $(0, \lambda\{\}) \doubleplus (n, f) = (n, f)$.
+
+    To show $\Array$ satisfies right unit,
+    we want to show $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
+    \begin{align*}
+        (n, f) \doubleplus (0 , \lambda\{\}) & = (n + 0, f \oplus \lambda\{\})           \\
+        (f \oplus \lambda\{\})(k)            & = \begin{cases}
+                                                     f(k)                 & \text{if}\ k < n \\
+                                                     (\lambda\{\})(k - 0) & \text{otherwise}
+                                                 \end{cases}
+    \end{align*}
+
+    It is trivial to see the length matches: $n + 0 = n$. We also need to show $f \oplus \lambda\{\} = f$.
+    We note that the type of $f \oplus \lambda\{\}$ is $\Fin[n + 0] \to A$, therefore $k$ is of the type $\Fin[n + 0]$.
+    Since $\Fin[n+0] \cong \Fin[n]$, it must always hold that $k < n$, therefore $(f \oplus \lambda\{\})(k)$ must
+    always reduce to $f(k)$. Thus, $(n, f) \doubleplus (0, \lambda\{\}) = (n, f)$.
+
+    For associativity, we want to show for any array $(n, f)$, $(m, g)$, $(o, h)$,
+    $((n, f) \doubleplus (m, g)) \doubleplus (o, h) = (n, f) \doubleplus ((m, g) \doubleplus (o, h))$.
+
+    \begin{align*}
+        ((n, f) \doubleplus (m, g)) \doubleplus (o, h) & = ((n + m) + o, (f \oplus g) \oplus h)                \\
+        ((f \oplus g) \oplus h)(k)                     & = \begin{cases}
+                                                               \begin{cases}
+                f(k)     & \text{if}\ k < n \\
+                g(k - n) & \text{otherwise}
+            \end{cases}
+                                                                              & \text{if}\ k < n + m \\
+                                                               h(k - (n + m)) & \text{otherwise}
+                                                           \end{cases}                    \\
+        (n, f) \doubleplus ((m, g) \doubleplus (o, h)) & = (n + (m + o), f \oplus (g \oplus h))                \\
+        (f \oplus (g \oplus h))(k)                     & = \begin{cases}
+                                                               f(k)                               & \ \text{k < n} \\
+                                                               \begin{cases}
+                g(k - n)     & \text{k - n < m} \\
+                h(k - n - m) & \text{otherwise} \\
+            \end{cases} & \text{otherwise}
+                                                           \end{cases}
+    \end{align*}
+
+    We first case split on $k < n + m$ then $k < n$.
+
+    Case $k < n + m$, $k < n$: Both $(f \oplus (g \oplus h))(k)$ and $((f \oplus g) \oplus h)(k)$ reduce to $f(k)$.
+
+    Case $k < n + m$, $k \geq n$: $((f \oplus g) \oplus h)(k)$ reduce to $g(k - n)$ by definition.
+    To show $(f \oplus (g \oplus h))(k)$ would also reduce to $g(k - n)$, we first need to show $\neg(k < n)$,
+    which follows from $k \geq n$. We then need to show $k - n < m$.
+    This can be done by simply subtracting $n$ from both side on $k < n + m$, which is well defined since $k \geq n$.
+
+    Case $k \geq n + m$: $((f \oplus g) \oplus h)(k)$ reduce to $h(k - (n + m))$ by definition.
+    To show $(f \oplus (g \oplus h))(k)$ would also reduce to $h(k - (n + m))$,
+    we first need to show $\neg(k < n)$, which follows from $k \geq n + m$.
+    We then need to show $\neg(k - n < m)$, which also follows from $k \geq n + m$.
+    We now have $(f \oplus (g \oplus h))(k) = h(k - n - m)$. Since $k \geq n + m$, $h(k - n - m)$ is well defined
+    and is equal to $h(k - (n + m))$, therefore $(f \oplus (g \oplus h))(k) = (f \oplus g) \oplus h)(k) = h(k - (n + m))$.
+
+    In all cases $(f \oplus (g \oplus h))(k) = ((f \oplus g) \oplus h)(k)$, therefore associativity holds.
+\makeatletter 
+\end {axp@oldproof}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@lemmarp} [\axp@refstar {axp@riv}\ifdefined \thm@notefont \the \thm@notefont \fi {} ({Array cons})]\axp@forward@target {axp@fw@riv}{}\axp@redefinelabels \rpletiv \end {axp@lemmarp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    We want to show $\eta_A (f(0)) \doubleplus (n, f \comp S) = (S(n), f)$.
+    \begin{align*}
+        (1, \lambda\{ 0 \mapsto f(0) \}) \doubleplus (n , f \comp S) &
+        = (1 + n, \lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))                                              \\
+        (\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))(k)          & = \begin{cases}
+                                                                             f(0)               & \text{if}\ k < 1 \\
+                                                                             (f \comp S)(k - 1) & \text{otherwise}
+                                                                         \end{cases}
+    \end{align*}
+
+    It is trivial to see the length matches: $1 + n = S(n)$. We need to show
+    $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S)) = f$.
+    We prove by case splitting on $k < 1$.
+    On $k < 1$, $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))(k)$ reduces to $f(0)$.
+    Since, the only possible for $k$ when $k < 1$ is 0, $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))(k) = f(k)$
+    when $k < 1$.
+    On $k \geq 1$, $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))(k)$ reduces to $(f \comp S)(k - 1) = f(S(k - 1))$.
+    Since $k \geq 1$, $S(k - 1) = k$, therefore $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S))(k) = f(k)$
+    when $k \geq 1$.
+    Thus, in both cases, $(\lambda\{ 0 \mapsto f(0) \} \oplus (f \comp S)) = f$.
+\makeatletter 
+\end {axp@oldproof}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@lemmarp} [\axp@refstar {axp@rv}\ifdefined \thm@notefont \the \thm@notefont \fi {} ({Array split})]\axp@forward@target {axp@fw@rv}{}\axp@redefinelabels \rpletv \end {axp@lemmarp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    It is trivial to see both array have length $n + m$. We want to show $(f \oplus g) \comp S = (f \comp S) \oplus g$.
+    \begin{align*}
+        ((f \oplus g) \comp S)(k) & = \begin{cases}
+                                          f(S(k))        & \text{if}\ S(k) < S(n) \\
+                                          g(S(k) - S(n)) & \text{otherwise}
+                                      \end{cases} \\
+        ((f \comp S) \oplus g)(k) & = \begin{cases}
+                                          (f \comp S)(k) & \text{if}\ k < n \\
+                                          g(k - n)       & \text{otherwise}
+                                      \end{cases}
+    \end{align*}
+
+    We prove by case splitting on $k < n$.
+    On $k < n$, $((f \oplus g) \comp S)(k)$ reduces to $f(S(k))$ since $k < n$ implies $S(k) < S(n)$,
+    and $((f \comp S) \oplus g)(k)$ reduces to $(f \comp S)(k)$ by definition, therefore they are equal.
+    On $k \geq n$, $((f \oplus g) \comp S)(k)$ reduces to $g(S(k) - S(n)) = g(k - n)$,
+    and $((f \comp S) \oplus g)(k)$ reduces to $g(k - n)$ by definition, therefore they are equal.
+\makeatletter 
+\end {axp@oldproof}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@rvi}]\axp@forward@target {axp@fw@rvi}{}\axp@redefinelabels \rpletvi \end {axp@propositionrp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    To show that $\ext{f}$ is a monoid homomorphism,
+    we need to show $\ext{f}(xs \doubleplus ys) = \ext{f}(xs) \mult \ext{f}(ys)$.
+    We can do so by induction on $xs$.
+
+    Case $(0, g)$:
+    We have $g = \lambda\{\}$ by~\cref{array:zero-is-id}.
+    $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(ys)$ by left unit,
+    and $\ext{f}(0, \lambda\{\}) \mult \ext{f}(ys) = e \mult \ext{f}(ys) = \ext{f}(ys)$
+    by definition of $\ext{(\blank)}$. Therefore,
+    $\ext{f}((0, \lambda\{\}) \doubleplus ys) = \ext{f}(0, \lambda\{\}) \mult \ext{f}(ys)$.
+
+    Case $(S(n), g)$: Let $ys$ be $(m, h)$.
+    \begin{align*}
+         & \ext{f}((S(n), g) \doubleplus (m, h))                                                                              \\
+         & = \ext{f}(S(n + m), g \oplus h)                                 & \text{by definition of concatenation}            \\
+         & = f((g \oplus h)(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S) & \text{by definition of $\ext{(\blank)}$}         \\
+         & = f(g(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S)            & \text{by definition of $\oplus$, and $0 < S(n)$} \\
+         & = f(g(0)) \mult \ext{f}((n, g \comp S) \doubleplus (m, h))      & \text{by~\cref{array:split}}                      \\
+         & = f(g(0)) \mult (\ext{f}(n, g \comp S) \mult \ext{f}(m, h)))    & \text{by induction}                              \\
+         & = (f(g(0)) \mult \ext{f}(n, g \comp S)) \mult \ext{f}(m, h))    & \text{by associativity}                          \\
+         & = \ext{f}(S(n), g) \mult \ext{f}(m, h))                         & \text{by definition of $\ext{(\blank)}$}         \\
+    \end{align*}
+
+    Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
+\makeatletter 
+\end {axp@oldproof}
+\makeatletter 
+\setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
+{\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@rvii}\ifdefined \thm@notefont \the \thm@notefont \fi {} ({Universal property for Array})]\axp@forward@target {axp@fw@rvii}{}\axp@redefinelabels \rpletvii \end {axp@propositionrp} }
+\setcounter {equation}{\c@axp@equationx }
+\makeatletter \begin {axp@oldproof}\makeatother 
+    To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
+    we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
+    For all $f$ and $x$, $(\ext{f} \circ \eta_A)(x) = \ext{f}(1, \lambda\{0 \mapsto x\}) = f(x) \mult e = f(x)$,
+    therefore by function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
+    and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
+
+    To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
+    for any monoid homomorphism $f : \Array(A) \to \mathfrak{X}$, $\ext{(f \comp \eta_A)}(xs) = f(xs)$.
+    We can do so by induction on $xs$.
+
+    Case $(0, g)$:
+    By~\cref{array:zero-is-id} we have $g = \lambda\{\}$.
+    $\ext{(f \comp \eta_A)}(0, \lambda\{\}) = e$ by definition of the $\ext{(\blank)}$ operation,
+    and $f(0, \lambda\{\}) = e$ by homomorphism properties of $f$.
+    Therefore, $\ext{(f \comp \eta_A)}(0, g) = f(0, g)$.
+
+    Case $(S(n), g)$, we prove it in reverse:
+    \begin{align*}
+         & f(S(n), g)                                                                                                     \\
+         & = f(\eta_A(g(0)) \doubleplus (n, g \comp S))                        & \text{by~\cref{array:eta-suc}}            \\
+         & = f(\eta_A(g(0))) \mult f(n, g \comp S)                             & \text{by homomorphism properties of $f$} \\
+         & = (f \comp \eta_A)(g(0)) \mult \ext{(f \comp \eta_A)}(n, g \comp S) & \text{by induction}                      \\
+         & = \ext{(f \comp \eta_A)}(S(n), g)                                   & \text{by definition of $\ext{(\blank)}$}
+    \end{align*}
+
+    By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
+    Therefore, $\ext{(\blank)}$ and $(\blank) \circ [\_]$ are inverse of each other.
+
+    We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
+    monoid homomorphisms $\Array(A) \to \mathfrak{X}$
+    to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
+    functions $A \to X$ to monoid homomorphisms $\Array(A) \to \mathfrak{X}$. Therefore, $\Array$ is indeed
+    the free monoid.
+
+\makeatletter 
+\end {axp@oldproof}

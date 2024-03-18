@@ -1,0 +1,56 @@
+\ProvidesPackage{math}
+
+% math
+\newcommand{\xto}[1]{\xrightarrow{#1}}
+
+% monoids
+\newcommand{\Mon}{\type{Mon}}
+\newcommand{\CMon}{\type{CMon}}
+
+% category theory
+\newcommand{\natto}{\Rightarrow}
+
+% universal algebra
+\newcommand{\op}{\term{op}}
+\newcommand{\ar}{\term{ar}}
+
+\newcommand{\sig}{\sigma}
+\NewDocumentCommand{\Sig}{O{\sig}}{F_{#1}}
+\newcommand{\sigMon}{\sig_{\Mon}}
+\newcommand{\SigMon}{\Sig[\sigMon]}
+
+\newcommand{\eqsig}{\varepsilon}
+\NewDocumentCommand{\EqSig}{O{\eqsig}}{F_{#1}}
+\newcommand{\eqop}{\term{eq}}
+\newcommand{\eqfv}{\term{fv}}
+\newcommand{\eqsigMon}{\eqsig_{\Mon}}
+
+\newcommand{\eqleft}{\mathscr{l}}
+\newcommand{\eqright}{\mathscr{r}}
+
+\newcommand{\Alg}{\type{Alg}}
+\NewDocumentCommand{\sigAlg}{O{\sig}}{{#1}\text{-}\Alg}
+\NewDocumentCommand{\SigAlg}{O{\Sig}}{{#1}\text{-}\Alg}
+
+\NewDocumentCommand{\tree}{O{\sigma}m}{\mathsf{Tr}{_{#1}}\ps{#2}}
+\newcommand{\str}[1]{\mathfrak{#1}}
+
+\newcommand{\ext}[1]{{#1}^{\sharp}}
+\newcommand{\exthat}[1]{\widehat{#1}}
+
+\newcommand{\eq}{\term{eq}}
+\newcommand{\fv}{\term{fv}}
+
+\newcommand{\lhs}{\mathscr{l}}
+\newcommand{\rhs}{\mathscr{r}}
+
+\newcommand{\entails}{\vDash}
+
+%
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\MM}{\mathcal{M}}
+\newcommand{\FF}{\mathcal{F}}
+
+% sort
+\newcommand{\sort}{\mathsf{sort}}
+\newcommand{\sect}{\mathscr{s}}

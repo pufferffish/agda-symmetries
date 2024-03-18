@@ -41,16 +41,46 @@
 \fi
 
 \usepackage[libertine,bigdelims,vvarbb]{newtxmath} % bb from STIX
+
+\let\openbox\undefined
+
 \usepackage[cal=boondoxo]{mathalfa} % mathcal
 
 \usepackage{microtype} % improve typography
 \usepackage{anyfontsize} % allow any size of font
-\usepackage{amsmath,amsfonts,amsbsy,amssymb}
+\usepackage{amsmath,amsfonts,amsbsy}
 \usepackage[style]{abstract} % abstract styling
 
 % set bibliography styling
-\usepackage{natbib}
-\bibpunct{(}{)}{;}{a}{}{;}
+\usepackage[square,sort,comma,super,authoryear]{natbib}
+\bibpunct{[}{]}{;}{a}{}{;}
+\let\cite\citep
+
+% math stuff
+\AtEndPreamble{%
+  \@ifundefined{theorem}{%
+  \newtheorem{theorem}{Theorem}[section]
+  }{}
+  \@ifundefined{conjecture}{%
+  \newtheorem{conjecture}[theorem]{Conjecture}
+  }{}
+  \@ifundefined{proposition}{%
+  \newtheorem{proposition}[theorem]{Proposition}
+  }{}
+  \@ifundefined{lemma}{%
+  \newtheorem{lemma}[theorem]{Lemma}
+  }{}
+  \@ifundefined{corollary}{%
+  \newtheorem{corollary}[theorem]{Corollary}
+  }{}
+  \@ifundefined{example}{%
+  \newtheorem{example}[theorem]{Example}
+  }{}
+  \@ifundefined{definition}{%
+  \newtheorem{definition}[theorem]{Definition}
+  }{}
+}
+
 
 
 \usepackage{etoolbox}
@@ -108,7 +138,7 @@
 %\usepackage{sectsty}
 
 % make all cross-references clickable
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks,citecolor=purple,linkcolor=purple,colorlinks=true,urlcolor=blue]{hyperref}
 
 % enable styled captions
 \usepackage[format=plain,
