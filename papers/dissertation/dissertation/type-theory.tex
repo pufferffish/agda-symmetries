@@ -8,8 +8,131 @@ and how we can program in Cubical Agda.
 We also give an overview of relevant features
 in Cubical Type Theory which normal type theory (namely MLTT) lacks, and how these features
 are used within the scope of our work.
+\subsection{Homotopy Types}
+In Homotopy Type Theory, types are assigned a homotopy level
+(often abbreviated h-level). I will explain the concept of h-level
+since it is important to understand the terminlogy used in the rest
+of the dissertation.
+\subsubsection{Contractible Type}
+A type $A$ is said to be contractible iff there is an element
+$a : A$, refered to as the \emph{center of contraction}, such that
+for all $x: A$, we have $a = x$. More formally:
+\begin{align*}
+    \term{isContr}(A) := \Sigma_{(a : A)}\Pi_{(x : A)}(a =_A x).
+\end{align*}
+Contractible types are assigned the h-level 0.
+One example of such a type would be the unit type $\unitt$.
+In fact, all contractible types are equivalent to $\unitt$.
+\subsubsection{Mere proposition}
+Going one dimension higher, we have mere propositions. A type $A$
+is said to be a mere proposition iff all elements of $A$ are equal.
+We give two formal and equivalent definitions:
+\begin{align*}
+    \term{isProp}(A) & := \Pi_{(x,y : A)}(x =_A y).\\
+    \term{isProp}(A) & := \Pi_{(x,y : A)}\term{isContr}(x =_A y).\\
+\end{align*}
+Mere propositions are assigned the h-level 1.
+We use $\hProp := \Sigma_\UU \term{isProp}.$ to denote the type for
+all types that are propositions.
+Examples of such types
+are the unit type $\unitt$ and the empty type $\emptyt$. In HoTT,
+we use the adverb \emph{merely} to describe propositions represented
+as a mere propositional type. We also introduce the idea of
+propositional truncation, where a type $A$ is truncated to 
+a mere propositional type $\norm{A}$. This can be done with a higher
+inductive type (elaborated more in~\cref{sec:HIT}):
 
-\subsection{Function extensionality}
+\begin{code}
+data [[_]] (A : UU) : UU where
+    [_]  : A -> [[A]]
+    trunc : (x, y : [[A]]) -> x = y
+\end{code}
+One example usage of propositional truncation is the definition of
+\emph{mere existence}, where $\exists (x: A).\,P(x)$ is represented
+as $\norm{\Sigma_{(x:A)}P(x)}$. This differs from $\Sigma_{(x:A)}P(x)$
+in that mere existence only contains information whether such an $x$
+that satifies $P$ exists, whereas the $\Sigma$ type contains more information,
+namely the value of the actual element $x$. This makes it such that
+with a mere existential proof of $x$ we would only be able to use $x$
+to prove other mere propositions, but we would not be able to define
+any functions that actually depend on the value of $x$. For example,
+consider a function $f : (x : A) \to P(x) \to \Nat$ which takes an $x: A$
+that satisfies $P$ and return a $\Nat$. Given $\exists x.\,P(x)$ we would
+not be able to apply $f$ on $x$, since $\Nat$ is not a proposition. 
+On the other hand, assuming we have another mere proposition
+$Q : A \to \hProp$, and a proof that $\forall y.\,P(y) \to Q(y)$, 
+we can use $\exists x.\,P(x)$ to prove $\exists x.\,Q(x)$.
+
+\subsubsection{Sets}
+Going one dimension higher, we have sets. A type $A$ is said to be a set
+iff the identity type of $A$ is a mere proposition.
+\begin{align*}
+    \term{isSet}(A) := \Pi_{(x,y : A)}\term{isProp}(x =_A y).
+\end{align*}
+Sets are assigned the h-level 2.
+We use $\hSet := \Sigma_\UU \term{isSet}.$ to denote the type for
+all types that are sets.
+Examples of sets would be $\Nat$, the boolean type $\boolt$, and also
+the unit and empty type $\unitt$ and $\emptyt$. The type for all types
+that are mere propositions $\hProp$ is also a set.
+
+We note that in type theories with K-axiom or uniqueness of identity proofs
+(UIP), all types are sets. For example, in Idris2~\cite{brady_idris_2021},
+we can prove this
+by pattern matching on proofs:
+\begin{code}
+uip : (A : Type) -> (x, y : A) -> (p, q : x = y) -> p = q
+uip A x x Refl Refl = Refl
+\end{code}
+
+The K elimination rule allows us to pattern match on identity types and force
+them to be $\term{Refl}$, thus allowing us to prove $p = q$ since both
+$p$ and $q$ are $\term{Refl}$. HoTT, however, does not assume the K-axiom,
+therefore this would be invalid in HoTT.
+
+In the dissertation we would be primarily working with sets
+(and mere propositions since all mere propositions are sets).
+There are higher dimensional types, but generalizing the work to
+higher dimensions is currently left for future works.
+
+\subsubsection{Groupoid}
+Going one dimension higher, we have groupoids. A type $A$ is said to be a
+groupoid iff the identity type of $A$ is a set.
+\begin{align*}
+    \term{isSet}(A) := \Pi_{(x,y : A)}\term{isSet}(x =_A y).
+\end{align*}
+Groupoids are assigned the h-level 3. All sets are groupoids,
+and the type for all types that are sets $\hSet$ is also a groupoid.
+For example, consider the boolean type $\boolt : \hSet$. There are two
+different elements of $\boolt =_\hSet \boolt$, which generated by
+univalence (elaborated more in~\cref{types:univalence}) from two
+different equivalence we can define on $\boolt$ to $\boolt$, the
+identity function $id$ and the negate functon $not$.
+This shows that $\boolt =_\hSet \boolt$ is \emph{not} a mere proposition,
+therefore $\hSet$ is \emph{not} a set. This shows how K-axiom is
+incompatible with univalence and HoTT.
+
+\subsubsection{n-Types}
+We can define further higher dimensional types by induction, giving us
+2-groupoids, 3-groupoids, and so on. More generally, we can define
+n-types as below, with $n$ starting at -2.
+\begin{align*}
+    \term{is-n-type}(A) := \begin{cases}
+        \term{isContr}(A) & \text{if $n = -2$} \\
+        \prod_{x, y : A}\term{is-(n-1)-type}(x =_A y) & \text{otherwise}
+    \end{cases}
+\end{align*}
+
+Somewhat confusingly, (-2)-types (contractible types) have h-level 0,
+and (-1)-types (mere propositions) have h-level 1, and so on.
+In the lingo of HoTT, when we say n-types we start counting from -2,
+but for h-levels we start counting from 0. This is because when
+the concept of h-level is invented Voevodsky chose to start counting
+from 0~\cite{voevodsky_univalent_2010},
+but the idea of n-trunction originates earlier from $\inf$-category theory,
+where truncation level starts from -2~\cite{lurie_higher_2008}.
+
+\subsection{Function Extensionality}
 Function extensionality $\term{funExt}$ states that given two functions $f$ and $g$,
 $\term{funExt}: \forall x.\,f(x) = g(x) \to f = g$. MLTT by itself does not have $\term{funExt}$,
 instead it has to be postulated as an axiom, thereby losing canonicity, in other words,
@@ -25,7 +148,7 @@ equal, which is impossible to do without $\term{funExt}$. We also would not be a
 any constructions of arrays which involve $\term{funExt}$ if it is postulated as an axiom, therefore
 the computational property of Cubical Type Theory is really useful for us.
 
-\subsection{Higher Inductive Types}
+\subsection{Higher Inductive Types}\label{sec:HIT}
 Higher inductive types
 allow us to extend inductive types to not only allow point constructors
 but also path constructors, essentially equalities between elements of the HIT. One such example
@@ -47,7 +170,7 @@ by mapping $n : \Nat$ to $-(n + 1)$. The shifting by one is done to avoid having
 for 0, which can easily lead to confusion. HIT allows us to define integers more naturally by saying
 $\term{pos}(0) = \term{neg}(0)$, avoiding the confusing shift-by-one hack.
 
-One can see how we can define a general data type for set quotients. Here is the definition:
+With HITs we can define a general data type for set quotients:
 \begin{code}
 data _/_ (A : UU) (R : A -> A -> UU) : UU where
     [_]  : A -> A / R
@@ -76,6 +199,39 @@ gives us equalities between types by the univalence axiom. To see how this is us
 consider $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$, we can
 get $P(B)$ from $P(A)$ by transport (or substitution).  
 
+To define univalence, we first need to define the notion of equivalence:
+\begin{definition}[Equivalence]
+    A function $f : A \to B$ is said to be an equivalence
+    function iff it has a left inverse $g : B \to A$ and right inverse 
+    $h : B \to A$ such that
+    $(\forall x.\, g(f(x)) = x) \land (\forall x.\, f(h(x)) = x)$. 
+    Two types $A$ and $B$ are said to be equivalent iff there exists
+    an equivalence function $f : A \to B$. 
+\end{definition}
+
+We note that the definition of equivalence is very similar to
+an isomorphism, only differing in that an equivalence can have
+different functions for left and right inverse, whereas an isomorphism
+would have the same function, therefore making it just an (ordinary) inverse.
+
+Assuming $A$ (and subsequently $B$ by equivalence) is a $\hSet$,
+$f$ being a equivalence function would imply it is an isomorphism and 
+vice versa, thus making both definitions the same. However, for higher
+dimensional types, these two definitions would not necessarily imply
+each other.
+More explicitly: let $\term{qinv}(f)$
+be the witness on $f$
+stating $f$ is an isomorphism, and $\term{isequiv}(f)$ be the witness on
+$f$ stating $f$ is an equivalence function.
+\begin{align*}
+\term{qinv}(f) & = \Sigma_{g : B \to A}(f \comp g \sim id)\times(g \comp f \sim id) \\
+\term{isequiv}(f) & = (\Sigma_{g : B \to A}(f \comp g \sim id))\times(\Sigma_{h : B \to A}(h \comp f \sim id))
+\end{align*}
+$\term{isequiv}(f)$ is a mere proposition while $\term{qinv}(f)$ is not
+necessarily a mere proposition.
+We refer the readers
+to~\cite[Chapter 4.1]{univalentfoundationsprogramHomotopyTypeTheory2013} for a proof.
+
 \begin{definition}[Univalence axiom]
     $(A = B) \simeq (A \simeq B)$
 \end{definition}
@@ -86,9 +242,7 @@ axiom, Cubical Type Theory allows us to derive univalence as a computable
 theorem, therefore we can transport functions and proofs from one type to
 another freely without worrying about terms not being able to normalize!
 
-Within the scope of our work, we want to primarily work with
-sets, therefore we add the truncation constructor whenever necessary so we need not concern ourselves
-with higher-dimension paths (or equalities). Since we have multiple constructions of free monoids
+Within the scope of our work, since we have multiple constructions of free monoids
 and free commutative monoids, given in~\cref{sec:monoids} and~\cref{sec:commutative-monoids},
 having univalence allows us to easily transport proofs and functions from one construction to another.
 Another instance where univalence is used is the definition of membership proofs in~\cref{comb:member},
@@ -105,7 +259,6 @@ for simplicity and clarity.
 We use $\Fin[n]$ to denote finite sets of cardinality $n$ in HoTT~\cite{yorgeyCombinatorialSpeciesLabelled2014a}.
 This is defined as follows:
 
-\newpage
 \begin{code}
 Fin : $\mathbb{N}$ -> UU
 Fin n = $\Sigma$[ m $\in$ $\mathbb{N}$ ] (m < n)
@@ -126,3 +279,5 @@ when pattern matching on indexed inductive types.
 We also use $\times$ to denote product types and $+$ to denote coproduct types.
 For mere propositions, we use $\land$ to denote logical and, and $\vee$ to denote logical or.
 In Cubical Agda these are defined as propositionally-truncated products and coproducts.
+We also use $\exists$ to denote mere existence, which is defined as
+propositionally-truncated $\Sigma$-types are shown above.

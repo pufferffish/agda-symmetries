@@ -255,11 +255,11 @@ and the type-theoretic induction principle enforces the category-theoretic unive
     \label{def:free-algebra-construction}
     The free $\sig$-algebra on a type $X$ is given by the inductive type:
     % \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
-    \begin{code}
+\begin{code}
 data Tree (X : UU) : UU where
   leaf : X -> Tree X
   node : F$_\sig$(Tree X) -> Tree X
-    \end{code}
+\end{code}
 \end{definition}
 The constructors \inline{leaf} and \inline{node} are, abstractly,
 the generators for the universal map, and the algebra map, respectively.
