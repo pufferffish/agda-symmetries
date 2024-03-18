@@ -77,6 +77,16 @@ Using this (commutative) monoid structure, we extend $\yo_A(x)$ to obtain $x \in
 gives us the membership predicate for $x$, and its homomorphic properties (the colluquial~$\term{here}/\term{there}$
 constructors for the de Bruijn encoding).
 
+We note that $\hProp$ is actually one type level higher than $A$.
+To make the type level explicit, $A$ is of type level $\ell$, and since $\hProp_\ell$
+is the type of all types $X : \UU_\ell$ that are mere propositions, $\hProp_\ell$ has
+type level $\ell + 1$. While we can reduce to the type level of $\hProp_\ell$ to $\ell$ if
+we assume Voevodsky's propositional resizing axiom~\cite{voevodskyResizingRulesTheir2011},
+we chose not to do so and work within a relative monad framework~\cite{arkor_formal_2023}
+similar to~\cite[Section~3]{choudhuryFreeCommutativeMonoids2023}. In the formalization,
+$\ext{(\blank)}$ is type level polymorphic to accommodate for this. We explain this
+further in~\cref{sec:formalization}.
+
 \begin{figure}[H]
     \centering
     % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
