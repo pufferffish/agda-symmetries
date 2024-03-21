@@ -40,15 +40,18 @@
   \setsansfont[Path=./fonts/, BoldFont=FiraSans-Bold, UprightFont=FiraSans-Regular, ItalicFont=FiraSans-Italic, BoldItalicFont=FiraSans-BoldItalic]{FiraSans.ttf}
 \fi
 
-\usepackage[libertine,bigdelims,vvarbb]{newtxmath} % bb from STIX
-
 \let\openbox\undefined
 
-\usepackage[cal=boondoxo]{mathalfa} % mathcal
+% \usepackage[cal=boondoxo,bb=boondoxo]{mathalfa} % mathcal
+% \usepackage[cal=esstix,frak=euler,scr=boondox,bb= pazo]{mathalfa}
+% \usepackage{unicode-math}
 
 \usepackage{microtype} % improve typography
 \usepackage{anyfontsize} % allow any size of font
-\usepackage{amsmath,amsfonts,amsbsy}
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amscd,mathrsfs,mathtools}
+% \let\openbox\relax
+% \let\Bbbk\relax
+% \usepackage[libertine,bigdelims,vvarbb]{newtxmath} % bb from STIX
 \usepackage[style]{abstract} % abstract styling
 
 % set bibliography styling

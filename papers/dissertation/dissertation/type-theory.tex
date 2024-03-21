@@ -78,7 +78,7 @@ is said to be a mere proposition iff all elements of $A$ are equal.
 We give two formal and equivalent definitions:
 \begin{align*}
     \term{isProp}(A) & := \Pi_{(x,y : A)}(x =_A y).\\
-    \term{isProp}(A) & := \Pi_{(x,y : A)}\term{isContr}(x =_A y).\\
+    \term{isProp}(A) & := \Pi_{(x,y : A)}\term{isContr}(x =_A y).
 \end{align*}
 Mere propositions are assigned the h-level 1.
 We use $\hProp := \Sigma_\UU \term{isProp}.$ to denote the type for
@@ -148,7 +148,7 @@ higher dimensions is currently left for future works.
 Going one dimension higher, we have groupoids. A type $A$ is said to be a
 groupoid iff the identity type of $A$ is a set.
 \begin{align*}
-    \term{isSet}(A) := \Pi_{(x,y : A)}\term{isSet}(x =_A y).
+    \term{isGroupoid}(A) := \Pi_{(x,y : A)}\term{isSet}(x =_A y).
 \end{align*}
 Groupoids are assigned the h-level 3. All sets are groupoids,
 and the type for all types that are sets $\hSet$ is also a groupoid.
