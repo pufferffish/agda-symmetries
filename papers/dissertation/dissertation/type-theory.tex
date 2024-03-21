@@ -8,6 +8,55 @@ and how we can program in Cubical Agda.
 We also give an overview of relevant features
 in Cubical Type Theory which normal type theory (namely MLTT) lacks, and how these features
 are used within the scope of our work.
+\subsection{Dependent Types}
+We first review some basic ideas from type theory. We assume the readers
+have experience with dependent typed programming, so this would only
+serves as a refresher.
+\subsubsection{$\Pi$-types}
+$\Pi$-types generalizes function types.
+These types capture the idea of functions that can take different types
+as input or return different types as output depending on the input.
+The type of a function that accepts an argument $x: A$ and returns
+an element of type $B(x)$, where $B$ might depend on $x$,
+can be expressed as $(x: A) \to B(x)$ or $\Pi_{(x: A)} B(x)$.
+
+\subsubsection{$\Sigma$-types}
+$\Sigma$-types generalizes product types. 
+These types represent tuples where the type of the second component
+depends on the first. An element of the type
+$\Sigma_{(x: A)} B(x)$ is a pair $(a, b)$
+where $a$ is of type $A$ and $b$ is of type $B(a)$.
+
+\subsubsection{Identity types}
+The identity type of a type $A$ expresses equality in type theory.
+If $a$ and $b$ are elements of type $A$, then the type expressing that
+$a$ is equal to $b$ is often written $a =_A b$. Optionally, the type can
+be omitted for brevity, therefore written just as $a = b$. This is
+often useful to state when two elements should be equal but they are not
+definitionally equal. For example, given $n : \Nat$, the elements
+$n + 0 : \Nat$ and $0 + n : \Nat$ should be the same, however depending
+on the implementation of $+$ they may not be definitionally equal,
+therefore $B(n + 0)$ and $B(0 + n)$ would give us different types
+definitionally. Having a type $n + 0 =_\Nat 0 + n$ would allow us to
+convert $x : B(n + 0)$ to $x : B(0 + n)$ and vice versa, therefore
+solving the over-restriction of definitional equality.
+
+\subsubsection{Propositions as Types}
+The Curry-Howard correspondence gives us the propositions-as-types
+principle, which states that propositional logic can be interpreted
+as types:
+\begin{itemize}
+    \item A type $P$ can be viewed as a proposition, and a term of that
+    type is a proof of the proposition.
+    \item $\Pi$-types correspond to universal quantification or implications.
+    A function $f : P \to Q$ can be thought of as "$P$ implies $Q$", and
+    a function $f : (a : A) \to P(a)$ can be thought of as "for all $a$
+    of type $A$, $P(a)$ holds".
+    \item $\Sigma$-types correspond to existential quantification.
+    An element of $\Sigma_(a : A)\,P(a)$ can be thought of as a proof
+    that states "there exists an $a$ of type $A$ such that $P(a)$ holds".
+\end{itemize}
+
 \subsection{Homotopy Types}
 In Homotopy Type Theory, types are assigned a homotopy level
 (often abbreviated h-level). I will explain the concept of h-level
