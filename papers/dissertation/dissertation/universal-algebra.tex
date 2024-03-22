@@ -8,12 +8,14 @@ However, to begin, we would need to explain what an algebra is,
 what exactly is the definition of "free".
 
 \section{Algebra}\label{algebra:signature}
-First we define very generally what an algebra is. Every algebra
-has a signature $\sigma$, which is a (dependent) tuple of:
+First we define very generally what an algebra is.
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Sig.html#572}{link}}
+Every algebra has a signature $\sigma$, which is a (dependent) tuple of:
 \begin{itemize}
     \item a set of function symbols $op : \Set$,
     \item and an arity function $ar : op \to \Set$.
 \end{itemize}
+\end{definition}
 
 Here, $op$ gives us a set of names to refer to the operations we can do
 in an algebra, and the arity function $ar$ specifies the arity of the operation,
@@ -23,7 +25,7 @@ the arity of an operation $op$ by the output natural number. However,
 for generality, we decide to use $\hSet$ and cardinality for arity instead,
 so that we can have operations of infinite arity. 
 
-\begin{example}
+\begin{example}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Desc.html#600}{link}}
 We can define the signature of monoid as follow: the algebra $\Mon$
 has operation symbols $\{ e, \mult \}$, referring to the identity operation
 and the multiplication operation. The arity function is defined as:
@@ -37,7 +39,7 @@ on $\Set$. We refer to this endofunctor as the signature endofunctor.
 In plain English, $F_\sigma(X)$ is a tuple of an operation symbol $op$
 and a vector of $X$, where the dimension of the vector is the arity of $op$.
 
-\begin{definition}\label{algebra:struct}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Str.html#555}{link}}\label{algebra:struct}
     A $\sigma$-structure $\mathfrak{X}$ is an $F_\sigma$-algebra, given by a tuple
     of:
     \begin{itemize}
@@ -50,7 +52,7 @@ In the rest of the dissertation, we use a normal alphabet
 (e.g. $X$) to denote the carrier set, and the alphabet in Fraktur font
 (e.g. $\mathfrak{X}$) to denote an algebra based on the carrier set.
 
-\begin{example}
+\begin{example}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Desc.html#6276}{link}}
 ($\Nat$, +) is a $\term{Mon}$-algebra, with
 the carrier set given by $\Nat$ and its interpretation function given by:
 \begin{align*}
@@ -59,7 +61,7 @@ the carrier set given by $\Nat$ and its interpretation function given by:
 \end{align*}
 \end{example}
 
-\begin{definition}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Str.html#1013}{link}}
     A $F_\sigma$-algebra homomorphism $h: X \rightarrow Y$ is a function such that:
 % https://q.uiver.app/#q=WzAsNCxbMCwwLCJGX3tcXHNpZ21hfShYKSJdLFsxLDAsIlgiXSxbMCwxLCJGX3tcXHNpZ21hfShZKSJdLFsxLDEsIlkiXSxbMCwxLCJcXGFscGhhX1giXSxbMCwyLCJGX3tcXHNpZ21hfShoKSIsMl0sWzIsMywiXFxhbHBoYV9ZIiwyXSxbMSwzLCJoIl1d
 \[\begin{tikzcd}[ampersand replacement=\&,cramped]
@@ -88,6 +90,7 @@ and only retains the underlying carrier set.
 We use $U$ to denote the forgetful functor, and under our notation
 $U(\mathfrak{X})$ is simply $X$.
 
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Free.html#819}{link}}
 The free $\sigma$-algebra $\mathfrak{F}$ is simply defined as the left adjoint to $U$.
 More concretely, it is given by:
 \begin{itemize}
@@ -95,6 +98,7 @@ More concretely, it is given by:
     \item a universal generators map $\eta_X : X \to F(X)$, such that
     \item for any $\sigma$-algebra $\mathfrak{Y}$, post-composition with $\eta_X$ is an equivalence:
 \end{itemize}
+\end{definition}
 \[
 \begin{tikzcd}[ampersand replacement=\&]
 	\mathfrak{F}(X) \\
@@ -131,7 +135,7 @@ By definition, if $F : \Set \to \Set$ satisfies the universal property of
 free $\sigma$-algebra, then $\mathfrak{F}$ would be the free $\sigma$-algebra.
 We use "the" to refer to $F$ since $F$ is unique up to isomorphism. 
 
-\begin{lemma}\label{lem:free-algebras-unique}
+\begin{lemma}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Free.html#2216}{link}}\label{lem:free-algebras-unique}
 Any two free $\sigma$-algebra on the same set are isomorphic.
 \end{lemma}
 \begin{proof}
@@ -145,12 +149,16 @@ therefore $E(X)$ and $F(X)$ are isomorphic.
 
 \subsection{Construction}
 We can construct the carrier set of the free $\sigma$-algebra
-$\mathfrak{F}(X)$ as an inductive type of trees $Tr_\sigma(V)$:
+$\mathfrak{F}(X)$ as an inductive type of trees $Tr_\sigma(V)$.
+\newpage
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Tree.html#610}{link}}
+The type $Tr_\sigma(V)$ is given by:
 \begin{code}
 data Tree (V : UU) : UU where
     leaf : V -> Tree V
     node : F$_\sigma$(Tree V) -> Tree V
 \end{code}
+\end{definition}
 
 The constructors $leaf$ and $node$ correspond to the generator map
 and the interpretation function. Concretely, $Tr_\sigma(V)$ can
@@ -202,12 +210,14 @@ shown how to define the equations of an algebra. For example, a monoid
 should satisfy the unit laws and associative law. We now explain how
 we can define equations.
 
-Much like operation signatures, every algebra also has an equation signature
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Eq.html#678}{link}}
+Every algebra also has an equation signature
 $\epsilon$, which is a (dependent) tuple of:
 \begin{itemize}
     \item a set of equation symbols $eq : \Set$,
     \item and an arity of free variables $fv : eq \to \Set$.
 \end{itemize}
+\end{definition}
 
 Here, $eq$ gives us a set of names to refer to an equation which
 the algebra must satisfy, and the arity function $fv$ specifies the 
@@ -216,7 +226,7 @@ output set as the arity. Once again, other definitions might opt to
 define this as $fv : eq \to \Nat$, but we opted to use $\hSet$ and
 cardinality instead to allow for infinitary equations.
 
-\begin{example}
+\begin{example}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Desc.html#1684}{link}}
 We can define the equation signature of monoid as follow: the algebra
 $\Mon$ has equation symbols $\{\term{unitl}, \term{unitr}, \term{assocr}\}$,
 referring to the unit left law, the unit right law, and the associativity law.
@@ -227,7 +237,7 @@ $fv : \{ \term{unitl} \mapsto \Fin[1], \term{unitr} \mapsto \Fin[1], \term{assoc
 We can the define a system of equations (or equational theory $T_\epsilon$)
 by a pair of trees on the set of free variables, representing the
 left hand side and right hand side of the equations.
-\begin{definition}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Eq.html#1499}{link}}
 A system of equations $T_\epsilon$ is defined as
 $l, r : (e : eq) \to Tr_\sigma(fv(e))$.
 \end{definition}
@@ -242,7 +252,7 @@ a tree given an assignment of free variables. Because $\ext{\rho}$
 is a homomorphism, it must evaluate correctly according to the
 algebraic structure of $F_\sigma$.
 
-\begin{example}
+\begin{example}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Desc.html#6382}{link}}
 To show ($\Nat$, 0, +) satisfies monoidal laws, we need to prove
 the following properties:
 \begin{align*}

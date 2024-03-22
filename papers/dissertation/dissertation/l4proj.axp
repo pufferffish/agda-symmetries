@@ -1,8 +1,8 @@
 \makeatletter \let \proof \axp@oldproof \let \endproof \endaxp@oldproof \let \claimproof \axp@oldclaimproof \let \endclaimproof \endaxp@oldclaimproof \let \section \axp@oldsection 
   \chapter{Appendix}
 \makeatletter 
-\global \def \axp@protectref@ix {\ref {axp@six}}
-\axp@section {\appendixsectionformat {\protect \axp@protectref@ix }{Lists}}
+\global \def \axp@protectref@x {\ref {axp@sx}}
+\axp@section {\appendixsectionformat {\protect \axp@protectref@x }{Lists}}
 \makeatletter 
 \setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
 {\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@ri}]\axp@forward@target {axp@fw@ri}{}\axp@redefinelabels \rpleti \end {axp@propositionrp} }
@@ -71,8 +71,8 @@
     the free monoid.
 \makeatletter 
 \end {axp@oldproof}
-\global \def \axp@protectref@x {\ref {axp@sx}}
-\axp@section {\appendixsectionformat {\protect \axp@protectref@x }{Array}}
+\global \def \axp@protectref@xi {\ref {axp@sxi}}
+\axp@section {\appendixsectionformat {\protect \axp@protectref@xi }{Array}}
 \makeatletter 
 \setcounter {axp@equationx}{\c@equation }\setcounter {equation}{0}
 {\pretocmd {\@begintheorem }{\patchcmd {\thmhead }{\@acmplainnotefont }{}{}{}\patchcmd {\thmhead }{\the \thm@notefont }{}{}{}\patchcmd {\thmhead }{(}{}{}{}\patchcmd {\thmhead }{)}{}{}{}}{}{} \begin {axp@propositionrp} [\axp@refstar {axp@riii}]\axp@forward@target {axp@fw@riii}{}\axp@redefinelabels \rpletiii \end {axp@propositionrp} }

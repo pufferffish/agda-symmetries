@@ -84,7 +84,7 @@
   }{}
 }
 
-
+\newcommand{\formal}[1]{\href{#1}{link}}
 
 \usepackage{etoolbox}
 \usepackage[compact]{titlesec} % section heading formatting

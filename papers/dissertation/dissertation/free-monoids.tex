@@ -48,7 +48,7 @@ and the monoid operation $\doubleplus$ is given by the concatenation operation.
 \end{definition}
 The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the formalization for details).
 
-\begin{definition}[Universal extension (fold)]
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.List.html#1114}{link}}
     For any monoid $\str{X}$, and given a map $f : A \to X$,
     we define the extension $\ext{f} : \List(A) \to \mathfrak{X}$ by recursion on the list:
     \begin{align*}
@@ -60,6 +60,10 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
 \begin{propositionrep}
     $\ext{(\blank)}$ lifts a function $f : A \to X$ to a monoid homomorphism $\ext{f} : \List(A) \to \mathfrak{X}$.
 \end{propositionrep}
+
+\begin{proofsketch}
+    The proof is formalized \href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.List.html#1390}{here}.
+\end{proofsketch}
 
 \begin{proof}
     To show that $\ext{f}$ is a monoid homomorphism,
@@ -92,6 +96,7 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
 \end{propositionrep}
 
 \begin{proofsketch}
+    The proof is formalized \href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.List.html#2239}{here}.
     We need to show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$.
     It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
     To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphisms $f : \List(A) \to \mathfrak{X}$,
@@ -145,7 +150,7 @@ and a lookup (or index) function $\Fin[n] \to A$, mapping each index to an eleme
 In type theory, this is also often understood as a container~\cite{abbottCategoriesContainers2003},
 where $\Nat$ is the type of shapes, and $\Fin$ is the type (family) of positions.
 
-\begin{definition}[Arrays]
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#728}{link}}
     \label{def:arrays}
     The type of $\Array$ on a type $A$~is given by:
 \begin{code}
@@ -161,7 +166,7 @@ The (universal) generators map is the singleton: $\eta_A(a) = (1, \lambda\{ 0 \m
 the identity element is $(0, \lambda\{\})$
 and the monoid operation $\doubleplus$ is given by array concatenation.
 
-\begin{lemma}[Array identity]\label{array:zero-is-id}
+\begin{lemma}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#7112}{link}}\label{array:zero-is-id}
     Any zero-length array $(0, f)$ is equal to the identity element.
 \end{lemma}
 
@@ -171,7 +176,7 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
     Therefore, any array $(0, f)$ is equal to $(0, \lambda\{\})$.
 \end{proof}
 
-\begin{definition}[Concatenation]
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#6958}{link}}
     We define the concatenation operation $\doubleplus : \Array(A) \to \Array(A) \to \Array(A)$,
     and the combine operation $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fin[n+m] \to\nolinebreak A)$.
     \begin{align*}
@@ -188,6 +193,7 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
 \end{propositionrep}
 
 \begin{proofsketch}
+    The proof is formalized \href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#19252}{here}.
     We can prove $(\Array(A), \doubleplus)$ satisfies the unit laws by showing
     $(\lambda\{\} \oplus f)(k) = (f \oplus \lambda\{\})(k) = f(k)$ for all $k : \Fin[n]$,
     by proving that it is impossible for $k < 0$ and $k \geq n$, therefore
@@ -328,7 +334,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     and $((f \comp S) \oplus g)(k)$ reduces to $g(k - n)$ by definition, therefore they are equal.
 \end{proof}
 
-\begin{definition}[Universal extension (fold)]
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#16128}{link}}
     Given a monoid $\mathfrak{X}$, and a map $f : A \to X$,
     we define $\ext{f} : \Array(A) \to X$, by induction on the length of the array:
     \begin{align*}
@@ -373,6 +379,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
 \end{propositionrep}
 
 \begin{proofsketch}
+    The proof is formalized \href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.Array.html#18935}{here}.
     We need to show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$.
     It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
     To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \Array(A) \to \mathfrak{X}$,

@@ -15,7 +15,8 @@ The classical principle of Axiom of Choice says every that surjection $f$ has a 
 $\forall x.\, f(s(x)) = x$. Or in informal terms, given a surjection which includes into a quotient, a section
 (uniformly) picks out a canonical representative for each equivalence class.
 %
-\textbf{Puzzle:} In our construction, does $q$ have a section? If symmetry kills the order, can it be resurrected?
+This begs the question: in our construction, does $q$ have a section?
+If symmetry kills the order, can it be resurrected?
 
 \begin{figure}[H]
     \centering
@@ -70,7 +71,7 @@ compute if $x \leq y$ is true. Given this assumption on $A$, we can sort!
 
 \section{Section from Order}
 
-\begin{proposition}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#12395}{link}}
     Assume there is a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
     which constructs a section to $q : \LL(A) \twoheadrightarrow \MM(A)$
 \end{proposition}
@@ -98,7 +99,7 @@ We use $\{x,y,\dots\}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)
 and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
 or $x :: xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
 
-\begin{definition}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Sort.html#2907}{link}}
     \label{def:least}
     Given a section $s$, we define:
     \[
@@ -113,11 +114,11 @@ Conceptually, $\term{least}$ sorts $xs$ by $s$, and picks the first element of t
 This is the main insight, using which we establish our result.
 First, we observe some properties of $\preccurlyeq$.
 
-\begin{proposition}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Sort.html#3889}{link}}
     $\preccurlyeq$ is decidable iff $A$ has decidable equality.
 \end{proposition}
 
-\begin{proposition}\label{sort:almost-total}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Sort.html#3109}{link}}\label{sort:almost-total}
     $\preccurlyeq$ is reflexive, antisymmetric, and total.
 \end{proposition}
 \begin{proof}
@@ -143,9 +144,9 @@ the following section:
 \end{proposition}
 \begin{proof}
     We give a counter-example of $s$ that would violate transitivity.
-    Consider this section $s : \SList(\Nat) \to \List(\Nat)$, we can define a sort function
-    $\term{sort} : \SList(\Nat) \to \List(\Nat)$ which sorts $\SList(\Nat)$ ascendingly. We can use $\term{sort}$
-    to construct $s$.
+    We can first define a correct sort function
+    $\term{sort} : \SList(\Nat) \to \List(\Nat)$ which sorts $\SList(\Nat)$ ascendingly, and then we can use $\term{sort}$
+    to construct the counter-example $s$.
     \begin{align*}
         s(xs)        & = \begin{cases}
                              \term{sort}(xs)                 & \text{if $\term{length}(xs)$ is odd} \\
@@ -165,13 +166,13 @@ These constraints lead to the axioms of sorting!
 If $s$ were a sort function, the image of $s$ would be the set of sorted lists, therefore
 $\issorted(xs)$ would imply $xs$ is a sorted (or ordered) list.
 
-\begin{proposition}\label{sort:sort-to-order}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Sort.html#3989}{link}}\label{sort:sort-to-order}
     $x \preccurlyeq y$ \; iff \; $\issorted([x, y])$.
 \end{proposition}
 
 \noindent
 To prevent this class of counter-examples, we now introduce our first axiom of sorting:
-\begin{definition}\label{sort:head-least}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Base.html#1915}{link}}\label{sort:head-least}
     A section $s$ to $q$ satisfies $\isheadleast$ iff:
     \[
         \forall x\, y\, xs.\, \issorted(x :: xs) \land y \in (x :: xs) \to \issorted([x,y])
@@ -185,12 +186,12 @@ $[x, y]$ should be also a sorted list.
 %
 This ensures that $s$ behaves correctly on 2-element lists.
 
-\begin{proposition}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#12247}{link}}
     If $A$ has a total order $\leq$, insertion sort $\MM(A) \to \LL(A)$ defined with $\leq$
     satisfies $\isheadleast$.
 \end{proposition}
 
-\begin{proposition}\label{sort:trans}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Sort.html#4237}{link}}\label{sort:trans}
     Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
 \end{proposition}
 \begin{proof}
@@ -216,7 +217,7 @@ and a total order $\leq$ would imply a section that satisfies $\isheadleast$ whi
 be constructed by insertion sort with $\leq$. Now, can we construct a full equivalence
 between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
 
-\begin{proposition}\label{sort:o2s2o}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Equiv.html#3551}{link}}\label{sort:o2s2o}
     Assume $A$ has a decidable total order $\leq$, we can construct a section $s$ that
     satisfies $\isheadleast$, such that $\preccurlyeq$ constructed from $s$ is equivalent
     to $\leq$.
@@ -238,7 +239,7 @@ To upgrade the embedding to an isomorphism, all that is left
 is to show we can turn a section satisfying $\isheadleast$ to a total order $\preccurlyeq$, and construct the
 same section back from $\preccurlyeq$. Unfortunately, this fails!
 
-\begin{proposition}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#16058}{link}}
     Assume $A$ is a set with different elements, i.e. $\exists x, y: A.\,x \neq y$,
     we cannot construct a full equivalence between sections that satisfy $\isheadleast$
     and total orders on $A$.
@@ -265,7 +266,7 @@ same section back from $\preccurlyeq$. Unfortunately, this fails!
 
 As we can see, we need more constraints to prove a full equivalence.
 We introduce our second axiom of sorting:
-\begin{definition}
+\begin{definition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Base.html#2032}{link}}
     A section $s$ to $q$ satisfies $\istailsort$ iff
     $\forall x\,xs.\,\issorted(x :: xs) \to \issorted(xs)$.
 \end{definition}
@@ -282,7 +283,7 @@ data Sorted ($\leq$ : A -> A -> UU) : List A -> UU where
   sorted-cons : forall x y zs -> x $\leq$ y -> Sorted (y :: zs) -> Sorted (x :: y :: zs)
 \end{code}
 
-\begin{proposition}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#9760}{link}}
     Given an order $\leq$, for any $xs, ys : \LL(A)$,
     $q(xs) = q(ys) \land \term{Sorted}_{\leq}(xs) \land \term{Sorted}_{\leq}(ys) \to xs = ys$.
 \end{proposition}
@@ -290,7 +291,7 @@ data Sorted ($\leq$ : A -> A -> UU) : List A -> UU where
 Informally, this states if $xs$ and $ys$ have the same elements, i.e. they belong to the same
 equivalence class generated by permutations, and if they are both sorted by $\leq$, then they would be the same.
 
-\begin{corollary}\label{sort:sort-uniq}
+\begin{corollary}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#10847}{link}}\label{sort:sort-uniq}
     Given an order $\leq$,
     if a section $s$ always produces sorted list, i.e. $\forall xs.\,\term{Sorted}_{\leq}(s(xs))$,
     $s$ is equal to insertion sort by $\leq$.
@@ -299,7 +300,7 @@ It is trivial to see how insertion sort by $\leq$ would always produce lists tha
 $\term{Sorted}_{\leq}$. Therefore, any functions that also always produce lists that satisfy
 $\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
 
-\begin{corollary}\label{sort:well-behave-sorts}
+\begin{corollary}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Equiv.html#6600}{link}}\label{sort:well-behave-sorts}
     Given a section $s$ that satisfies $\isheadleast$ and $\istailsort$,
     let $\preccurlyeq$ be the order derived from $s$,
     $\forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$.
@@ -314,7 +315,7 @@ $\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
 \end{proof}
 
 We can now prove the full equivalence:
-\begin{proposition}\label{sort:s2o2s}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Equiv.html#4603}{link}}\label{sort:s2o2s}
     Assume $A$ has a decidable total order $\leq$, then we can construct
     a section $t_\leq$ that satisfies $\isheadleast$ and $\istailsort$,
     such that if the order $\preccurlyeq$ is derived from such a section $s$,
@@ -328,7 +329,7 @@ We can now prove the full equivalence:
     By ~\cref{sort:sort-uniq} and ~\cref{sort:well-behave-sorts}, $s = t_\preccurlyeq$.
 \end{proof}
 
-\begin{proposition}\label{sort:decord-to-deceq}
+\begin{proposition}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Order.html#1745}{link}}\label{sort:decord-to-deceq}
     Assume $A$ has a decidable total order $\leq$,
     then $A$ has decidable equality.
 \end{proposition}
@@ -365,7 +366,7 @@ which axiomatizes a correct sorting algorithm.
               \).
     \end{itemize}
 \end{definition}
-\begin{theorem}\label{sort:main}
+\begin{theorem}{\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Sort.Equiv.html#7202}{link}}\label{sort:main}
     Let $\term{DecTotOrd}(A)$ be the set of decidable total orders on $A$,
     $\term{Sort}(A)$ be the set of correct sorting functions with carrier set $A$,
     and $\term{isDiscrete}(A)$ be a predicate which states $A$ has decidable equality.

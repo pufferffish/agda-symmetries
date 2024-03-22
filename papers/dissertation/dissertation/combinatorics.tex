@@ -78,12 +78,24 @@ constructors for the de Bruijn encoding).
 We note that $\hProp$ is actually one type level higher than $A$.
 To make the type level explicit, $A$ is of type level $\ell$, and since $\hProp_\ell$
 is the type of all types $X : \UU_\ell$ that are mere propositions, $\hProp_\ell$ has
-type level $\ell + 1$. While we can reduce to the type level of $\hProp_\ell$ to $\ell$ if
+type level $\ell + 1$.
+This makes it such that the Yoneda map would not give us a monad
+since we are going from the category of $\Set$ of level $\ell$
+to the category of $\Set$ of level $\ell + 1$.
+While we can reduce to the type level of $\hProp_\ell$ to $\ell$ if
 we assume Voevodsky's propositional resizing axiom~\cite{voevodskyResizingRulesTheir2011},
 we chose not to do so and work within a relative monad framework~\cite{arkor_formal_2023}
 similar to~\cite[Section~3]{choudhuryFreeCommutativeMonoids2023}. In the formalization,
 $\ext{(\blank)}$ is type level polymorphic to accommodate for this. We explain this
 further in~\cref{sec:formalization}.
+
+The definition membership for $\SList$ is formalized
+\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.CMon.SList.Membership.html#1171}{here}
+and for $\List$ it is formalized
+\href{https://windtfw.com/agda-symmetries/Cubical.Structures.Set.Mon.List.html#3128}{here}.
+While it is possible to generalize the definition of membership
+for any free monoid and free commutative monoid under the framework,
+we did not do so because we did not bother to refactor the code. 
 
 \begin{figure}[H]
     \centering
