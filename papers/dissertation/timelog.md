@@ -319,3 +319,28 @@ Fix some slight mistakes on the paper
 
 * 2/3/2024 [30 minutes]
 Migrate the HTML rendering of the code from netlify
+
+* 4/3/2024 [2 hours]
+Work on the dissertation presentation
+
+* 5/3/2024 [1 hours]
+Meeting with Dr. Vikraman Choudhury to discuss cleaning up the paper for arxiv
+
+* 13/3/2024 [30 minutes]
+Meeting with Dr. Simon Gay to discuss how the type theory section would be written
+
+* 16/3/2024 [2 hours]
+Clean up the paper based on feedbacks
+
+* 17/3/2024 [2 hours]
+Clean up the paper based on feedbacks
+
+* 18/3/2024 [2 hours]
+Clean up the paper based on feedbacks, work on the disseration and elaborate more on the type theory section,
+meeting with Dr. Simon Gay to get feedbacks on the type theory section
+
+* 21/3/2024 [3 hours]
+Elaborate more on type theory section based on feedbacks, some work on rewriting the universal algebra section
+
+* 22/3/2024 [4 hours]
+ Complete the universal algebra section and the discussion section, overall cleanup of the disseration  
