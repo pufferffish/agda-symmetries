@@ -7,7 +7,7 @@ two structures under the framework of universal algebra~\cite{birkhoffStructureA
 However, to begin, we would need to explain what an algebra is,
 what exactly is the definition of "free".
 
-\section{Algebra}
+\section{Algebra}\label{algebra:signature}
 First we define very generally what an algebra is. Every algebra
 has a signature $\sigma$, which is a (dependent) tuple of:
 \begin{itemize}
@@ -37,7 +37,7 @@ on $\Set$. We refer to this endofunctor as the signature endofunctor.
 In plain English, $F_\sigma(X)$ is a tuple of an operation symbol $op$
 and a vector of $X$, where the dimension of the vector is the arity of $op$.
 
-\begin{definition}
+\begin{definition}\label{algebra:struct}
     A $\sigma$-structure $\mathfrak{X}$ is an $F_\sigma$-algebra, given by a tuple
     of:
     \begin{itemize}
@@ -81,7 +81,7 @@ $F_{\sigma}$-algebras and their morphisms form a category $F_\sigma$-Alg.
 For brevity, we also refer to this category as $\sigma$-Alg. The category
 is given by the identity homomorphism and composition of homomorphisms.
 
-\section{Free Algebra}
+\section{Free Algebra}\label{sec:universal-algebra:free-algebras}
 The category $\sigma$-Alg admits a forgetful functor
 $\sigma-\term{Alg} \to \Set$, which forgets all the algebraic structure
 and only retains the underlying carrier set.
@@ -130,6 +130,18 @@ and we use $\ext{f}$ to denote a homomorphism given by a set function $f : X \to
 By definition, if $F : \Set \to \Set$ satisfies the universal property of
 free $\sigma$-algebra, then $\mathfrak{F}$ would be the free $\sigma$-algebra.
 We use "the" to refer to $F$ since $F$ is unique up to isomorphism. 
+
+\begin{lemma}\label{lem:free-algebras-unique}
+Any two free $\sigma$-algebra on the same set are isomorphic.
+\end{lemma}
+\begin{proof}
+Let $E(X)$ and $F(X)$ be the carrier sets of two free $\sigma$-algebras.
+This gives us $\eta_1 : X \to E(X)$ and $\eta_2 : X \to F(X)$.
+We can extend them to $\ext{\eta_1} : \mathfrak{F}(X) \to \mathfrak{E}(X)$
+and  $\ext{\eta_2} : \mathfrak{E}(X) \to \mathfrak{F}(X)$. By uniqueness,
+$\ext{\eta_1}$ and $\ext{\eta_2}$ must be the identity homomorphism,
+therefore $E(X)$ and $F(X)$ are isomorphic.
+\end{proof}
 
 \subsection{Construction}
 We can construct the carrier set of the free $\sigma$-algebra
@@ -184,7 +196,7 @@ A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
     % \todo{Expand the signature functor and show how this produces binary trees.}
 \end{example}
 
-\section{Equation}
+\section{Equation}\label{sec:universal-algebra:equations}
 We have shown how to define the operations of an algebra, but we have not
 shown how to define the equations of an algebra. For example, a monoid
 should satisfy the unit laws and associative law. We now explain how
@@ -240,7 +252,7 @@ the following properties:
 \end{align*} 
 \end{example}
 
-\section{Construction}
+\section{Construction}\label{algebra:tree}
 To show that a construction $F(X)$ is a free $\sigma$-algebra, we first have to
 show it is a $\sigma$-algebra by defining how the operations of $\sigma$
 would compute on $F(X)$. For example, identity operation for $\List(X)$

@@ -15,7 +15,7 @@ which is used in~\cref{sec:combinatorics}.
 \section{Lists}
 \label{mon:lists}
 
-Cons-lists are simple inductive datatypes, well-known to functional programmers,
+Cons-lists are simple inductive data types, well-known to functional programmers,
 and are the most common representation of free monoids in programming languages.
 %
 That lists are free monoids was first observed in category theory~\cite{dubucFreeMonoids1974}, and in Kelly's notion of
@@ -188,7 +188,7 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
 \end{propositionrep}
 
 \begin{proofsketch}
-    We can prove $(\Array(A), \doubleplus)$ satisfis the unit laws by showing
+    We can prove $(\Array(A), \doubleplus)$ satisfies the unit laws by showing
     $(\lambda\{\} \oplus f)(k) = (f \oplus \lambda\{\})(k) = f(k)$ for all $k : \Fin[n]$,
     by proving that it is impossible for $k < 0$ and $k \geq n$, therefore
     $(\lambda\{\} \oplus f)(k)$ and $(f \oplus \lambda\{\})(k)$ must reduce to $f(k)$.
