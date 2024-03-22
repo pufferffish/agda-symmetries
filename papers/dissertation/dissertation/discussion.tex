@@ -1,95 +1,84 @@
 \label{sec:discussion}
 
-We discuss some high-level observations, related work, and future directions.
+We conclude by discussing some background information regarding the project,
+related works, and future directions we can take.
 
-\section{Free commutative monoids}
+The project was originally meant to be a continuation to the
+paper~\cite{choudhuryFreeCommutativeMonoids2023}, where
+free commutative monoids are studied under HoTT. We meant to
+generalize the study of free commutative monoids on sets to
+groupoids, therefore giving us free symmetric monoidal categories.
 
-The construction of finite multisets and free commutative monoids has a long history, and various authors have different
-approaches to it. We refer the reader to the discussions
-in~\cite{choudhuryFreeCommutativeMonoids2023,joramConstructiveFinalSemantics2023} for a detailed survey of these
-constructions.
-%
-Our work, in particular, was motivated by the colloquial observation that:
-``there is no way to represent free commutative monoids using inductive types''.
-%
-From the categorical point of view, this is simply the fact that the free commutative monoid endofunctor on $\Set$ is
-not polynomial (doesn't preserve pullbacks).
-%
-This has led various authors to think about clever encodings of free commutative monoids using inductive types by adding
-assumptions on the carrier set -- in particular, the assumption of total ordering on the carrier set leads to the
-construction of ``fresh-lists'', by~\cite{kupkeFreshLookCommutativity2023}, which was the inspiration for our work!
+We decided to rewrite the formalization done in the paper so that
+it would have a cleaner codebase, ideally one that would unify
+all the proofs related to the universal property of free algebras,
+therefore the project evolved into developing a framework for
+universal algebra, with the goal to first start from algebra on sets
+and eventually generalizing it to groupoids so we can study
+symmetric monoidal categories. To demonstrate the effectiveness
+of the framework, we surveyed different constructions of free
+monoids and free commutative monoids and formalized them under the
+framework. Many constructions of free commutative monoids come
+from~\cite{joramConstructiveFinalSemantics2023}, which proves
+their universal property by isomorphism to a known construction
+of free commutative monoid as a HIT. We opted to take a different route,
+which is to prove their universal property directly, giving us the new
+proof of $\Bag$'s universal property in~\cref{cmon:bag}, so as to
+compare the difficulty of proof by isomorphism and direct proofs.
+No definite conclusions were drawn, other than that the main difficulty
+comes from technical reasons, namely Agda not being able to reduce
+a huge $\Bag$ or $\Array$ for reasons we have highlighted
+in~\cref{bag:rep}.
 
-Perhaps it is worth noting what this observation means for functional programmers.
-%
-In programming practice, it is usually the case that all user-defined types have some sort of total order on them,
-either because they're finite, or they can be enumerated in some way.
-%
-Therefore, under these assumptions, the construction of fresh lists is a very reasonable way to represent free
-commutative monoids, or finite multisets.
+After having formalized different constructions of free commutative monoids,
+we decided to move on to generalizing the framework to groupoids, and
+also prove $\SList$ generalized to groupoids would be a free symmetric
+monoidal category. This proved to be quite difficult, due to the lack
+of existing literature on this topic and the amount of mathematical background
+knowledge involved. Out of concern that it cannot be completed within
+half a semester, we moved on to other goals, which was to study the
+definition of sorting under the framework, and to investigate its relationship
+to the well-ordering theorem, and equivalently, the axiom of choice.
 
-\section{Sorting}
+The correctness of sorting algorithms has been studied extensively,
+with the most simple specification being that of~\cite{appelVerifiedFunctionalAlgorithms2023},
+which is defined for $\List(\Nat) \to \List(\Nat)$, however it can be generalized
+to any set $A$ with a total order $\leq$ easily. A more refined study has
+been done by~\cite{hinzeSortingBialgebrasDistributive2012}, and further
+refined in~\cite{alexandruIntrinsicallyCorrectSorting2023}, in which
+sorting algorithms are studied under a categorical framework. Their study
+not only studies the extensional correctness of sorting algorithms but
+also the algorithm itself, which allows them to derive sorting algorithm
+"for free". Our work compliment theirs in that we are not interested in the
+computation properties of sorting, but rather the abstract properties of
+sorting, independent of a given ordering, with the goal to eventually study
+how assuming the existence of sorting functions on sets would imply
+constructive taboos, namely the axiom of choice. While we could not draw
+the relationship of sorting and axiom of choice due to the lack of time,
+we still managed to find new interesting properties of sorting functions
+in~\cref{sec:sorting}, where we define order in terms of sorting, as opposed
+to defining sorting from orders.
 
-Sorting is a classic problem in computer science, and the functional programming view of sorting and its correctness has
-been studied by various authors.
-%
-The simplest view of sorting is a function $\term{sort}: \LL(\Nat) \to \LL(\Nat)$,
-which permutes the list and outputs an ordered list, which is studied in~\cite{appelVerifiedFunctionalAlgorithms2023}.
-%
-Fundamentally, this is a very extrinsic view of program verification, which is common in the \emph{Coq} community,
-and further, a very special case of a more general sorting algorithm.
-%
-The more refined intrinsic view of correct sorting has been studied in~\cite{hinzeSortingBialgebrasDistributive2012},
-and further expanded in~\cite{alexandruIntrinsicallyCorrectSorting2023}, which matches our point of view, as explained
-in~\cref{prop:sort-correctness}.
-%
-Their work is not just about extensional correctness of sorting, but also deriving various sorting algorithms
-starting from bialgebraic semantics and distributive laws.
-%
-Our work is complementary to theirs, in that we are not concerned with the computational content of sorting, but rather
-the abstract properties of sorting functions, which are independent of a given ordering.
-%
-It remains to be seen how these ideas could be combined -- the abstract property of sorting, with the intrinsic essence
-of sorting algortihms -- and that is a direction for future work.
-%
-We do want to point out a fascinating connection between our work and theirs: our observation of recovering $\leq$ from
-the section, by ``sorting'' a 2-element list actually appears in a correctness proof
-in~\cite[Section~4.6,pg.324]{hengleinSortingSearchingDistribution2013}!
+\section{Conclusion}
+With Cubical Agda, we have developed a framework for universal algebra
+which allows us to prove general properties of free algebras.
+We surveyed existing constructions of free monoids and
+free commutative monoids and formalized them under the framework,
+most notably giving a new proof of $\Bag$'s universal property.
+We also study how commutativity impose the notion of unorderedness,
+and how free commutative monoids can be used to formalize the notion
+of unordered lists. We then study the correctness of sorting functions
+from the lens of universal algebra, studying them as the section to
+the canonical map from free monoids to free commutative monoids.
+We arrive at a new axiomatization of sorting functions, in which
+sorting functions are not defined in terms of total order, but rather
+defined purely in terms of property of functions.
 
-This paper only talks about sorting lists and bags, but the abstract property of correct sorting functions could be
-applied to more general inductive types! We speculate that this could lead to some interesting connections with sorting
-(binary) trees, and constructions of (binary) search trees, from classical computer science.
-
-\section{Algebra}
-
-One of the contributions of our work is also a rudimentary framework for universal algebra, but done in a more
-categorical style, which lends itself to an elegant formalization in type theory.
-%
-We believe this framework could be improved and generalised to higher dimensions, moving from sets to groupoids,
-and using a system of coherences on top of a system of equations, which we are already pursuing.
-%
-Groupoidyfing free (commutative) monoids to free (symmetric) monoidal groupoids is a natural next step, and its
-connections to assumptions about total orders on the type of objects would be an important direction to explore.
-
-
-% To conclude, our framework of universal algebra can be generalised from sets to groupoids, using a system of
-% coherences on top of the system of equations.
-
-% Hinze's work: Sorting and Searching by Distribution: From Generic Discrimination to Generic Trie, see 4.6 on page 324
-
-
-% \vc{Can you sort anything that doesn't have a total order?}
-% \vc{Can you sort binary trees?}
-
-% In a sense, this problem has already been solved, first by Hinze et al. \cite{hinzeSortingBialgebrasDistributive2012}
-% and later extended by Alexandru in their thesis \cite{alexandruIntrinsicallyCorrectSorting2023}.
-% Their formalization is defined in terms of bialgebras, which not
-% only captures the correctness of sorting algorithms purely in a categorical settings, but
-% also isolate the computational essence of sorting algorithms in terms of distributive laws,
-% allowing us to construct more sorting algorithms "for free". Their work are thus necessarily
-% below the level of extensional equality, i.e. input-output behavior, and allow us to reason
-% with the structures of the sorting algorithms themselves. Our work only concerns the correctness
-% of sorting algorithms, with the goal to axiomatize sorting functions as functions satisfying
-% some abstract properties, independent of a given ordering, which allows us to gain
-% insight into how sorting relates to order and vice versa.
-% % and its implications on axiom of choice.
-% % maybe write more on its relationship to AC, in a sepreate paragraph?
+In the future, it would be interesting to build upon the work done on this
+dissertation to explore how our abstract properties of sorting can be
+generalized to other inductive types, such as binary trees, which might
+give new insight into the constructions of binary search trees. It would
+also be interesting to pursue our original goals, such as investigating
+the relationship between sorting and axiom of choice, and generalizing the
+framework to groupoids so we can study free symmetric monoid categories
+in HoTT.

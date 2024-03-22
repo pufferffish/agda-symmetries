@@ -14,10 +14,10 @@ under the operation of multiset union: $xs \cup ys = ys \cup xs$.
 %
 Its order is ``forgotten'' in the sense that it doesn't matter how two multisets are union-ed together,
 or in more concrete terms, for example, $\{a, a, b, c\} = \{b, a, c, a\}$ are equal as finite multisets
-(hence justifying the set notation).
 %
 This is unlike free monoids, using $\List$ for example,
-where $[a, a, b, c] \neq [b, a, c, a]$ (hence justifying the list notation).
+where $[a, a, b, c] \neq [b, a, c, a]$.
+
 
 \section{Free monoids with a quotient}\label{cmon:qfreemon}
 
@@ -392,6 +392,13 @@ $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need to dev
 borrowed from~\cite{mozlerCubicalAgdaSimple2021} and
 developed further
 in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation codes.
+This proof was particularly hard to prove and it took two weeks to prove this.
+The main insight comes from the proof of isomorphism between $\Bag$ and $\PList$
+in~\cite{choudhuryFreeCommutativeMonoids2023}, where the proof is split into
+two cases: one where $\phi(0) = 0$ and one where $\phi(0) = S(n)$ for some $n$.
+This led to the realization that the proof can be completed inductively
+if $\phi(0) = 0$, and all that remains is to bridge the proof from
+$\phi(0) = S(n)$ to $\phi(0) = 0$.
 
 \begin{lemma}\label{bag:tau}
     Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
