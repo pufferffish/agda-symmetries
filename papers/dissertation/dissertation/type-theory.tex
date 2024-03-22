@@ -320,10 +320,19 @@ data Fin : $\mathbb{N}$ -> UU where
     fsuc : {k : $\mathbb{N}$} -> Fin k -> Fin (suc k)
 \end{code}
 
+Alternatively, it can also be defined using coproducts:
+\begin{code}
+Fin : $\mathbb{N}$ -> UU
+Fin 0 = Void
+Fin (suc n) = Unit + Fin n
+\end{code}
 
 In our construction we opted to use the $\Sigma$-type definition
 because cubical Agda does not behave well
-when pattern matching on indexed inductive types.
+when pattern matching on indexed inductive types,
+and the $\Sigma$-type definition allows us to extract the underlying
+$\Nat$ easily, thus allowing us to perform arithmetic which would be
+useful for constructions in~\cref{mon:array} and~\cref{cmon:bag}.
 
 We use $\term{Set}$ to denote $\hSet$ while omitting the type level.
 We also use $\times$ to denote product types and $+$ to denote coproduct types.
