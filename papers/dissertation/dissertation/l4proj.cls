@@ -163,7 +163,7 @@ textfont=it,tableposition=above]{caption}
 
 
 % fix the margins and linespacing
-\usepackage[top=3.5cm,bottom=3.0cm,left=3.5cm,right=3.5cm]{geometry}
+\usepackage[top=3.5cm,bottom=3.5cm,left=3.5cm,right=3.5cm]{geometry}
 \setlength{\parskip}{5pt plus 2pt}
 
 % define the title page

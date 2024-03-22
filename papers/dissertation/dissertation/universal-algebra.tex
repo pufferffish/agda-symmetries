@@ -11,8 +11,8 @@ what exactly is the definition of "free".
 First we define very generally what an algebra is. Every algebra
 has a signature $\sigma$, which is a (dependent) tuple of:
 \begin{itemize}
-    \item a set of function symbols $op : \hSet$,
-    \item and an arity function $ar : op \to \hSet$.
+    \item a set of function symbols $op : \Set$,
+    \item and an arity function $ar : op \to \Set$.
 \end{itemize}
 
 Here, $op$ gives us a set of names to refer to the operations we can do
@@ -129,7 +129,7 @@ and we use $\ext{f}$ to denote a homomorphism given by a set function $f : X \to
 
 By definition, if $F : \Set \to \Set$ satisfies the universal property of
 free $\sigma$-algebra, then $\mathfrak{F}$ would be the free $\sigma$-algebra.
-We use "the" to refer to $F$ since $F$ is unique upto isomorphism. 
+We use "the" to refer to $F$ since $F$ is unique up to isomorphism. 
 
 \subsection{Construction}
 We can construct the carrier set of the free $\sigma$-algebra
@@ -144,3 +144,126 @@ The constructors $leaf$ and $node$ correspond to the generator map
 and the interpretation function. Concretely, $Tr_\sigma(V)$ can
 be thought of as an abstract syntax tree denoting operations done
 an elements of $V$. 
+
+Given a $\sigma$-algebra $\mathfrak{X}$, composing a homomorphism
+$f : \mathfrak{F}(V) \to \mathfrak{X}$ with $node$ with turn it
+into a function $V \to X$.
+We can define an inverse to this operation by lifting a set function
+$f : V \to X$ to a homomorphism $\ext{f} : \mathfrak{F}(V) \to \mathfrak{X}$
+as follow: we first apply $f$ on every leaves of the tree, giving us
+$Tr_\sigma(X)$, and evaluate the tree according to the operations
+in the nodes, giving us a $X$ as the result.
+
+\begin{example}
+A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
+\begin{center}
+\scalebox{0.7}{
+% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	2 \&\& 1 \&\& 1 \\
+	\&\&\& {+} \\
+	\&\& {+} \\
+	\&\&
+	\arrow[no head, from=3-3, to=4-3]
+	\arrow[from=2-4, to=3-3]
+	\arrow[from=1-3, to=2-4]
+	\arrow[from=1-5, to=2-4]
+	\arrow[from=1-1, to=3-3]
+\end{tikzcd}
+}
+\hspace{2em}
+% https://q.uiver.app/#q=WzAsMixbMCwwLCJlIl0sWzAsMiwiMCJdLFswLDFdXQ==
+\begin{tikzcd}[ampersand replacement=\&,cramped]
+	e \\
+	\\
+	\arrow[no head, from=1-1, to=3-1]
+\end{tikzcd}
+\end{center}
+    % Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
+    % %
+    % \todo{Expand the signature functor and show how this produces binary trees.}
+\end{example}
+
+\section{Equation}
+We have shown how to define the operations of an algebra, but we have not
+shown how to define the equations of an algebra. For example, a monoid
+should satisfy the unit laws and associative law. We now explain how
+we can define equations.
+
+Much like operation signatures, every algebra also has an equation signature
+$\epsilon$, which is a (dependent) tuple of:
+\begin{itemize}
+    \item a set of equation symbols $eq : \Set$,
+    \item and an arity of free variables $fv : eq \to \Set$.
+\end{itemize}
+
+Here, $eq$ gives us a set of names to refer to an equation which
+the algebra must satisfy, and the arity function $fv$ specifies the 
+number of free variables in the equation, using the cardinality of the
+output set as the arity. Once again, other definitions might opt to
+define this as $fv : eq \to \Nat$, but we opted to use $\hSet$ and
+cardinality instead to allow for infinitary equations.
+
+\begin{example}
+We can define the equation signature of monoid as follow: the algebra
+$\Mon$ has equation symbols $\{\term{unitl}, \term{unitr}, \term{assocr}\}$,
+referring to the unit left law, the unit right law, and the associativity law.
+The arity function is defined as:
+$fv : \{ \term{unitl} \mapsto \Fin[1], \term{unitr} \mapsto \Fin[1], \term{assocr} \mapsto \Fin[3] \}$.
+\end{example}
+
+We can the define a system of equations (or equational theory $T_\epsilon$)
+by a pair of trees on the set of free variables, representing the
+left hand side and right hand side of the equations.
+\begin{definition}
+A system of equations $T_\epsilon$ is defined as
+$l, r : (e : eq) \to Tr_\sigma(fv(e))$.
+\end{definition}
+
+We say a $\sigma$-structure $\mathfrak{X}$ satisfies $T$
+iff for all $e : eq$ and
+$\rho : fv(e) \to X$, $\ext{\rho}(l(e)) = \ext{\rho}(r(e))$.
+Concretely, this means that $\rho : fv(e) \to X$ assigns
+free variables in equations to elements of $X$, and
+$\ext{\rho} : \mathfrak{F}(fv(e)) \to \mathfrak{X}$ evaluates
+a tree given an assignment of free variables. Because $\ext{\rho}$
+is a homomorphism, it must evaluate correctly according to the
+algebraic structure of $F_\sigma$.
+
+\begin{example}
+To show ($\Nat$, 0, +) satisfies monoidal laws, we need to prove
+the following properties:
+\begin{align*}
+\term{unitl}  & : \forall (\rho : \Nat^{\Fin[1]}). \, \rho(0) + 0 \id \rho(0) \\
+\term{unitr}  & : \forall (\rho : \Nat^{\Fin[1]}). \, 0 + \rho(0) \id \rho(0) \\
+\term{assocr} & : \forall (\rho : \Nat^{\Fin[3]}). \, (\rho(0) + \rho(1)) + \rho(2) \id \rho(0) + (\rho(1) + \rho(2))
+\end{align*} 
+\end{example}
+
+\section{Construction}
+To show that a construction $F(X)$ is a free $\sigma$-algebra, we first have to
+show it is a $\sigma$-algebra by defining how the operations of $\sigma$
+would compute on $F(X)$. For example, identity operation for $\List(X)$
+is given by a constant function $\lambda().\,[].$, and the $\mult$ operation
+would be given by the concatenation function. We then have to show that
+it is a free $\sigma$-algebra by defining what the universal map
+$\eta : X \to F(X)$ would be, and define an extension operation
+$\ext{(\blank)} : (X \to Y) \to (\mathfrak{F}(X) \to \mathfrak{F}(Y))$
+would be. Finally, we have to show that $\ext{(\blank)}$ is the inverse
+to $\blank \comp \eta$, therefore $F(X)$ does satisfy the universal property
+of free algebra.
+
+We note that to actually show $Tr_\sigma(X)$ is a free $\sigma$-algebra,
+we need to quotient $Tr_\sigma(X)$ by the equations. To do this for
+infinitary operations would require axiom of choice~\cite{blassWordsFreeAlgebras1983},
+therefore we can not give a general construction of free algebra as a quotient
+without assuming non-constructive principles. Alternatively, we can give
+a general construction as a HIT~\cite{univalentfoundationsprogramHomotopyTypeTheory2013},
+however doing this in Cubical Agda led to termination checking issues.
+After a week on trying to give a general construction, we decided to
+move on to other issues instead, therefore we do not give a general
+construction in the formalization.
+
+In the next sections, we give constructions of 
+free monoids and free commutative monoids, and prove these constructions
+are correct under this framework.
