@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 module Cubical.Structures.Gpd.Mon.List where
 
 open import Cubical.Foundations.Everything hiding (str)
@@ -66,8 +66,7 @@ _⊗_ list-str = _++_
 ρ list-str = ++-unit-r
 α list-str = ++-assoc
 ▿ list-str = list-▿
-⬠ list-str = {!!}
-trunc list-str = {!!}
+⬠ list-str = TODO -- pentagon coherence for lists
 
 module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
 

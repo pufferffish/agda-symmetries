@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module index where
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module Cubical.Structures.Gpd.Mon.Desc where
 
@@ -32,6 +32,8 @@ MonCohFree `pentagon = 4
 MonCohSig : CohSig ℓ-zero ℓ-zero
 MonCohSig = finCohSig (MonCoh , MonCohFree)
 
+-- TODO: coherences on top of signatures and equations 
+
 record MonStr {a : Level} (A : Type a) : Type (ℓ-suc a) where
   constructor mkMonStr
   infixl 5 _⊗_
@@ -49,8 +51,6 @@ record MonStr {a : Level} (A : Type a) : Type (ℓ-suc a) where
     ⬠ : (x y z w : A)
       -> α (w ⊗ x) y z ∙ α w x (y ⊗ z)
        ≡ ap (_⊗ z) (α w x y) ∙ α w (x ⊗ y) z ∙ ap (w ⊗_) (α x y z)
-  field
-    trunc : isGroupoid A
 
 open MonStr public
 

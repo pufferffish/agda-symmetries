@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module Cubical.Structures.Prelude where
 
@@ -18,3 +18,6 @@ ap = congS
 
 ap₂ : (f : A → B → C) → x ≡ y → z ≡ w → f x z ≡ f y w
 ap₂ f p q i = f (p i) (q i)
+
+postulate
+  TODO : {a : Level} {A : Type a} -> A
