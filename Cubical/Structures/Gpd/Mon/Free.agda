@@ -33,4 +33,4 @@ data FreeMon {ℓ : Level} (A : Type ℓ) : Type ℓ where
 
   trunc : isGroupoid (FreeMon A)
 
--- TODO: write the eliminators and prove them by pattern matching
+-- TODO: write the eliminators for FreeMon and prove them by pattern matching
