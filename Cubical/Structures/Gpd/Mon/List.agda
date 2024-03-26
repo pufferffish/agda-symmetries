@@ -66,7 +66,22 @@ _⊗_ list-str = _++_
 ρ list-str = ++-unit-r
 α list-str = ++-assoc
 ▿ list-str = list-▿
-⬠ list-str = TODO -- pentagon coherence for lists
+⬠ list-str [] [] [] [] = refl
+⬠ list-str [] [] [] (x ∷ w) = {!!}
+⬠ list-str [] [] (x ∷ z) [] = {!!}
+⬠ list-str [] [] (x ∷ z) (x₁ ∷ w) = {!!}
+⬠ list-str [] (x ∷ y) [] [] = {!!}
+⬠ list-str [] (x ∷ y) [] (x₁ ∷ w) = {!!}
+⬠ list-str [] (x ∷ y) (x₁ ∷ z) [] = {!!}
+⬠ list-str [] (x ∷ y) (x₁ ∷ z) (x₂ ∷ w) = {!!}
+⬠ list-str (x ∷ x₁) [] [] [] = {!!}
+⬠ list-str (x ∷ x₁) [] [] (x₂ ∷ w) = {!!}
+⬠ list-str (x ∷ x₁) [] (x₂ ∷ z) [] = {!!}
+⬠ list-str (x ∷ x₁) [] (x₂ ∷ z) (x₃ ∷ w) = {!!}
+⬠ list-str (x ∷ x₁) (x₂ ∷ y) [] [] = {!!}
+⬠ list-str (x ∷ x₁) (x₂ ∷ y) [] (x₃ ∷ w) = {!!}
+⬠ list-str (x ∷ x₁) (x₂ ∷ y) (x₃ ∷ z) [] = {!!}
+⬠ list-str (x ∷ x₁) (x₂ ∷ y) (x₃ ∷ z) (x₄ ∷ w) = {!!}
 
 module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
 
