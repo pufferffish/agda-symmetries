@@ -67,7 +67,34 @@ _⊗_ list-str = _++_
 α list-str = ++-assoc
 ▿ list-str = list-▿
 ⬠ list-str [] [] [] [] = refl
-⬠ list-str [] [] [] (x ∷ w) = {!!}
+⬠ list-str [] [] [] (x ∷ w) =
+    α list-str ((list-str ⊗ (x ∷ w)) []) [] [] ∙ α list-str (x ∷ w) [] ((list-str ⊗ []) [])
+  ≡⟨⟩
+    α list-str ((list-str ⊗ (x ∷ w)) []) [] [] ∙ α list-str (x ∷ w) [] []
+  ≡⟨⟩
+    ++-assoc ((_++_ (x ∷ w)) []) [] [] ∙ ++-assoc (x ∷ w) [] []
+  ≡⟨⟩
+    ++-assoc ((x ∷ w) ++ []) [] [] ∙ ++-assoc (x ∷ w) [] []
+  ≡⟨ {!!} ⟩
+    (ap (λ left → left ++ []) (++-assoc (x ∷ w) [] [])) ∙ ++-assoc (x ∷ w) [] []
+  ≡⟨ {! refl!} ⟩
+  ap (λ section₁ → section₁ ++ [])
+    (++-assoc (x ∷ w) [] [])
+    ∙ ++-assoc (x ∷ w) [] [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
+  ≡⟨⟩
+    ap (λ section₁ → (_++_ section₁) [])
+    (++-assoc (x ∷ w) [] [])
+    ∙ ++-assoc (x ∷ w) [] [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
+  ≡⟨⟩
+    ap (λ section₁ → (_++_ section₁) [])
+    (++-assoc (x ∷ w) [] [])
+    ∙ ++-assoc (x ∷ w) ((_++_ []) []) [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
+  ≡⟨⟩
+    ap (λ section₁ → (list-str ⊗ section₁) [])
+    (α list-str (x ∷ w) [] [])
+    ∙ α list-str (x ∷ w) ((list-str ⊗ []) []) [] ∙  ap (list-str ⊗ (x ∷ w)) (α list-str [] [] [])
+   ∎
+
 ⬠ list-str [] [] (x ∷ z) [] = {!!}
 ⬠ list-str [] [] (x ∷ z) (x₁ ∷ w) = {!!}
 ⬠ list-str [] (x ∷ y) [] [] = {!!}
