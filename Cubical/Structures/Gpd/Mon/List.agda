@@ -59,6 +59,23 @@ private
       ap (_++ ys) (++-unit-r (x ∷ xs))
     ∎
 
+private
+  list-⬠ : (xs ys zs ws : List A)
+         → ++-assoc (ws ++ xs) ys zs ∙ ++-assoc ws xs (ys ++ zs)
+         ≡ ap (_++ zs) (++-assoc ws xs ys) ∙ ++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs)
+  list-⬠ xs ys zs [] =
+      ++-assoc xs ys zs ∙ idp (xs ++ ys ++ zs)
+    ≡⟨ sym (rUnit (++-assoc xs ys zs)) ⟩
+      ++-assoc xs ys zs
+    ≡⟨ lUnit (++-assoc xs ys zs) ⟩
+      idp ((xs ++ ys) ++ zs) ∙ ++-assoc xs ys zs
+    ≡⟨ lUnit (idp ((xs ++ ys) ++ zs) ∙ ++-assoc xs ys zs) ⟩
+      idp ((xs ++ ys) ++ zs) ∙ idp ((xs ++ ys) ++ zs) ∙ ++-assoc xs ys zs
+    ≡⟨⟩
+      ap (_++ zs) (idp (xs ++ ys)) ∙ idp ((xs ++ ys) ++ zs) ∙ ap (idfun _) (++-assoc xs ys zs)
+    ∎
+  list-⬠ xs ys zs (w ∷ ws) = TODO
+
 list-str : MonStr (List A)
 𝟙 list-str = []
 _⊗_ list-str = _++_
@@ -66,49 +83,7 @@ _⊗_ list-str = _++_
 ρ list-str = ++-unit-r
 α list-str = ++-assoc
 ▿ list-str = list-▿
-⬠ list-str [] [] [] [] = refl
-⬠ list-str [] [] [] (x ∷ w) =
-    α list-str ((list-str ⊗ (x ∷ w)) []) [] [] ∙ α list-str (x ∷ w) [] ((list-str ⊗ []) [])
-  ≡⟨⟩
-    α list-str ((list-str ⊗ (x ∷ w)) []) [] [] ∙ α list-str (x ∷ w) [] []
-  ≡⟨⟩
-    ++-assoc ((_++_ (x ∷ w)) []) [] [] ∙ ++-assoc (x ∷ w) [] []
-  ≡⟨⟩
-    ++-assoc ((x ∷ w) ++ []) [] [] ∙ ++-assoc (x ∷ w) [] []
-  ≡⟨ {!!} ⟩
-    (ap (λ left → left ++ []) (++-assoc (x ∷ w) [] [])) ∙ ++-assoc (x ∷ w) [] []
-  ≡⟨ {! refl!} ⟩
-  ap (λ section₁ → section₁ ++ [])
-    (++-assoc (x ∷ w) [] [])
-    ∙ ++-assoc (x ∷ w) [] [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
-  ≡⟨⟩
-    ap (λ section₁ → (_++_ section₁) [])
-    (++-assoc (x ∷ w) [] [])
-    ∙ ++-assoc (x ∷ w) [] [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
-  ≡⟨⟩
-    ap (λ section₁ → (_++_ section₁) [])
-    (++-assoc (x ∷ w) [] [])
-    ∙ ++-assoc (x ∷ w) ((_++_ []) []) [] ∙  ap (_++_ (x ∷ w)) (++-assoc [] [] [])
-  ≡⟨⟩
-    ap (λ section₁ → (list-str ⊗ section₁) [])
-    (α list-str (x ∷ w) [] [])
-    ∙ α list-str (x ∷ w) ((list-str ⊗ []) []) [] ∙  ap (list-str ⊗ (x ∷ w)) (α list-str [] [] [])
-   ∎
-
-⬠ list-str [] [] (x ∷ z) [] = {!!}
-⬠ list-str [] [] (x ∷ z) (x₁ ∷ w) = {!!}
-⬠ list-str [] (x ∷ y) [] [] = {!!}
-⬠ list-str [] (x ∷ y) [] (x₁ ∷ w) = {!!}
-⬠ list-str [] (x ∷ y) (x₁ ∷ z) [] = {!!}
-⬠ list-str [] (x ∷ y) (x₁ ∷ z) (x₂ ∷ w) = {!!}
-⬠ list-str (x ∷ x₁) [] [] [] = {!!}
-⬠ list-str (x ∷ x₁) [] [] (x₂ ∷ w) = {!!}
-⬠ list-str (x ∷ x₁) [] (x₂ ∷ z) [] = {!!}
-⬠ list-str (x ∷ x₁) [] (x₂ ∷ z) (x₃ ∷ w) = {!!}
-⬠ list-str (x ∷ x₁) (x₂ ∷ y) [] [] = {!!}
-⬠ list-str (x ∷ x₁) (x₂ ∷ y) [] (x₃ ∷ w) = {!!}
-⬠ list-str (x ∷ x₁) (x₂ ∷ y) (x₃ ∷ z) [] = {!!}
-⬠ list-str (x ∷ x₁) (x₂ ∷ y) (x₃ ∷ z) (x₄ ∷ w) = {!!}
+⬠ list-str = list-⬠
 
 module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
 
