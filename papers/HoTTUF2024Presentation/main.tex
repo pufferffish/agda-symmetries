@@ -234,35 +234,6 @@ We know that there are only $3! = 6$ permutations of
 
 \begin{frame}{Motivation}
 
-    What if we are avid enjoyers of vexillology who also want to consider other flags?
-
-We might ask: how many ways can we sort our bag of balls?
-
-We know that there are only $3! = 6$ permutations of
-  $\{\term{red}, \term{white}, \term{blue}\}$, so there are only \alert{6 possible orderings} we can define.
-  \footnote{I have no allegiance to any of the countries presented by the flags, hypothetical or otherwise -- this is purely combinatorics!}
-\vspace{0.5em}
-\begin{center}
-    \foreach \colorA/\colorB/\colorC in {red/white/blue, red/blue/white, white/red/blue, white/blue/red, blue/red/white, blue/white/red}{
-    \begin{tikzpicture}[scale=0.5]
-    \begin{flagdescription}{3/4}
-    \hstripesIII{\colorA}{\colorB}{\colorC}
-    \framecode{}
-    \end{flagdescription}
-    \end{tikzpicture}
-    }
-\end{center}
-
-  We claim because there are \alert{exactly 6 orderings},
-  we can only define \alert{6 \textit{correct} sorting functions}.
-
-\vspace{0.5em}
-
-
-\end{frame}
-
-\begin{frame}{Motivation}
-
 \only<1>{
 More formally,
   \begin{itemize}
@@ -837,47 +808,6 @@ data SList (A : UU) : UU where
 \end{tikzcd}
 }
 \end{frame}
-
-\begin{frame}{\inline{List} vs \inline{SList}}
-    Any presentation of free monoids or free commutative monoids has the \inline{Any} and \inline{All} predicates.
-    %% \inline{Any} and \inline{All}
-
-    $\hProp$ forms a \alert{(commutative) monoid} in two different ways: $(\bot,\vee)$ and $(\top,\wedge)$.
-    
-    Given a predicate $P : A \to \hProp$, we get:
-    \begin{align*}
-        Any(P) &= \ext{P} : M(A) \to (\hProp, \bot, \vee) \\
-        All(P) &= \ext{P} : M(A) \to (\hProp, \top, \wedge)
-    \end{align*}
-    
-    %% Given a \alert{predicate} on $A$, $P : A \to hProp$,
-    %% $\ext{f} : (S)List(A) \to (hProp, \vee)$ gives us Any and 
-    %% $\ext{f} : (S)List(A) \to (hProp, \wedge)$ gives us All!
-
-%% \vspace{1cm}
-
-\[
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	{M(A)} \&\& {(\hProp, \bot, \vee)} \\
-	\\
-	A
-	\arrow["\eta_A", from=3-1, to=1-1]
-	\arrow["{\ext{P}}", from=1-1, to=1-3]
-	\arrow["{P}"', from=3-1, to=1-3]
-\end{tikzcd}
-\hspace{1cm}
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	{M(A)} \&\& {(\hProp, \top, \wedge)} \\
-	\\
-	A
-	\arrow["\eta_A", from=3-1, to=1-1]
-	\arrow["{\ext{P}}", from=1-1, to=1-3]
-	\arrow["{P}"', from=3-1, to=1-3]
-\end{tikzcd}
-\]
-
-\end{frame}
-
 
 \begin{frame}[fragile]{\inline{List} vs \inline{SList}}
     Consider the \inline{head : List A -> A} function.
