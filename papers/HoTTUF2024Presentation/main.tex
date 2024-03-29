@@ -158,164 +158,53 @@
 
 \frame{\titlepage}
 
-\section{Motivation}
+\section{Introduction}
 
 \begin{frame}
-  \frametitle{Motivation}
-    
-  Consider a puzzle about sorting,
-inspired by Dijkstra's Dutch National Flag problem.
-Suppose there are balls of three colors,
-corresponding to the colors of the Dutch flag: red, white, and blue.
-\[
-  \{
-  \tikz[anchor=base, baseline]{%
-    \foreach \x/\color in {1/red,2/white,3/blue} {
-        \node[circle,draw,fill=\color,line width=1pt] at (\x,0) {\phantom{\tiny\x}};
-        \ifthenelse{\NOT 1 = \x}{\node at ({\x-0.5},0) {,};}{}
-      }
-  }
-  \}
-\]
-  Given an \alert{unordered list} of such balls, how many ways can you \alert{sort} them into the Dutch flag?
-\[
-  \{
-      \tikz[anchor=base, baseline]{%
-        \foreach \x/\color in {1/red,2/red,3/blue,4/white,5/blue,6/red,7/white,8/blue} {
-            \node[circle,draw,fill=\color,line width=1pt] at (\x,0) {\phantom{\tiny\x}};
-            \ifthenelse{\NOT 1 = \x}{\node at ({\x-0.5},0) {,};}{}
-          }
-      }
-    \}
-\]
-  Obviously there is \alert{only one} way, which is given by the order
-  \alert{$\term{red} < \term{white} < \term{blue}$}.
-\[
-  [
-      \tikz[anchor=base, baseline]{%
-        \foreach \x/\color in {1/red,2/red,3/red,4/white,5/white,6/blue,7/blue,8/blue} {
-            \node[circle,draw,fill=\color,line width=1pt] at (\x,0) {\phantom{\tiny\x}};
-            \ifthenelse{\NOT 1 = \x}{\node at ({\x-0.5},0) {,};}{}
-          }
-      }
-    ]
-\]
+  \frametitle{Introduction}
+  In this talk, we study constructions of
+  \alert{free monoids} and \alert{free commutative monoids}.
 
-\end{frame}
+  We created a framework for \alert{universal algebra} to study these constructions!
 
-\begin{frame}{Motivation}
+  We apply this framework to study the relationship
+  between \alert{sorting} and \alert{total orders}:
 
-    What if we are avid enjoyers of vexillology who also want to consider other flags?
+  \begin{center}
+      \begin{tikzpicture}
+          % draw the sets
+          \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
+          \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
+          \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
+      
+          % the texts
+          \node at (-1.5,0) {$\Ord(A)$};
+          \node at (0.7, 0) {\tiny$\Sort(A)$};
+          \node at (2,0) {$\setmtol(A)$};
+  
+      
+          % the points in the sets (here I just create nodes to use them later on to position
+          % the circles and the arrows
+          \node (x1) at (-1,0.6) {};
+          \node (x2) at (-1.3,-0.7) {};
+          \node (y1) at (0.8,0.3) {};
+          \node (y2) at (1,-0.15) {};
+      
+          % position the elements in the sets (at the nodes we just created)
+          \fill[blue] (x1) circle (1pt);
+          \fill[blue] (x2) circle (1pt);
+          \fill[red] (y1) circle (1pt);
+          \fill[red] (y2) circle (1pt);
+      
+          % draw the arrows
+          \draw[->] (x1) -- (y1);
+          \draw[->] (x2) -- (y2);
+      \end{tikzpicture}
+  \end{center}
 
-We might ask: how many ways can we sort our bag of balls?
+  Sorting functions are a subset of functions $\term{UnorderedList(A)} \to \List(A)$.
+  Can we construct total orders from sorting functions?
 
-We know that there are only $3! = 6$ permutations of
-  $\{\term{red}, \term{white}, \term{blue}\}$, so there are only \alert{6 possible orderings} we can define.
-  \footnote{I have no allegiance to any of the countries presented by the flags, hypothetical or otherwise -- this is purely combinatorics!}
-\vspace{0.5em}
-\begin{center}
-    \foreach \colorA/\colorB/\colorC in {red/white/blue, red/blue/white, white/red/blue, white/blue/red, blue/red/white, blue/white/red}{
-    \begin{tikzpicture}[scale=0.5]
-    \begin{flagdescription}{3/4}
-    \hstripesIII{\colorA}{\colorB}{\colorC}
-    \framecode{}
-    \end{flagdescription}
-    \end{tikzpicture}
-    }
-\end{center}
-
-  We claim because there are \alert{exactly 6 orderings},
-  we can only define \alert{6 \textit{correct} sorting functions}.
-
-\vspace{0.5em}
-
-
-\end{frame}
-
-\begin{frame}{Motivation}
-
-\only<1>{
-More formally,
-  \begin{itemize}
-    \item Let $A = \{\term{red}, \term{white}, \term{blue}\}$
-    \item Let $\setord(A)$ be the \alert{set of orderings} on $A$
-    \item Let $\setmtol(A)$  be the \alert{set of functions} $\term{UnorderedList}(A) \to \List(A)$
-  \end{itemize}
-
-There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
-  some \alert{subset} $\setsort(A) \subset \setmtol(A)$ which we call \alert{"sort functions"}:
-}
-
-\begin{center}
-    \begin{tikzpicture}
-        % draw the sets
-        \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
-        \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
-        \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
-    
-        % the texts
-        \node at (-1.5,0) {$\Ord(A)$};
-        \node at (0.7, 0) {\tiny$\Sort(A)$};
-        \node at (2,0) {$\setmtol(A)$};
-
-    
-        % the points in the sets (here I just create nodes to use them later on to position
-        % the circles and the arrows
-        \node (x1) at (-1,0.6) {};
-        \node (x2) at (-1.3,-0.7) {};
-        \node (y1) at (0.8,0.3) {};
-        \node (y2) at (1,-0.15) {};
-    
-        % position the elements in the sets (at the nodes we just created)
-        \fill[blue] (x1) circle (1pt);
-        \fill[blue] (x2) circle (1pt);
-        \fill[red] (y1) circle (1pt);
-        \fill[red] (y2) circle (1pt);
-    
-        % draw the arrows
-        \draw[->] (x1) -- (y1);
-        \draw[->] (x2) -- (y2);
-    \end{tikzpicture}
-\end{center}
-
-\only<2>{
-  This \textit{seems} trivial to prove.
-
-  Construct $\otof(r)$ by parameterizing any sorting algorithm
-  by the order relation $r$ and we are done!
-
-  But\dots
-
-  We want to show that there are \alert{exactly 6 sorting functions} because
-  there are \alert{exactly 6 orderings}.
-
-  $\otof(r)$ should be an \alert{isomorphism} from $\setord(A)$ to $\setsort(A)$.
-
-  What is the \alert{inverse} of $\otof(r)$?
-}
-
-\end{frame}
-
-\begin{frame}{Motivation}
-  To study this we need to execute the following plan:
-  \begin{itemize}
-    \item Formalize what \alert{UnorderedList(A)} and \alert{List(A)} are.
-      \begin{itemize}
-        \item We will use \alert{universal algebra} to define these structures.
-        \item \alert{UnorderedList} is the free commutative monoid and \alert{List} is the free monoid.
-      \end{itemize}
-    \item Nail down what the subset \alert{Sort(A)} is.
-      \begin{itemize}
-        \item What does $f \in \Sort(A)$ satisfy that other $g \in \setmtol(A)$ does not?
-        \item Identify two axioms for sorting which do not assume a pre-existing total order.
-      \end{itemize}
-  \end{itemize}
-
-  This is done in Cubical Agda!
-  \begin{itemize}
-    \item Univalence lets us transport proofs from different constructions of free algebra.
-    \item HITs let us define equations on algebras and handle commutativity.
-  \end{itemize}
 \end{frame}
 
 \section{Background: Universal Algebra}
@@ -513,8 +402,29 @@ assocr & : \forall (\rho : \Nat^{\Fin[3]}). \, (\rho(0) + \rho(1)) + \rho(2) \id
 \end{align*} 
 
 The $\sigma$-algebras satisfying a theory $T_{\varepsilon}$ form a subcategory $(\sigma,\varepsilon)$-Alg (or a variety of algebras).
+\end{frame}
 
+\begin{frame}
+\frametitle{Universal Algebra}
 In this talk, we only consider the construction of free objects for the special case of \alert{monoids} and \alert{commutative monoids}.
+
+But can we construct any arbitrary free algebras?
+
+As a quotient of tree:
+\begin{itemize}
+  \item Need choice to handle \alert{infinitary} operations!
+  \item We can only construct free algebras for \alert{finitary} operations.  
+\end{itemize} 
+
+As a HIT:
+\begin{itemize}
+  \item We \alert{don't} need choice for \alert{infinitary} operations!
+  \item But Cubical Agda complains about positivity.
+\end{itemize}
+
+We didn't investigate further, but it should be possible to construct arbitrary free algebras
+in Cubical Agda.
+
 \end{frame}
 
 \section{Free (commutative) monoids}
@@ -831,11 +741,56 @@ data SList (A : UU) : UU where
         \text{\inline{head(\{x,y\})}} & = & \text{\inline{head(\{y,x\})}}
         \end{array}
         \]
-        Which one do we pick?
-        slists are \alert{unordered} lists!
+        Which one do we pick? Commutativity enforce \alert{unorderedness}!
     \end{itemize}
 
     %% \inline{head} can only be defined iff there is a \alert{total order}!
+\end{frame}
+
+\begin{frame}[fragile]{\inline{List} vs \inline{SList}}
+  
+\begin{center}
+    \begin{tikzpicture}
+        % draw the sets
+        \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
+        \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
+        \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
+    
+        % the texts
+        \node at (-1.5,0) {$\Ord(A)$};
+        \node at (0.7, 0) {\tiny$\Sort(A)$};
+        \node at (2,0) {$\setmtol(A)$};
+
+    
+        % the points in the sets (here I just create nodes to use them later on to position
+        % the circles and the arrows
+        \node (x1) at (-1,0.6) {};
+        \node (x2) at (-1.3,-0.7) {};
+        \node (y1) at (0.8,0.3) {};
+        \node (y2) at (1,-0.15) {};
+    
+        % position the elements in the sets (at the nodes we just created)
+        \fill[blue] (x1) circle (1pt);
+        \fill[blue] (x2) circle (1pt);
+        \fill[red] (y1) circle (1pt);
+        \fill[red] (y2) circle (1pt);
+    
+        % draw the arrows
+        \draw[->] (x1) -- (y1);
+        \draw[->] (x2) -- (y2);
+    \end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+    \item $\Ord(A)$ is the set of \alert{total orders} on $A$,
+    \item $\Sort(A)$ is the set of \alert{sorting functions} on $A$,
+    \item $\setmtol(A)$ is the set of functions $\term{UnorderedList}(A) \to \List(A)$.
+\end{itemize}
+
+Free monoids are lists, free commutative monoids are \alert{unordered lists}!
+
+What properties does $f \in \Sort(A)$ satisfy?
+
 \end{frame}
 
 \begin{frame}{\inline{List} vs \inline{SList}}
