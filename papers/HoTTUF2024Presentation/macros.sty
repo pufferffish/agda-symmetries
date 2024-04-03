@@ -57,6 +57,7 @@
 
 %
 \newcommand{\LL}{\mathcal{L}}
+\newcommand{\OL}{\mathcal{OL}}
 \newcommand{\MM}{\mathcal{M}}
 
 % sort
@@ -64,7 +65,10 @@
 \newcommand{\sect}{\mathscr{s}}
 
 % yoneda
-\newcommand{\yo}{\text{$\mathcal{Y}$}}
+\DeclareFontFamily{U}{min}{}
+\DeclareFontShape{U}{min}{m}{n}{<-> udmj30}{}
+\newcommand{\yo}
+{\!\text{\usefont{U}{min}{m}{n}\symbol{'210}}\!}
 
 % code listings
 \lstloadlanguages{Haskell}
