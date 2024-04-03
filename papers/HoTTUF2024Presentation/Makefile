@@ -1,6 +1,6 @@
 TARGETS = main.pdf
 DEPS_DIR = .deps
-LATEXMK = latexmk -pdflua -recorder -use-make -deps
+LATEXMK = latexmk -pdf -recorder -use-make -deps
 
 all: $(TARGETS)
 continuous: LATEXMK += -f -interaction=nonstopmode -pvc
