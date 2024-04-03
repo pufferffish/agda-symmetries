@@ -107,15 +107,15 @@
 \usetikzlibrary{cd}
 \usetikzlibrary{fit}
 
-\usepackage{fontspec}
-\setmonofont{Iosevka}[
-    Path=./Iosevka/,
-    Extension = .ttf,
-    UprightFont=*-Regular,
-    BoldFont=*-Bold,
-    ItalicFont=*-Italic,
-    BoldItalicFont=*-BoldItalic
-]
+% \usepackage{fontspec}
+% \setmonofont{Iosevka}[
+%     Path=./Iosevka/,
+%     Extension = .ttf,
+%     UprightFont=*-Regular,
+%     BoldFont=*-Bold,
+%     ItalicFont=*-Italic,
+%     BoldItalicFont=*-BoldItalic
+% ]
 
 % sort
 \newcommand{\issortedany}{\term{in-image}}
@@ -782,9 +782,9 @@ $x \in \blank$ is given by $\ext{\yo_A}$!
         \item 
         For \alert{singleton} (s)lists, \inline{head} is an equivalence (injectivity of $\eta$).
         \item
-        For lists of \alert{length \geq 2}, we can just take the first element.
+        For lists of \alert{length $\geq$ 2}, we can just take the first element.
 
-        For slists of \alert{length \geq 2}, by swap:
+        For slists of \alert{length $\geq$ 2}, by swap:
         \[
         \begin{array}{rcl}
         \text{\inline{\{x,y\}}}       & = & \text{\inline{\{y,x\}}} \\
