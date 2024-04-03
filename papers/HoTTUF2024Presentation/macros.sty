@@ -31,8 +31,12 @@
   {#1}\text{-}\Alg
 }
 
-\NewDocumentCommand{\tree}{O{\sigma}m}{
-  \mathsf{Tr}{_{#1}}\ps{#2}
+\newcommand{\eqsig}{\varepsilon}
+\NewDocumentCommand{\EqSig}{O{\eqsig}}{F_{#1}}
+
+\NewDocumentCommand{\tree}{E{_}{\sigma}O{}}{
+  \mathsf{Tr}{_{#1}}
+  \ifstrempty{#2}{}{\ps{#2}}
 }
 \newcommand{\str}[1]{\mathfrak{#1}}
 
@@ -43,6 +47,9 @@
 
 \newcommand{\lhs}{\mathscr{l}}
 \newcommand{\rhs}{\mathscr{r}}
+
+\newcommand{\eqleft}{l}
+\newcommand{\eqright}{r}
 
 \newcommand{\entails}{\vDash}
 

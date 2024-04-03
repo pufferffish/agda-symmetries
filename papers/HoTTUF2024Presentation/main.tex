@@ -417,7 +417,7 @@ node is our \alert{algebra map} $\alpha : F_\sigma(Tr_\sigma(V)) \rightarrow Tr_
 
 leaf is our \alert{generators map} $\eta : V \rightarrow Tr_\sigma(V)$.
 
-This gives a $\sigma$-algebra $\str{T}(V) = (\tree{V}, \term{node})$.
+This gives a $\sigma$-algebra $\str{T}(V) = (\tree[V], \term{node})$.
 
 % By the \alert{universal property}: $(\blank) \comp \eta \colon \sigAlg(\str{T}(V),\str{X}) \xto{\sim} (V \to X)$.
 
@@ -473,7 +473,7 @@ These trees should be equivalent by associativity since they are trees of a mono
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Universal Algebra}
 So far there are no \alert{laws}! How do we add \alert{laws}?
 
@@ -484,21 +484,26 @@ An \alert{equational signature} $\varepsilon$ is given by:
     \item an \alert{arity of free variables} $fv : eq \to \hSet$
 \end{itemize}
 
-A system of equations (or \alert{equational theory} $T_{\varepsilon}$) is a pair of trees on the set of free variables:
-$l, r : (e : eq) \to Tr_\sigma(fv(e))$
+A system of equations (or \alert{equational theory} $T_{\varepsilon}$) is a pair of natural transformations:
+$l, r : F_{\varepsilon} \Rightarrow \tree$.
 \end{dblock}
 
+$\mathfrak{X}$ satisfies $T$ ($\mathfrak{X} \entails T$) if for every assignment $\rho : V \to X$, $\ext{\rho}$ coequalizes $l_{V}, r_{V}$:
+% https://q.uiver.app/#q=WzAsMyxbMiwwLCJcXHN0cntGfShWKSJdLFs0LDAsIlxcc3Rye1h9Il0sWzAsMCwiXFxFcVNpZyhWKSJdLFswLDEsIlxcZXh0e1xccmhvfSJdLFsyLDAsIlxcZXFsZWZ0X3tWfSIsMCx7Im9mZnNldCI6LTN9XSxbMiwwLCJcXGVxcmlnaHRfe1Z9IiwyLHsib2Zmc2V0IjozfV1d
+\[\begin{tikzcd}[ampersand replacement=\&,cramped]
+    {\EqSig(V)} \&\& {\tree[V]} \&\& {\str{X}}
+    \arrow["{\ext{\rho}}", from=1-3, to=1-5]
+    \arrow["{\eqleft_{V}}", shift left=3, from=1-1, to=1-3]
+    \arrow["{\eqright_{V}}"', shift right=3, from=1-1, to=1-3]
+  \end{tikzcd}\]
 
-$\mathfrak{X}$ satisfies $T$ ($\mathfrak{X} \entails T$) if for all $e : eq$ and $\rho : fv(e) \to V$,
-$\ext{\rho}(l(e)) = \ext{\rho}(r(e))$
+% Concretely:
+% \begin{itemize}
+%     \item $\rho : fv(e) \to V$ assigns free variables in equations to elements of $V$
+%     \item $\ext{\rho} : Tr_\sigma(fv(e)) \to V$ evaluates a tree given an assignment of free variables
+% \end{itemize}
 
-Concretely:
-\begin{itemize}
-    \item $\rho : fv(e) \to V$ assigns free variables in equations to elements of $V$
-    \item $\ext{\rho} : Tr_\sigma(fv(e)) \to V$ evaluates a tree given an assignment of free variables
-\end{itemize}
-
-Because $\ext{\rho}$ is a \alert{homomorphism}, it must evaluate the tree correctly!
+% Because $\ext{\rho}$ is a \alert{homomorphism}, it must evaluate the tree correctly!
 
 \end{frame}
 
