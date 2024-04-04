@@ -236,72 +236,9 @@ We know that there are only $3! = 6$ permutations of
 
 \end{frame}
 
-\begin{frame}{Introduction}
+\begin{frame}{Motivation}
+  Sort functions are subset of functions from unordered lists to lists:
 
-\only<1>{
-More formally,
-  \begin{itemize}
-    \item Let $A = \{\term{red}, \term{white}, \term{blue}\}$
-    \item Let $\setord(A)$ be the \alert{set of orderings} on $A$
-    \item Let $\setmtol(A)$  be the \alert{set of functions} $\term{UnorderedList}(A) \to \List(A)$
-  \end{itemize}
-
-There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
-  some \alert{subset} $\setsort(A) \subset \setmtol(A)$ which we call \alert{"sort functions"}:
-}
-
-\begin{center}
-    \begin{tikzpicture}
-        % draw the sets
-        \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
-        \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
-        \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
-    
-        % the texts
-        \node at (-1.5,0) {$\Ord(A)$};
-        \node at (0.7, 0) {\tiny$\Sort(A)$};
-        \node at (2,0) {$\setmtol(A)$};
-
-    
-        % the points in the sets (here I just create nodes to use them later on to position
-        % the circles and the arrows
-        \node (x1) at (-1,0.6) {};
-        \node (x2) at (-1.3,-0.7) {};
-        \node (y1) at (0.8,0.3) {};
-        \node (y2) at (1,-0.15) {};
-    
-        % position the elements in the sets (at the nodes we just created)
-        \fill[blue] (x1) circle (1pt);
-        \fill[blue] (x2) circle (1pt);
-        \fill[red] (y1) circle (1pt);
-        \fill[red] (y2) circle (1pt);
-    
-        % draw the arrows
-        \draw[->] (x1) -- (y1);
-        \draw[->] (x2) -- (y2);
-    \end{tikzpicture}
-\end{center}
-
-\only<2>{
-  This \textit{seems} trivial to prove.
-
-  Construct $\otof(r)$ by parameterizing any sorting algorithm
-  by the order relation $r$ and we are done!
-
-  But\dots
-
-  We want to show that there are \alert{exactly 6 sorting functions} because
-  there are \alert{exactly 6 orderings}.
-
-  $\otof(r)$ should be an \alert{isomorphism} from $\setord(A)$ to $\setsort(A)$.
-
-  What is the \alert{inverse} of $\otof(r)$?
-}
-
-\end{frame}
-
-\begin{frame}{Plan}
-  To study this we need to execute the following plan:
   \begin{enumerate}
     \item Formalize what \alert{$\term{UnorderedList}(A)$} and \alert{$\List(A)$} are.
       % \begin{itemize}
@@ -321,6 +258,13 @@ There is a function $\otof : \setord(A) \to \setsort(A)$ that maps orderings to
       %   \item Then we can show our \alert{two axioms} correctly identify sorting functions!
       % \end{itemize}  
   \end{enumerate}
+
+  \begin{itemize}
+    \item We use category theory and type theory.
+    \item Categorical language is used to describe the universal properties of free algebras.
+    \item Type theory is used to construct free algebras.
+  \end{itemize}
+
 \end{frame}
 
 \section{Background: Universal Algebra}
@@ -369,9 +313,12 @@ The free $\sigma$-algebra $\mathfrak{F}(X)$ on a carrier set $X$, \alert{if it e
     \item a type constructor $F : \mathsf{hSet} \to \mathsf{hSet}$,
     \item a universal generators map $\eta_X : X \to F(X)$, such that
     \item for any $\sigma$-algebra $\mathfrak{Y}$, post-composition with $\eta_X$ is an equivalence.
-    %% \[
-    %%     (F(V) \xto{f} \mathfrak{Y}) \quad\mapsto\quad (V \xto{\eta_V} F(X) \xto{f} Y)
-    %% \]
+    \[
+      (\str{F}{(X)} \xto{f} \mathfrak{Y}) \quad\mapsto\quad (X \xto{\eta_V} F(X) \xto{f} Y)
+    \]
+
+  \item The inverse of the equivalence is the extension operation
+    $\ext{(\blank)} : (X \to Y) \to (\str{F}{(X)} \to \mathfrak{Y})$.
     %% is an equivalence.
 \end{itemize}
 
@@ -401,7 +348,6 @@ The free $\sigma$-algebra $\mathfrak{F}(X)$ on a carrier set $X$, \alert{if it e
 % The inverse is the extension operation: $\ext{(\blank)}\colon (X \to Y) \to \mathfrak{F}(X) \to \mathfrak{Y}$. $F(X)$ is unique upto (unique) isomorphism.
 % \end{dblock}
 
-In type theory, this always exists! 
 
 \end{frame}
 \begin{frame}
@@ -530,6 +476,11 @@ assocr & : \forall (\rho : \Nat^{\Fin[3]}). \, (\rho(0) + \rho(1)) + \rho(2) \id
 \end{align*} 
 
 The $\sigma$-algebras satisfying a theory $T_{\varepsilon}$ form a subcategory $(\sigma,\varepsilon)$-Alg (or a variety of algebras).
+
+\begin{dblock}
+  A $(\sigma,\varepsilon)$-algebra $\str{F}(V)$ is free if post-composition with $\eta_X$ is an equivalence:
+  $(\blank) \circ \eta_X : (\sigma,\varepsilon)\term{-Alg}(\str{F}(V),\str{X}) \xto{\sim} (V \to X)$.
+\end{dblock}
 \end{frame}
 
 \begin{frame}
@@ -538,17 +489,8 @@ In this talk, we only consider the construction of free objects for the special 
 
 But can we construct any arbitrary free algebras?
 
-As a quotient of tree:
-\begin{itemize}
-  \item Need choice to handle \alert{infinitary} operations!
-  \item We can only construct free algebras for \alert{finitary} operations.  
-\end{itemize} 
-
-As a HIT:
-\begin{itemize}
-  \item We \alert{don't} need choice for \alert{infinitary} operations!
-  \item But Cubical Agda complains about positivity.
-\end{itemize}
+  We need choice to handle infinitary operations~\footcite{blassWordsFreeAlgebras1983},
+and also avoid strict positivity checking.
 
 We didn't investigate further, but it should be possible to construct arbitrary free algebras
 in Cubical Agda.
@@ -559,7 +501,7 @@ in Cubical Agda.
 
 \begin{frame}[fragile]{Constructions of free (commutative) monoids}
     % There are various well-known constructions of free monoids~\footcite{dubucFreeMonoids1974,kellyUnifiedTreatmentTransfinite1980}.
-    It's well known that Lists are free monoids:
+    It's well known that Lists are free monoids~\footcite{dubucFreeMonoids1974,kellyUnifiedTreatmentTransfinite1980}:
 
 %     \begin{dblock}[Cons Lists]
 %         \begin{code}
@@ -570,7 +512,8 @@ in Cubical Agda.
 %     \end{dblock}
 
     We can turn it into a free commutative monoid by either adding a path
-    constructor or by set quotients:
+    constructor~\footcite{choudhuryFreeCommutativeMonoids2023} or
+    by set quotients~\footcite{joramConstructiveFinalSemantics2023}:
 
     \begin{dblock}[Swapped cons lists]
         \begin{code}
@@ -602,7 +545,7 @@ data SList (A : UU) : UU where
         $\type{Array}(A) = \dsum{n\colon\Nat}{f : \Fin[n] \to A}$
     \end{dblock}
 
-  We can also turn it into a free commutative monoid by quotienting with symmetries:
+  We can also turn it into a free commutative monoid by quotienting with symmetries~\footcite{joramConstructiveFinalSemantics2023}:
     \begin{dblock}[Bags]
         \vspace{-0.4cm}
         \begin{align*}
@@ -652,7 +595,7 @@ data SList (A : UU) : UU where
 
     Let $a = (n , f)$ and $b = (m , g)$, we need to compute an isomorphism $\phi\colon \Fin[n+m]\xto{\sim}\Fin[m+n]$,
     such that: $(f \oplus g) = (g \oplus f) \circ \phi$.
-    Define,\footnote{These combinators come from formal operations in symmetric rig groupoids~\footcite{choudhurySymmetriesReversibleProgramming2022}.}
+    Define,
     \begin{align*}
         \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
     \end{align*}
@@ -765,15 +708,21 @@ data SList (A : UU) : UU where
 
 \begin{frame}[fragile]{\inline{List} vs \inline{SList}}
 Any presentation of free monoids or free commutative monoids
-has a \inline{length : F(A) -> Nat} function, given by
+has a:
+
+\begin{itemize}
+  \item \inline{length : F(A) -> Nat} function, given by
 $\ext{(\lambda x.\, 1)}$
+  \item  a membership predicate: \inline{_mem_ : A -> F(A) -> hProp}.
 
-
-Similarly it also has a membership predicate: \inline{_mem_ : A -> F(A) -> hProp}.
-
-Assuming $A$ is a set, and $x:A$, we define $\yo_A(x) = \lambda y.\, x \id y : A \to \hProp$.
+Assuming $A$ is a set, and $x:A$, we define $\yo_A(y) = x \id y : A \to \hProp$.
 
 $x \in \blank$ is given by $\ext{\yo_A}$!
+
+\end{itemize}
+
+
+
 
 \end{frame}
 
@@ -805,52 +754,6 @@ $x \in \blank$ is given by $\ext{\yo_A}$!
     %% \inline{head} can only be defined iff there is a \alert{total order}!
 \end{frame}
 
-\begin{frame}[fragile]{\inline{List} vs \inline{SList}}
-  
-\begin{center}
-    \begin{tikzpicture}
-        % draw the sets
-        \filldraw[fill=blue!20, draw=blue!60] (-1.5,0) circle (1cm);
-        \filldraw[fill=red!20, draw=red!60] (1.5,0) ellipse (1.5cm and 1cm);
-        \filldraw[fill=green!20, draw=green!60] (0.7,0) circle (0.5cm);
-    
-        % the texts
-        \node at (-1.5,0) {$\Ord(A)$};
-        \node at (0.7, 0) {\tiny$\Sort(A)$};
-        \node at (2,0) {$\setmtol(A)$};
-
-    
-        % the points in the sets (here I just create nodes to use them later on to position
-        % the circles and the arrows
-        \node (x1) at (-1,0.6) {};
-        \node (x2) at (-1.3,-0.7) {};
-        \node (y1) at (0.8,0.3) {};
-        \node (y2) at (1,-0.15) {};
-    
-        % position the elements in the sets (at the nodes we just created)
-        \fill[blue] (x1) circle (1pt);
-        \fill[blue] (x2) circle (1pt);
-        \fill[red] (y1) circle (1pt);
-        \fill[red] (y2) circle (1pt);
-    
-        % draw the arrows
-        \draw[->] (x1) -- (y1);
-        \draw[->] (x2) -- (y2);
-    \end{tikzpicture}
-\end{center}
-
-\begin{itemize}
-    \item $\Ord(A)$ is the set of \alert{total orders} on $A$,
-    \item $\Sort(A)$ is the set of \alert{sorting functions} on $A$,
-    \item $\setmtol(A)$ is the set of functions $\term{UnorderedList}(A) \to \List(A)$.
-\end{itemize}
-
-Free monoids are lists, free commutative monoids are \alert{unordered lists}!
-
-What properties does $f \in \Sort(A)$ satisfy?
-
-\end{frame}
-
 \begin{frame}{\inline{List} vs \inline{SList}}
 Let $\LL(A)$ be the \alert{free monoid}, and $\MM(A)$ the \alert{free commutative monoid} on $A$.
 
@@ -865,10 +768,8 @@ Let $\LL(A)$ be the \alert{free monoid}, and $\MM(A)$ the \alert{free commutativ
 
 $q$ is the \alert{canonical map} (surjection) from $\LL(A)$ to $\MM(A)$ (given by extending ${\eta_A^{\MM}}$).
 
-Axiom of Choice says every surjection has a section!
-
 \begin{qblock}
-    Constructively, does $q$ have a section?
+    Without choice axioms, constructively, does $q$ have a section?
 \end{qblock}
 
 To give a section is to turn an \alert{unordered list} into an \alert{ordered list}.
@@ -1076,28 +977,32 @@ Given $\type{Sort}(A)$:
 
 \end{frame}
 
-\begin{frame}{Main Result}
+\begin{frame}[fragile]{Main Result}
 
-\begin{tblock}
-    $\term{o2s}\colon \type{DecTotOrd}(A) \to \type{Sort}(A)$ is an equivalence.
-\end{tblock}
-
-It's an equivalence!
-\begin{itemize}
-    \item $\type{DecTotOrd}(A) \xto{o2s} \type{Sort}(A) \xto{o2s^{-1}} \type{DecTotOrd}(A)$
+    $\type{DecTotOrd}(A) \xto{o2s} \type{Sort}(A) \xto{o2s^{-1}} \type{DecTotOrd}(A)$
     \begin{itemize}
         \item $\text{least}(\{x, y\}) = x \text{ iff } x \leq y$
     \end{itemize}
 
-    \item $\type{Sort}(A) \xto{o2s^{-1}} \type{DecTotOrd}(A) \xto{o2s} \type{Sort}(A)$
+    $\type{Sort}(A) \xto{o2s^{-1}} \type{DecTotOrd}(A) \xto{o2s} \type{Sort}(A)$
     \begin{itemize}
         \item Given a section $s$ that satisfies \alert{is-head-least} and \alert{is-tail-sort},
               $s$ is equal to insertion sort with the order $\preceq$ generated by $s$.
         \item \alert{is-head-least} lets us create the \alert{total order} $\preceq$.
-        \item \alert{is-tail-sort} lets us inductively prove that $s$ \alert{sorts} the list by $\preceq$.
+        \begin{dblock}
+        We define a witness for sorted lists:
+\begin{code}
+data Sorted (leq : A -> A -> UU) : List A -> UU where
+  sorted-nil : Sorted []
+  sorted-one : forall x -> Sorted [ x ]
+  sorted-cons : forall x y zs -> x leq y -> Sorted (y :: zs)
+            -> Sorted (x :: y :: zs)
+\end{code}
+          \vspace{1em}
+        \end{dblock}
+      \item \alert{is-tail-sort} lets us inductively prove $\forall xs.\, \term{Sorted}_\preceq(s(xs))$
         \item Both $s$ and insertion sort produce lists sorted by $\preceq$, and they're the same!
     \end{itemize}
-\end{itemize}
 
 \end{frame}
 
@@ -1141,35 +1046,29 @@ It's an equivalence!
             \arrow["{q \comp \pi_1}", from=1-3, to=2-2]
         \end{tikzcd}\]
 
-  We set $sort$ to $(s \comp q, p \comp q)$.
+  We set $sort$ to $(s \comp q, p \comp q)$, where $p$ is the proof
+  $\forall xs.\, \term{Sorted}_\preceq(s(xs))$
 
 \end{frame}
 
-\begin{frame}{Future work}
-
-\begin{itemize}
-  \item How does this observation relate to the Axiom of Choice?
-    \begin{itemize}
-      \item Any sort function would be a section. Axiom of Choice is equivalent to the Well-ordering principle. %%: ``every set is well-ordered''.
-        \item We have shown this is equivalent to having a correct sort function.
-        \item Study the connections with constructive taboos in HoTT.
-    \end{itemize}
-    \item Sorting is not just about extensional correctness:
-    \begin{itemize}
-        \item How do different sorting algorithms fit into this picture?
-        \item Related:~\cite{hinzeSortingBialgebrasDistributive2012}.
-    \end{itemize}    
-    \item From sets to groupoids:
-    \begin{itemize}
-        \item Is any symmetric monoidal groupoid symmetric monoidal equivalent to a commutative monoidal groupoid?
-    \end{itemize}
-    \item Framework for universal algebra:
-    \begin{itemize}
-        \item Constructions of free objects for varieties of algebras.
-        \item Categorify from sets to groupoids, going from system of equations to system of coherences.
-    \end{itemize}
-\end{itemize}
-
+\begin{frame}{Conclusion}
+We developed new axiomitizations for sort functions by showing the correspondence between:
+  \begin{itemize}
+      \item sort functions
+      \item well behaved sections
+      \item decidable total orders
+  \end{itemize}
+Future works:
+  \begin{itemize}
+      \item Are all sections defined in terms of well-behaved sections?
+      \begin{itemize}
+        \item Does the existence of a section $\MM(A) \to \LL(A)$ imply a total order on $A$?
+      \end{itemize}
+      \item Generalize the universal algebra framework from sets to groupoids.
+      \begin{itemize}
+        \item How to define system of coherences?
+      \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[standout]
