@@ -65,76 +65,26 @@ private
          ≡ ap (_++ zs) (++-assoc ws xs ys) ∙ ++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs)
   list-⬠ xs ys zs [] = 
       ((++-assoc) ((_++_) ([]) (xs)) (ys) (zs)) ∙ ((++-assoc) ([]) (xs) ((_++_) (ys) (zs)))
-    ≡⟨⟩
-      ((++-assoc) (xs) (ys) (zs)) ∙ ((++-assoc) ([]) (xs) ((_++_) (ys) (zs)))
-    ≡⟨⟩
-      ((++-assoc) (xs) (ys) (zs)) ∙ (idp _)
     ≡⟨ sym (rUnit _) ⟩
       (++-assoc) (xs) (ys) (zs)
-    ≡⟨⟩
-      ap (idfun _) ((++-assoc) (xs) (ys) (zs))
-    ≡⟨⟩
-      ap (λ p → (p)) ((++-assoc) (xs) (ys) (zs))
-    ≡⟨⟩
-      ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs))
     ≡⟨ sym (sym (lUnit _)) ⟩
       (idp _) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs)))
-    ≡⟨⟩
-      ((++-assoc) ([]) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs)))
     ≡⟨ sym (sym (lUnit _)) ⟩
       (idp _) ∙ (((++-assoc) ([]) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → ((_++_) (p) (zs))) (idp _)) ∙ (((++-assoc) ([]) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → ((_++_) (p) (zs))) ((++-assoc) ([]) (xs) (ys))) ∙ (((++-assoc) ([]) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs)))) 
     ∎
  
   list-⬠ xs ys zs (w ∷ ws) =
       ((++-assoc) ((_++_) ((w) ∷ (ws)) (xs)) (ys) (zs)) ∙ ((++-assoc) ((w) ∷ (ws)) (xs) ((_++_) (ys) (zs)))
     ≡⟨⟩
       ((++-assoc) ((w) ∷ ((_++_) (ws) (xs))) (ys) (zs)) ∙ ((++-assoc) ((w) ∷ (ws)) (xs) ((_++_) (ys) (zs)))
-    ≡⟨⟩
-      (ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) ((_++_) (ws) (xs)) (ys) (zs))) ∙ ((++-assoc) ((w) ∷ (ws)) (xs) ((_++_) (ys) (zs)))
-    ≡⟨⟩
-      (ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) ((_++_) (ws) (xs)) (ys) (zs))) ∙ (ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) (xs) ((_++_) (ys) (zs))))
     ≡⟨ sym (ap-compPath (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) ((_++_) (ws) (xs)) (ys) (zs)) ((++-assoc) (ws) (xs) ((_++_) (ys) (zs))) ) ⟩
       ap (λ a0 → ((_∷_) (w) (a0))) (((++-assoc) ((_++_) (ws) (xs)) (ys) (zs)) ∙ ((++-assoc) (ws) (xs) ((_++_) (ys) (zs))))
     ≡⟨ ap  (λ p → (ap (λ a0 → ((_∷_) (w) (a0)))) p) (list-⬠ xs ys zs ws) ⟩
       ap (λ a0 → ((_∷_) (w) (a0))) (ap (_++ zs) (++-assoc ws xs ys) ∙ ++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩
-      ap (λ a0 → ((_∷_) (w) (a0))) (ap (_++ zs) (++-assoc ws xs ys) ∙ (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs)))
-    ≡⟨ ap-compPath ((λ a0 → ((_∷_) (w) (a0)))) ((ap (_++ zs) (++-assoc ws xs ys))) ((++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))) ⟩ -- ap (x . y) ~> ap x . ap y
+    ≡⟨ ap-compPath ((λ a0 → ((_∷_) (w) (a0)))) ((ap (_++ zs) (++-assoc ws xs ys))) ((++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))) ⟩
       ap (λ a0 → ((_∷_) (w) (a0))) (ap (_++ zs) (++-assoc ws xs ys)) ∙ ap (λ a0 → ((_∷_) (w) (a0))) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩
-      ap (λ a0 → ((_∷_) (w) (a0))) (ap (λ p → ((_++_) (p) (zs))) (++-assoc ws xs ys)) ∙ ap (λ a0 → ((_∷_) (w) (a0))) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → ((_∷_) (w) (a0))) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
-    ≡⟨⟩ 
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs ∙ ap (λ p → ws ++ p) (++-assoc xs ys zs)) 
     ≡⟨ ap (λ p → ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ p) (ap-compPath ((λ a0 → w ∷ a0)) ((++-assoc ws (xs ++ ys) zs)) ((ap (λ p → ws ++ p) (++-assoc xs ys zs)))) ⟩ 
       ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs) ∙ ap (λ a0 → w ∷ a0) (ap (λ p → ws ++ p) (++-assoc xs ys zs))
-    ≡⟨⟩ 
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs) ∙ (ap (λ p → w  ∷ (ws ++ p) ) (++-assoc xs ys zs))
-    ≡⟨⟩ 
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs) ∙ (ap (λ p → ((w) ∷ ((_++_) (ws) (p)))) (++-assoc xs ys zs))
-    ≡⟨⟩ 
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ (ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs) ∙ (ap (λ p → ((w) ∷ ((_++_) (ws) (p)))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ((ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) ((_++_) (xs) (ys)) (zs))) ∙ (ap (λ p → ((w) ∷ ((_++_) (ws) (p)))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩ 
-      ap (λ p → p ++ zs) (ap (λ a0 → w ∷ a0) (++-assoc ws xs ys)) ∙ ((ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) ((_++_) (xs) (ys)) (zs))) ∙ (ap (λ p → ((w) ∷ ((_++_) (ws) (p)))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → p ++ zs) (ap (λ a0 → w ∷ a0) (++-assoc ws xs ys))) ∙ ((ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) ((_++_) (xs) (ys)) (zs))) ∙ (ap (λ p → ((w) ∷ ((_++_) (ws) (p)))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → ((_++_) (p) (zs))) (ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) (xs) (ys)))) ∙ ((ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) ((_++_) (xs) (ys)) (zs))) ∙ (ap (λ p → ((_++_) ((w) ∷ (ws)) (p))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → ((_++_) (p) (zs))) (ap (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) (ws) (xs) (ys)))) ∙ (((++-assoc) ((w) ∷ (ws)) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ((w) ∷ (ws)) (p))) ((++-assoc) (xs) (ys) (zs))))
-    ≡⟨⟩
-      (ap (λ p → ((_++_) (p) (zs))) ((++-assoc) ((w) ∷ (ws)) (xs) (ys))) ∙ (((++-assoc) ((w) ∷ (ws)) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ((w) ∷ (ws)) (p))) ((++-assoc) (xs) (ys) (zs))))
     ∎
 
 
