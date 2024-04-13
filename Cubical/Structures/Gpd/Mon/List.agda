@@ -103,3 +103,17 @@ module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
     _♯ : List A -> 𝔜 .car
     [] ♯ = 𝔜 .str .𝟙
     (x ∷ xs) ♯ = 𝔜 .str ._⊗_ (f x) (xs ♯)
+
+    private
+      ♯-𝟙 : [] ♯ ≡ 𝔜 .str .𝟙
+      ♯-𝟙 = refl
+
+      ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ 𝔜 .str ._⊗_ (xs ♯) (ys ♯)
+      ♯-++ [] ys = sym (𝔜 .str .Λ (ys ♯))
+      ♯-++ (x ∷ xs) ys = cong (𝔜 .str ._⊗_ (f x)) (♯-++ xs ys) ∙ sym (𝔜 .str .α (f x) (xs ♯) (ys ♯))
+
+      ♯-ρ : ∀ xs -> ap _♯ (++-unit-r xs) ≡ ♯-++ xs [] ∙ ap (𝔜 .str ._⊗_ (xs ♯)) ♯-𝟙 ∙ 𝔜 .str .ρ (xs ♯)
+      ♯-ρ [] = TODO
+      ♯-ρ (x ∷ xs) = TODO
+
+      -- TODO: ♯-Λ and ♯-α
