@@ -12,7 +12,7 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Induction.WellFounded
 import Cubical.Data.Empty as ⊥
 
-import Cubical.Structures.Set.Mon.Desc as M
+import Cubical.Structures.Set.Desc.Mon as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public

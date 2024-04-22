@@ -7,9 +7,9 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Everything
 open import Cubical.Data.List as L
 
-import Cubical.Structures.Set.Mon.Desc as M
+import Cubical.Structures.Set.Desc.Mon as M
 import Cubical.Structures.Set.Mon.List as LM
-import Cubical.Structures.Set.CMon.Desc as M
+import Cubical.Structures.Set.Desc.CMon as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public

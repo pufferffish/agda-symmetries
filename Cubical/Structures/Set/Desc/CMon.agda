@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module Cubical.Structures.Set.CMon.Desc where
+module Cubical.Structures.Set.Desc.CMon where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat
@@ -16,7 +16,7 @@ open import Cubical.Structures.Str public
 open import Cubical.Structures.Tree
 open import Cubical.Structures.Eq
 
-import Cubical.Structures.Set.Mon.Desc as M
+import Cubical.Structures.Set.Desc.Mon as M
 
 open M.MonSym
 

@@ -20,7 +20,7 @@ open import Cubical.Structures.Coh
 open import Cubical.Structures.Arity as F
 
 open import Cubical.Structures.Prelude
-open import Cubical.Structures.Set.Mon.Desc as Mon renaming (`e to `𝟙 ; `⊕ to `⊗)
+open import Cubical.Structures.Set.Desc.Mon as Mon renaming (`e to `𝟙 ; `⊕ to `⊗)
 
 data MonCoh : Type where
   `triangle `pentagon : MonCoh

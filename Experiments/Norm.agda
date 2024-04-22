@@ -16,7 +16,7 @@ open import Cubical.Induction.WellFounded
 import Cubical.Data.Empty as ⊥
 open import Cubical.HITs.SetQuotients as Q
 
-import Cubical.Structures.Set.CMon.Desc as M
+import Cubical.Structures.Set.Desc.CMon as M
 import Cubical.Structures.Free as F
 
 open import Cubical.Structures.Set.CMon.Free as F

@@ -9,8 +9,8 @@ open import Cubical.HITs.SetQuotients as Q
 open import Cubical.Data.List as L
 open import Cubical.Relation.Binary
 
-import Cubical.Structures.Set.Mon.Desc as M
-import Cubical.Structures.Set.CMon.Desc as M
+import Cubical.Structures.Set.Desc.Mon as M
+import Cubical.Structures.Set.Desc.CMon as M
 import Cubical.Structures.Free as F
 open import Cubical.Structures.Sig
 open import Cubical.Structures.Str public
@@ -35,7 +35,7 @@ module _ {ℓ ℓ' : Level} (freeMon : Free ℓ ℓ' 2) where
     constructor permRel
     infix 3 _≈_
     _≈_ : Rel (ℱ A) (ℱ A) ℓ' ; _≈_ = R
-    -- TODO: Add ⊕ as a helper in Mon.Desc
+    -- TODO: Add ⊕ as a helper in Desc.Mon
     infixr 10 _⊕_
     _⊕_ : ℱ A -> ℱ A -> ℱ A
     a ⊕ b = freeMon .α (M.`⊕ , ⟪ a ⨾ b ⟫)

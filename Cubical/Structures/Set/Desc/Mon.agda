@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module Cubical.Structures.Set.Mon.Desc where
+module Cubical.Structures.Set.Desc.Mon where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Functions.Logic as L
