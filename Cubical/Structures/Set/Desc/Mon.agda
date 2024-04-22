@@ -66,14 +66,14 @@ MonEqSig : EqSig ℓ-zero ℓ-zero
 MonEqSig = finEqSig (MonEq , MonEqFree)
 
 monEqLhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
-monEqLhs `unitl = node (`⊕ , lookup (node (`e , lookup []) ∷ leaf fzero ∷ []))
-monEqLhs `unitr = node (`⊕ , lookup (leaf fzero ∷ node (`e , lookup []) ∷ []))
-monEqLhs `assocr = node (`⊕ , lookup (node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ [])) ∷ leaf ftwo ∷ []))
+monEqLhs `unitl = node (`⊕ , ⟪ node (`e , ⟪⟫) ⨾ leaf fzero ⟫)
+monEqLhs `unitr = node (`⊕ , ⟪ leaf fzero ⨾ node (`e , ⟪⟫) ⟫)
+monEqLhs `assocr = node (`⊕ , ⟪ node (`⊕ , ⟪ leaf fzero ⨾ leaf fone ⟫) ⨾ leaf ftwo ⟫)
 
 monEqRhs : (eq : MonEq) -> FinTree MonFinSig (MonEqFree eq)
 monEqRhs `unitl = leaf fzero
 monEqRhs `unitr = leaf fzero
-monEqRhs `assocr = node (`⊕ , lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []))
+monEqRhs `assocr = node (`⊕ , ⟪ leaf fzero ⨾ node (`⊕ , ⟪ leaf fone ⨾ leaf ftwo ⟫)⟫)
 
 MonSEq : seq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n

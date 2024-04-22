@@ -48,11 +48,11 @@ CMonEqSig = finEqSig (CMonEq , CMonEqFree)
 
 cmonEqLhs : (eq : CMonEq) -> FinTree CMonFinSig (CMonEqFree eq)
 cmonEqLhs (`mon eqn) = M.monEqLhs eqn
-cmonEqLhs `comm = node (`⊕ , lookup (leaf fzero ∷ leaf fone ∷ []))
+cmonEqLhs `comm = node (`⊕ , ⟪ leaf fzero ⨾ leaf fone ⟫)
 
 cmonEqRhs : (eq : CMonEq) -> FinTree CMonFinSig (CMonEqFree eq)
 cmonEqRhs (`mon eqn) = M.monEqRhs eqn
-cmonEqRhs `comm = node (`⊕ , lookup (leaf fone ∷ leaf fzero ∷ []))
+cmonEqRhs `comm = node (`⊕ , ⟪ leaf fone ⨾ leaf fzero ⟫)
 
 CMonSEq : seq CMonSig CMonEqSig
 CMonSEq n = cmonEqLhs n , cmonEqRhs n
