@@ -173,11 +173,11 @@ module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
           ap _♯ (idp [])
         ≡⟨⟩
           refl
-        ≡⟨ {!   !} ⟩ -- Find the theorem stating this
+        ≡⟨ sym (lCancel _) ⟩
           sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ 𝔜 .str .Λ (𝔜 .str .𝟙)
         ≡⟨ ap (λ p →  sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ p) (lUnit (𝔜 .str .Λ (𝔜 .str .𝟙))) ⟩
           sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ refl ∙ 𝔜 .str .Λ (𝔜 .str .𝟙)
-        ≡⟨ {!   !} ⟩ -- ap refl 
+        ≡⟨ ap (λ p → sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ p ∙ 𝔜 .str .Λ (𝔜 .str .𝟙)) refl  ⟩
           sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ ap (λ r → 𝔜 .str ._⊗_ r (𝔜 .str .𝟙)) refl ∙ 𝔜 .str .Λ (𝔜 .str .𝟙)
         ≡⟨⟩
           sym (𝔜 .str .Λ (𝔜 .str .𝟙)) ∙ ap (λ r → 𝔜 .str ._⊗_ r (𝔜 .str .𝟙)) ♯-𝟙 ∙ 𝔜 .str .Λ (𝔜 .str .𝟙)
