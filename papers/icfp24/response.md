@@ -7,4 +7,4 @@ is mentioned on line 1187.
 
 In light of this, there is essentially nothing new in the paper other than a categorical framework and a formalization
 in Agda. Therefore, we have decided to withdraw the paper. We apologize for the oversight, and thank the reviewers and
-program committee for their time.
+program committee for their time. We will continue thinking about the problem and hope to come up with something new!
