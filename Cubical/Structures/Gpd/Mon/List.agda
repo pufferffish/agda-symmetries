@@ -59,6 +59,35 @@ private
       ap (_++ ys) (++-unit-r (x ∷ xs))
     ∎
 
+private
+  list-⬠ : (xs ys zs ws : List A)
+         → ++-assoc (ws ++ xs) ys zs ∙ ++-assoc ws xs (ys ++ zs)
+         ≡ ap (_++ zs) (++-assoc ws xs ys) ∙ ++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs)
+  list-⬠ xs ys zs [] = 
+      ((++-assoc) ((_++_) ([]) (xs)) (ys) (zs)) ∙ ((++-assoc) ([]) (xs) ((_++_) (ys) (zs)))
+    ≡⟨ sym (rUnit _) ⟩
+      (++-assoc) (xs) (ys) (zs)
+    ≡⟨ sym (sym (lUnit _)) ⟩
+      (idp _) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs)))
+    ≡⟨ sym (sym (lUnit _)) ⟩
+      (idp _) ∙ (((++-assoc) ([]) ((_++_) (xs) (ys)) (zs)) ∙ (ap (λ p → ((_++_) ([]) (p))) ((++-assoc) (xs) (ys) (zs))))
+    ∎
+ 
+  list-⬠ xs ys zs (w ∷ ws) =
+      ((++-assoc) ((_++_) ((w) ∷ (ws)) (xs)) (ys) (zs)) ∙ ((++-assoc) ((w) ∷ (ws)) (xs) ((_++_) (ys) (zs)))
+    ≡⟨⟩
+      ((++-assoc) ((w) ∷ ((_++_) (ws) (xs))) (ys) (zs)) ∙ ((++-assoc) ((w) ∷ (ws)) (xs) ((_++_) (ys) (zs)))
+    ≡⟨ sym (ap-compPath (λ a0 → ((_∷_) (w) (a0))) ((++-assoc) ((_++_) (ws) (xs)) (ys) (zs)) ((++-assoc) (ws) (xs) ((_++_) (ys) (zs))) ) ⟩
+      ap (λ a0 → ((_∷_) (w) (a0))) (((++-assoc) ((_++_) (ws) (xs)) (ys) (zs)) ∙ ((++-assoc) (ws) (xs) ((_++_) (ys) (zs))))
+    ≡⟨ ap  (λ p → (ap (λ a0 → ((_∷_) (w) (a0)))) p) (list-⬠ xs ys zs ws) ⟩
+      ap (λ a0 → ((_∷_) (w) (a0))) (ap (_++ zs) (++-assoc ws xs ys) ∙ ++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
+    ≡⟨ ap-compPath ((λ a0 → ((_∷_) (w) (a0)))) ((ap (_++ zs) (++-assoc ws xs ys))) ((++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))) ⟩
+      ap (λ a0 → ((_∷_) (w) (a0))) (ap (_++ zs) (++-assoc ws xs ys)) ∙ ap (λ a0 → ((_∷_) (w) (a0))) (++-assoc ws (xs ++ ys) zs ∙ ap (_++_ ws) (++-assoc xs ys zs))
+    ≡⟨ ap (λ p → ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ p) (ap-compPath ((λ a0 → w ∷ a0)) ((++-assoc ws (xs ++ ys) zs)) ((ap (λ p → ws ++ p) (++-assoc xs ys zs)))) ⟩ 
+      ap (λ a0 → (w ∷ a0) ++ zs) (++-assoc ws xs ys) ∙ ap (λ a0 → w ∷ a0) (++-assoc ws (xs ++ ys) zs) ∙ ap (λ a0 → w ∷ a0) (ap (λ p → ws ++ p) (++-assoc xs ys zs))
+    ∎
+
+
 list-str : MonStr (List A)
 𝟙 list-str = []
 _⊗_ list-str = _++_
@@ -66,7 +95,7 @@ _⊗_ list-str = _++_
 ρ list-str = ++-unit-r
 α list-str = ++-assoc
 ▿ list-str = list-▿
-⬠ list-str = TODO -- pentagon coherence for lists
+⬠ list-str = list-⬠
 
 module Free {x y : Level} {A : Type x} (𝔜 : MonGpd y) where
 
