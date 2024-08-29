@@ -1,0 +1,45 @@
+\section{Formalization}
+\label{sec:formalization}
+
+In this section, we discuss some aspects of the formalization.
+The paper uses informal type theoretic language,
+and is accessible without understanding any details of the formalization.
+However, the formalization is done in Cubical Agda, which has a few differences and a few
+shortcomings due to proof engineering issues.
+
+For simplicity we omitted type levels in the paper, but our formalization constructions
+are generalized to all type-levels.
+The free algebra framework in the formalization is
+parameterized by any h-levels, but it currently only works with sets.
+We also note the axioms of sorting in the formalization is named differently,
+$\issorted$ is $\term{is-sorted}$
+$\isheadleast$ is $\term{is-head-least}$, and
+$\istailsort$ is $\term{is-tail-sort}$.
+We give a table of the Agda file names and their corresponding sections in the paper
+at~\cref{appendix:formalizations}.
+
+\begin{toappendix}
+\begin{table}[h]\label{appendix:formalizations}
+\centering
+\begin{tabular}{lll}
+\hline
+\textbf{Code} & \textbf{Description} & \textbf{Reference}               \\ \hline
+\texttt{index} & Index of all files & N/A \\
+\texttt{Cubical.Structures.Free}         & Free algebra            & (Section~\cref{sec:universal-algebra:free-algebras}) \\
+\texttt{Cubical.Structures.Sig}         & Algebra signature            & (Section~\cref{algebra:signature}) \\
+\texttt{Cubical.Structures.Str}         & Algebra structure            & (Section~\cref{algebra:struct}) \\
+\texttt{Cubical.Structures.Eq}         & Algebra equations            & (Section~\cref{sec:universal-algebra:equations}) \\
+\texttt{Cubical.Structures.Tree}         & Tree     & (Section~\cref{algebra:tree}) \\
+\texttt{Cubical.Structures.Set.Mon.List} & $\term{List}$  & (Section~\cref{mon:lists}) \\
+\texttt{Cubical.Structures.Set.Mon.Array} & $\term{Array}$  & (Section~\cref{mon:array})\\
+\texttt{Cubical.Structures.Set.CMon.QFreeMon} & Quotiented-free monoid & (Section~\cref{cmon:qfreemon}) \\
+\texttt{Cubical.Structures.Set.CMon.PList} & Quotiented-list & (Section~\cref{cmon:plist}) \\
+\texttt{Cubical.Structures.Set.CMon.SList} & Swapped-list & (Section~\cref{cmon:slist}) \\
+\texttt{Cubical.Structures.Set.CMon.Bag} & Bag & (Section~\cref{cmon:bag}) \\
+\texttt{Cubical.Structures.Set.CMon.SList.Sort} & Sort and order relationship & (Section~\cref{sec:sorting}) \\
+\hline
+\end{tabular}
+\caption{Status of formalised results}
+\label{tab:formalised_results}
+\end{table}
+\end{toappendix}

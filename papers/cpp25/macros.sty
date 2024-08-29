@@ -1,0 +1,101 @@
+\ProvidesPackage{macros}
+
+\RequirePackage{xcolor-solarized}
+% cleveref setup
+\RequirePackage[nameinlink,capitalize,noabbrev]{cleveref}
+% lists
+\RequirePackage[inline]{enumitem}
+\setlist{leftmargin=*}
+\RequirePackage{apxproof}
+\RequirePackage{worldflags}
+
+\usetikzlibrary{backgrounds}
+
+%% itemize margin
+\newenvironment{myitemize}
+  {\begin{itemize}[leftmargin=*]}
+  {\end{itemize}}
+
+% editing marks
+\newcommand{\todo}[1]{{\color{solarized-red}TODO: #1}}
+\ifx\note\undefined
+  \newcommand{\note}[1]{\textcolor{solarized-green}{NOTE: #1}}
+\fi
+\newcommand{\redtext}[1]{\textcolor{solarized-red}{#1}}
+\newcommand{\newtext}[1]{\textcolor{solarized-blue}{#1}}
+
+% author marks
+\newcommand{\vc}[1]{\textcolor{solarized-magenta}{VC: #1}}
+\newcommand{\amr}[1]{\textcolor{solarized-blue}{Amr: #1}}
+
+% references
+\makeatletter
+\newcommand{\crefnames}[3]{%
+  \@for\next:=#1\do{%
+    \expandafter\crefname\expandafter{\next}{#2}{#3}%
+  }%
+}
+\makeatother
+%% shorten cref names
+% \crefnames{part,chapter,section,subsection}{\S}{\S\S}
+% \crefnames{paragraph}{\P}{\P\P}
+
+% paragraphs
+\newcommand{\myparagraph}[1]{\noindent\textbf{#1.}}
+\makeatletter
+\renewcommand{\@subsubsecfont}{\sffamily\bfseries}
+\makeatother
+
+% frenchquotes
+\newcommand{\frenchquote}[1]{\guillemotleft{}#1\guillemotright{}}
+
+% ++
+\newcommand{\doubleplus}[0]{\mathbin{+\kern -0.4em+}}
+% \newcommand\doubleplus{\mathbin{\text{\ttfamily\upshape ++}}}
+\newcommand{\concat}{\doubleplus}
+
+% Bool
+\newcommand{\boolt}{{\mathbf{2}}}
+
+% mult
+\newcommand{\mult}{\mathbin{\bullet}}
+
+% constructions
+\newcommand{\List}{\term{List}}
+\newcommand{\Array}{\term{Array}}
+\newcommand{\PList}{\term{PList}}
+\newcommand{\SList}{\term{SList}}
+\newcommand{\Bag}{\term{Bag}}
+\newcommand{\Perm}{\term{Perm}}
+
+% apxproof
+\newtheoremrep{proposition}{Proposition}
+\newtheoremrep{lemma}{Lemma}
+
+% yoneda
+\DeclareFontFamily{U}{min}{}
+\DeclareFontShape{U}{min}{m}{n}{<-> udmj30}{}
+\newcommand{\yo}
+{\!\text{\usefont{U}{min}{m}{n}\symbol{'210}}\!}
+
+% colored balls and flags
+\newcommand{\rwb}{
+  \tikz[baseline]{%
+    \foreach \x/\color in {1/red,2/white,3/blue} {
+        \node[circle,draw,fill=\color,line width=0.1em,minimum size=0.25em,anchor=base] at (\x,0.225em) {};
+        \ifthenelse{\NOT 1 = \x}{\node at ({\x-0.5},0) {,};}{}
+      }
+  }
+}
+
+% sort
+\newcommand{\issortedany}{\term{in-image}}
+\newcommand{\issorted}{\issortedany_s}
+\newcommand{\isheadleast}{\term{image-respects-pair}}
+\newcommand{\istailsort}{\term{image-can-induct}}
+\newcommand{\setord}{\term{Ord}}
+\newcommand{\Ord}{\term{Ord}}
+\newcommand{\setmtol}{\term{M2L}}
+\newcommand{\setsort}{\term{Sort}}
+\newcommand{\Sort}{\term{Sort}}
+\newcommand{\otof}{\term{o2f}}
