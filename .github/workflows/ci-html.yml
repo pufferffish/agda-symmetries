@@ -43,6 +43,7 @@ on:
 
 env:
   AGDA_BRANCH: v2.6.4
+  CUBICAL_BRANCH: v0.7
   GHC_VERSION: 9.2.5
   CABAL_VERSION: 3.6.2.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
@@ -115,7 +116,8 @@ jobs:
         with:
           repository: agda/cubical
           path: cubical
-
+          ref: ${{ env.CUBICAL_BRANCH }}
+          
       - name: Register cubical
         run: |
           mkdir ~/.agda
