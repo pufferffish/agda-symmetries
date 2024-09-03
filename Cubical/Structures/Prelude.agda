@@ -52,6 +52,7 @@ module Toset {ℓ : Level} {A : Type ℓ} where
   open import Cubical.Relation.Binary.Order
   open import Cubical.Data.Sigma as S
   open import Cubical.Data.Sum as ⊎
+  open import Cubical.Functions.Logic using (_⊔′_)
 
   IsDecOrder : (A -> A -> Type ℓ) -> Type _
   IsDecOrder _≤_ = IsToset _≤_ × (∀ x y -> Dec (x ≤ y))
@@ -106,6 +107,12 @@ module Toset {ℓ : Level} {A : Type ℓ} where
                                                       (λ b≤a -> subst (_≤ b) (sym (⋀-β₂ b≤a)) (tosetA .is-refl b)))
             (tosetA .is-strongly-connected a b)
 
+    ⋀-η₁ : ∀ {a b} -> (a ⋀ b) ≡ a -> a ≤ b
+    ⋀-η₁ {a = a} {b = b} =
+      P.rec (isProp→ (tosetA .is-prop-valued a b))
+            (⊎.rec (λ a≤b _ -> a≤b) (λ b≤a ϕ -> subst (_≤ b) ϕ ⋀-π₂))
+            (tosetA .is-strongly-connected a b)
+
     ⋀-univ-fwd : ∀ {x a b} -> x ≤ (a ⋀ b) -> (x ≤ a) × (x ≤ b)
     ⋀-univ-fwd {x = x} {a = a} {b = b} ϕ =
       tosetA .is-trans x (a ⋀ b) a ϕ ⋀-π₁ , tosetA .is-trans x (a ⋀ b) b ϕ ⋀-π₂
@@ -137,6 +144,29 @@ module Toset {ℓ : Level} {A : Type ℓ} where
                                     (compEquiv Σ-assoc-≃ (compEquiv (Σ-cong-equiv (idEquiv (x ≤ a)) λ _ -> invEquiv ⋀-univ)
                                                                                   (invEquiv ⋀-univ))))
 
-    open import Cubical.Functions.Logic
-    ⋀-total : ∀ a b -> (a ⋀ b ≡ a) ⊔′ (a ⋀ b ≡ b)
-    ⋀-total a b = P.map (⊎.map ⋀-β₁ ⋀-β₂) (tosetA .is-strongly-connected a b)
+    ⋀-total : ∀ a b -> (a ⋀ b ≡ a) ⊔′ (b ⋀ a ≡ b)
+    ⋀-total a b = P.map (⊎.map ⋀-β₁ ⋀-β₁) (tosetA .is-strongly-connected a b)
+
+  module ⋀-Toset (isSetA : isSet A) (_⋀_ : A -> A -> A)
+                 (⋀-idem : ∀ a -> a ⋀ a ≡ a) (⋀-comm : ∀ a b -> a ⋀ b ≡ b ⋀ a)
+                 (⋀-assocr : ∀ a b c -> (a ⋀ b) ⋀ c ≡ a ⋀ (b ⋀ c)) (⋀-total : ∀ a b -> (a ⋀ b ≡ a) ⊔′ (b ⋀ a ≡ b)) where
+
+    _≤_ : A -> A -> Type ℓ
+    a ≤ b = (a ⋀ b) ≡ a
+
+    tosetA : IsToset _≤_
+    tosetA .is-set = isSetA
+    tosetA .is-prop-valued a b = isSetA (a ⋀ b) a
+    tosetA .is-refl = ⋀-idem
+    tosetA .is-trans a b c a∧b≡a b∧c≡b = congS (_⋀ c) (sym a∧b≡a) ∙ ⋀-assocr a b c ∙ congS (a ⋀_) b∧c≡b ∙ a∧b≡a
+    tosetA .is-antisym a b a∧b≡a b∧a≡a = sym a∧b≡a ∙ ⋀-comm a b ∙ b∧a≡a
+    tosetA .is-strongly-connected = ⋀-total
+
+  module Toset-⋀-Toset (isSetA : isSet A) (_≤_ : A -> A -> Type ℓ) (tosetA : IsToset _≤_) where
+
+    module Tos-⋀ = Toset-⋀ isSetA _≤_ tosetA
+    module ⋀-Tos = ⋀-Toset isSetA Tos-⋀._⋀_ Tos-⋀.⋀-idem Tos-⋀.⋀-comm Tos-⋀.⋀-assocr Tos-⋀.⋀-total
+
+    eq : TosetEquiv (toset A _≤_ tosetA) (toset A ⋀-Tos._≤_ ⋀-Tos.tosetA)
+    eq .fst = idEquiv ⟨ toset A _≤_ tosetA ⟩
+    eq .snd = istosetequiv λ a b -> propBiimpl→Equiv (tosetA .is-prop-valued a b) (isSetA _ _) Tos-⋀.⋀-β₁ Tos-⋀.⋀-η₁
