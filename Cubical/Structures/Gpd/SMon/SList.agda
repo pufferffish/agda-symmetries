@@ -5,7 +5,8 @@ module Cubical.Structures.Gpd.SMon.SList where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
 
-open import Cubical.Structures.Prelude 
+open import Cubical.Structures.Prelude
+open import Cubical.Structures.Prelude.TODO
 
 infixr 20 _∷_
 

@@ -49,21 +49,24 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
       )
       (λ _ -> isSet𝔜)
 
-    private
-      ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
-      ♯-++ = ElimProp.f (isPropΠ λ _ -> isSet𝔜 _ _)
-        (λ ys -> sym (𝔜.unitl (ys ♯)))
-        (λ a {xs} p ys ->
-          f a 𝔜.⊕ ((xs ++ ys) ♯) ≡⟨ cong (f a 𝔜.⊕_) (p ys) ⟩
-          f a 𝔜.⊕ ((xs ♯) 𝔜.⊕ (ys ♯)) ≡⟨ sym (𝔜.assocr (f a) (xs ♯) (ys ♯)) ⟩
-          _
-        ∎)
+    -- export these for computation
+    ♯-++ : ∀ xs ys -> (xs ++ ys) ♯ ≡ (xs ♯) 𝔜.⊕ (ys ♯)
+    ♯-++ = ElimProp.f (isPropΠ λ _ -> isSet𝔜 _ _)
+      (λ ys -> sym (𝔜.unitl (ys ♯)))
+      (λ a {xs} p ys ->
+        f a 𝔜.⊕ ((xs ++ ys) ♯) ≡⟨ cong (f a 𝔜.⊕_) (p ys) ⟩
+        f a 𝔜.⊕ ((xs ♯) 𝔜.⊕ (ys ♯)) ≡⟨ sym (𝔜.assocr (f a) (xs ♯) (ys ♯)) ⟩
+        _
+      ∎)
+
+    ♯-∷ : ∀ x xs -> (x ∷ xs) ♯ ≡ (f x) 𝔜.⊕ (xs ♯)
+    ♯-∷ x xs = ♯-++ [ x ] xs ∙ congS (𝔜._⊕ (xs ♯)) (𝔜.unitr (f x))
 
     ♯-isMonHom : structHom 𝔛 𝔜
     fst ♯-isMonHom = _♯
     snd ♯-isMonHom M.`e i = 𝔜.e-eta
     snd ♯-isMonHom M.`⊕ i = 𝔜.⊕-eta i _♯ ∙ sym (♯-++ (i fzero) (i fone))
-  
+
   private
     slistEquivLemma : (g : structHom 𝔛 𝔜) -> (x : SList A) -> g .fst x ≡ ((g .fst ∘ [_]) ♯) x
     slistEquivLemma (g , homMonWit) = ElimProp.f (isSet𝔜 _ _)

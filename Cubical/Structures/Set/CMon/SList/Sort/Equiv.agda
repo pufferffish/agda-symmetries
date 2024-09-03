@@ -20,6 +20,7 @@ open import Cubical.Functions.Embedding
 import Cubical.Data.List as L
 open import Cubical.Functions.Logic as L hiding (¬_; ⊥) 
 
+open import Cubical.Structures.Prelude
 import Cubical.Structures.Set.Mon.Desc as M
 import Cubical.Structures.Set.CMon.Desc as M
 import Cubical.Structures.Free as F
@@ -50,12 +51,7 @@ module Sort↔Order {ℓ : Level} {A : Type ℓ} (isSetA : isSet A) where
   open Sort→Order isSetA
   open Order→Sort
   open IsToset
-
-  IsDecOrder : (A -> A -> Type ℓ) -> Type _
-  IsDecOrder _≤_ = IsToset _≤_ × (∀ x y -> Dec (x ≤ y))
-
-  HasDecOrder : Type _
-  HasDecOrder = Σ _ IsDecOrder
+  open Toset
 
   IsHeadLeastSection : (SList A -> List A) -> Type _
   IsHeadLeastSection q = is-section q × is-head-least q

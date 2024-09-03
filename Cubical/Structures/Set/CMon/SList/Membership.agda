@@ -38,9 +38,12 @@ list→slist = list→slist-Hom .fst
 
 module Membership* {ℓ} {A : Type ℓ} (isSetA : isSet A) where
   open SList.Free {A = A} isSetHProp (M.⊔-MonStr-CMonSEq ℓ)
+
+  よ : A -> A -> hProp ℓ
+  よ x = λ y -> (x ≡ y) , isSetA x y
   
   ∈*Prop : A -> SList A -> hProp ℓ 
-  ∈*Prop x = (λ y -> (x ≡ y) , isSetA x y) ♯
+  ∈*Prop x = (よ x) ♯
 
   _∈*_ : A -> SList A -> Type ℓ
   x ∈* xs = ∈*Prop x xs .fst

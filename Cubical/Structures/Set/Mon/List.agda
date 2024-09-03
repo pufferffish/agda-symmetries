@@ -5,6 +5,7 @@ module Cubical.Structures.Set.Mon.List where
 open import Cubical.Foundations.Everything
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
+open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
@@ -91,8 +92,11 @@ list-⊥ = isoToEquiv (iso (λ _ -> tt) (λ _ -> []) (λ _ -> isPropUnit _ _) le
 module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
   open Free {A = A} isSetHProp (M.⊔-MonStr-MonSEq ℓ)
 
+  よ : A -> A -> hProp ℓ
+  よ x = λ y -> (x ≡ y) , isSetA x y
+
   ∈Prop : A -> List A -> hProp ℓ 
-  ∈Prop x = (λ y -> (x ≡ y) , isSetA x y) ♯
+  ∈Prop x = (よ x) ♯
 
   _∈_ : A -> List A -> Type ℓ
   x ∈ xs = ∈Prop x xs .fst
@@ -118,3 +122,42 @@ module Membership {ℓ} {A : Type ℓ} (isSetA : isSet A) where
 
   x∈[y]→x≡y : ∀ x y -> x ∈ [ y ] -> x ≡ y
   x∈[y]→x≡y x y = P.rec (isSetA x y) $ ⊎.rec (idfun _) ⊥.rec*
+
+module Head {ℓ} {A : Type ℓ} where
+
+  _⊕_ : Maybe A -> Maybe A -> Maybe A
+  nothing ⊕ b = b
+  just a ⊕ b = just a
+
+  ⊕-unitl : ∀ x -> nothing ⊕ x ≡ x
+  ⊕-unitl x = refl
+
+  ⊕-unitr : ∀ x -> x ⊕ nothing ≡ x
+  ⊕-unitr nothing = refl
+  ⊕-unitr (just x) = refl
+
+  ⊕-assocr : ∀ x y z -> (x ⊕ y) ⊕ z ≡ x ⊕ (y ⊕ z)
+  ⊕-assocr nothing y z = refl
+  ⊕-assocr (just x) y z = refl
+
+  Maybe-MonStr : M.MonStruct
+  car Maybe-MonStr = Maybe A
+  alg Maybe-MonStr (M.`e , _) = nothing
+  alg Maybe-MonStr (M.`⊕ , i) = i fzero ⊕ i fone
+
+  Maybe-MonStr-MonSEq : Maybe-MonStr ⊨ M.MonSEq
+  Maybe-MonStr-MonSEq M.`unitl ρ = ⊕-unitl (ρ fzero)
+  Maybe-MonStr-MonSEq M.`unitr ρ = ⊕-unitr (ρ fzero)
+  Maybe-MonStr-MonSEq M.`assocr ρ = ⊕-assocr (ρ fzero) (ρ fone) (ρ ftwo)
+
+  module _ (isSetA : isSet A) where
+    open Free {A = A} (isOfHLevelMaybe 0 isSetA) Maybe-MonStr-MonSEq
+
+    head : List A -> Maybe A
+    head = just ♯
+
+    head-[] : head [] ≡ nothing
+    head-[] = refl
+
+    head-∷ : ∀ x xs -> head (x ∷ xs) ≡ just x
+    head-∷ _ _ = refl

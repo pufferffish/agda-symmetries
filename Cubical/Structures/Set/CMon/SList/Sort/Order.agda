@@ -408,5 +408,3 @@ module Order→Sort-Example where
  
   _ : sort (4 ∷* 6 ∷* 1 ∷* 2 ∷* []*) ≡ (1 ∷ 2 ∷ 4 ∷ 6 ∷ [])
   _ = refl
-   
-   
