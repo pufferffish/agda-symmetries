@@ -1,16 +1,20 @@
-Sorting algorithms are among the most fundamental in computing science, and are frequently studied in relation to functional programming. There have been many investigations of the correctness of sorting algorithms in terms of total orders and category theory. We provide a new perspective on this topic by approaching it via universal algebra, viewing a sorting algorithm as a section (right inverse) to a surjective function from a free monoid to a free commutative monoid. This emphasizes the fact that introducing symmetry (the passage from free monoids to free commutative monoids) eliminates ordering, while sorting (the right inverse) recovers ordering.
+Sorting algorithms are fundamental to computer science, and their correctness
+criteria are well understood as rearranging elements of a list
+according to a specified total order on the underlying set of elements.
+We give a conceptual reconstruction of this point of view, by considering
+sorting algorithms as abstract functions instead -- sorting functions determine a
+well-behaved section (right inverse) to the canonical surjection sending a free
+monoid to a free commutative monoid of its elements.
+Introducing symmetry by passing from free monoids to free commutative monoids
+eliminates ordering, while sorting (the right inverse) recovers ordering.
+From this, we give an axiomatization of sorting which does not require a
+pre-existing total order on the underlying set, and then show that there is an
+equivalence between (decidable) total orders on the underlying set and correct
+sorting functions.
 
-Our first main contribution is a new axiomatization of correct sorting algorithms, using two axioms that are not expressed in terms of a pre-existing total order. Instead, the total order can be recovered from the definition of an algorithm that satisfies the axioms. Our second main contribution is a formlization of the informal intuition that commutative monoids are unordered lists. Additionally, we give new proofs of some standard results about constructions of free monoids and free commutative monoids. We formalize all of the theory in Cubical Agda.  
-
-
-
-
-
-%Sorting algorithms are one of the most common algorithms in functional programming.
-%Previous works have investigated the correctness of sorting algorithms in terms of
-%total orders and category theory. 
-%
-%We provide another perspective on the correctness of sorting algorithms with
-%universal algebra by understanding it in terms of surjective functions from
-%free monoids to free commutative monoids, leveraging the power of cubical
-%type theory to implement theses ideas.
+The first part of the paper develops concepts from universal algebra and various
+constructions of free monoids and free commutative monoids, which are used to
+develop the second part of the paper about the axiomatization of sorting
+functions.
+The paper uses informal mathematical language, and comes with an accompanying
+formalization in Cubical Agda.

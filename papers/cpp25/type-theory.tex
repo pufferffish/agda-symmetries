@@ -79,7 +79,7 @@ giving rise to the infamous setoid hell.
 In MLTT we cannot construct equalities between types. Univalence, the core of Homotopy Type Theory,
 gives us equalities between types by the univalence axiom. To see how this is useful,
 consider $A, B : \mathcal{U}, P : \mathcal{U} \rightarrow \mathcal{U}, A = B$, we can
-get $P(B)$ from $P(A)$ by transport (or substitution).  
+get $P(B)$ from $P(A)$ by transport (or substitution).
 
 \begin{definition}[Univalence axiom]
     $(A = B) \simeq (A \simeq B)$
@@ -101,8 +101,8 @@ where we want to show to propositions are commutative: i.e. $\forall p, q: \hPro
 Since $p$ and $q$ are types, we need univalence to show $p \vee q = q \vee p$ are in fact equal.
 \end{toappendix}
 
-We denote the type of types with $\mathcal{U}$. 
-In practice, $\mathcal{U}$ would be indexed by a type level 
+We denote the type of types with $\mathcal{U}$.
+In practice, $\mathcal{U}$ would be indexed by a type level
 à la Russell for consistency, however we opted to omit the type level
 for simplicity and clarity.
 We use $\Fin[n]$ to denote finite sets of cardinality $n$ in HoTT~\cite{yorgeyCombinatorialSpeciesLabelled2014a}.
