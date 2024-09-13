@@ -1,3 +1,5 @@
+% !TEX root = cpp25-sort.tex
+
 \section{Universal Algebra}
 \label{sec:universal-algebra}
 
@@ -60,7 +62,7 @@ Every signature $\sig$ induces a signature functor on $\Set$, written $\Sig$.
     The signature functor for monoids, $\SigMon$, assigns to a carrier set $X$,
     the sets of inputs for each operation.
     %
-    Expanding the dependent product on $\Fin[2]$, we obtain a coproduct or disjoint union of sets:
+    Expanding the dependent product on $\Fin[2]$, we obtain a coproduct of sets:
     $\SigMon(X) \eqv X^{\Fin[0]} + X^{\Fin[2]} \eqv \unitt + (X \times X)$.
 \end{example}
 
@@ -84,19 +86,22 @@ We write $\str{X}$ for a $\sig$-structure with carrier set $X$, following the mo
 \begin{example}
     Concretely, an $\SigMon$-algebra has the type
     \[
-        \alpha_{X} : \SigMon(X) \to X \eqv \unitt + (X \times X) \to X \eqv (\unitt \to X) \times (X \times X \to X)
+        \begin{aligned}
+            \alpha_{X} : \SigMon(X) \to X & \eqv (\unitt + (X \times X)) \to X            \\
+                                          & \eqv (\unitt \to X) \times (X \times X \to X)
+        \end{aligned}
     \]
     which is the pair of functions interpreting the two operations.
     The natural numbers with the carrier set $\Nat$,
     and the constant $0$ and the addition operation $+$ give an example of such a structure.
     %
-    Similarly, with the constant $1$ and the multiplication operation $\times$, we have another monoid structure.
+    Similarly, the constant $1$ and the multiplication operation $\times$ gives another monoid structure.
 \end{example}
 
 One of the advantages of an abstract framework is that we can readily leverage existing abstract machinery.
 %
 The notion of a homomorphism between two $\sig$-structures is a standard concept --
-in the categorical framework, this is simply a map between the two $\Sig$-algebras.
+in the categorical framework, this is simply a map of $\Sig$-algebras.
 
 \begin{definition}[Homomorphism]
     A homomorphism between two $\sig$-structures $\str{X}$ and $\str{Y}$ is a morphism of $\Sig$-algebras,
@@ -113,10 +118,10 @@ in the categorical framework, this is simply a map between the two $\Sig$-algebr
 
 \begin{example}
     To see concretely that this definition captures the notion of a homomorphism between two monoids ($\Sig$-algebras)
-    $\str{X}$ and $\str{Y}$, we note that the top half of the diagram produces the map:
-    $\unitt + (X \times X) \xto{\alpha_{X}} X \xto{f} Y$, which applies $f$ to the output of each operation,
+    \(\str{X}\) and \(\str{Y}\), we note that the top half of the diagram produces the map:
+    \({\unitt + (X \times X) \xto{\alpha_{X}} X \xto{f} Y}\), which applies \(f\) to the output of each operation,
     and the bottom half of the diagram produces the map:
-    $\unitt + (X \times X) \xto{\SigMon(f)} \unitt + (Y \times Y) \xto{\alpha_{Y}} Y$,
+    \({\unitt + (X \times X) \xto{\SigMon(f)} \unitt + (Y \times Y) \xto{\alpha_{Y}} Y}\),
     and the commutativity of the diagram says that these two maps are equal.
     %
     In other words, a homomorphism between $X$ and $Y$ is a map $f$ on the carrier sets that commutes with the
@@ -133,14 +138,14 @@ given by the obvious definitions of identity and composition of the underlying f
 
 The category $\sigAlg$ is a category of structured sets and structure-preserving maps,
 which is an example of a concrete category, that admits a forgetful functor to $U : \sigAlg \to \Set$,
-which forgets the structure and retains only the carrier set.
+that forgets the structure and retains only the carrier set.
 %
-Note that in our notation, $U(\str{X})$ is simply $X$, a fact that we can exploit to simplify our notation.
+Note that in our notation, $U(\str{X})$ is simply $X$, a fact that we exploit to simplify notation.
 %
-The natural question to ask is whether this forgetful functor has a left adjoint, and further, if it is monadic.
-
+The natural question to ask is whether this forgetful functor has a left adjoint, or, if it is monadic.
+%
 This is the construction of the free $\sig$-algebra on a set, which is a standard construction in universal algebra,
-known as the term algebra (or the absolutely free algebra without equations).
+known as the term algebra (or the \emph{absolutely free} algebra without equations).
 %
 Rather than defining the left adjoint directly, we rephrase the universal property of free algebras in more concrete
 terms.
@@ -154,7 +159,7 @@ terms.
         \item a universal map $\eta_X : X \to F(X)$, for every $X$, such that,
         \item for any $\sig$-algebra $\str{Y}$, the operation
               assigning to each homomorphism $f : \str{X} \to \str{Y}$,
-              the function $f \comp \eta_X : X \to Y$ (or, post-composition with $\eta_X$),
+              the map ${f \comp \eta_X : X \to Y}$ (or, post-composition with $\eta_X$),
               is an equivalence.
     \end{itemize}
     \[
@@ -202,41 +207,46 @@ or a \emph{catamorphism}.
 
 The universal property of the free algebra construction makes it unique up to (unique) isomorphism.
 %
-This can be easily verified with the following lemma.
+This is easily verified by the following lemma.
 \begin{lemma}
     \label{lem:free-algebras-unique}
-    Suppose that $\str{F}(X)$ and $\str{G}(X)$ are both free $\sig$-algebras on $X$.
+    Suppose $\str{F}(X)$ and $\str{G}(X)$ are both free $\sig$-algebras on $X$.
     %
     Then, it follows that $\str{F}(X) \eqv \str{G}(X)$, natural in $X$.
 \end{lemma}
 \begin{proofsketch}
-    The maps in each direction are given by extending $\eta_X$ for each free algebra construction:
-    $\ext{G\fdot\eta_{X}} : \str{F}(X) \to \str{G}(X)$, and vice versa.
+    By extending $\eta_X$ for each free construction,
+    we have maps in each direction:
+    ${\ext{G\fdot\eta_{X}} : \str{F}(X) \to \str{G}(X)}$, and vice versa.
     %
     Finally, using~\cref{def:universal-extension}, we have
     \(
-    \ext{F\fdot\eta_{X}} \comp \ext{G\fdot\eta_{X}} \htpy
-    \ext{(\ext{F\fdot\eta_{X}} \comp G\fdot\eta_{X})} \htpy
-    \ext{F\fdot\eta_{X}} \htpy
-    \idfunc_{\str{F}(X)}
+    {\ext{F\fdot\eta_{X}} \comp \ext{G\fdot\eta_{X}}} \htpy
+    {\ext{(\ext{F\fdot\eta_{X}} \comp G\fdot\eta_{X})}} \htpy
+    {\ext{F\fdot\eta_{X}}} \htpy
+    {\idfunc_{\str{F}(X)}}
     \).
     % \vc{Mention SIP.}
 \end{proofsketch}
-% \todo{Revisit.}
 The free algebra construction automatically turns $F$ into an endofunctor on $\Set$,
 where the action on functions is given by:
 $X \xto{f} Y \mapsto F(X) \xto{\ext{(\eta_{Y} \comp f)}} F(Y)$.
 %
-Further, this is gives a monad on $\Set$, where the unit is given by $\eta$,
-and the multiplication is given by $\mu_{X}\colon F(F(X)) \xto{\idfunc_{F(X)}} F(X)$.
-%
-By left adjoints preserve colimits, we have:
+Further, this gives a monad on $\Set$, with unit given by $\eta$,
+and multiplication given by $\mu_{X} \defeq F(F(X)) \xto{\ext{\idfunc_{F(X)}}} F(X)$.
+
+\redtext{
+    The free algebra on the empty set~\(\str{F}(\emptyt)\) is inhabited by all the constant symbols in the signature.
+    %
+    We note a few important properties of free algebras on 0, 1, coproducts.
+}
 \begin{proposition}
     \label{prop:free-algebra-colimits}
     \leavevmode
     \begin{itemize}
-        \item $\sigAlg(\str{F}(\emptyt), \str{X}) \eqv \unitt$,
-        \item there is a unique algebra map $\str{F}(\unitt) \to \unitt$,
+        \item $\sigAlg(\str{F}(\emptyt), \str{X})$ is contractible,
+        \item if $\sig$ has one constant symbol, then $\str{F}(\emptyt)$ is contractible,
+        \item the type of algebra structures on $\unitt$ is contractible,
         \item $\str{F}(X + Y)$ is the coproduct of $\str{F}(X)$ and $\str{F}(Y)$ in $\sigAlg$:
               \[
                   \sigAlg(\str{F}(X + Y), \str{Z}) \eqv
@@ -245,6 +255,13 @@ By left adjoints preserve colimits, we have:
               \]
     \end{itemize}
 \end{proposition}
+\begin{proof}
+    $F$ being a left adjoint, preserves coproducts.
+    %
+    This makes $\str{F}(\emptyt)$ initial in $\sigAlg$.
+    %
+    $\str{F}(\unitt) \to \unitt$ is contractible because $\unitt$ is terminal in $\Set$.
+\end{proof}
 
 So far, we've only discussed abstract properties of free algebras, but not actually given a construction!
 %
@@ -252,7 +269,8 @@ In type theory, \emph{free} constructions are often given by inductive types,
 where the constructors are the pieces of data that freely generate the structure,
 and the type-theoretic induction principle enforces the category-theoretic universal property.
 
-\begin{definition}[Construction of Free Algebras]\label{algebra:tree}
+\begin{definition}[Construction of Free Algebras]
+    \label{algebra:tree}
     \label{def:free-algebra-construction}
     The free $\sig$-algebra on a type $X$ is given by the inductive type:
     % \vc{$F$ is also used for free, change $\Sig$ functor to $\Sigma$?}
@@ -265,39 +283,39 @@ data Tree (X : UU) : UU where
 The constructors \inline{leaf} and \inline{node} are, abstractly,
 the generators for the universal map, and the algebra map, respectively.
 %
-Concretely, this can be seen as the type of abstract syntax trees for terms in the signature $\sig$,
+Concretely, this can be seen as the type of abstract syntax trees for terms in the signature $\sig$
 -- the leaves are the free variables, and the nodes are the branching operations of the tree,
-marked by the operations in the signature $\sig$.
+marked by the operations in $\sig$.
 
-\begin{example}
-A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
-\begin{center}
-\scalebox{0.7}{
-% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	2 \&\& 1 \&\& 1 \\
-	\&\&\& {+} \\
-	\&\& {+} \\
-	\&\&
-	\arrow[no head, from=3-3, to=4-3]
-	\arrow[from=2-4, to=3-3]
-	\arrow[from=1-3, to=2-4]
-	\arrow[from=1-5, to=2-4]
-	\arrow[from=1-1, to=3-3]
-\end{tikzcd}
-}
-\hspace{2em}
-% https://q.uiver.app/#q=WzAsMixbMCwwLCJlIl0sWzAsMiwiMCJdLFswLDFdXQ==
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	e \\
-	\\
-	\arrow[no head, from=1-1, to=3-1]
-\end{tikzcd}
-\end{center}
-    % Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
-    % %
-    % \todo{Expand the signature functor and show how this produces binary trees.}
-\end{example}
+% \begin{example}
+%     A tree for $\sigMon$ with the carrier set $\Nat$ would look like:
+%     \begin{center}
+%         \scalebox{0.7}{
+%             % https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+%             \begin{tikzcd}[ampersand replacement=\&,cramped]
+%                 2 \&\& 1 \&\& 1 \\
+%                 \&\&\& {+} \\
+%                 \&\& {+} \\
+%                 \&\&
+%                 \arrow[no head, from=3-3, to=4-3]
+%                 \arrow[from=2-4, to=3-3]
+%                 \arrow[from=1-3, to=2-4]
+%                 \arrow[from=1-5, to=2-4]
+%                 \arrow[from=1-1, to=3-3]
+%             \end{tikzcd}
+%         }
+%         \hspace{2em}
+%         % https://q.uiver.app/#q=WzAsMixbMCwwLCJlIl0sWzAsMiwiMCJdLFswLDFdXQ==
+%         \begin{tikzcd}[ampersand replacement=\&,cramped]
+%             e \\
+%             \\
+%             \arrow[no head, from=1-1, to=3-1]
+%         \end{tikzcd}
+%     \end{center}
+%     % Some example trees for $\sigMon$, with leaves drawn from $\{\rwb\}$.
+%     % %
+%     % \todo{Expand the signature functor and show how this produces binary trees.}
+% \end{example}
 
 \begin{proposition}
     \label{prop:free-algebra-construction-is}
@@ -312,36 +330,36 @@ The algebraic framework of universal algebra we have described so far only captu
 These algebras are \emph{lawless} (or \emph{wild} or \emph{absolutely free}) --
 saying the $\SigMon$-algebras are monoids, or $\str{F}_{\sigMon}$-algebras are free monoids is not justified.
 %
-For example, by associativity, these two trees of $(\Nat, +)$ should be identified as equal,
-but they're not.
+For example, by associativity, these two trees of $(\Nat, +)$ should be identified as equal.
+%% but they're not.
 \begin{center}
-\scalebox{0.7}{
-% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	2 \&\& 1 \&\& 1 \\
-	\&\&\& {+} \\
-	\&\& {+} \\
-	\&\&
-	\arrow[no head, from=3-3, to=4-3]
-	\arrow[from=2-4, to=3-3]
-	\arrow[from=1-3, to=2-4]
-	\arrow[from=1-5, to=2-4]
-	\arrow[from=1-1, to=3-3]
-\end{tikzcd}
-\hspace{2em}
-% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	2 \&\& 1 \&\& 1 \\
-	\& {+} \\
-	\&\& {+} \\
-	\&\& {}
-	\arrow[no head, from=3-3, to=4-3]
-	\arrow[from=1-5, to=3-3]
-	\arrow[from=1-1, to=2-2]
-	\arrow[from=1-3, to=2-2]
-	\arrow[from=2-2, to=3-3]
-\end{tikzcd}
-}
+    \scalebox{0.7}{
+        % https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            2 \&\& 1 \&\& 1 \\
+            \&\&\& {+} \\
+            \&\& {+} \\
+            \&\&
+            \arrow[no head, from=3-3, to=4-3]
+            \arrow[from=2-4, to=3-3]
+            \arrow[from=1-3, to=2-4]
+            \arrow[from=1-5, to=2-4]
+            \arrow[from=1-1, to=3-3]
+        \end{tikzcd}
+        \hspace{2em}
+        % https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            2 \&\& 1 \&\& 1 \\
+            \& {+} \\
+            \&\& {+} \\
+            \&\& {}
+            \arrow[no head, from=3-3, to=4-3]
+            \arrow[from=1-5, to=3-3]
+            \arrow[from=1-1, to=2-2]
+            \arrow[from=1-3, to=2-2]
+            \arrow[from=2-2, to=3-3]
+        \end{tikzcd}
+    }
 \end{center}
 %
 To impose equations on the operations, we adopt the point of view of equational logic.
@@ -404,83 +422,83 @@ this is simply a natural transformation!
 \end{definition}
 
 \begin{example}
-The equational signature $\sigma_{\mathsf{Mon}}$ has
-the set of equation symbols $eq = \{\term{unitl}, \term{unitr}, \term{assocr}\}$
-(or $\Fin[3]$ or $\mathbf{3}$),
-and the arity function
-$fv : eq \rightarrow \mathcal{U} = \{\term{unitl} \mapsto \mathbf{1}, \term{unitr} \mapsto \mathbf{1}, \term{assocr} \mapsto \mathbf{3}\}$.
+    The equational signature $\sigma_{\mathsf{Mon}}$ has
+    the set of equation symbols $eq = \{\term{unitl}, \term{unitr}, \term{assocr}\}$
+    (or $\Fin[3]$ or $\mathbf{3}$),
+    and the arity function
+    $fv : eq \rightarrow \mathcal{U} = \{\term{unitl} \mapsto \mathbf{1}, \term{unitr} \mapsto \mathbf{1}, \term{assocr} \mapsto \mathbf{3}\}$.
 
-Given $x : V$, $\eqleft_{V}(\term{unitl}, (x)),\,\eqright_{V}(\term{unitl}, (x))$
-are defined as:
-\begin{center}
-% https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	e \&\& x \\
-	\& \mult \\
-	\& {}
-	\arrow[from=1-1, to=2-2]
-	\arrow[from=1-3, to=2-2]
-	\arrow[no head, from=2-2, to=3-2]
-\end{tikzcd}
-\hspace{2em}
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	x \\
-	\\
-	\arrow[no head, from=1-1, to=3-1]
-\end{tikzcd}
-\end{center}
+    Given $x : V$, $\eqleft_{V}(\term{unitl}, (x)),\,\eqright_{V}(\term{unitl}, (x))$
+    are defined as:
+    \begin{center}
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            e \&\& x \\
+            \& \mult \\
+            \& {}
+            \arrow[from=1-1, to=2-2]
+            \arrow[from=1-3, to=2-2]
+            \arrow[no head, from=2-2, to=3-2]
+        \end{tikzcd}
+        \hspace{2em}
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            x \\
+            \\
+            \arrow[no head, from=1-1, to=3-1]
+        \end{tikzcd}
+    \end{center}
 
-Given $x : V$, $\eqleft_{V}(\term{unitr}, (x)),\,\eqright_{V}(\term{unitr}, (x))$
-are defined as:
-\begin{center}
-% https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	x \&\& e \\
-	\& \mult \\
-	\& {}
-	\arrow[from=1-1, to=2-2]
-	\arrow[from=1-3, to=2-2]
-	\arrow[no head, from=2-2, to=3-2]
-\end{tikzcd}
-\hspace{2em}
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	x \\
-	\\
-	\arrow[no head, from=1-1, to=3-1]
-\end{tikzcd}
-\end{center}
+    Given $x : V$, $\eqleft_{V}(\term{unitr}, (x)),\,\eqright_{V}(\term{unitr}, (x))$
+    are defined as:
+    \begin{center}
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            x \&\& e \\
+            \& \mult \\
+            \& {}
+            \arrow[from=1-1, to=2-2]
+            \arrow[from=1-3, to=2-2]
+            \arrow[no head, from=2-2, to=3-2]
+        \end{tikzcd}
+        \hspace{2em}
+        \begin{tikzcd}[ampersand replacement=\&,cramped]
+            x \\
+            \\
+            \arrow[no head, from=1-1, to=3-1]
+        \end{tikzcd}
+    \end{center}
 
-Given $x, y, z : V$, $\eqleft_{V}(\term{assocr}, (x,y,z)),\,\eqright_{V}(\term{assocr}, (x,y,z))$
-are defined as:
-\begin{center}
-\scalebox{0.7}{
-% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	x \&\& y \&\& z \\
-	\&\&\& {\mult} \\
-	\&\& {\mult} \\
-	\&\&
-	\arrow[no head, from=3-3, to=4-3]
-	\arrow[from=2-4, to=3-3]
-	\arrow[from=1-3, to=2-4]
-	\arrow[from=1-5, to=2-4]
-	\arrow[from=1-1, to=3-3]
-\end{tikzcd}
-\hspace{2em}
-% https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
-\begin{tikzcd}[ampersand replacement=\&,cramped]
-	x \&\& y \&\& z \\
-	\& {\mult} \\
-	\&\& {\mult} \\
-	\&\& {}
-	\arrow[no head, from=3-3, to=4-3]
-	\arrow[from=1-5, to=3-3]
-	\arrow[from=1-1, to=2-2]
-	\arrow[from=1-3, to=2-2]
-	\arrow[from=2-2, to=3-3]
-\end{tikzcd}
-}
-\end{center}
+    Given $x, y, z : V$, $\eqleft_{V}(\term{assocr}, (x,y,z)),\,\eqright_{V}(\term{assocr}, (x,y,z))$
+    are defined as:
+    \begin{center}
+        \scalebox{0.7}{
+            % https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsMywiNCJdLFszLDEsIisiXSxbMiwwLCIxIl0sWzQsMCwiMSJdLFswLDAsIjIiXSxbMCwxXSxbMiwwXSxbMywyXSxbNCwyXSxbNSwwXV0=
+            \begin{tikzcd}[ampersand replacement=\&,cramped]
+                x \&\& y \&\& z \\
+                \&\&\& {\mult} \\
+                \&\& {\mult} \\
+                \&\&
+                \arrow[no head, from=3-3, to=4-3]
+                \arrow[from=2-4, to=3-3]
+                \arrow[from=1-3, to=2-4]
+                \arrow[from=1-5, to=2-4]
+                \arrow[from=1-1, to=3-3]
+            \end{tikzcd}
+            \hspace{2em}
+            % https://q.uiver.app/#q=WzAsNixbMiwyLCIrIl0sWzIsM10sWzIsMCwiMSJdLFs0LDAsIjEiXSxbMCwwLCIyIl0sWzEsMSwiKyJdLFswLDEsIiIsMCx7InN0eWxlIjp7ImhlYWQiOnsibmFtZSI6Im5vbmUifX19XSxbMywwXSxbNCw1XSxbMiw1XSxbNSwwXV0=
+            \begin{tikzcd}[ampersand replacement=\&,cramped]
+                x \&\& y \&\& z \\
+                \& {\mult} \\
+                \&\& {\mult} \\
+                \&\& {}
+                \arrow[no head, from=3-3, to=4-3]
+                \arrow[from=1-5, to=3-3]
+                \arrow[from=1-1, to=2-2]
+                \arrow[from=1-3, to=2-2]
+                \arrow[from=2-2, to=3-3]
+            \end{tikzcd}
+        }
+    \end{center}
 \end{example}
 Finally, given a $\sig$-structure $\str{X}$,
 we can say that it \emph{satisfies} the system of equations $T_{(\sig,\eqsig)}$.
