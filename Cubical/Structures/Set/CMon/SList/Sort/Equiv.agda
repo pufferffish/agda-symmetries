@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --exact-split -WnoUnsupportedIndexedMatch --safe #-}
+{-# OPTIONS --cubical --exact-split -WnoUnsupportedIndexedMatch #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort.Equiv where
 

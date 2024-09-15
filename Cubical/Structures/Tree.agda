@@ -21,7 +21,6 @@ module _ {f a n : Level} (σ : Sig f a) where
     node : sig σ (Tree V) -> Tree V
   open Tree
 
-
 module _  {f a n y : Level} (σ : Sig f a) {V : Type n} where
   open import Cubical.Data.W.Indexed
 
@@ -134,3 +133,18 @@ module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} (𝔜 : struct y σ) w
 
   trIsEquiv : isSet (𝔜 .car) -> isEquiv (\g -> g .fst ∘ leaf)
   trIsEquiv = snd ∘ trEquiv
+
+module _ {f a : Level} (σ : Sig f a) {x y z} {X : Type x} {Y : Type y} (ℨ : struct z σ) where
+  sharp-∘ : (f : X -> Tree σ Y) (g : Y -> ℨ .car)
+         -> (t : Tree σ X)
+         -> sharp σ ℨ (sharp σ ℨ g ∘ f) t ≡ sharp σ ℨ g (sharp σ (algTr σ Y) f t)
+  sharp-∘ f g (leaf x) = refl
+  sharp-∘ f g (node n) = congS (\p -> ℨ .alg (n .fst , p)) (funExt (sharp-∘ f g ∘ n .snd))
+
+module _  {f a : Level} (σ : Sig f a) {x y} {X : Type x} {Y : Type y} where
+
+  trMap : (X -> Y) -> Tree σ X -> Tree σ Y
+  trMap f = sharp σ (algTr σ Y) (leaf ∘ f)
+
+  trMapHom : (X -> Y) -> structHom (algTr σ X) (algTr σ Y)
+  trMapHom f = eval σ (algTr σ Y) (leaf ∘ f)

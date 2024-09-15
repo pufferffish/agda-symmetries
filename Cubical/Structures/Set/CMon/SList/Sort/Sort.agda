@@ -80,8 +80,7 @@ module Sort→Order (isSetA : isSet A) (sort : SList A -> List A) (sort≡ : ∀
   least-choice x y = P.rec squash₁
     (⊎.rec
       (L.inl ∘ congS head-maybe)
-      (L.inr ∘ congS head-maybe)
-    )
+      (L.inr ∘ congS head-maybe))
     (sort-choice x y)
 
   _≤_ : A -> A -> Type _

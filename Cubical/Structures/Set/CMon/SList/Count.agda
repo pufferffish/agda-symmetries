@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --exact-split --safe #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module Cubical.Structures.Set.CMon.SList.Count where
 

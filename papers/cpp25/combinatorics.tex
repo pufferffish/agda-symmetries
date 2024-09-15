@@ -45,19 +45,19 @@ to obtain $\ext{(\lambda x.\, 1)} : \FF(A) \to \Nat$, which is the length homomo
 This allows us to define $\term{length}$ for any construction of free (commutative) monoids,
 and also gives us a proof of $\term{length}$ being a homomorphism for free.
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzcd}[ampersand replacement=\&,cramped]
-        {\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
-        \\
-        A
-        \arrow["\eta_A", from=3-1, to=1-1]
-        \arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
-        \arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
-    \end{tikzcd}
-    \caption{Definition of $\term{length}$ by universal property}
-    \label{fig:enter-label}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \begin{tikzcd}[ampersand replacement=\&,cramped]
+%         {\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
+%         \\
+%         A
+%         \arrow["\eta_A", from=3-1, to=1-1]
+%         \arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
+%         \arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
+%     \end{tikzcd}
+%     \caption{Definition of $\term{length}$ by universal property}
+%     \label{fig:enter-label}
+% \end{figure}
 
 \subsection{Membership}\label{comb:member}
 
@@ -89,20 +89,20 @@ similar to~\cite[Section~3]{choudhuryFreeCommutativeMonoids2023}. In the formali
 $\ext{(\blank)}$ is type level polymorphic to accommodate for this. We explain this
 further in~\cref{sec:formalization}.
 
-\begin{figure}[H]
-    \centering
-    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
-    \begin{tikzcd}[ampersand replacement=\&,cramped]
-        {\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
-        \\
-        A
-        \arrow["{\eta_A}", from=3-1, to=1-1]
-        \arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
-        \arrow["{\yo_A(x)}"', from=3-1, to=1-4]
-    \end{tikzcd}
-    \caption{Definition of membership proof for $x$ by universal property}
-    \label{fig:enter-label}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
+%     \begin{tikzcd}[ampersand replacement=\&,cramped]
+%         {\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
+%         \\
+%         A
+%         \arrow["{\eta_A}", from=3-1, to=1-1]
+%         \arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
+%         \arrow["{\yo_A(x)}"', from=3-1, to=1-4]
+%     \end{tikzcd}
+%     \caption{Definition of membership proof for $x$ by universal property}
+%     \label{fig:enter-label}
+% \end{figure}
 
 \subsection{Any and All predicates}
 
@@ -117,36 +117,37 @@ That is,
     \type{Any}(P) & = \ext{P} : \FF(A) \to (\hProp, \bot, \vee)   \\
     \type{All}(P) & = \ext{P} : \FF(A) \to (\hProp, \top, \wedge)
 \end{align*}
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[t]{0.49\textwidth}
-        \centering
-        \begin{tikzcd}[ampersand replacement=\&,cramped]
-            {\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
-            \\
-            A
-            \arrow["\eta_A", from=3-1, to=1-1]
-            \arrow["{\ext{P}}", from=1-1, to=1-3]
-            \arrow["{P}"', from=3-1, to=1-3]
-        \end{tikzcd}
-        \caption{Definition of $\term{All}$ by universal property}
-        \label{fig:enter-label}
-    \end{minipage}
-    \begin{minipage}[t]{0.49\textwidth}
-        \centering
-        \begin{tikzcd}[ampersand replacement=\&,cramped]
-            {\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
-            \\
-            A
-            \arrow["\eta_A", from=3-1, to=1-1]
-            \arrow["{\ext{P}}", from=1-1, to=1-3]
-            \arrow["{P}"', from=3-1, to=1-3]
-        \end{tikzcd}
-        \caption{Definition of $\term{Any}$ by universal property}
-        \label{fig:enter-label}
-    \end{minipage}
-\end{figure}
-These constructions are used in the proofs of our main results in~\cref{sec:sorting}.
+
+% \begin{figure}[H]
+%     \centering
+%     \begin{minipage}[t]{0.49\textwidth}
+%         \centering
+%         \begin{tikzcd}[ampersand replacement=\&,cramped]
+%             {\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
+%             \\
+%             A
+%             \arrow["\eta_A", from=3-1, to=1-1]
+%             \arrow["{\ext{P}}", from=1-1, to=1-3]
+%             \arrow["{P}"', from=3-1, to=1-3]
+%         \end{tikzcd}
+%         \caption{Definition of $\term{All}$ by universal property}
+%         \label{fig:enter-label}
+%     \end{minipage}
+%     \begin{minipage}[t]{0.49\textwidth}
+%         \centering
+%         \begin{tikzcd}[ampersand replacement=\&,cramped]
+%             {\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
+%             \\
+%             A
+%             \arrow["\eta_A", from=3-1, to=1-1]
+%             \arrow["{\ext{P}}", from=1-1, to=1-3]
+%             \arrow["{P}"', from=3-1, to=1-3]
+%         \end{tikzcd}
+%         \caption{Definition of $\term{Any}$ by universal property}
+%         \label{fig:enter-label}
+%     \end{minipage}
+% \end{figure}
+% These constructions are used in the proofs of our main results in~\cref{sec:sorting}.
 
 \subsection{Other combinatorial properties}
 

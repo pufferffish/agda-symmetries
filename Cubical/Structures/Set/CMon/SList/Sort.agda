@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --exact-split #-}
 
 module Cubical.Structures.Set.CMon.SList.Sort where
 

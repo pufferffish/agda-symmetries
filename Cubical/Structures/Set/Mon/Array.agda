@@ -333,7 +333,7 @@ array-α : sig M.MonSig (Array A) -> Array A
 array-α (M.`e , i) = e
 array-α (M.`⊕ , i) = i fzero ⊕ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where  
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
   module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
 
   𝔄 : M.MonStruct
@@ -490,4 +490,4 @@ module _ {ℓ} {A : Type ℓ} where
     ≡⟨ arrayIsoToList++ (fst (i fzero)) (snd (i fzero)) (i fone) ⟩
       arrayIsoToList .fun (i fzero ⊕ i fone)
     ≡⟨ congS (arrayIsoToList .fun) (sym (𝔄.⊕-eta i (idfun _))) ⟩
-      arrayIsoToList .fun (i fzero ⊕ i fone) ∎ 
+      arrayIsoToList .fun (i fzero ⊕ i fone) ∎

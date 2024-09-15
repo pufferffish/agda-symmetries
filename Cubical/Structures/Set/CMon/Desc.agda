@@ -54,7 +54,7 @@ cmonEqRhs : (eq : CMonEq) -> FinTree CMonFinSig (CMonEqFree eq)
 cmonEqRhs (`mon eqn) = M.monEqRhs eqn
 cmonEqRhs `comm = node (`⊕ , lookup (leaf fone ∷ leaf fzero ∷ []))
 
-CMonSEq : seq CMonSig CMonEqSig
+CMonSEq : sysEq CMonSig CMonEqSig
 CMonSEq n = cmonEqLhs n , cmonEqRhs n
 
 cmonSatMon : ∀ {s} {str : struct s CMonSig} -> str ⊨ CMonSEq -> str ⊨ M.MonSEq

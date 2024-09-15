@@ -31,11 +31,11 @@ list-α : sig M.MonSig (List A) -> List A
 list-α (M.`e , i) = []
 list-α (M.`⊕ , i) = i fzero ++ i fone
 
-module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where  
-  module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
+𝔏 : {a : Level} {A : Type a} -> M.MonStruct
+𝔏 {A = A} = < List A , list-α >
 
-  𝔏 : M.MonStruct
-  𝔏 = < List A , list-α >
+module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : isSet (𝔜 .car)) (𝔜-monoid : 𝔜 ⊨ M.MonSEq) where
+  module 𝔜 = M.MonSEq 𝔜 𝔜-monoid
 
   module _ (f : A -> 𝔜 .car) where
     _♯ : List A -> 𝔜 .car
@@ -67,6 +67,23 @@ module Free {x y : Level} {A : Type x} {𝔜 : struct y M.MonSig} (isSet𝔜 : i
   listEquiv : structHom 𝔏 𝔜 ≃ (A -> 𝔜 .car)
   listEquiv =
     isoToEquiv (iso (λ g -> g .fst ∘ [_]) ♯-isMonHom (λ g -> funExt (𝔜.unitr ∘ g)) (sym ∘ listEquivLemma-β))
+
+module Foldr {A : Type ℓ} {B : Type ℓ} {isSetB : isSet B} where
+
+  Endo-α : M.MonStruct
+  car Endo-α = B -> B
+  alg Endo-α (M.`e , _) = idfun B
+  alg Endo-α (M.`⊕ , ρ) = ρ fone ∘ ρ fzero
+
+  Endo-sat : Endo-α ⊨ M.MonSEq
+  Endo-sat M.`unitl ρ = refl
+  Endo-sat M.`unitr ρ = refl
+  Endo-sat M.`assocr ρ = refl
+
+  open Free {A = A} (isSet→ isSetB) Endo-sat
+
+  foldr' : (A -> B -> B) -> List A -> B -> B
+  foldr' f = (f ♯)
 
 module ListDef = F.Definition M.MonSig M.MonEqSig M.MonSEq
 

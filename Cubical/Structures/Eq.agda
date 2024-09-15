@@ -42,19 +42,61 @@ name (sumEqSig σ τ) = (name σ) ⊎ (name τ)
 free (sumEqSig {n' = n} σ τ) (inl x) = Lift {j = n} ((free σ) x)
 free (sumEqSig {n = n} σ τ) (inr x) = Lift {j = n} ((free τ) x)
 
-module _ {f a e n : Level} (σ : Sig f a) (τ : EqSig e n) where
-  -- TODO: refactor as (Tree σ Unit -> Tree σ X) × (Tree σ Unit -> Tree σ X) ?
-  seq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
-  seq = (e : τ .name) -> Tree σ (τ .free e) × Tree σ (τ .free e)
+-- equational signature functor
+module _ {e n : Level} (ε : EqSig e n) where
+  eqsig : Type e -> Type (ℓ-max e n)
+  eqsig X = Σ (ε .name) \f -> ε .free f -> X
 
-emptySEq : seq emptySig emptyEqSig
-emptySEq n = ⊥.rec n
+  eqsig≡ : {X : Type e} (f : ε .name) {i j : ε .free f -> X}
+         -> ((a : ε .free f) -> i a ≡ j a)
+         -> Path (eqsig X) (f , i) (f , j)
+  eqsig≡ f H = ΣPathP (refl , funExt H)
 
-module _ {f a e n s : Level} {σ : Sig f a} {τ : EqSig e n} where
+  eqsigF : {X Y : Type e} -> (X -> Y) -> eqsig X -> eqsig Y
+  eqsigF h (f , i) = f , h ∘ i
+
+_⇒_ : {a b c : Level} -> (F : Type a -> Type b) (G : Type a -> Type c) -> Type (ℓ-max (ℓ-max (ℓ-suc a) b) c)
+_⇒_ {a = a} F G = (X : Type a) -> F X -> G X
+
+module _ {f a e n : Level} (σ : Sig f a) (ε : EqSig e n) where
+  nsysEq : Type (ℓ-max (ℓ-max (ℓ-max f a) (ℓ-suc e)) n)
+  nsysEq = (eqsig ε ⇒ Tree σ) × (eqsig ε ⇒ Tree σ)
+
+module _ {f a e n : Level} (σ : Sig f a) (ε : EqSig e n) where
+  -- simplified
+  sysEq : Type (ℓ-max (ℓ-max (ℓ-max f a) e) n)
+  sysEq = (e : ε .name) -> Tree σ (ε .free e) × Tree σ (ε .free e)
+
+module _ {f a e n : Level} (σ : Sig f a) (ε : EqSig e n) where
+  nseq : sysEq σ ε -> nsysEq σ ε
+  nseq f = (\V (eqn , v) -> trMap σ v (f eqn .fst)) , (\V (eqn , v) -> trMap σ v (f eqn .snd))
+
+emptySEq : sysEq emptySig emptyEqSig
+emptySEq = ⊥.elim
+
+nemptySEq : nsysEq emptySig emptyEqSig
+nemptySEq = (\_ -> ⊥.rec ∘ fst) , (\_ -> ⊥.rec ∘ fst)
+
+module _ {f a e n s : Level} {σ : Sig f a} {ε : EqSig e n} where
   -- type of structure satisfying equations
-  -- TODO: refactor as a coequaliser
-  infix 30 _⊨_
-  _⊨_ : struct s σ -> (ε : seq σ τ) -> Type (ℓ-max s (ℓ-max e n))
-  𝔛 ⊨ ε = (eqn : τ .name) (ρ : τ .free eqn -> 𝔛 .car)
-       -> sharp σ 𝔛 ρ (ε eqn .fst) ≡ sharp σ 𝔛 ρ (ε eqn .snd)
+  infix 30 _⊨n_ _⊨_
+  _⊨n_ : struct s σ -> nsysEq σ ε -> Type (ℓ-max (ℓ-max (ℓ-suc e) n) s)
+  𝔛 ⊨n ℯ = (V : Type e) (𝓋 : V -> 𝔛 .car)
+         -> sharp σ 𝔛 𝓋 ∘ ℯ .fst V ≡ sharp σ 𝔛 𝓋 ∘ ℯ .snd V
 
+  -- simplified
+  _⊨_ : struct s σ -> sysEq σ ε -> Type (ℓ-max (ℓ-max e n) s)
+  𝔛 ⊨ ℯ = (eqn : ε .name) (ρ : ε .free eqn -> 𝔛 .car)
+        -> sharp σ 𝔛 ρ (ℯ eqn .fst) ≡ sharp σ 𝔛 ρ (ℯ eqn .snd)
+
+  nsat : {𝔛 : struct s σ} {ℯ : sysEq σ ε} -> 𝔛 ⊨ ℯ -> 𝔛 ⊨n nseq σ ε ℯ
+  nsat {𝔛 = 𝔛} {ℯ = ℯ} H V 𝓋 =
+    funExt \{ (eqn , v) ->
+      sharp σ 𝔛 𝓋 (sharp σ (algTr σ V) (leaf ∘ v) (ℯ eqn .fst))
+    ≡⟨ sym (sharp-∘ σ 𝔛 (leaf ∘ v) 𝓋 (ℯ eqn .fst)) ⟩
+      sharp σ 𝔛 (𝓋 ∘ v) (ℯ eqn .fst)
+    ≡⟨ H eqn (𝓋 ∘ v) ⟩
+      sharp σ 𝔛 (𝓋 ∘ v) (ℯ eqn .snd)
+    ≡⟨ sharp-∘ σ 𝔛 (leaf ∘ v) 𝓋 (ℯ eqn .snd) ⟩
+      sharp σ 𝔛 𝓋 (sharp σ (algTr σ V) (leaf ∘ v) (ℯ eqn .snd))
+    ∎ }

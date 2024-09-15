@@ -5,7 +5,7 @@ module index where
 -- an organised list of modules:
 --
 -- universal algebra
--- algebraic theories and 2-theories
+-- algebraic theories (and 2-theories?)
 import Cubical.Structures.Sig
 import Cubical.Structures.Str
 import Cubical.Structures.Eq
@@ -38,10 +38,10 @@ import Cubical.Structures.Gpd.SMon.SList
 -- sorting and order equivalence
 import Cubical.Structures.Set.CMon.SList.Sort
 
--- combinatorics properties
+-- combinatorics
 import Cubical.Structures.Set.CMon.SList.Seely
 
--- useful experiments
+-- (un)useful experiments
 import Experiments.Norm
 
 -- an exhaustive list of all modules:

@@ -75,7 +75,7 @@ monEqRhs `unitl = leaf fzero
 monEqRhs `unitr = leaf fzero
 monEqRhs `assocr = node (`⊕ , lookup (leaf fzero ∷ node (`⊕ , lookup (leaf fone ∷ leaf ftwo ∷ [])) ∷ []))
 
-MonSEq : seq MonSig MonEqSig
+MonSEq : sysEq MonSig MonEqSig
 MonSEq n = monEqLhs n , monEqRhs n
 
 module MonSEq {ℓ} (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
@@ -100,7 +100,7 @@ module MonSEq {ℓ} (𝔛 : MonStruct {ℓ}) (ϕ : 𝔛 ⊨ MonSEq) where
   unitr m =
       m ⊕ e
     ≡⟨⟩
-      𝔛 .alg (`⊕ , lookup (m ∷ 𝔛 .alg (`e , _) ∷ []))  
+      𝔛 .alg (`⊕ , lookup (m ∷ 𝔛 .alg (`e , _) ∷ []))
     ≡⟨ cong (\w -> 𝔛 .alg (`⊕ , w)) (funExt lemma) ⟩
       𝔛 .alg (`⊕ , (λ x -> sharp MonSig 𝔛 (lookup [ m ]) (lookup (leaf fzero ∷ node (`e , (λ num → ⊥.rec (¬Fin0 num))) ∷ []) x)))
     ≡⟨ ϕ `unitr (lookup [ m ]) ⟩

@@ -62,4 +62,4 @@ F.Definition.Free.F anyDef A = A
 F.Definition.Free.η anyDef a = a
 F.Definition.Free.α anyDef = empty-α _
 F.Definition.Free.sat anyDef = empty-sat _
-F.Definition.Free.isFree anyDef {𝔜 = 𝔜} _ _ = emptyHomDegen 𝔜 .snd 
+F.Definition.Free.isFree anyDef {𝔜 = 𝔜} _ _ = emptyHomDegen 𝔜 .snd
