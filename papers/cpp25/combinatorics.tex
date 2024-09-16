@@ -1,14 +1,19 @@
 % !TEX root = cpp25-sort.tex
 
-\section{Combinatorics}
-\label{sec:combinatorics}
+\subsection{Prelude}
+\label{sec:prelude}
 
 The purpose of all the hard work behind establishing the universal properties of our types of (ordered) and unordered
 lists is to be able to define operations on them systematically, which are mathematically sound, and to be able to
-reason about them -- which is a common theme in the Algebra of Programming~\cite{birdAlgebraProgramming1997} community.
+reason about them.
 %
 Using our tools, we explore definitions of various combinatorial properties and operations for both
 free monoids and free commutative monoids.
+%
+\redtext{
+    Note that Cubical Agda has problems with indexing over HITs, hence we prefer to program with the universal properties,
+    such as when defining Any and All.
+}
 %
 By univalence (and the structure identity principle), everything henceforth holds for any presentation of free monoids
 and free commutative monoids, therefore we avoid picking a specific construction.
@@ -33,7 +38,7 @@ equivalence between the two types turns out to be a difficult exercise in combin
 
 To illustrate this, we give examples of some common operations that are defined in terms of the universal property.
 
-\subsection{Length}
+\subsubsection{Length}
 
 Any presentation of free monoids or free commutative monoids has a $\term{length} : \FF(A) \to \Nat$ function.
 %
@@ -45,30 +50,16 @@ to obtain $\ext{(\lambda x.\, 1)} : \FF(A) \to \Nat$, which is the length homomo
 This allows us to define $\term{length}$ for any construction of free (commutative) monoids,
 and also gives us a proof of $\term{length}$ being a homomorphism for free.
 
-% \begin{figure}[H]
-%     \centering
-%     \begin{tikzcd}[ampersand replacement=\&,cramped]
-%         {\FF(A)} \&\& {(\mathbb{N}, 0, +)} \\
-%         \\
-%         A
-%         \arrow["\eta_A", from=3-1, to=1-1]
-%         \arrow["{\ext{(\lambda x. \, 1)}}", from=1-1, to=1-3]
-%         \arrow["{\lambda x. \, 1}"', from=3-1, to=1-3]
-%     \end{tikzcd}
-%     \caption{Definition of $\term{length}$ by universal property}
-%     \label{fig:enter-label}
-% \end{figure}
-
-\subsection{Membership}\label{comb:member}
+\subsubsection{Membership}\label{comb:member}
 
 Going further, any presentation of free monoids or free commutative monoids has a membership predicate:
 $\_\in\_ : A \to \FF(A) \to \hProp$, for any set $A$.
 %
-By fixing an element $x: A$, the element we want to define the membership proof for,
+By fixing an element $x{:} A$, the element we want to define the membership proof for,
 we define $\yo_A(x) = \lambda y.\, x \id y : A \to \hProp$.
 %
 This is formally the Yoneda map under the ``types are groupoids'' correspondence,
-where $x:A$ is being sent to the Hom-groupoid (formed by the identity type), of type $\hProp$.
+where $x{:}A$ is being sent to the Hom-groupoid (formed by the identity type), of type $\hProp$.
 %
 Now, the main observation is that $\hProp$ forms a (commutative) monoid under logical or: $\vee$ and false: $\bot$.
 %
@@ -89,22 +80,7 @@ similar to~\cite[Section~3]{choudhuryFreeCommutativeMonoids2023}. In the formali
 $\ext{(\blank)}$ is type level polymorphic to accommodate for this. We explain this
 further in~\cref{sec:formalization}.
 
-% \begin{figure}[H]
-%     \centering
-%     % https://q.uiver.app/#q=WzAsNCxbMCwwLCJcXEZGKEEpIl0sWzIsMF0sWzAsMiwiQSJdLFszLDAsIihcXGhQcm9wLCBcXGJvdCwgXFx2ZWUpIl0sWzIsMCwiXFxldGFfQSJdLFswLDMsIih4IFxcaW4gXFxibGFuaykgLyBcXGV4dHtcXHlvX0EoeCl9Il0sWzIsMywiXFx5b19BKHgpIiwyXV0=
-%     \begin{tikzcd}[ampersand replacement=\&,cramped]
-%         {\FF(A)} \&\& {} \& {(\hProp, \bot, \vee)} \\
-%         \\
-%         A
-%         \arrow["{\eta_A}", from=3-1, to=1-1]
-%         \arrow["{(x \in \blank) / \ext{\yo_A(x)}}", from=1-1, to=1-4]
-%         \arrow["{\yo_A(x)}"', from=3-1, to=1-4]
-%     \end{tikzcd}
-%     \caption{Definition of membership proof for $x$ by universal property}
-%     \label{fig:enter-label}
-% \end{figure}
-
-\subsection{Any and All predicates}
+\subsubsection{Any and All predicates}
 
 More generally, any presentation of free (commutative) monoids $\FF(A)$ also supports the
 $\term{Any}$ and $\term{All}$ predicates, which allow us to lift a predicate $A \to \hProp$ (on $A$),
@@ -118,65 +94,7 @@ That is,
     \type{All}(P) & = \ext{P} : \FF(A) \to (\hProp, \top, \wedge)
 \end{align*}
 
-% \begin{figure}[H]
-%     \centering
-%     \begin{minipage}[t]{0.49\textwidth}
-%         \centering
-%         \begin{tikzcd}[ampersand replacement=\&,cramped]
-%             {\FF(A)} \&\& {(\hProp, \top, \wedge)} \\
-%             \\
-%             A
-%             \arrow["\eta_A", from=3-1, to=1-1]
-%             \arrow["{\ext{P}}", from=1-1, to=1-3]
-%             \arrow["{P}"', from=3-1, to=1-3]
-%         \end{tikzcd}
-%         \caption{Definition of $\term{All}$ by universal property}
-%         \label{fig:enter-label}
-%     \end{minipage}
-%     \begin{minipage}[t]{0.49\textwidth}
-%         \centering
-%         \begin{tikzcd}[ampersand replacement=\&,cramped]
-%             {\FF(A)} \&\& {(\hProp, \bot, \vee)} \\
-%             \\
-%             A
-%             \arrow["\eta_A", from=3-1, to=1-1]
-%             \arrow["{\ext{P}}", from=1-1, to=1-3]
-%             \arrow["{P}"', from=3-1, to=1-3]
-%         \end{tikzcd}
-%         \caption{Definition of $\term{Any}$ by universal property}
-%         \label{fig:enter-label}
-%     \end{minipage}
-% \end{figure}
-% These constructions are used in the proofs of our main results in~\cref{sec:sorting}.
-
-\subsection{Other combinatorial properties}
-
-Free commutative monoid and free monoids also share common combinatorial properties, for example both satisfy the
-conical monoid property.
-%
-However, more often than not, they both do not exhibit the same properties, for example:
-\begin{itemize}
-    \item
-          Generally, $\FF(A + B)$ is the coproduct of $\FF(A)$ and $\FF(B)$.
-          For (free) commutative monoids, this is equivalent to
-          their underlying cartesian product
-          (dual of Fox's theorem~\cite{foxCoalgebrasCartesianCategories1976}),
-          that is, $\MM(A + B) \eqv \MM(A) \times \MM(B)$.
-          %
-          This is important in linear logic, and used in the Seely isomorphism.
-          %
-          However, the coproduct of two (free) monoids is given by their free product,
-          which does not have such a characterisation.
-    \item Free commutative monoids satisfy the Riesz refinement property,
-          which is important in the semantics of differential linear logic,
-          however free monoids do not.
-\end{itemize}
-We mention these facts for completeness -- these show that the addition of commutativity leads to \emph{unordering},
-which allows shuffling around the elements of free monoids (lists), leading to interesting combinatorial structure.
-%
-These are explored in more detail and proved in~\cite{choudhuryFreeCommutativeMonoids2023}.
-
-\subsection{Heads and Tails}\label{sec:head}
+\subsubsection{Heads and Tails}\label{sec:head}
 
 More generally, commutativity is a way of enforcing unordering, or forgetting ordering.
 %

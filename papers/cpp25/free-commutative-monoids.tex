@@ -88,9 +88,9 @@ and $\ext{(\blank)}$ for the extension operation of $\quot{F(A)}{\approx}$.
 Using the correct specification of a permutation relation, we can prove that $\quot{\str{F}(A)}{\approx}$ gives the free
 commutative monoid on $A$.
 
-\begin{lemma}
-    For all $f : A \to X$, $x : \str{F}(A)$, $\ext{f}(q(x))$ reduces to $\exthat{f}(x)$.
-\end{lemma}
+% \begin{lemma}
+%     For all $f : A \to X$, $x : \str{F}(A)$, $\ext{f}(q(x))$ reduces to $\exthat{f}(x)$.
+% \end{lemma}
 
 \begin{proposition}[Universal property for $\quot{\str{F}(A)}{\approx}$]
     $(\quot{\str{F}(A)}{\approx}, \eta_A : A \xto{q} \str{F}(A) \to \quot{\str{F}(A)}{\approx})$
@@ -125,11 +125,11 @@ commutative monoid on $A$.
 \subsection{Lists quotiented by permutation}\label{cmon:plist}
 
 A specific instance of this construction would be $\List$ quotiented with permutation to get commutativity. This
-construction is also considered in~\cite{joramConstructiveFinalSemantics2023}, who gave a proof that $\PList$ is
+construction is also considered in~\cite{joramConstructiveFinalSemantics2023}, who give a proof that $\PList$ is
 equivalent to the free commutative monoid as a HIT. We give a direct proof of its universal property using our
 generalistaion.
 
-The permutation relation on lists is as follows, which swaps any two adjacent elements in the middle of the list.
+The permutation relation on lists is as follows -- it swaps any two adjacent elements somewhere in the middle of the list.
 This is only one example of such a relation, of course, there are many such in the literature.
 \begin{definition}[PList]
     \leavevmode
@@ -141,7 +141,7 @@ data Perm (A : UU) : List A -> List A -> UU where
            -> Perm (xs concat y cons x cons ys) zs
 
 PList : UU -> UU
-PList A = List A / Perm
+PList A = List A quot Perm
     \end{code}
 \end{definition}
 
@@ -307,7 +307,7 @@ _$\approx$_ : Array A $\to$ Array A $\to$ UU
 (n , f) $\approx$ (m , g) = Sg(sig : Fin n eqv Fin m) v = w comp sig
 
 Bag : UU -> UU
-Bag A = Array A / _$\approx$_
+Bag A = Array A quot _$\approx$_
     \end{code}
 \end{definition}
 
@@ -342,7 +342,7 @@ is the free commutative monoid.
     We can construct $\tau$ as follow:
 
     \begin{align*}
-        \tau := \Fin[n+u] \xto{\sim} \Fin[n] + \Fin[u] \xto{\sigma,\,\phi} \Fin[m] + \Fin[v] \xto{\sim} \Fin[m+v] \\
+        \tau \defeq \Fin[n+u] \xto{\sim} \Fin[n] + \Fin[u] \xto{\sigma,\,\phi} \Fin[m] + \Fin[v] \xto{\sim} \Fin[m+v] \\
     \end{align*}
 
     \begin{figure}[H]
@@ -369,7 +369,7 @@ is the free commutative monoid.
 
     We can use combinators from formal operations in symmetric rig groupoids \cite{choudhurySymmetriesReversibleProgramming2022} to define $\phi$:
     \begin{align*}
-        \phi := \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
+        \phi \defeq \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
     \end{align*}
 
     \begin{figure}[H]
@@ -405,7 +405,7 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
 \begin{proof}
     Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$, we can construct $\tau$ as follow:
     \begin{align*}
-        \tau := \Fin[S(n)] \xto{\phi} \Fin[S(n)] \xto{\sim} \Fin[k+j] \xto{\sim} \Fin[k] + \Fin[j]
+        \tau \defeq \Fin[S(n)] \xto{\phi} \Fin[S(n)] \xto{\sim} \Fin[k+j] \xto{\sim} \Fin[k] + \Fin[j]
         \xto{\term{swap}_{+}} \Fin[j] + \Fin[k] \xto{\sim} \Fin[j+k] \xto{\sim} \Fin[S(n)]
     \end{align*}
 
@@ -416,7 +416,7 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
             { \{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
             \arrow["\phi", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \hspace{1em}
+        \\
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
             { \{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
@@ -476,15 +476,17 @@ We now prove our main theorem.
     \begin{itemize}
         \item On $n = 0$, $\ext{f}(0, i) \id \ext{f}(0, i \circ \phi) = e$.
         \item On $n = S(m)$,
-              \begin{align*}
-                   & \ext{f}(S(m), i \circ \phi)                                                                       \\
-                   & = \ext{f}(S(m), i \circ \tau)                          & \text{by~\cref{bag:tau}}                 \\
-                   & = f(i(\tau(0))) \mult \ext{f}(m, i \circ \tau \circ S) & \text{by definition of $\ext{(\blank)}$} \\
-                   & = f(i(0)) \mult \ext{f}(m, i \circ \tau \circ S)       & \text{by construction of $\tau$}         \\
-                   & = f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\cref{bag:punch}}               \\
-                   & = f(i(0)) \mult \ext{f}(m, i \circ S)                  & \text{induction}                         \\
-                   & = \ext{f}(S(m), i)                                     & \text{by definition of $\ext{(\blank)}$}
-              \end{align*}
+              \[
+                  \begin{array}{rll}
+                        & \ext{f}(S(m), i \circ \phi)                          &                                          \\
+                      = & \ext{f}(S(m), i \circ \tau)                          & \text{by~\cref{bag:tau}}                 \\
+                      = & f(i(\tau(0))) \mult \ext{f}(m, i \circ \tau \circ S) & \text{by definition of $\ext{(\blank)}$} \\
+                      = & f(i(0)) \mult \ext{f}(m, i \circ \tau \circ S)       & \text{by construction of $\tau$}         \\
+                      = & f(i(0)) \mult \ext{f}(m, i \circ S \circ \psi)       & \text{by~\cref{bag:punch}}               \\
+                      = & f(i(0)) \mult \ext{f}(m, i \circ S)                  & \text{induction}                         \\
+                      = & \ext{f}(S(m), i)                                     & \text{by definition of $\ext{(\blank)}$}
+                  \end{array}
+              \]
     \end{itemize}
 \end{proof}
 
@@ -492,7 +494,7 @@ We now prove our main theorem.
 
 Unlike $\PList$ and $\SList$, $\Bag$ and its underlying construction $\Array$ are not inductively defined,
 making it difficult to work with when trying to do induction on them. For example,
-in the proof~\cref{array:univ}, two lemmas~\cref{array:eta-suc} and~\cref{array:split} are needed to do
+in the proof~\cref{array:univ}, two~\cref{array:eta-suc,array:split} are needed to do
 induction on $\Array$, as opposed to $\List$ and its quotients, where we can do induction simply by
 pattern matching. Much like $\PList$, when defining functions on $\Bag$, we need to show they respect
 $\approx$, i.e. $as \approx bs \to f(as) = f(bs)$. This is notably much more difficult than

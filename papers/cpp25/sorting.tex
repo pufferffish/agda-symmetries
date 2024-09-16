@@ -1,6 +1,6 @@
 % !TEX root = cpp25-sort.tex
 
-\section{Total orders and Sorting}
+\subsection{Total orders and Sorting}
 \label{sec:sorting}
 
 Since the free commutative monoid is also a monoid, there is a canonical map (monoid homomorphism)
@@ -70,7 +70,7 @@ This is a stronger version of the totality axiom, where with totality we have
 either $x \leq y$ or $y \leq x$ merely as a proposition, but decidability allows us to actually
 compute if $x \leq y$ is true. Given this assumption on $A$, we can sort!
 
-\subsection{Section from Order}
+\subsubsection{Section from Order}
 
 \begin{proposition}
     Assume there is a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
@@ -88,7 +88,7 @@ compute if $x \leq y$ is true. Given this assumption on $A$, we can sort!
     which is the proof of $q(s(xs)) = xs$.
 \end{proof}
 
-\subsection{Order from Section}
+\subsubsection{Order from Section}
 
 The previous section allowed us to construct a section -- how do we know this is a \emph{correct} sort function?
 %
@@ -202,7 +202,7 @@ This ensures that $s$ behaves correctly on 2-element lists.
     we have $z = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
 \end{proof}
 
-\subsection{Embedding orders into sections}
+\subsubsection{Embedding orders into sections}
 
 We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
 $x \preccurlyeq y := \term{least}(\{x, y\}) = x$,
@@ -227,7 +227,7 @@ between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total order
 We now have one side of the isomorphism, and showed the set of decidable total order of $A$
 can be embedded into the set of sections $s$ that satisfy $\isheadleast$.
 
-\subsection{Equivalence of order and sections}
+\subsubsection{Equivalence of order and sections}
 To upgrade the embedding to an isomorphism, all that is left
 is to show we can turn a section satisfying $\isheadleast$ to a total order $\preccurlyeq$, and construct the
 same section back from $\preccurlyeq$. Unfortunately, this fails!
