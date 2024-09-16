@@ -35,9 +35,9 @@ data List (A : UU) : UU where
 \end{code}
 \end{definition}
 
-An example of a $\List$ would be $3 :: 1 :: 2 :: []$, or simply, $[3, 1, 2]$.
+An example of a $\List$ would be $3 \cons 1 \cons 2 \cons []$, or simply, $[3, 1, 2]$.
 %
-The (universal) generators map is the singleton: $\eta_A(a) = [a] =$~\inline{a :: nil},
+The (universal) generators map is the singleton: $\eta_A(a) = [a] =$~\inline{a cons nil},
 the identity element is the empty list~\inline{nil},
 and the monoid operation $\doubleplus$ is given by the concatenation operation.
 
@@ -45,8 +45,8 @@ and the monoid operation $\doubleplus$ is given by the concatenation operation.
     We define the concatenation operation $\doubleplus : \List(A) \to \List(A) \to \List(A)$,
     by recursion on the first argument:
     \begin{align*}
-        [] \doubleplus ys        & = ys                       \\
-        (x :: xs) \doubleplus ys & = x :: (xs \doubleplus ys)
+        [] \doubleplus ys           & = ys                          \\
+        (x \cons xs) \doubleplus ys & = x \cons (xs \doubleplus ys)
     \end{align*}
 \end{definition}
 The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the formalization for details).
@@ -55,8 +55,8 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
     For any monoid $\str{X}$, and given a map $f : A \to X$,
     we define the extension $\ext{f} : \List(A) \to \mathfrak{X}$ by recursion on the list:
     \begin{align*}
-        \ext{f}([])      & = e                       \\
-        \ext{f}(x :: xs) & =  f(x) \mult \ext{f}(xs)
+        \ext{f}([])         & = e                       \\
+        \ext{f}(x \cons xs) & =  f(x) \mult \ext{f}(xs)
     \end{align*}
 \end{definition}
 
@@ -75,16 +75,16 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
     by definition of $\ext{(\blank)}$. Therefore, we have
     $\ext{f}([] \doubleplus ys) = \ext{f}([]) \mult \ext{f}(ys)$.
 
-    Case $x :: xs$:
+    Case $x \cons xs$:
     \begin{align*}
-         & \ext{f}((x :: xs) \doubleplus ys)                                                           \\
+         & \ext{f}((x \cons xs) \doubleplus ys)                                                        \\
          & = \ext{f}(([ x ] \doubleplus xs) \doubleplus ys) & \text{by definition of concatenation}    \\
          & = \ext{f}([ x ] \doubleplus (xs \doubleplus ys)) & \text{by associativity}                  \\
-         & = \ext{f}(x :: (xs \doubleplus ys))              & \text{by definition of concatenation}    \\
+         & = \ext{f}(x \cons (xs \doubleplus ys))           & \text{by definition of concatenation}    \\
          & = f(x) \mult \ext{f}(xs \doubleplus ys)          & \text{by definition of $\ext{(\blank)}$} \\
          & = f(x) \mult (\ext{f}(xs) \mult \ext{f}(ys))     & \text{by induction}                      \\
          & = (f(x) \mult \ext{f}(xs)) \mult \ext{f}(ys)     & \text{by associativity}                  \\
-         & = \ext{f}(x :: xs) \mult \ext{f}(ys)             & \text{by definition of $\ext{(\blank)}$} \\
+         & = \ext{f}(x \cons xs) \mult \ext{f}(ys)          & \text{by definition of $\ext{(\blank)}$} \\
     \end{align*}
 
     Therefore, $\ext{(\blank)}$ does correctly lift a function to a monoid homomorphism.
@@ -104,7 +104,7 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
 \begin{proof}
     To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
     we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
-    For all $f$ and $x$, $(\ext{f} \circ \eta_A)(x) = \ext{f}(x :: []) = f(x) \mult e = f(x)$,
+    For all $f$ and $x$, $(\ext{f} \circ \eta_A)(x) = \ext{f}(x \cons []) = f(x) \mult e = f(x)$,
     therefore by function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
     and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
 
@@ -115,14 +115,14 @@ The proof that $\doubleplus$ satisfies monoid laws is straightforward (see the f
     Case []: $\ext{(f \comp \eta_A)}([]) = e$ by definition of the $\ext{(\blank)}$ operation,
     and $f([]) = e$ by homomorphism properties of $f$. Therefore, $\ext{(f \comp \eta_A)}([]) = f([])$.
 
-    Case $x :: xs$:
+    Case $x \cons xs$:
     \begin{align*}
-         & \ext{(f \comp \eta_A)}(x :: xs)                                                                   \\
+         & \ext{(f \comp \eta_A)}(x \cons xs)                                                                \\
          & = (f \comp \eta_A)(x) \mult \ext{(f \comp \eta_A)}(xs) & \text{by definition of $\ext{(\blank)}$} \\
          & = (f \comp \eta_A)(x) \mult f(xs)                      & \text{by induction}                      \\
          & = f([x]) \mult f(xs)                                   & \text{by definition of $\eta_A$}         \\
          & = f([x] \doubleplus xs)                                & \text{by homomorphism properties of $f$} \\
-         & = f(x :: xs)                                           & \text{by definition of concatenation}
+         & = f(x \cons xs)                                        & \text{by definition of concatenation}
     \end{align*}
 
     By function extensionality, $\ext{(\blank)} \comp (\blank \circ \eta_A) = id$.
@@ -169,14 +169,18 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
 \end{lemma}
 
 \begin{proof}
-    We need to show $f : \Fin[0] \to A$ is equal to $\lambda\{\}$. By function extensionality we can prove
-    this by showing for all $x : \emptyt$, $f(x) = (\lambda\{\})(x)$, which we can prove by absurdity elimination on $x$.
+    We need to show $f : \Fin[0] \to A$ is equal to $\lambda\{\}$.
+    %
+    By function extensionality this amounts to showing for all $x : \emptyt$, $f(x) = (\lambda\{\})(x)$,
+    which holds by absurdity elimination on $x$.
+    %
     Therefore, any array $(0, f)$ is equal to $(0, \lambda\{\})$.
 \end{proof}
 
 \begin{definition}[Concatenation]
-    We define the concatenation operation $\doubleplus : \Array(A) \to \Array(A) \to \Array(A)$,
-    and the combine operation $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fin[n+m] \to\nolinebreak A)$.
+    The concatenation operation $\doubleplus : \Array(A) \to \Array(A) \to \Array(A)$,
+    is defined below, where $\oplus : (\Fin[n] \to A) \to (\Fin[m] \to A) \to (\Fin[n+m] \to\nolinebreak A)$
+    is a combine operation:
     \begin{align*}
         (n , f) \doubleplus (m , g) & = (n + m , f \oplus g)        \\
         (f \oplus g)(k)             & = \begin{cases}
@@ -300,7 +304,7 @@ and the monoid operation $\doubleplus$ is given by array concatenation.
 \end{proof}
 
 \begin{lemmarep}[Array split]\label{array:split}
-    For any array $(S(n), f)$ and $(m, g)$, we have
+    For any array $(S(n), f)$ and $(m, g)$,
     \[
         (n + m, (f \oplus g) \comp S) = (n, f \comp S) \doubleplus (m, g)
         \enspace .
@@ -362,7 +366,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
          & = \ext{f}(S(n + m), g \oplus h)                                 & \text{by definition of concatenation}            \\
          & = f((g \oplus h)(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S) & \text{by definition of $\ext{(\blank)}$}         \\
          & = f(g(0)) \mult \ext{f}(n + m, (g \oplus h) \comp S)            & \text{by definition of $\oplus$, and $0 < S(n)$} \\
-         & = f(g(0)) \mult \ext{f}((n, g \comp S) \doubleplus (m, h))      & \text{by~\cref{array:split}}                      \\
+         & = f(g(0)) \mult \ext{f}((n, g \comp S) \doubleplus (m, h))      & \text{by~\cref{array:split}}                     \\
          & = f(g(0)) \mult (\ext{f}(n, g \comp S) \mult \ext{f}(m, h)))    & \text{by induction}                              \\
          & = (f(g(0)) \mult \ext{f}(n, g \comp S)) \mult \ext{f}(m, h))    & \text{by associativity}                          \\
          & = \ext{f}(S(n), g) \mult \ext{f}(m, h))                         & \text{by definition of $\ext{(\blank)}$}         \\
@@ -376,11 +380,11 @@ dropping the first element of $xs$ then concatenating with $ys$.
 \end{propositionrep}
 
 \begin{proofsketch}
-    We need to show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$.
+    We need to show that $\ext{(\blank)}$ is an inverse to ${(\blank) \comp \eta_A}$.
     It is trivial to see $\ext{f} \comp \eta_A = f$ for all set functions $f : A \to X$.
     To show $\ext{(f \comp \eta_A)} = f$ for all monoid homomorphism $f : \Array(A) \to \mathfrak{X}$,
     we need to show $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$.
-    \cref{array:eta-suc} and \cref{array:split} allow us to perform induction on arrays,
+    \cref{array:eta-suc,array:split} allow us to perform induction on arrays,
     therefore we can prove $\forall xs.\, \ext{(f \comp \eta_A)}(xs) = f(xs)$ by induction on $xs$,
     very similarly to how this was proved for $\List$.
 \end{proofsketch}
@@ -405,7 +409,7 @@ dropping the first element of $xs$ then concatenating with $ys$.
     Case $(S(n), g)$, we prove it in reverse:
     \begin{align*}
          & f(S(n), g)                                                                                                     \\
-         & = f(\eta_A(g(0)) \doubleplus (n, g \comp S))                        & \text{by~\cref{array:eta-suc}}            \\
+         & = f(\eta_A(g(0)) \doubleplus (n, g \comp S))                        & \text{by~\cref{array:eta-suc}}           \\
          & = f(\eta_A(g(0))) \mult f(n, g \comp S)                             & \text{by homomorphism properties of $f$} \\
          & = (f \comp \eta_A)(g(0)) \mult \ext{(f \comp \eta_A)}(n, g \comp S) & \text{by induction}                      \\
          & = \ext{(f \comp \eta_A)}(S(n), g)                                   & \text{by definition of $\ext{(\blank)}$}

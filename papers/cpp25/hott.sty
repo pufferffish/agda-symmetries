@@ -3,9 +3,10 @@
 \ProvidesPackage{hott}
 
 \RequirePackage{amsmath,amssymb,mathtools}
+\RequirePackage{stmaryrd}
 
 % meta
-\newcommand{\defeq}{\mathrel{\vcentcolon\equiv}}
+\newcommand{\defeq}{\mathrel{\mathord{\ordinarycolon}\equiv}}
 \newcommand{\jdgeq}{\mathrel{\equiv}}
 \newcommand{\blank}{{\scriptstyle{-}}}
 
@@ -100,7 +101,7 @@
 \newcommand{\trunc}[1]{\vert #1\vert}
 
 % quotients
-\newcommand{\quot}[2]{{#1}/{#2}}
+\newcommand{\quot}[2]{{#1}{\sslash}{#2}}
 \newcommand{\quotinc}{\term{q}}
 \newcommand{\quotrel}{\term{q-rel}}
 

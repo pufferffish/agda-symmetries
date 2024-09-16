@@ -4,7 +4,7 @@
 
 \RequirePackage{xcolor-solarized}
 % cleveref setup
-\RequirePackage[nameinlink]{cleveref}
+\RequirePackage[nameinlink,capitalise]{cleveref}
 % lists
 \RequirePackage[inline]{enumitem}
 \setlist{leftmargin=1.5em}
@@ -51,10 +51,15 @@
 % frenchquotes
 \newcommand{\frenchquote}[1]{\guillemotleft{}#1\guillemotright{}}
 
+% ::
+\newcommand{\doublecolon}[0]{\mathbin{\,\normalcolon\normalcolon\,}}
+\newcommand{\cons}{\doublecolon}
+
 % ++
 \newcommand{\doubleplus}[0]{\mathbin{+\kern -0.4em+}}
 % \newcommand\doubleplus{\mathbin{\text{\ttfamily\upshape ++}}}
 \newcommand{\concat}{\doubleplus}
+\newcommand{\append}{\concat}
 
 % Bool
 \newcommand{\boolt}{{\mathbf{2}}}

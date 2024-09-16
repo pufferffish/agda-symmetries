@@ -195,7 +195,7 @@ functions.% (up to function extensionality).
 % \begin{lstlisting}[language=haskell]
 % s1 : List A $\to$ List A
 % s1 [] = []
-% s1 (x :: xs) = if x = a then ... else ...
+% s1 (x \cons xs) = if x = a then ... else ...
 % \end{lstlisting}
 % $s1$ is a sort function only if $A$ is ordered by $a < c < b$.
 % In fact, this goes both ways!
@@ -217,7 +217,7 @@ functions.% (up to function extensionality).
 % data Sorted : List A $\to$ Type where
 %   sorted-nil : Sorted []
 %   sorted-one : $\forall$ x $\to$ Sorted [ x ]
-%   sorted-cons : $\forall$ x y zs $\to$ x $\leq$ y $\to$ Sorted (y :: zs) $\to$ Sorted (x :: y :: zs)
+%   sorted-cons : $\forall$ x y zs $\to$ x $\leq$ y $\to$ Sorted (y \cons zs) $\to$ Sorted (x \cons y \cons zs)
 % \end{lstlisting}
 %
 % This is a perfectly valid formalization of an ordered list! Empty lists and singleton lists

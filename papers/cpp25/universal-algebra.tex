@@ -26,8 +26,8 @@ We keep a running example of monoids in mind, while explaining and defining the 
     \label{def:signature}
     A signature, denoted $\sig$, is a (dependent) pair consisting of:
     \begin{itemize}
-        \item a set of operations, $\op : \Set$,
-        \item an arity function for each symbol, $\ar : \op \to \Set$.
+        \item a set of operations, $\op\colon \Set$,
+        \item an arity function for each symbol, $\ar\colon \op \to \Set$.
     \end{itemize}
 \end{definition}
 
@@ -414,10 +414,10 @@ this is simply a natural transformation!
 \begin{definition}[System of Equations]
     A system of equations over a signature $(\sig,\eqsig)$, is a pair of natural transformations:
     \[
-        \eqleft, \eqright : \EqSig \natto \str{F}_{\sig} \enspace.
+        \eqleft, \eqright \colon \EqSig \natto \str{F}_{\sig} \enspace.
     \]
     Concretely, for any set $V$,
-    this gives a pair of trees $\eqleft_{V}, \eqright_{V} : \EqSig(V) \to \str{F}_{\sig}(V)$,
+    this gives a pair of trees $\eqleft_{V}, \eqright_{V}\colon \EqSig(V) \to \str{F}_{\sig}(V)$,
     and naturality ensures correctness of renaming.
 \end{definition}
 
@@ -426,9 +426,9 @@ this is simply a natural transformation!
     the set of equation symbols $eq = \{\term{unitl}, \term{unitr}, \term{assocr}\}$
     (or $\Fin[3]$ or $\mathbf{3}$),
     and the arity function
-    $fv : eq \rightarrow \mathcal{U} = \{\term{unitl} \mapsto \mathbf{1}, \term{unitr} \mapsto \mathbf{1}, \term{assocr} \mapsto \mathbf{3}\}$.
+    $\eqfv \colon \eqop \rightarrow \Set = \{{\term{unitl} \mapsto \mathbf{1}}, {\term{unitr} \mapsto \mathbf{1}}, {\term{assocr} \mapsto \mathbf{3}}\}$.
 
-    Given $x : V$, $\eqleft_{V}(\term{unitl}, (x)),\,\eqright_{V}(\term{unitl}, (x))$
+    Given $x\colon V$, $\eqleft_{V}(\term{unitl}, (x)),\,\eqright_{V}(\term{unitl}, (x))$
     are defined as:
     \begin{center}
         % https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==
@@ -448,7 +448,7 @@ this is simply a natural transformation!
         \end{tikzcd}
     \end{center}
 
-    Given $x : V$, $\eqleft_{V}(\term{unitr}, (x)),\,\eqright_{V}(\term{unitr}, (x))$
+    Given $x\colon V$, $\eqleft_{V}(\term{unitr}, (x)),\,\eqright_{V}(\term{unitr}, (x))$
     are defined as:
     \begin{center}
         % https://q.uiver.app/#q=WzAsNCxbMCwwLCIwIl0sWzEsMSwiXFxidWxsZXQiXSxbMiwwLCJlIl0sWzEsMl0sWzAsMV0sWzIsMV0sWzEsMywiIiwyLHsic3R5bGUiOnsiaGVhZCI6eyJuYW1lIjoibm9uZSJ9fX1dXQ==

@@ -16,11 +16,11 @@ It is known that finite multisets are commutative monoids (in fact, free commuta
 under the operation of multiset union: $xs \cup ys = ys \cup xs$.
 %
 Its order is ``forgotten'' in the sense that it doesn't matter how two multisets are union-ed together,
-or in more concrete terms, for example, $\{a, a, b, c\} = \{b, a, c, a\}$ are equal as finite multisets
-(hence justifying the set notation).
+or in more concrete terms, for example, $\bag{a, a, b, c} = \bag{b, a, c, a}$ are equal as finite multisets
+(justifying the bag notation).
 %
 This is unlike free monoids, using $\List$ for example,
-where $[a, a, b, c] \neq [b, a, c, a]$ (hence justifying the list notation).
+where $[a, a, b, c] \neq [b, a, c, a]$ (justifying the list notation).
 
 \subsection{Free monoids with a quotient}\label{cmon:qfreemon}
 
@@ -29,25 +29,25 @@ impose commutativity on it.
 %
 We do this generally, by giving a construction of free commutative monoid as a quotient of \emph{any} free monoid.
 %
-Specific instances of this construction are given in \cref{cmon:plist} and \cref{cmon:bag}.
+Specific instances of this construction are given in~\cref{cmon:plist,cmon:bag}.
 
 From the universal algebraic perspective developed in~\cref{sec:universal-algebra},
-we can ask what it means to extend the equational theory of a given algebraic signature --
+we can ask what it means to extend the equational theory of a given algebraic signature with symmetries --
 or how to construct a free commutative monoid as a quotient of a free monoid.
 %
 If $(\str{F}(A), \eta)$ is a free monoid construction satisfying its universal property,
-then we'd like to quotient $F(A)$ by an \emph{appropriate relation} $\approx$,
+then we'd like to quotient $F(A)$ by an \emph{appropriate} symmetry relation $\approx$,
 that turns it into a free commutative monoid.
 %
 This is exactly the specification of a \emph{permutation relation}!
 
-% $(\str{F}(A), i, \mult)$ quotiented by a permutation relation $({F(A) / \approx}, e, \doubleplus)$
+% $(\str{F}(A), i, \mult)$ quotiented by a permutation relation $({F(A) / \approx}, e, \concat)$
 % would be the free commutative monoid on $A$.
 
 \begin{definition}[Permutation relation]
     \label{def:permutation-relation}
     \leavevmode
-    A relation $\approx$ on free monoid is a correct permutation relation iff it:
+    A binary relation $\approx$ on free monoids is a correct permutation relation iff it:
     \begin{itemize}
         \item is reflexive, symmetric, transitive (an equivalence),
         \item is a congruence wrt $\mult$: $a \approx b \to c \approx d \to a \mult c \approx b \mult d$,
@@ -56,58 +56,58 @@ This is exactly the specification of a \emph{permutation relation}!
     \end{itemize}
 \end{definition}
 
-Let $q : F(A) \to {F(A) / \approx}$ be the quotient map (inclusion into the quotient).
+Let $q : F(A) \to \quot{F(A)}{\approx}$ be the quotient map (inclusion into the quotient).
 %
 The generators map is given by $q \comp \eta_A$, the identity element is $q(e)$,
-and the $\doubleplus$ operation can also be lifted to the quotient by congruence.
+and the $\concat$ operation can also be lifted to the quotient by congruence.
 
 \begin{proposition}
-    $({\str{F}(A) / \approx}, \doubleplus, q(e))$ is a commutative monoid.
+    $(\quot{\str{F}(A)}{\approx}, \concat, q(e))$ is a commutative monoid.
 \end{proposition}
 
 \begin{proof}
-    Since $\approx$ is congruence wrt $\mult$,
+    Since $\approx$ is a congruence wrt $\mult$,
     we can lift $\mult : F(A) \to F(A) \to F(A)$ to the quotient to obtain
-    $\doubleplus : {F(A) / \approx} \to {F(A) / \approx} \to {F(A) / \approx}$.
-    $\doubleplus$ would also satisfy the unit laws and associativity law which $\mult$ satisfy.
-    Commutativity of $\doubleplus$ follows from the commutativity requirement of $\approx$,
-    therefore $({F(A) / \approx}, \doubleplus, q(i))$ forms a commutative monoid.
+    $\concat : \quot{F(A)}{\approx} \to \quot{F(A)}{\approx} \to \quot{F(A)}{\approx}$.
+    $\concat$ also satisfies the unit and associativity laws that $\mult$ satisfy.
+    Commutativity of $\concat$ follows from the commutativity requirement of $\approx$,
+    therefore $(\quot{F(A)}{\approx}, \concat, q(i))$ forms a commutative monoid.
 \end{proof}
 
 For clarity, we will use $\exthat{(\blank)}$ to denote the extension operation of $F(A)$,
-and $\ext{(\blank)}$ for the extension operation of ${F(A) / \approx}$.
+and $\ext{(\blank)}$ for the extension operation of $\quot{F(A)}{\approx}$.
 
 \begin{definition}
     Given a commutative monoid $\str{X}$ and a map $f : A \to X$,
     we define
-    $\ext{f} : {\str{F}(A) / \approx} \; \to \mathfrak{X}$ as follows:
-    we first obtain $\exthat{f} : \str{F}(A) \to \mathfrak{X}$ by universal property of $F$, and lift it
-    to ${\str{F}(A)/\approx} \to \mathfrak{X}$, which is allowed since $\approx$ respects $\ext{(\blank)}$.
+    $\ext{f} : \quot{\str{F}(A)}{\approx} \; \to \str{X}$ as follows:
+    we first obtain $\exthat{f} : \str{F}(A) \to \str{X}$ by universal property of $F$, and lift it
+    to $\quot{\str{F}(A)}{\approx} \to \str{X}$, which is allowed since $\approx$ respects $\ext{(\blank)}$.
 \end{definition}
 
-Using the correct specification of a permutation relation, we can prove that $({\str{F}(A) / \approx})$ gives the free
+Using the correct specification of a permutation relation, we can prove that $\quot{\str{F}(A)}{\approx}$ gives the free
 commutative monoid on $A$.
 
 \begin{lemma}
-    For all $f : A \to X$, $x : F(A)$, $\ext{f}(q(x))$ reduces to $\exthat{f}(x)$.
+    For all $f : A \to X$, $x : \str{F}(A)$, $\ext{f}(q(x))$ reduces to $\exthat{f}(x)$.
 \end{lemma}
 
-\begin{proposition}[Universal property for ${\str{F}(A) / \approx}$]
-    $({\str{F}(A) / \approx},\eta_A : A \xto{q} \str{F}(A) \to {\str{F}(A) / \approx})$
+\begin{proposition}[Universal property for $\quot{\str{F}(A)}{\approx}$]
+    $(\quot{\str{F}(A)}{\approx}, \eta_A : A \xto{q} \str{F}(A) \to \quot{\str{F}(A)}{\approx})$
     is the free commutative monoid on $A$.
 \end{proposition}
 
 \begin{proof}
-    To show that $\ext{(\blank)}$ is an inverse to $\blank \comp \eta_A$,
-    we first show $\ext{(\blank)}$ is the right inverse to $\blank \comp \eta_A$.
+    To show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$,
+    we first show $\ext{(\blank)}$ is the right inverse to $(\blank) \comp \eta_A$.
     For all $f$ and $x$, $(\ext{f} \comp \eta_A)(x) = (\ext{f} \comp q)(\mu_A(x)) = \exthat{f}(\mu_A(x))$.
     By universal property of $F$, $\exthat{f}(\mu_A(x)) = f(x)$, therefore $(\ext{f} \comp \eta_A)(x) = f(x)$.
     By function extensionality, for any $f$, $\ext{f} \circ \eta_A = f$,
     and $(\blank \circ \eta_A) \comp \ext{(\blank)} = id$.
 
-    To show $\ext{(\blank)}$ is the left inverse to $\blank \comp \eta_A$, we need to prove
-    for any commutative monoid homomorphism $f : {F(A) / \approx} \to \mathfrak{X}$ and $x : {F(A) / \approx}$,
-    $\ext{(f \comp \eta_A)}(x) = f(x)$. To prove this it is suffice to show for all $x : F(A)$,
+    To show $\ext{(\blank)}$ is the left inverse to $(\blank) \comp \eta_A$, we need to prove
+    for any commutative monoid homomorphism $f : {\str{F}(A)}{\approx} \to \str{X}$ and $x : {\str{F}(A)}{\approx}$,
+    $\ext{(f \comp \eta_A)}(x) = f(x)$. To prove this it is suffice to show for all $x : \str{F}(A)$,
     $\ext{(f \comp \eta_A)}(q(x)) = f(q(x))$.
     $\ext{(f \comp \eta_A)}(q(x))$ reduces to $\exthat{(f \comp q \comp \mu_A)}(x)$.
     Note that both $f$ and $q$ are homomorphism, therefore $f \comp q$ is a homomorphism. By
@@ -115,10 +115,10 @@ commutative monoid on $A$.
     therefore $\ext{(f \comp \eta_A)}(q(x)) = f(q(x))$.
 
     We have now shown that $(\blank) \comp \eta_A$ is an equivalence from
-    commutative monoid homomorphisms ${F(A) / \approx} \to \mathfrak{X}$
+    commutative monoid homomorphisms $\quot{\str{F}(A)}{\approx} \to \str{X}$
     to set functions $A \to X$, and its inverse is given by $\ext{(\blank)}$, which maps set
-    functions $A \to X$ to commutative monoid homomorphisms ${F(A) / \approx} \to \mathfrak{X}$.
-    Therefore, ${F(A) / \approx}$ is indeed the free commutative monoid on $A$.
+    functions $A \to X$ to commutative monoid homomorphisms $\quot{\str{F}(A)}{\approx} \to \str{X}$.
+    Therefore, $\quot{\str{F}(A)}{\approx}$ is indeed the free commutative monoid on $A$.
 \end{proof}
 
 
@@ -137,8 +137,8 @@ This is only one example of such a relation, of course, there are many such in t
 data Perm (A : UU) : List A -> List A -> UU where
   perm-refl : forall {xs} -> Perm xs xs
   perm-swap : forall {x y xs ys zs}
-           -> Perm (xs ++ x :: y :: ys) zs
-           -> Perm (xs ++ y :: x :: ys) zs
+           -> Perm (xs concat x cons y cons ys) zs
+           -> Perm (xs concat y cons x cons ys) zs
 
 PList : UU -> UU
 PList A = List A / Perm
@@ -150,27 +150,27 @@ By~\cref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of perm
 to show $\PList$ is the free commutative monoid.
 
 It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
-We can also prove $\Perm$ is congruent wrt to $\doubleplus$ inductively.
+We can also prove $\Perm$ is congruent wrt to $\concat$ inductively.
 Commutativity is proven similarly, like the proof for $\SList$ in~\cref{slist:comm}.
 
 \begin{proposition}\label{plist:sharp-sat}
     Let $X$ be the carrier set of a commutative monoid $\mathfrak{X}$.
     For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \PList(A)$,
-    $\ext{f}(xs\,\doubleplus\,x :: y :: ys) = \ext{f}(xs\,\doubleplus\,y :: x :: ys)$.
+    $\ext{f}(xs\,\concat\,x \cons y \cons ys) = \ext{f}(xs\,\concat\,y \cons x \cons ys)$.
 \end{proposition}
 
 With this we can prove $\Perm$ respects $\ext{(\blank)}$.
 
 \begin{proof}
     We can prove this by induction on $xs$. For $xs = []$, by homomorphism properties of $\ext{f}$,
-    we can prove $\ext{f}(x :: y :: ys) = \ext{f}([ x ]) \mult \ext{f}([ y ]) \mult \ext{f}(ys)$.
+    we can prove $\ext{f}(x \cons y \cons ys) = \ext{f}([ x ]) \mult \ext{f}([ y ]) \mult \ext{f}(ys)$.
     Since the image of $\ext{f}$ is a commutative monoid, we have
     $\ext{f}([ x ]) \mult \ext{f}([ y ]) = \ext{f}([ y ]) \mult \ext{f}([ x ])$, therefore proving
-    $\ext{f}(x :: y :: ys) = \ext{f}(y :: x :: ys)$. For $xs = z :: zs$, we can prove
-    $\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\doubleplus\,x :: y :: ys)$.
+    $\ext{f}(x \cons y \cons ys) = \ext{f}(y \cons x \cons ys)$. For $xs = z \cons zs$, we can prove
+    $\ext{f}((z \cons zs)\,\concat\,x \cons y \cons ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\concat\,x \cons y \cons ys)$.
     We can then complete the proof by induction to obtain
-    $\ext{f}(zs\,\doubleplus\,x :: y :: ys) = \ext{f}(zs\,\doubleplus\,y :: x :: ys)$ and reassembling
-    back to $\ext{f}((z :: zs)\,\doubleplus\,y :: x :: ys)$ by homomorphism properties of $\ext{f}$.
+    $\ext{f}(zs\,\concat\,x \cons y \cons ys) = \ext{f}(zs\,\concat\,y \cons x \cons ys)$ and reassembling
+    back to $\ext{f}((z \cons zs)\,\concat\,y \cons x \cons ys)$ by homomorphism properties of $\ext{f}$.
 \end{proof}
 
 \subsubsection*{Remark on representation}\label{plist:rep}
@@ -180,7 +180,7 @@ very easy to define algorithms and proofs that are inductive in nature, e.g. def
 on $\PList$ is very simple since insertion sort inductively sorts a list, which we can easily do by
 pattern matching on $\PList$ since the construction of $\PList$ is definitionally inductive.
 This property also makes it such that oftentimes inductively constructed $\PList$ would normalize to the
-simplest form of the $\PList$, e.g. $q([ x ]) \doubleplus q([y, z])$ normalizes to $q([x,y,z])$ by
+simplest form of the $\PList$, e.g. $q([ x ]) \concat q([y, z])$ normalizes to $q([x,y,z])$ by
 definition, saving the efforts of defining auxillary lemmas to prove their equality.
 
 This inductive nature, however, makes it difficult to define efficient operations on $\PList$. Consider a
@@ -194,12 +194,12 @@ the function respects $\Perm$, i.e. $\Perm as\,bs \to f(as) = f(bs)$. This can b
 of the many auxiliary variables in the constructor $\term{perm-swap}$, namely $xs$, $ys$, $zs$.
 We need to show $f$ would respect a swap in the list anywhere between $xs$ and $ys$, which can
 unnecessarily complicate the proof. For example in the inductive step of~\cref{plist:sharp-sat},
-$\ext{f}((z :: zs)\,\doubleplus\,x :: y :: ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\doubleplus\,x :: y :: ys)$,
+$\ext{f}((z \cons zs)\,\concat\,x \cons y \cons ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\concat\,x \cons y \cons ys)$,
 to actually prove this in Cubical Agda would involve first applying associativity to prove
-$(z :: zs)\,\doubleplus\,x :: y :: ys = z :: (zs\,\doubleplus\,x :: y :: ys)$, before we can actually
+$(z \cons zs)\,\concat\,x \cons y \cons ys = z \cons (zs\,\concat\,x \cons y \cons ys)$, before we can actually
 apply homomorphism properties of $f$. In the final reassembling step, similarly,
-we also need to re-apply associativity to go from $z :: (zs\,\doubleplus\,y :: x :: ys)$
-to $(z :: zs)\,\doubleplus\,y :: x :: ys$. Also since we are working with an equivalence relation we
+we also need to re-apply associativity to go from $z \cons (zs\,\concat\,y \cons x \cons ys)$
+to $(z \cons zs)\,\concat\,y \cons x \cons ys$. Also since we are working with an equivalence relation we
 defined ($\Perm$) and not the equality type directly, we cannot exploit the many combinators defined
 in the standard library for the equality type and often needing to re-define combinators ourselves.
 
@@ -218,10 +218,9 @@ proofs.
 data SList (A : UU) : UU where
   nil : SList A
   _cons_ : A -> SList A -> SList A
-  swap : forall x y xs -> x :: y :: xs == y :: x :: xs
+  swap : forall x y xs -> x cons y cons xs == y cons x cons xs
   trunc : forall x y -> (p q : x == y) -> p == q
 \end{code}
-
 
 The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
 thereby ignoring any higher paths introduced by the $\term{swap}$ constructor.
@@ -230,36 +229,36 @@ because it does not have any path constructors, therefore it can be proven that 
 is a set assuming $A$ is a set (see formalization).
 
 \begin{definition}[Concatenation]
-    We define the concatenation operation $\doubleplus : \SList(A) \to \SList(A) \to \SList(A)$
+    We define the concatenation operation $\concat : \SList(A) \to \SList(A) \to \SList(A)$
     recursively, where we also have to consider the (functorial) action on the $\term{swap}$ path using $\term{ap}$.
     \begin{align*}
-        [] \doubleplus ys                                 & = ys                                   \\
-        (x :: xs) \doubleplus ys                          & = x :: (xs \doubleplus ys)             \\
-        \term{ap}_{\doubleplus ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \doubleplus xs)
+        [] \concat ys                                 & = ys                               \\
+        (x \cons xs) \concat ys                       & = x \cons (xs \concat ys)          \\
+        \term{ap}_{\concat ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \concat xs)
     \end{align*}
 \end{definition}
 
-\cite{choudhuryFreeCommutativeMonoids2023} have already given a proof of $(\SList(A), \doubleplus, [])$ satisfying
-commutative monoid laws. We explain the proof of $\doubleplus$ satisfying commutativity here.
+\cite{choudhuryFreeCommutativeMonoids2023} have already given a proof of $(\SList(A), \concat, [])$ satisfying
+commutative monoid laws. We explain the proof of $\concat$ satisfying commutativity here.
 
 \begin{lemma}[Head rearrange]\label{slist:cons}
-    For all $x : A$, $xs : \SList(A)$, $x :: xs = xs \doubleplus [ x ]$.
+    For all $x : A$, $xs : \SList(A)$, $x \cons xs = xs \concat [ x ]$.
 \end{lemma}
 
 \begin{proof}
     We can prove this by induction on $xs$.
-    For $xs = []$ this is trivial. For $xs = y :: ys$, we have the induction hypothesis $x :: ys = ys \doubleplus [ x ]$.
-    By applying $y :: \blank$ on both side and then apply $\term{swap}$, we can complete the proof.
+    For $xs \jdgeq []$ this is trivial. For $xs \jdgeq y \cons ys$, we have the induction hypothesis $x \cons ys = ys \concat [ x ]$.
+    By applying $y \cons (\blank)$ on both side and then apply $\term{swap}$, we can complete the proof.
 \end{proof}
 
 \begin{theorem}[Commutativity]\label{slist:comm}
-    For all $xs,\,ys : \SList(A)$, $xs \doubleplus ys = ys \doubleplus xs$.
+    For all $xs,\,ys : \SList(A)$, $xs \concat ys = ys \concat xs$.
 \end{theorem}
 
 \begin{proof}
     By induction on $xs$ we can iteratively apply~\cref{slist:cons} to move all elements of $xs$
     to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
-    $xs \doubleplus ys = ys \doubleplus xs$.
+    $xs \concat ys = ys \concat xs$.
 \end{proof}
 
 \subsubsection*{Remark on representation}\label{slist:rep}
@@ -270,13 +269,13 @@ in~\cref{plist:rep}.
 
 Unlike $\PList$ which is defined as a set quotient, this is defined as a HIT, therefore handling equalities
 between $\SList$ is much simpler than $\PList$. We would still need to prove a function $f$ respects
-the path constructor of $\SList$ when pattern matching, i.e. $f(x :: y :: xs) = f(y :: x :: xs)$.
+the path constructor of $\SList$ when pattern matching, i.e. $f(x \cons y \cons xs) = f(y \cons x \cons xs)$.
 Unlike $\PList$ we do not need to worry about as many auxiliary variables since swap
 only happens at the head of the list, whereas with $\PList$ we would need to prove
-$f(xs\,\doubleplus\,x :: y :: ys) = f(xs\,\doubleplus\,y :: x :: ys)$. One may be tempted to just remove $xs$
+$f(xs\,\concat\,x \cons y \cons ys) = f(xs\,\concat\,y \cons x \cons ys)$. One may be tempted to just remove $xs$
 from the $\term{perm-swap}$ constructor such that it becomes
-$\term{perm-swap} : \forall x\,y\,ys\,zs \to \Perm\,(x :: y :: ys)\,zs \to \Perm\,(y :: x :: ys)\,zs$.
-However this would break $\Perm$'s congruence wrt to $\doubleplus$, therefore violating the axioms of
+$\term{perm-swap} : \forall x\,y\,ys\,zs \to \Perm\,(x \cons y \cons ys)\,zs \to \Perm\,(y \cons x \cons ys)\,zs$.
+However this would break $\Perm$'s congruence wrt to $\concat$, therefore violating the axioms of
 permutation relations. Also, since we are working with the identity type directly, properties we would
 expect from $\term{swap}$, such as reflexivity, transitivity, symmetry, congruence and such all comes directly by
 construction, whereas with $\Perm$ we would have to prove these properties manually.
@@ -334,12 +333,12 @@ is the free commutative monoid.
 \end{proof}
 
 \begin{proposition}\label{bag:cong}
-    $\approx$ is congruent wrt to $\doubleplus$.
+    $\approx$ is congruent wrt to $\concat$.
 \end{proposition}
 
 \begin{proof}
     Given $(n, f) \approx (m, g)$ by $\sigma$ and $(u, p) \approx (v, q)$ by $\phi$,
-    we want to show $(n, f) \doubleplus (u, p) \approx (m, g) \doubleplus (v, q)$ by some $\tau$.
+    we want to show $(n, f) \concat (u, p) \approx (m, g) \concat (v, q)$ by some $\tau$.
     We can construct $\tau$ as follow:
 
     \begin{align*}
@@ -429,10 +428,10 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
 
     It is trivial to prove $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$ since the only
     operation on indices in $\tau$ is $\term{swap}_{+}$. It suffices to show $(S(n), i \circ \phi)$
-    can be decomposed into two arrays such that $(S(n), i \circ \phi) = (k, g) \doubleplus (j, h)$
+    can be decomposed into two arrays such that $(S(n), i \circ \phi) = (k, g) \concat (j, h)$
     for some $g$ and $h$. Since the image of $\ext{f}$ is a commutative monoid and $\ext{f}$ is a homomorphism,
-    $\ext{f}((k, g) \doubleplus (j, h)) = \ext{f}(k, g) \mult \ext{f}(j, h) = \ext{f}(j, h) \mult \ext{f}(k, g) =
-        \ext{f}((j, h) \doubleplus (k, g))$, thereby proving $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
+    $\ext{f}((k, g) \concat (j, h)) = \ext{f}(k, g) \mult \ext{f}(j, h) = \ext{f}(j, h) \mult \ext{f}(k, g) =
+        \ext{f}((j, h) \concat (k, g))$, thereby proving $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
 
 \end{proof}
 
@@ -503,8 +502,8 @@ in the proof of~\cref{bag:perm-sat}, we need to first construct a $\tau$ which s
 $\ext{f}(n, i \comp \sigma) = \ext{f}(n, i \comp \tau)$ before we can apply induction.
 
 Also, on a more technical note, since $\Array$ and $\Bag$ are not simple data types, the definition of
-the monoid operation on them $\doubleplus$ are necessarily more complicated, and unlike $\List$, $\PList$
-and $\SList$, constructions of $\Array$ and $\Bag$ via $\doubleplus$ often would not normalize into a
+the monoid operation on them $\concat$ are necessarily more complicated, and unlike $\List$, $\PList$
+and $\SList$, constructions of $\Array$ and $\Bag$ via $\concat$ often would not normalize into a
 very simple form, but would instead expand into giant trees of terms. This makes it such that when working
 with $\Array$ and $\Bag$ we need to be very careful or otherwise Agda would be stuck trying to display
 the normalized form of $\Array$ and $\Bag$ in the goal and context menu. Type-checking also becomes a lengthy

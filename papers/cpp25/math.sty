@@ -2,6 +2,45 @@
 
 \ProvidesPackage{math}
 
+\RequirePackage{amsmath,amsfonts,amsthm,amssymb}
+\RequirePackage{stmaryrd}
+\RequirePackage{etoolbox}
+
+%% colons
+\makeatletter
+\mathchardef\normalcolon=\mathcode`:
+\def\colon{%
+  \noexpand\nobreak
+  \mskip 2mu
+  \mathpunct{}
+  \nonscript\mkern -\thinmuskip
+  {\normalcolon}%
+  \mskip 6muplus1mu
+  \relax
+}
+\@ifpackagewith{babel}{french}{% french babel makes : active
+  \declare@shorthand{french}{:}{%
+    \ifmmode % <--- added
+      \colon % <--- added
+    \else % <--- added
+      \ifFB@spacing
+        \ifhmode
+          \ifdim\lastskip>1sp
+            \unskip\penalty\@M\FBcolonspace
+          \else
+            \FDP@colonspace
+          \fi
+        \fi
+      \fi
+      \string:%
+    \fi % <--- added
+  }%
+}{%
+  \begingroup\lccode`\~=`\:\lowercase{\endgroup\let~}\colon
+  \mathcode`\:=\string"8000
+}
+\makeatother
+
 % math
 \newcommand{\xto}[1]{\xrightarrow{#1}}
 
@@ -48,7 +87,11 @@
 
 \newcommand{\entails}{\vDash}
 
-%
+% sets and bags
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\bag}[1]{\lbag{#1}\rbag}
+
+% free algebras
 \newcommand{\LL}{\mathcal{L}}
 \newcommand{\MM}{\mathcal{M}}
 \newcommand{\FF}{\mathcal{F}}

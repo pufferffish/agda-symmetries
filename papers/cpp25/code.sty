@@ -13,8 +13,8 @@
   belowskip        = 0.5\baselineskip,
   language         = Haskell,
   showstringspaces = false,
-  xleftmargin      = \parindent,
-  xrightmargin     = \parindent,
+  xleftmargin      = 0.2\parindent,
+  xrightmargin     = 0.2\parindent,
   columns          = fullflexible,
   keepspaces       = true,
   basewidth        = {0em,0em},
@@ -48,8 +48,9 @@
                      {exists}{{\ensuremath{\exists}}}2
                      {==}{{\ensuremath{\id}}}2
                      {nil}{{\color{solarized-base01}[]}}2
-                     {cons}{{\color{solarized-base01}::}}2
-                     {append}{{\color{solarized-base01}++}}2
+                     {cons}{{\color{solarized-base01}\ensuremath{\cons}}}2
+                     {concat}{{\color{solarized-base01}\ensuremath{\concat}}}2
+                     {append}{{\color{solarized-base01}\ensuremath{\concat}}}2
                      {union}{{\color{solarized-base01}\ensuremath{\bigcup}}}2
                      {tensor}{{\color{solarized-base01}⊗}}2
                      {sharp}{{\color{solarized-base01}\ensuremath{^{\text{\#}}}}}2
