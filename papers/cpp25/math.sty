@@ -5,6 +5,7 @@
 \RequirePackage{amsmath,amsfonts,amsthm,amssymb}
 \RequirePackage{stmaryrd}
 \RequirePackage{etoolbox}
+\RequirePackage{perfectcut}
 
 %% colons
 \makeatletter
@@ -40,6 +41,9 @@
   \mathcode`\:=\string"8000
 }
 \makeatother
+
+%% parentheses
+\let\ps\perfectparens%
 
 % math
 \newcommand{\xto}[1]{\xrightarrow{#1}}
