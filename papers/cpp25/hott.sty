@@ -2,13 +2,18 @@
 
 \ProvidesPackage{hott}
 
+\RequirePackage{xparse}
 \RequirePackage{amsmath,amssymb,mathtools}
 \RequirePackage{stmaryrd}
 
 % meta
 \newcommand{\defeq}{\mathrel{\coloneq}}
 \newcommand{\jdgeq}{\mathrel{\equiv}}
-\newcommand{\blank}{{\scriptstyle{-}}}
+\NewDocumentCommand{\blank}{s}{
+  \IfBooleanTF{#1}
+  {{\scriptstyle{(-)}}}
+  {{\scriptstyle{-}}}
+}
 
 % types and terms
 \newcommand{\type}[1]{\mathsf{#1}}
@@ -49,6 +54,11 @@
 
 % Bool
 \newcommand{\Bool}{{\mathbf{2}}}
+
+% sums
+\newcommand{\inl}{\term{inl}}
+\newcommand{\inr}{\term{inr}}
+\newcommand{\copair}[1]{[#1]}
 
 % identity type
 \NewDocumentCommand{\id}{E{^_}{{}{}}}{

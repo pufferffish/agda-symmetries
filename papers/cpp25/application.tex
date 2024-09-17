@@ -1,5 +1,36 @@
-\section{Application: Sorting}
+\section{Application: Sorting Functions}
 \label{sec:application}
+
+We will now put to work the universal properties of our types of (ordered) lists and unordered lists,
+to define operations on them systematically, which are mathematically sound, and reason about them.
+%
+First, we explore definitions of various operations on both free monoids and free commutative monoids.
+%
+\redtext{
+    Note that Cubical Agda has problems with indexing over HITs, hence we prefer to program with the universal properties,
+    such as when defining Any and All.
+}
+%
+By univalence (and the structure identity principle), everything henceforth holds for any presentation of free monoids
+and free commutative monoids, therefore we avoid picking a specific construction.
+%
+We use $\FF(A)$ to denote the free monoid or free commutative monoid on $A$, $\LL(A)$ to exclusively denote the free
+monoid construction, and $\MM(A)$ to exclusively denote the free commutative monoid construction.
+
+%
+For example $\term{length}$ is a common operation defined inductively for $\List$,
+but usually in proof engineering, properties about $\term{length}$, e.g.
+$\term{length}(xs \doubleplus ys) = \term{length}(xs) + \term{length}(ys)$,
+are proven externally.
+%
+In our framework of free algebras, where the $\ext{(\blank)}$ operation is a correct-by-construction homomorphism,
+we can define operations like $\term{length}$ directly by universal extension,
+which also gives us a proof that they are homomorphisms for free.
+\redtext{Note: fold is mapping out into the endomorphism monoid.}
+%
+A further application of the universal property is to prove two different types are equal, by showing they both satisfy
+the same universal property (see~\cref{lem:free-algebras-unique}), which is desirable especially when proving a direct
+equivalence between the two types turns out to be a difficult exercise in combinatorics.
 
 \input{combinatorics} %% 2 pages
 \input{sorting} %% 3 pages

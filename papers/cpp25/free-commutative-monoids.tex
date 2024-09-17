@@ -205,7 +205,8 @@ in the standard library for the equality type and often needing to re-define com
 
 \subsection{Swap-List}\label{cmon:slist}
 
-Informally, quotients generate too many points, then quotient out into equivalence classes by the congruence relation.
+Informally, quotients are defined by generating all the points, then quotienting out into equivalence classes by the
+congruence relation.
 %
 Alternately, HITs use generators (points) and higher generators (paths) (and higher higher generators and so on\ldots).
 %
@@ -413,13 +414,13 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
         \centering
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
-            { \{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
+            {\{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
             \arrow["\phi", maps to, from=1-1, to=2-1]
         \end{tikzcd}
         \\
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
-            { \{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
+            {\{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
             \arrow["\tau", maps to, from=1-1, to=2-1]
         \end{tikzcd}
         \caption{Operation of $\tau$ constructed from $\phi$}
@@ -513,7 +514,7 @@ process that tests if the user possesses the virtue of patience.
 
 However, performing arbitrary partitioning with $\Array$ and $\Bag$ is much easier than
 $\List$, $\SList$, $\PList$. For example,
-one can simply use the combinator $\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]$ to partition the array,
+one can simply use the combinator ${\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]}$ to partition the array,
 then perform operations on the partitions such as swapping in~\cref{bag:comm},
 or perform operations on the partitions individually such as two individual permutation in~\cref{bag:cong}.
 This makes it such that when defining divide-and-conquer algorithms such as merge sort,

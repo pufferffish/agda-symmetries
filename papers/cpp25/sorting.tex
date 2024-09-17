@@ -1,6 +1,91 @@
 % !TEX root = cpp25-sort.tex
 
-\subsection{Total orders and Sorting}
+\subsection{Total orders}
+\label{sec:total-orders}
+
+First, we recall the axioms of a total order $\leq$ on a set $A$.
+\begin{definition}[Total order]
+    \label{def:total-order}
+    A total order on a set $A$ is a relation $\leq : A \to A \to \hProp$ that satisfies:
+    \begin{itemize}
+        \item reflexivity: $x \leq x$,
+        \item transitivity: if $x \leq y$ and $y \leq z$, then $x \leq z$,
+        \item antisymmetry: if $x \leq y$ and $y \leq x$, then $x = y$,
+        \item strong-connectedness: $\forall x, y$, either $x \leq y$ or $y \leq x$.
+    \end{itemize}
+    Note that \emph{either-or} means that this is a (truncated) logical disjunction.
+    In the context of this paper, we want to make a distinction between ``decidable total order''
+    and ``total order''. A \emph{decidable} total order requires the $\leq$ relation to be decidable:
+    \begin{itemize}
+        \item decidability: $\forall x, y$, we have $x \leq y + \neg(x \leq y)$.
+    \end{itemize}
+\end{definition}
+This strengthens the strong-connectedness axiom,
+where we have either $x \leq y$ or $y \leq x$ merely as a proposition,
+but decidability allows us to actually compute if $x \leq y$ is true.
+\begin{proposition}
+    \label{prop:decidable-total-order}
+    In a decidable total order, it holds that ${\forall x, y}, {x \leq y} + {y \leq x}$.
+    Further, this makes $A$ discrete, that is ${\forall x, y}, {x \id y} + {x \neq y}$.
+\end{proposition}
+%
+An equivalent way to define a total order is using a binary meet operation.
+\begin{definition}[Meet semi-lattice]
+    \label{def:meet-semi-lattice}
+    A meet semi-lattice is a set $A$ with a binary operation $\blank\meet\blank : A \to A \to A$ that is:
+    \begin{itemize}
+        \item idempotent: $x \meet x \id x$,
+        \item associative: $(x \meet y) \meet z \id x \meet (y \meet z)$,
+        \item commutative: $x \meet y \id y \meet x$.
+    \end{itemize}
+    A \emph{strongly-connected} meet semi-lattice further satisfies:
+    \begin{itemize}
+        \item strong-connectedness: $\forall x, y$, either $x \meet y \id x$ or $x \meet y \id y$.
+    \end{itemize}
+    A \emph{total} meet semi-lattice strengthens this to:
+    \begin{itemize}
+        \item totality: ${\forall x, y}, {x \meet y \id x} + {x \meet y \id y}$.
+    \end{itemize}
+\end{definition}
+
+\begin{proposition}
+    \label{prop:total-order-meet-semi-lattice}
+    A total order $\leq$ on a set $A$ is equivalent to a strongly-connected meet semi-lattice structure on $A$.
+    A decidable total order on $A$ is equivalent to a total meet semi-lattice structure on $A$.
+\end{proposition}
+\begin{proofsketch}
+    Given a (mere) total order $\leq$ on a set $A$,
+    we define ${x \meet y} \defeq \term{if} x \leq y \term{then} x \term{else} y$.
+    %
+    Crucially, this map is \emph{locally-constant}, allowing us to eliminate from an $\hProp$ to a $\hSet$.
+    %
+    Meets satisfy the universal property of products, that is, ${c \leq a \meet b} \iff {c \leq a} \land {c \leq b}$,
+    and the axioms follow by calculation using $\yo$-arguments.
+    %
+    Conversely, given a meet semi-lattice, we define $x \leq y \defeq x \meet y \id x$,
+    which defines a $\hProp$-valued total ordering relation.
+    %
+    Assumptions about decidability strengthen this argument to decidable total orders,
+    using~\cref{prop:decidable-total-order}.
+\end{proofsketch}
+
+Finally, tying this back to~\cref{def:head-free-monoid}, we have the following for free commutative monoids.
+\begin{definition}[$\term{head}$]
+    \label{def:head-free-commutative-monoid}
+    Given a total order $\leq$ on a set $A$, we have a commutative monoid structure on $1 + A$,
+    with unit \(e \defeq \inl(\ttt) : 1 + A\), and multiplication defined as:
+    \[
+        \begin{aligned}
+            \inl(\ttt) \oplus b       & \defeq b                          \\
+            \inr(a) \oplus \inl(\ttt) & \defeq \inr(a)                    \\
+            \inr(a) \oplus \inr(b)    & \defeq \inr(a \meet b) \enspace .
+        \end{aligned}
+    \]
+    Then, we have a homomorphism \({\term{head} \defeq \ext{\inr}} : {\MM(A) \to 1 + A}\),
+    which picks out the \emph{least} element of the free commutative monoid.
+\end{definition}
+
+\subsection{Sorting functions}
 \label{sec:sorting}
 
 Since the free commutative monoid is also a monoid, there is a canonical map (monoid homomorphism)
@@ -52,23 +137,8 @@ Instead we study how to constructively define such a section, and in fact, that 
 and the implications of its existence is that $A$ can be ordered, or sorted.
 
 We now study sort functions as sections and their relationship with total orders.
-First, we recall the axioms of a total order $\leq$ on a set $A$:
-\begin{itemize}
-    \item reflexivity: $x \leq x$
-    \item transitivity: if $x \leq y$ and $y \leq z$, then $x \leq z$
-    \item antisymmetry: if $x \leq y$ and $y \leq x$, then $x = y$
-    \item totality: forall $x$ and $y$, we have \emph{merely} either $x \leq y$ or $y \leq x$
-\end{itemize}
 
-In the context of this paper, we also want to make a distinction between ``decidable total order''
-and just ``total order''. A decidable total order should also satisfy
-\begin{itemize}
-    \item decidability: forall $x$ and $y$, we have either $x \leq y$ or $\neg(x \leq y)$
-\end{itemize}
-
-This is a stronger version of the totality axiom, where with totality we have
-either $x \leq y$ or $y \leq x$ merely as a proposition, but decidability allows us to actually
-compute if $x \leq y$ is true. Given this assumption on $A$, we can sort!
+Given this assumption on $A$, we can sort!
 
 \subsubsection{Section from Order}
 

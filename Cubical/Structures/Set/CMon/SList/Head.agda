@@ -41,13 +41,7 @@ module Head {ℓ} {A : Type ℓ} (isSetA : isSet A) (_≤_ : A -> A -> Type ℓ)
   _⊕_ : Maybe A -> Maybe A -> Maybe A
   nothing ⊕ b = b
   just a ⊕ nothing = just a
-  just a ⊕ just b = just (a ⋀ b) -- decRec (λ a≤b -> just a) (λ a≰b -> just b) (decOrdA .snd a b)
-
---   ⊕-β1 : ∀ a b -> a ≤ b -> just a ⊕ just b ≡ just a
---   ⊕-β1 a b p = decRec-yes (IsToset.is-prop-valued (decOrdA .fst) a b) p (decOrdA .snd a b)
-
---   ⊕-β2 : ∀ a b -> R.¬ (a ≤ b) -> just a ⊕ just b ≡ just b
---   ⊕-β2 a b ¬p = decRec-no (IsToset.is-prop-valued (decOrdA .fst) a b) ¬p (decOrdA .snd a b)
+  just a ⊕ just b = just (a ⋀ b)
 
   ⊕-unitl : ∀ x -> nothing ⊕ x ≡ x
   ⊕-unitl x = refl
