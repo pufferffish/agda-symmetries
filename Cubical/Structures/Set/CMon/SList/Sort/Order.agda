@@ -184,6 +184,12 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     sorted-one : ∀ x -> Sorted [ x ]
     sorted-cons : ∀ x y zs -> x ≤ y -> Sorted (y ∷ zs) -> Sorted (x ∷ y ∷ zs)
 
+  isPropSorted : ∀ xs -> isProp (Sorted xs)
+  isPropSorted [] = isContr→isProp (sorted-nil , λ { sorted-nil → refl })
+  isPropSorted (x ∷ []) = isContr→isProp (sorted-one x , λ { (sorted-one .x) → refl })
+  isPropSorted (x ∷ y ∷ xs) (sorted-cons .x .y .xs ϕ p) (sorted-cons .x .y .xs ψ q) =
+    cong₂ (sorted-cons x y xs) (is-prop-valued x y ϕ ψ) (isPropSorted (y ∷ xs) p q)
+
   open Sort.Section is-set
 
   is-sort' : (SList A -> List A) -> Type _
@@ -233,9 +239,13 @@ module Order→Sort {A : Type ℓ} (_≤_ : A -> A -> Type ℓ) (≤-isToset : I
     lemma zs p z r = P.rec (is-prop-valued y z)
       (⊎.rec (λ z≡x -> subst (y ≤_) (sym z≡x) y≤x) (λ z∈zs -> ≤-tail (L.inr z∈zs) p)) (insert-∈ zs r)
 
+  -- TODO: refactor this since Sorted is a prop
   sort-is-sorted' : ∀ xs -> ∥ Sorted (sort xs) ∥₁
   sort-is-sorted' = ElimProp.f squash₁ ∣ sorted-nil ∣₁
     λ x -> P.rec squash₁ λ p -> ∣ (insert-is-sorted x _ p) ∣₁
+
+  sort-is-sorted : ∀ xs -> Sorted (sort xs)
+  sort-is-sorted xs = P.rec (isPropSorted (sort xs)) (idfun _) (sort-is-sorted' xs)
 
   sort-is-sorted'' : ∀ xs -> is-sorted sort xs -> ∥ Sorted xs ∥₁
   sort-is-sorted'' xs = P.rec squash₁ λ (ys , p) ->

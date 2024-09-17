@@ -51,7 +51,7 @@ An equivalent way to define a total order is using a binary meet operation.
 \begin{proposition}
     \label{prop:total-order-meet-semi-lattice}
     A total order $\leq$ on a set $A$ is equivalent to a strongly-connected meet semi-lattice structure on $A$.
-    Further, a decidable total order on $A$ is equivalent to a total meet semi-lattice structure on $A$.
+    Further, a decidable total order on $A$ induces a total meet semi-lattice structure on $A$.
 \end{proposition}
 \begin{proofsketch}
     Given a (mere) total order $\leq$ on a set $A$,
@@ -66,8 +66,7 @@ An equivalent way to define a total order is using a binary meet operation.
     Conversely, given a meet semi-lattice, we define $x \leq y \defeq x \meet y \id x$,
     which defines an $\hProp$-valued total ordering relation.
     %
-    Assumptions about decidability strengthen this argument to decidable total orders,
-    using~\cref{prop:decidable-total-order}.
+    If the total order is decidable, we use the discreteness of $A$ from~\cref{prop:decidable-total-order}.
 \end{proofsketch}
 
 Finally, tying this back to~\cref{def:head-free-monoid}, we have the following for free commutative monoids.
@@ -109,7 +108,7 @@ a section (uniformly) picks out a canonical representative for each equivalence 
 Constructively, does $q$ have a section? If symmetry kills the order, can it be resurrected?
 \begin{figure}[H]
     \centering
-    \scalebox{1.3}{
+    \scalebox{1.0}{
         % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXExMKEEpIl0sWzMsMCwiXFxNTShBKSJdLFsxLDAsInMiLDAseyJjdXJ2ZSI6LTF9XSxbMCwxLCJxIiwwLHsiY3VydmUiOi0xfV1d
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\LL(A)} \&\&\& {\MM(A)}
@@ -143,20 +142,23 @@ and the implications of its existence is that $A$ can be ordered, or sorted.
 \subsubsection{Section from Order}
 
 \begin{proposition}
-    Assume there is a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
+    Assume a decidable total order on $A$. There is a sort function $s: \MM(A) \to \LL(A)$
     which constructs a section to $q : \LL(A) \twoheadrightarrow \MM(A)$
 \end{proposition}
 
-\begin{proof}
-    We can construct such a section by any sorting algorithm. In our formalization we chose
-    insertion sort $\SList(A) \to \List(A)$ due to its inductive properties and simple definition.
-    However, if we want to define other sorting algorithms, e .g. merge-sort,
-    other representations such as $\Bag \to \Array$ would be more suitable as we have explained in~\cref{bag:rep}.
-    It is easy to see how this
-    proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$, and re-discards the order again by
-    $q$, the act of imposing and then forgetting an order on $xs$ simply \emph{permutes} the elements of $xs$,
-    which is the proof of $q(s(xs)) = xs$.
-\end{proof}
+\begin{proofsketch}
+    We can construct such a sor functiont by implementing any sorting algorithm.
+    In our formalization we chose insertion sort,
+    because it can be defined easily using the inductive structure of $\SList(A)$ and $\List(A)$.
+    To implement other sorting algorithms like mergesort,
+    other representations such as $\Bag$ and $\Array$ would be preferable, as explained in~\cref{bag:rep}.
+    To see how this proposition holds: $q(s(xs))$ orders an unordered list $xs$ by $s$,
+    and discards the order again by $q$ --
+    imposing and then forgetting an order on $xs$ simply \emph{permutes} its elements,
+    which proves $q \comp s \htpy \idfunc$.
+\end{proofsketch}
+
+\redtext{This has been done before\ldots definable quotients\ldots we want to go the other way.}
 
 \subsubsection{Order from Section}
 
@@ -166,7 +168,7 @@ At this point we ask: if we can construct a section from order, can we construct
 %
 Indeed, just by the virtue of $s$ being a section, we can almost construct a relation that satisfies
 all axioms of total order, except transitivity!
-We use $\{x,y,\dots\}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
+We use $\bag{x,y,\dots}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
 and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
 or $x \cons xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
 
@@ -175,8 +177,8 @@ or $x \cons xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
     Given a section $s$, we define:
     \[
         \begin{aligned}
-            \term{least}(xs) & \defeq \term{head}(s(xs))                    \\
-            x \preccurlyeq y & \defeq \term{least}(\{x, y\}) = x \enspace .
+            \term{least}(xs) & \defeq \term{head}(s(xs))                      \\
+            x \preccurlyeq y & \defeq \term{least}(\bag{x, y}) = x \enspace .
         \end{aligned}
     \]
 \end{definition}
@@ -193,12 +195,12 @@ First, we observe some properties of $\preccurlyeq$.
     $\preccurlyeq$ is reflexive, antisymmetric, and total.
 \end{proposition}
 \begin{proof}
-    For all $x$, $\term{least}(\{x, x\})$ must be $x$, therefore $x \preccurlyeq x$, giving reflexivity.
+    For all $x$, $\term{least}(\bag{x, x})$ must be $x$, therefore $x \preccurlyeq x$, giving reflexivity.
     For all $x$ and $y$, given $x \preccurlyeq y$ and $y \preccurlyeq x$,
-    we have $\term{least}(\{x, y\}) = x$ and $\term{least}(\{y, x\}) = y$.
-    Since $\{x, y\} = \{y, x\}$, $\term{least}(\{x, y\}) = \term{least}(\{y, x\})$,
+    we have $\term{least}(\bag{x, y}) = x$ and $\term{least}(\bag{y, x}) = y$.
+    Since $\bag{x, y} = \bag{y, x}$, $\term{least}(\bag{x, y}) = \term{least}(\bag{y, x})$,
     therefore we have $x = y$, giving antisymmetry.
-    For all $x$ and $y$, $\term{least}(\{x, y\})$ is merely either $x$ or $y$,
+    For all $x$ and $y$, $\term{least}(\bag{x, y})$ is merely either $x$ or $y$,
     therefore we have merely either $x \preccurlyeq y$ or $y \preccurlyeq x$, giving totality.
 \end{proof}
 
@@ -260,10 +262,10 @@ This ensures that $s$ behaves correctly on 2-element lists.
 \begin{proof}
     We use a weaker version of the axiom where $x \cons xs$ is fixed to have length of 3.
     We are given $x \preccurlyeq y$ and $y \preccurlyeq z$, we want to show $x \preccurlyeq z$.
-    Consider the 3-element $\{x,y,z\} : \MM(A)$. Let $u$ be $\term{least}(\{x,y,z\})$,
+    Consider the 3-element $\bag{x,y,z} : \MM(A)$. Let $u$ be $\term{least}(\bag{x,y,z})$,
     by~\cref{sort:head-least} and~\cref{sort:sort-to-order},
     we have $u \preccurlyeq x \land u \preccurlyeq y \land u \preccurlyeq z$.
-    Since $u \in \{x,y,z\}$, $u$ must be one of the element. We prove transitivity by case splitting.
+    Since $u \in \bag{x,y,z}$, $u$ must be one of the element. We prove transitivity by case splitting.
     If $u = x$ we have $x \preccurlyeq z$. If $u = y$ we have $y \preccurlyeq x$, and since
     $x \preccurlyeq y$ and $y \preccurlyeq z$ by assumption,
     we have $x = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
@@ -275,7 +277,7 @@ This ensures that $s$ behaves correctly on 2-element lists.
 \subsubsection{Embedding orders into sections}
 
 We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
-$x \preccurlyeq y \defeq \term{least}(\{x, y\}) = x$,
+$x \preccurlyeq y \defeq \term{least}(\bag{x, y}) = x$,
 and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
 be constructed by insertion sort with $\leq$. Now, can we construct a full equivalence
 between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
@@ -316,9 +318,9 @@ same section back from $\preccurlyeq$. Unfortunately, this fails!
         \term{reverseTail}([])         & = []                                  \\
         \term{reverseTail}(x \cons xs) & = x \cons \term{reverse}(xs)          \\
         s(xs)                          & = \term{reverseTail}(\term{sort}(xs)) \\
-        s(\{2,3,1,4\})                 & = [1,4,3,2]                           \\
-        s(\{2,3,1\})                   & = [1, 3, 2]                           \\
-        s(\{2,3\})                     & = [2, 3]                              \\
+        s(\bag{2,3,1,4})               & = [1,4,3,2]                           \\
+        s(\bag{2,3,1})                 & = [1, 3, 2]                           \\
+        s(\bag{2,3})                   & = [2, 3]                              \\
     \end{align*}
     By~\cref{sort:o2s2o} we can use $\term{sort}$ to construct $\preccurlyeq$ which would be
     equivalent to $\leq$. However, the $\preccurlyeq$ constructed by $s$ would also be equivalent

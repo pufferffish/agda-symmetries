@@ -127,8 +127,6 @@
 \emergencystretch=10pt
 \hyphenpenalty=10000
 \exhyphenpenalty=100
-%% microtypography
-\usepackage{microtype}
 
 %% space saving magic macro
 \usepackage[
@@ -140,6 +138,20 @@
   % mathdisplays,
   indent,
   ]{savetrees}
+
+%% microtypography
+\usepackage{microtype}
+\microtypesetup{
+  activate={true,nocompatibility},
+  final,
+  tracking=true,
+  kerning=all,
+  spacing=true,
+  protrusion=all,
+  factor=1100,
+  stretch=10,
+  shrink=10
+}
 
 %% custom macros
 \usepackage{hott}
