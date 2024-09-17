@@ -519,3 +519,9 @@ then perform operations on the partitions such as swapping in~\cref{bag:comm},
 or perform operations on the partitions individually such as two individual permutation in~\cref{bag:cong}.
 This makes it such that when defining divide-and-conquer algorithms such as merge sort,
 $\Bag$ and $\Array$ are more natural to work with than $\List$, $\SList$, and $\PList$.
+
+\redtext{
+    We use $\bag{x,y,\dots}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
+    and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
+    or $x \cons xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
+}

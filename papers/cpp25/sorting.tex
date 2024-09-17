@@ -166,143 +166,163 @@ The previous section allowed us to construct a section -- how do we know this is
 %
 At this point we ask: if we can construct a section from order, can we construct an order from section?
 %
-Indeed, just by the virtue of $s$ being a section, we can almost construct a relation that satisfies
-all axioms of total order, except transitivity!
-We use $\bag{x,y,\dots}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
-and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
-or $x \cons xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
+Indeed, just by the virtue of $s$ being a section,
+we can (almost) construct a total-ordering relation on the carrier set!
 
 \begin{definition}
     \label{def:least}
     Given a section $s$, we define:
     \[
         \begin{aligned}
-            \term{least}(xs) & \defeq \term{head}(s(xs))                      \\
-            x \preccurlyeq y & \defeq \term{least}(\bag{x, y}) = x \enspace .
+            \term{least}(xs) & \defeq \term{head}(s(xs))                           \\
+            x \leqs y        & \defeq \term{least}(\bag{x, y}) = \inr(x) \enspace.
         \end{aligned}
     \]
 \end{definition}
-
-Conceptually, $\term{least}$ sorts $xs$ by $s$, and picks the first element of the sorted list by~$\term{head}$.
-This is the main insight, using which we establish our result.
-First, we observe some properties of $\preccurlyeq$.
+%
+That is, we take the two-element bag $\bag{x, y}$,
+``sort'' it by $s$, and test if the $\term{head}$ element is $x$.
+%
+Note, this is equivalent to $x \leqs y \defeq s\bag{x, y} = [x,y]$,
+because $s$ preserves length, and the second element is forced to be $y$.
+%
+% \begin{proposition}
+%     $\leqs$ is decidable iff $A$ has decidable equality.
+% \end{proposition}
 
 \begin{proposition}
-    $\preccurlyeq$ is decidable iff $A$ has decidable equality.
-\end{proposition}
-
-\begin{proposition}\label{sort:almost-total}
-    $\preccurlyeq$ is reflexive, antisymmetric, and total.
+    \label{sort:almost-total}
+    $\leqs$ is reflexive, antisymmetric, and total.
 \end{proposition}
 \begin{proof}
-    For all $x$, $\term{least}(\bag{x, x})$ must be $x$, therefore $x \preccurlyeq x$, giving reflexivity.
-    For all $x$ and $y$, given $x \preccurlyeq y$ and $y \preccurlyeq x$,
-    we have $\term{least}(\bag{x, y}) = x$ and $\term{least}(\bag{y, x}) = y$.
+    For all $x$, $\term{least}(\bag{x, x})$ must be $\inr(x)$, therefore $x \leqs x$, giving reflexivity.
+    For all $x$ and $y$, given $x \leqs y$ and $y \leqs x$,
+    we have $\term{least}(\bag{x, y}) = \inr(x)$ and $\term{least}(\bag{y, x}) = \inr(y)$.
     Since $\bag{x, y} = \bag{y, x}$, $\term{least}(\bag{x, y}) = \term{least}(\bag{y, x})$,
     therefore we have $x = y$, giving antisymmetry.
-    For all $x$ and $y$, $\term{least}(\bag{x, y})$ is merely either $x$ or $y$,
-    therefore we have merely either $x \preccurlyeq y$ or $y \preccurlyeq x$, giving totality.
+    For all $x$ and $y$, $\term{least}(\bag{x, y})$ is merely either $\inr(x)$ or $\inr(y)$,
+    therefore we have merely either $x \leqs y$ or $y \leqs x$, giving totality.
 \end{proof}
 
-\begin{proposition}
-    $\preccurlyeq$ is not necessarily transitive.
-\end{proposition}
-\begin{proof}
-    We give a counter-example of $s$ that would violate transitivity.
-    Consider this section $s : \SList(\Nat) \to \List(\Nat)$, we can define a sort function
-    $\term{sort} : \SList(\Nat) \to \List(\Nat)$ which sorts $\SList(\Nat)$ ascendingly. We can use $\term{sort}$
-    to construct $s$.
-    \begin{align*}
-        s(xs)        & = \begin{cases}
-                             \term{sort}(xs)                 & \text{if $\term{length}(xs)$ is odd} \\
-                             \term{reverse}(\term{sort}(xs)) & \text{otherwise}
-                         \end{cases} \\
-        s([2,3,1,4]) & = [4,3,2,1]                                                                     \\
-        s([2,3,1])   & = [1,2,3]
-    \end{align*}
-\end{proof}
-As we can see, we need more constraints on $s$ to prove $\preccurlyeq$ is transitive.
-These constraints lead to the axioms of sorting!
-\begin{definition}
-    Given a list $xs : \LL(A)$, we say $xs$ is in the image of s $\issorted(xs)$ if there \emph{merely exists}
-    a $ys : \MM(A)$ such that $s(ys) = xs$.
+Although $s$ correctly orders 2-element bags, it doesn't necessarily sort 3 or more elements --
+$\leqs$ is not necessarily transitive (a counterexample is given in~\cref{prop:counterexample-transitivity}).
+%
+We will enforce this by imposing additional constraints on the \emph{image} of $s$.
+
+\begin{toappendix}
+    \begin{proposition}
+        \label{prop:counterexample-transitivity}
+        $\leqs$ is not necessarily transitive.
+    \end{proposition}
+    \begin{proof}
+        We give a counter-example of $s$ that would violate transitivity.
+        Consider this section $s : \SList(\Nat) \to \List(\Nat)$, we can define a sort function
+        $\term{sort} : \SList(\Nat) \to \List(\Nat)$ which sorts $\SList(\Nat)$ ascendingly. We can use $\term{sort}$
+        to construct $s$.
+        \begin{align*}
+            s(xs)        & = \begin{cases}
+                                 \term{sort}(xs)                 & \text{if $\term{length}(xs)$ is odd} \\
+                                 \term{reverse}(\term{sort}(xs)) & \text{otherwise}
+                             \end{cases} \\
+            s([2,3,1,4]) & = [4,3,2,1]                                                                     \\
+            s([2,3,1])   & = [1,2,3]
+        \end{align*}
+    \end{proof}
+\end{toappendix}
+
+\begin{definition}[$\blank\in\im{s}$]
+    \label{def:in-image}
+    The fiber of $s$ over~$xs : \LL(A)$ is given by $\fib_{s}(xs) \defeq \dsum{ys : \MM(A)}{s(ys) = xs}$.
+    %
+    The image of $s$ is given by $\im{s} \defeq \dsum{xs : \LL(A)}{\Trunc[-1]{\fib_{s}(xs)}}$.
+    %
+    Simplifying, we say that $xs:\LL(A)$ is ``in the image of $s$'', or, $xs \in \im{s}$,
+    if there merely exists a $ys:\MM(A)$ such that $s(ys) = xs$.
 \end{definition}
 
-If $s$ were a sort function, the image of $s$ would be the set of sorted lists, therefore
-$\issorted(xs)$ would imply $xs$ is a sorted (or ordered) list.
-
-\begin{proposition}\label{sort:sort-to-order}
-    $x \preccurlyeq y$ \; iff \; $\issorted([x, y])$.
+If $s$ \emph{were} a sort function, the image of $s$ would be the set of $s$-``sorted'' lists,
+therefore $\inimage{xs}$ would imply $xs$ is a correctly $s$-``sorted'' list.
+%
+First, we note that the 2-element case is correct.
+%
+\begin{proposition}
+    \label{sort:sort-to-order}
+    $x \leqs y$ \; iff \; $\inimage{[x, y]}$.
 \end{proposition}
-
-\noindent
-To prevent this class of counter-examples, we now introduce our first axiom of sorting:
-\begin{definition}\label{sort:head-least}
-    A section $s$ to $q$ satisfies $\isheadleast$ iff:
+%
+\noindent Then, we state the first axiom on $s$.
+\begin{definition}[$\isheadleast$]
+    \label{sort:head-least}
+    A section $s$ satisfies $\isheadleast$ iff for all $x, y, xs$:
     \[
-        \forall x\, y\, xs.\, \issorted(x \cons xs) \land y \in (x \cons xs) \to \issorted([x,y])
-        \enspace .
+        y \in x \cons xs \; \land \; \inimage{x \cons xs} \; \to \; \inimage{[x, y]}
+        \enspace.
     \]
 \end{definition}
-Here we use the definition of $\in$ from~\cref{comb:member}. Informally,
-if $s$ were a sort function, this states if
-$x$ is the smallest element of a sorted list $ys$, then for any element $y \in ys$,
-$[x, y]$ should be also a sorted list.
-%
-This ensures that $s$ behaves correctly on 2-element lists.
+\noindent
+We use the definition of list membership from~\cref{def:membership},
+but the $\in$ symbol is overloaded -- this is intentional.
+The axiom looks like a logical ``cut'' rule,
+and the idea is to convey that membership in lists ``cuts'' against membership in $s$-``sorted'' lists,
+making the head of the list the least element.
 
 \begin{proposition}
-    If $A$ has a total order $\leq$, insertion sort $\MM(A) \to \LL(A)$ defined with $\leq$
-    satisfies $\isheadleast$.
+    \label{prop:order-to-sort-head-least}
+    If $A$ has a total order $\leq$,
+    insertion sort defined using $\leq$ satisfies $\isheadleast$.
 \end{proposition}
 
-\begin{proposition}\label{sort:trans}
-    Assuming $s$ satisfies $\isheadleast$, $\preccurlyeq$ is transitive.
+\begin{proposition}
+    \label{sort:trans}
+    If $s$ satisfies $\isheadleast$, $\leqs$ is transitive.
 \end{proposition}
 \begin{proof}
-    We use a weaker version of the axiom where $x \cons xs$ is fixed to have length of 3.
-    We are given $x \preccurlyeq y$ and $y \preccurlyeq z$, we want to show $x \preccurlyeq z$.
-    Consider the 3-element $\bag{x,y,z} : \MM(A)$. Let $u$ be $\term{least}(\bag{x,y,z})$,
+    Given $x \leqs y$ and $y \leqs z$, we want to show $x \leqs z$.
+    Consider the 3-element bag $\bag{x,y,z} : \MM(A)$.
+    %
+    Let $u$ be $\term{least}(\bag{x,y,z})$,
     by~\cref{sort:head-least} and~\cref{sort:sort-to-order},
-    we have $u \preccurlyeq x \land u \preccurlyeq y \land u \preccurlyeq z$.
-    Since $u \in \bag{x,y,z}$, $u$ must be one of the element. We prove transitivity by case splitting.
-    If $u = x$ we have $x \preccurlyeq z$. If $u = y$ we have $y \preccurlyeq x$, and since
-    $x \preccurlyeq y$ and $y \preccurlyeq z$ by assumption,
-    we have $x = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
-    Finally, if $u = z$, we have $z \preccurlyeq y$, and since
-    $y \preccurlyeq z$ and $x \preccurlyeq y$ by assumption,
-    we have $z = y$ by antisymmetry and then we have $x \preccurlyeq z$ by substitution.
+    we have $u \leqs x \land u \leqs y \land u \leqs z$.
+    %
+    Since $u \in \bag{x,y,z}$, $u$ must be one of the elements.
+    %
+    If $u = x$ we have $x \leqs z$.
+    If $u = y$ we have $y \leqs x$,
+    and since $x \leqs y$ and $y \leqs z$ by assumption,
+    we have $x = y$ by antisymmetry, and then we have $x \leqs z$ by substitution.
+    Finally, if $u = z$, we have $z \leqs y$, and since $y \leqs z$ and $x \leqs y$ by assumption,
+    we have $z = y$ by antisymmetry, and then we have $x \leqs z$ by substitution.
 \end{proof}
 
 \subsubsection{Embedding orders into sections}
 
-We have shown that a section $s$ that satisfies $\isheadleast$ would imply a total order
-$x \preccurlyeq y \defeq \term{least}(\bag{x, y}) = x$,
-and a total order $\leq$ would imply a section that satisfies $\isheadleast$ which can
-be constructed by insertion sort with $\leq$. Now, can we construct a full equivalence
-between sections $\MM(A) \to \LL(A)$ that satisfy $\isheadleast$ and total orders on $A$?
+Following from \cref{sort:almost-total,sort:trans},
+and \cref{prop:order-to-sort-head-least},
+we have shown that a section $s$ that satisfies $\isheadleast$ produces a total order
+$x \leqs y \defeq \term{least}(\bag{x, y}) \id \inr(x)$,
+and a total order $\leq$ produces a section satisfying $\isheadleast$,
+constructed by sorting with $\leq$.
+%
+This constitutes an embedding of decidable total orders into sections satisfying $\isheadleast$.
 
 \begin{proposition}\label{sort:o2s2o}
     Assume $A$ has a decidable total order $\leq$, we can construct a section $s$ that
-    satisfies $\isheadleast$, such that $\preccurlyeq$ constructed from $s$ is equivalent
+    satisfies $\isheadleast$, such that $\leqs$ constructed from $s$ is equivalent
     to $\leq$.
 \end{proposition}
-
 \begin{proof}
-    We define our section $s : \MM(A) \to \LL(A)$ satisfying $\isheadleast$ to be
-    insertion sort defined on $A$ by $\leq$.
-    It is trivial to see $\issortedany_{\term{s}}([x, y])$ iff $x \leq y$ by the definition
-    of insertion sort. By~\cref{sort:sort-to-order} we can see $x \preccurlyeq y$ iff $x \leq y$.
-    We now have a total order $x \preccurlyeq y$ equivalent to $x \leq y$.
+    By the insertion sort algorithm parameterized by $\leq$,
+    it holds that $\inimage{[x, y]}$ iff $x \leq y$.
+    By~\cref{sort:sort-to-order}, we have $x \leqs y$ iff $x \leq y$.
+    We now have a total order $x \leqs y$ equivalent to $x \leq y$.
 \end{proof}
 
-We now have one side of the isomorphism, and showed the set of decidable total order of $A$
-can be embedded into the set of sections $s$ that satisfy $\isheadleast$.
-
 \subsubsection{Equivalence of order and sections}
-To upgrade the embedding to an isomorphism, all that is left
-is to show we can turn a section satisfying $\isheadleast$ to a total order $\preccurlyeq$, and construct the
-same section back from $\preccurlyeq$. Unfortunately, this fails!
+
+To upgrade the embedding to an isomorphism, it is left
+to show that we can turn a section satisfying $\isheadleast$ to a total order $\leqs$,
+and construct the \emph{same} section back from $\leqs$. Unfortunately, this fails!
+\redtext{Move to appendix?}
 
 \begin{proposition}
     Assume $A$ is a set with different elements, i.e. $\exists x, y: A.\,x \neq y$,
@@ -322,8 +342,8 @@ same section back from $\preccurlyeq$. Unfortunately, this fails!
         s(\bag{2,3,1})                 & = [1, 3, 2]                           \\
         s(\bag{2,3})                   & = [2, 3]                              \\
     \end{align*}
-    By~\cref{sort:o2s2o} we can use $\term{sort}$ to construct $\preccurlyeq$ which would be
-    equivalent to $\leq$. However, the $\preccurlyeq$ constructed by $s$ would also be equivalent
+    By~\cref{sort:o2s2o} we can use $\term{sort}$ to construct $\leqs$ which would be
+    equivalent to $\leq$. However, the $\leqs$ constructed by $s$ would also be equivalent
     to $\leq$. This is because $s$ sorts 2-element list correctly, despite $s \neq \term{sort}$.
     Since two different sections satisfying $\isheadleast$ maps to the same total order,
     there cannot be a full equivalence.
@@ -331,14 +351,15 @@ same section back from $\preccurlyeq$. Unfortunately, this fails!
 
 As we can see, we need more constraints to prove a full equivalence.
 We introduce our second axiom of sorting:
-\begin{definition}
+\begin{definition}[$\istailsort$]
+    \label{def:tail-sort}
     A section $s$ to $q$ satisfies $\istailsort$ iff
     $\forall x\,xs.\,\issorted(x \cons xs) \to \issorted(xs)$.
 \end{definition}
 
 To prove that this axiom is correct, we need to show a section $s$ satisfying
 $\isheadleast$ and $\istailsort$ would be equal to insertion sort parameterized by
-the $\preccurlyeq$ constructed from $s$. To prove this, we introduce an inductive data type
+the $\leqs$ constructed from $s$. To prove this, we introduce an inductive data type
 for a witness of sorted lists, taken from~\cite{appelVerifiedFunctionalAlgorithms2023}.
 
 \begin{code}
@@ -368,31 +389,31 @@ $\term{Sorted}_{\leq}$ would equal to insertion sort by function extensionality.
 
 \begin{corollary}\label{sort:well-behave-sorts}
     Given a section $s$ that satisfies $\isheadleast$ and $\istailsort$,
-    let $\preccurlyeq$ be the order derived from $s$,
-    $\forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$.
+    let $\leqs$ be the order derived from $s$,
+    $\forall xs.\,\term{Sorted}_{\leqs}(s(xs))$.
 \end{corollary}
 \begin{proof}
     For lists of length 0 and 1 this is trivial. For further cases we need to prove by induction:
     given a $xs : \MM(A)$ of length $\geq 2$, let $s(xs) = x \cons y \cons ys$. We need to show
-    $x \preccurlyeq y \land \term{Sorted}_{\preccurlyeq}(y \cons ys)$ to construct
-    $\term{Sorted}_{\preccurlyeq}(x \cons y \cons ys)$.
-    By $\isheadleast$ we have $x \preccurlyeq y$, and by $\istailsort$ we can prove
-    inductively $\term{Sorted}_{\preccurlyeq}(y \cons ys)$.
+    $x \leqs y \land \term{Sorted}_{\leqs}(y \cons ys)$ to construct
+    $\term{Sorted}_{\leqs}(x \cons y \cons ys)$.
+    By $\isheadleast$ we have $x \leqs y$, and by $\istailsort$ we can prove
+    inductively $\term{Sorted}_{\leqs}(y \cons ys)$.
 \end{proof}
 
 We can now prove the full equivalence:
 \begin{proposition}\label{sort:s2o2s}
     Assume $A$ has a decidable total order $\leq$, then we can construct
     a section $t_\leq$ that satisfies $\isheadleast$ and $\istailsort$,
-    such that if the order $\preccurlyeq$ is derived from such a section $s$,
-    $t_\preccurlyeq = s$.
+    such that if the order $\leqs$ is derived from such a section $s$,
+    $t_{\leqs} = s$.
 \end{proposition}
 \begin{proof}
-    From $s$ we can construct a decidable total order $\preccurlyeq$ since $s$ satisfies
+    From $s$ we can construct a decidable total order $\leqs$ since $s$ satisfies
     $\isheadleast$ and $A$ has decidable equality by assumption.
-    We construct $t_\preccurlyeq$ as insertion sort
-    parameterized by $\preccurlyeq$ constructed from $s$.
-    By ~\cref{sort:sort-uniq} and ~\cref{sort:well-behave-sorts}, $s = t_\preccurlyeq$.
+    We construct $t_{\leqs}$ as insertion sort
+    parameterized by $\leqs$ constructed from $s$.
+    By ~\cref{sort:sort-uniq} and ~\cref{sort:well-behave-sorts}, $s = t_{\leqs}$.
 \end{proof}
 
 \begin{proposition}\label{sort:decord-to-deceq}
@@ -476,6 +497,6 @@ total order) matches our axioms.
 \end{proposition}
 \begin{proofsketch}
     Using our section $s$,
-    we have $p : \forall xs.\,\term{Sorted}_{\preccurlyeq}(s(xs))$ by~\cref{sort:well-behave-sorts}.
+    we have $p : \forall xs.\,\term{Sorted}_{\leqs}(s(xs))$ by~\cref{sort:well-behave-sorts}.
     We set $\term{sort} = (s \comp q ,\,p \comp q)$, and the rest follows by calculation.
 \end{proofsketch}

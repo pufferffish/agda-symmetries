@@ -60,6 +60,10 @@
 \newcommand{\inr}{\term{inr}}
 \newcommand{\copair}[1]{[#1]}
 
+% FIXME: mathsmaller
+\providecommand{\mathsmaller}{}
+\renewcommand{\mathsmaller}[1]{#1}
+
 % identity type
 \NewDocumentCommand{\id}{E{^_}{{}{}}}{
   \mathrel{
@@ -141,7 +145,7 @@
 % dependent sum
 \NewDocumentCommand{\dsum}{smm}{
   \IfBooleanTF{#1}
-  {\displaystyle\sum\limits_{\mathsmaller{#2}}{#3}}
+  {\sum_{{#2}}{#3}}
   {\textstyle\sum_{({#2})}{#3}}
 }
 \newcommand{\pair}[1]{\ps{#1}}
