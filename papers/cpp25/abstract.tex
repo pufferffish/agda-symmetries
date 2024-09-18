@@ -1,22 +1,21 @@
 % !TEX root = cpp25-sort.tex
 
-Sorting algorithms are fundamental to computer science, and their correctness
-criteria are well understood as rearranging elements of a list
-according to a specified total order on the underlying set of elements.
-We give a conceptual reconstruction of this point of view, by considering
-sorting algorithms as abstract functions instead -- sorting functions determine a
-well-behaved section (right inverse) to the canonical surjection sending a free
-monoid to a free commutative monoid of its elements.
-Introducing symmetry by passing from free monoids to free commutative monoids
+Sorting algorithms are fundamental to computer science,
+and their correctness criteria are well understood as
+rearranging elements of a list according to a specified total order on the underlying set of elements.
+Unfortunately, as mathematical functions, they are rather violent,
+because they perform combinatorial operations on the representation of the input list.
+In this paper, we study sorting algorithms conceptually as abstract sorting functions.
+We show that sorting functions determine a well-behaved section (right inverse)
+to the canonical surjection sending a free monoid to a free commutative monoid of its elements.
+Introducing symmetry by passing from free monoids (ordered lists) to free commutative monoids (unordered lists)
 eliminates ordering, while sorting (the right inverse) recovers ordering.
 From this, we give an axiomatization of sorting which does not require a
 pre-existing total order on the underlying set, and then show that there is an
 equivalence between (decidable) total orders on the underlying set and correct
 sorting functions.
 
-The first part of the paper develops concepts from universal algebra and various
-constructions of free monoids and free commutative monoids, which are used to
-develop the second part of the paper about the axiomatization of sorting
-functions.
-The paper uses informal mathematical language, and comes with an accompanying
-formalization in Cubical Agda.
+The first part of the paper develops concepts from universal algebra from the point of view of functorial signatures,
+and gives various constructions of free monoids and free commutative monoids in type theory,
+which are used to develop the second part of the paper about the axiomatization of sorting functions.
+The paper uses informal mathematical language, and comes with an accompanying formalization in Cubical Agda.
