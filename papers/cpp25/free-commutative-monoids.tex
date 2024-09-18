@@ -83,8 +83,8 @@ and $\ext{(\blank)}$ for the extension operation of $\quot{F(A)}{\approx}$.
 \begin{propositionrep}[Universal property for $\quot{\str{F}(A)}{\approx}$]
     \label{prop:qfreemon}
     \leavevmode
-    $(\quot{\str{F}(A)}{\approx},\, \eta_A : A \xto{q} \str{F}(A) \to \quot{\str{F}(A)}{\approx})$
-    is the free commutative monoid on $A$.
+    $(\quot{\str{F}(A)}{\approx}, \eta_A : {A \xto{\eta_A} \str{F}(A) \xto{q} \quot{\str{F}(A)}{\approx}})$
+    is the free comm. monoid on $A$.
 \end{propositionrep}
 \begin{proof}
     To show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$,
@@ -156,7 +156,7 @@ to show $\PList$ is the free commutative monoid.
     back to $\ext{f}((z \cons zs)\,\concat\,y \cons x \cons ys)$ by homomorphism properties of $\ext{f}$.
 \end{proof}
 
-\subsubsection*{Remark on representation}\label{plist:rep}
+\subsubsection*{Remarks}\label{plist:rep}
 With this representation it is very easy to lift functions and properties defined on $\List$
 to $\PList$ since $\PList$ is a quotient of $\List$. The inductive nature of $\PList$ makes it
 very easy to define algorithms and proofs that are inductive in nature, e.g. defining insertion sort
@@ -245,7 +245,7 @@ data SList (A : UU) : UU where
     \end{proof}
 \end{toappendix}
 
-\subsubsection*{Remark on representation}\label{slist:rep}
+\subsubsection*{Remarks}\label{slist:rep}
 Much like $\PList$ and $\List$, $\SList$ is inductively defined, therefore making it very intuitive to reason
 with when defining inductive operations or inductive proofs on $\SList$, however difficult to reason with
 when defining operations that involve arbitrary partitioning, for reasons similar to those given
@@ -456,7 +456,7 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
     \end{itemize}
 \end{proof}
 
-\subsubsection*{Remark on representation}\label{bag:rep}
+\subsubsection*{Remarks}\label{bag:rep}
 
 Unlike $\PList$ and $\SList$, $\Bag$ and its underlying construction $\Array$ are not inductively defined,
 making it difficult to work with when trying to do induction on them. For example,

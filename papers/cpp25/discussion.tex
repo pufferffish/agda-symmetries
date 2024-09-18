@@ -5,7 +5,7 @@
 
 We conclude by discussing some high-level observations, related work, and future directions.
 
-\subsection*{Free commutative monoids}
+\subsubsection*{Free commutative monoids}
 
 The construction of finite multisets and free commutative monoids has a long history, and various authors have different
 approaches to it. We refer the reader to the discussions
@@ -22,7 +22,7 @@ This has led various authors to think about clever encodings of free commutative
 assumptions on the carrier set -- in particular, the assumption of total ordering on the carrier set leads to the
 construction of ``fresh-lists'', by~\cite{kupkeFreshLookCommutativity2023}, which forces the canonical \emph{sorted}
 ordering on the elements of the finite multiset.
-%
+
 It is worth noting that in programming practice,
 it is usually the case that all user-defined types have some sort of total order enforced on them,
 either because they're finite, or they can be enumerated in some way.
@@ -30,7 +30,7 @@ either because they're finite, or they can be enumerated in some way.
 Therefore, under these assumptions, the construction of fresh lists is a very reasonable way to represent free
 commutative monoids, or finite multisets.
 
-\subsection*{Sorting}
+\subsubsection*{Correctness of Sorting}
 
 Sorting is a classic problem in computer science, and the functional programming view of sorting and its correctness has
 been studied by various authors.
@@ -40,14 +40,29 @@ which permutes the list and outputs an ordered list, which is studied in~\cite{a
 %
 Fundamentally, this is a very extrinsic view of program verification, which is common in the \emph{Coq} community,
 and further, a very special case of a more general sorting algorithm.
+
+\citeauthor*{hengleinWhatSortingFunction2009} in~\citetitle{hengleinWhatSortingFunction2009}
+\cite{hengleinWhatSortingFunction2009}, studies sorting functions abstractly,
+without requiring a total order on the underlying set.
 %
-The more refined intrinsic view of correct sorting has been studied in~\cite{hinzeSortingBialgebrasDistributive2012},
+He considers sorting functions as functions on sequences (lists),
+and recovers the order by ``sorting'' an $n$-element list,
+and looking up the position of the elements to be compared.
+%
+Unlike us, \citeauthor*{hengleinWhatSortingFunction2009} does not factorize the sorting function
+through free commutative monoids, but the ideas are extremely similar.
+%
+We are able to give a more refined axiomatization of sorting because we consider the symmetries, or permutations,
+explicitly, and work in a constructive setting (using explicit assumptions about decidability),
+and this is a key improvement over this previous work.
+
+The other more refined intrinsic view of correct sorting has been studied in~\cite{hinzeSortingBialgebrasDistributive2012},
 and further expanded in~\cite{alexandruIntrinsicallyCorrectSorting2023}, which matches our point of view, as explained
 in~\cref{prop:sort-correctness}.
 %
-Their work is not just about extensional correctness of sorting, but also deriving various sorting algorithms
+However, their work is not just about extensional correctness of sorting, but also deriving various sorting algorithms
 starting from bialgebraic semantics and distributive laws.
-
+%
 Our work is complementary to theirs, in that we are not concerned with the computational content of sorting, but rather
 the abstract properties of sorting functions, which are independent of a given ordering.
 %
@@ -58,7 +73,7 @@ This paper only talks about sorting lists and bags, but the abstract property of
 applied to more general inductive types. We speculate that this could lead to some interesting connections with sorting
 (binary) trees, and constructions of (binary) search trees, from classical computer science.
 
-\subsection*{Algebra}
+\subsubsection*{Universal Algebra}
 
 One of the contributions of our work is also a rudimentary framework for universal algebra, but done in a more
 categorical style, which lends itself to an elegant formalization in type theory.

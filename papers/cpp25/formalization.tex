@@ -9,39 +9,37 @@ and is accessible without understanding any details of the formalization.
 However, the formalization is done in Cubical Agda, which has a few differences and a few
 shortcomings due to proof engineering issues.
 
-For simplicity we omitted type levels in the paper, but our formalization constructions
-are generalized to all type-levels.
-The free algebra framework in the formalization is
-parameterized by any h-levels, but it currently only works with sets.
-We also note the axioms of sorting in the formalization is named differently,
-% $\issorted$ is $\term{is-sorted}$
-% $\isheadleast$ is $\term{is-head-least}$, and
-% $\istailsort$ is $\term{is-tail-sort}$.
-We give a table of the Agda file names and their corresponding sections in the paper
-at~\cref{appendix:formalizations}.
+For simplicity we omitted type levels in the paper,
+but our formalization has many verbose uses of universe levels due to Agda's universe polymorphism.
+Similarly, h-levels were restricted to sets in the paper, but the formalization is parameterized in many places for any
+h-level (to facilitate future generalizations).
+The free algebra framework currently only works with sets.
+Due to issues of regularlity, certain computations only hold propositionally,
+and the formalization requires proving auxiliary $\beta$ and $\eta$ computation rules in somce places.
+We also note the axioms of sorting in the formalization are named differently from the paper.
+We give a table of the Agda module names and their corresponding sections in the paper
+in~\cref{tab:formalised-results}.
 
-\begin{toappendix}
-    \begin{table}[h]\label{appendix:formalizations}
-        \centering
-        \begin{tabular}{lll}
-            \hline
-            \textbf{Code}                                   & \textbf{Description}        & \textbf{Reference}                                   \\ \hline
-            \texttt{index}                                  & Index of all files          & N/A                                                  \\
-            \texttt{Cubical.Structures.Free}                & Free algebra                & (Section~\cref{sec:universal-algebra:free-algebras}) \\
-            \texttt{Cubical.Structures.Sig}                 & Algebra signature           & (Section~\cref{algebra:signature})                   \\
-            \texttt{Cubical.Structures.Str}                 & Algebra structure           & (Section~\cref{algebra:struct})                      \\
-            \texttt{Cubical.Structures.Eq}                  & Algebra equations           & (Section~\cref{sec:universal-algebra:equations})     \\
-            \texttt{Cubical.Structures.Tree}                & Tree                        & (Section~\cref{algebra:tree})                        \\
-            \texttt{Cubical.Structures.Set.Mon.List}        & $\term{List}$               & (Section~\cref{mon:lists})                           \\
-            \texttt{Cubical.Structures.Set.Mon.Array}       & $\term{Array}$              & (Section~\cref{mon:array})                           \\
-            \texttt{Cubical.Structures.Set.CMon.QFreeMon}   & Quotiented-free monoid      & (Section~\cref{cmon:qfreemon})                       \\
-            \texttt{Cubical.Structures.Set.CMon.PList}      & Quotiented-list             & (Section~\cref{cmon:plist})                          \\
-            \texttt{Cubical.Structures.Set.CMon.SList}      & Swapped-list                & (Section~\cref{cmon:slist})                          \\
-            \texttt{Cubical.Structures.Set.CMon.Bag}        & Bag                         & (Section~\cref{cmon:bag})                            \\
-            \texttt{Cubical.Structures.Set.CMon.SList.Sort} & Sort and order relationship & (Section~\cref{sec:sorting})                         \\
-            \hline
-        \end{tabular}
-        \caption{Status of formalised results}
-        \label{tab:formalised_results}
-    \end{table}
-\end{toappendix}
+\begin{table*}
+    \centering
+    \begin{tabular}{lll}
+        \hline
+        \textbf{Module}                                 & \textbf{Description}   & \textbf{Reference}                         \\ \hline
+        \texttt{index}                                  & Index of all files     & N/A                                        \\
+        \texttt{Cubical.Structures.Free}                & Free algebras          & \cref{sec:universal-algebra:free-algebras} \\
+        \texttt{Cubical.Structures.Sig}                 & Algebraic signatures   & \cref{algebra:signature}                   \\
+        \texttt{Cubical.Structures.Str}                 & Algebraic structures   & \cref{algebra:struct}                      \\
+        \texttt{Cubical.Structures.Eq}                  & Equational theories    & \cref{sec:universal-algebra:equations}     \\
+        \texttt{Cubical.Structures.Tree}                & Trees                  & \cref{algebra:tree}                        \\
+        \texttt{Cubical.Structures.Set.Mon.List}        & Lists                  & \cref{mon:lists}                           \\
+        \texttt{Cubical.Structures.Set.Mon.Array}       & Arrays                 & \cref{mon:array}                           \\
+        \texttt{Cubical.Structures.Set.CMon.QFreeMon}   & Quotiented-free monoid & \cref{cmon:qfreemon}                       \\
+        \texttt{Cubical.Structures.Set.CMon.PList}      & Quotiented-list        & \cref{cmon:plist}                          \\
+        \texttt{Cubical.Structures.Set.CMon.SList}      & Swapped-list           & \cref{cmon:slist}                          \\
+        \texttt{Cubical.Structures.Set.CMon.Bag}        & Bag                    & \cref{cmon:bag}                            \\
+        \texttt{Cubical.Structures.Set.CMon.SList.Sort} & Sort functions         & \cref{sec:application}                     \\
+        \hline
+    \end{tabular}
+    \caption{Status of formalised results}
+    \label{tab:formalised-results}
+\end{table*}

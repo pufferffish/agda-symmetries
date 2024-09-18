@@ -29,7 +29,8 @@ but decidability allows us to actually compute if $x \leq y$ is true.
     Further, this makes $A$ discrete, that is ${\forall x, y}, \ps{x \id y} + \ps{x \neq y}$.
 \end{proposition}
 %
-An equivalent way to define a total order is using a binary meet operation.
+\noindent
+An equivalent way to define a total order is using a binary meet operation (without starting from an ordering relation).
 \begin{definition}[Meet semi-lattice]
     \label{def:meet-semi-lattice}
     A meet semi-lattice is a set $A$ with a binary operation $\blank\meet\blank : A \to A \to A$ that is:
@@ -147,7 +148,7 @@ and the implications of its existence is that $A$ can be ordered, or sorted.
 \end{proposition}
 
 \begin{proofsketch}
-    We can construct such a sor functiont by implementing any sorting algorithm.
+    We can construct such a sort function by implementing any sorting algorithm.
     In our formalization we chose insertion sort,
     because it can be defined easily using the inductive structure of $\SList(A)$ and $\List(A)$.
     To implement other sorting algorithms like mergesort,
@@ -157,8 +158,8 @@ and the implications of its existence is that $A$ can be ordered, or sorted.
     imposing and then forgetting an order on $xs$ simply \emph{permutes} its elements,
     which proves $q \comp s \htpy \idfunc$.
 \end{proofsketch}
-
-\redtext{This has been done before\ldots definable quotients\ldots we want to go the other way.}
+\noindent
+This is not surprising\ldots we want to go the other way.
 
 \subsubsection{Order from Section}
 
@@ -496,7 +497,7 @@ We can now state and prove our main theorem.
 The sorting axioms we have come up with are abstract properties of functions.
 %
 As a sanity check, we can verify that the colloquial correctness specification of a sorting function (starting from a
-total order) matches our axioms. We consider the correctness criterion in~\cite{alexandruIntrinsicallyCorrectSorting2023}.
+total order) matches our axioms. We consider the correctness criterion developed in~\cite{alexandruIntrinsicallyCorrectSorting2023}.
 %
 \begin{proposition}
     \label{prop:sort-correctness}
