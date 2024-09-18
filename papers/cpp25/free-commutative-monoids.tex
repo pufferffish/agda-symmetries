@@ -1,45 +1,41 @@
 % !TEX root = cpp25-sort.tex
 
-\section{Construction of Free Commutative Monoids}
+\section{Constructions of Free Comm. Monoids}
 \label{sec:commutative-monoids}
 
-The next step for us is to add commutativity -- extending our constructions of free monoids to free commutative monoids.
+The next step is to add commutativity to each construction of free monoids.
 %
 Informally, adding commutativity to free monoids turns ``ordered lists'' to ``unordered lists'',
 where the ordering is the one imposed by the position or index of the elements in the list.
 %
 This is crucial to our goal of studying sorting,
-as we will study sorting as a function from unordered lists to ordered lists.
+as we will study sorting as a function mapping back unordered lists to ordered lists,
 which is later in~\cref{sec:sorting}.
 
-It is known that finite multisets are commutative monoids (in fact, free commutative monoids),
+It is known that finite multisets are (free) commutative monoids,
 under the operation of multiset union: $xs \cup ys = ys \cup xs$.
 %
-Its order is ``forgotten'' in the sense that it doesn't matter how two multisets are union-ed together,
-or in more concrete terms, for example, $\bag{a, a, b, c} = \bag{b, a, c, a}$ are equal as finite multisets
+The order is ``forgotten'' in the sense that it doesn't matter how two multisets are union-ed together,
+such as, $\bag{a, a, b, c} = \bag{b, a, c, a}$ are equal as finite multisets
 (justifying the bag notation).
 %
-This is unlike free monoids, using $\List$ for example,
+This is unlike free monoids,
 where $[a, a, b, c] \neq [b, a, c, a]$ (justifying the list notation).
 
 \subsection{Free monoids with a quotient}\label{cmon:qfreemon}
 
-Instead of constructing free commutative monoids directly, the first construction we study is to take a free monoid and
-impose commutativity on it.
-%
-We do this generally, by giving a construction of free commutative monoid as a quotient of \emph{any} free monoid.
+Instead of constructing free commutative monoids directly,
+the first construction we study is to take \emph{any} free monoid and quotient by \emph{symmetries}.
 %
 Specific instances of this construction are given in~\cref{cmon:plist,cmon:bag}.
 
 From the universal algebraic perspective developed in~\cref{sec:universal-algebra},
-we can ask what it means to extend the equational theory of a given algebraic signature with symmetries --
-or how to construct a free commutative monoid as a quotient of a free monoid.
+this means to extend the equational theory of a given algebraic signature with symmetries.
 %
 If $(\str{F}(A), \eta)$ is a free monoid construction satisfying its universal property,
-then we'd like to quotient $F(A)$ by an \emph{appropriate} symmetry relation $\approx$,
-that turns it into a free commutative monoid.
+then we'd like to quotient $F(A)$ by an \emph{appropriate} symmetry relation $\approx$.
 %
-This is exactly the specification of a \emph{permutation relation}!
+This is exactly a \emph{permutation relation}!
 
 % $(\str{F}(A), i, \mult)$ quotiented by a permutation relation $({F(A) / \approx}, e, \concat)$
 % would be the free commutative monoid on $A$.
@@ -56,15 +52,14 @@ This is exactly the specification of a \emph{permutation relation}!
     \end{itemize}
 \end{definition}
 
-Let $q : F(A) \to \quot{F(A)}{\approx}$ be the quotient map (inclusion into the quotient).
+Let $q : F(A) \twoheadrightarrow \quot{F(A)}{\approx}$ be the quotient (inclusion) map.
 %
 The generators map is given by $q \comp \eta_A$, the identity element is $q(e)$,
-and the $\concat$ operation can also be lifted to the quotient by congruence.
+and the $\mult$ operation is lifted to the quotient by congruence.
 
-\begin{proposition}
-    $(\quot{\str{F}(A)}{\approx}, \concat, q(e))$ is a commutative monoid.
-\end{proposition}
-
+\begin{propositionrep}
+    $(\quot{\str{F}(A)}{\approx}, \mult, q(e))$ is a commutative monoid.
+\end{propositionrep}
 \begin{proof}
     Since $\approx$ is a congruence wrt $\mult$,
     we can lift $\mult : F(A) \to F(A) \to F(A)$ to the quotient to obtain
@@ -73,7 +68,7 @@ and the $\concat$ operation can also be lifted to the quotient by congruence.
     Commutativity of $\concat$ follows from the commutativity requirement of $\approx$,
     therefore $(\quot{F(A)}{\approx}, \concat, q(i))$ forms a commutative monoid.
 \end{proof}
-
+\noindent
 For clarity, we will use $\exthat{(\blank)}$ to denote the extension operation of $F(A)$,
 and $\ext{(\blank)}$ for the extension operation of $\quot{F(A)}{\approx}$.
 
@@ -85,18 +80,12 @@ and $\ext{(\blank)}$ for the extension operation of $\quot{F(A)}{\approx}$.
     to $\quot{\str{F}(A)}{\approx} \to \str{X}$, which is allowed since $\approx$ respects $\ext{(\blank)}$.
 \end{definition}
 
-Using the correct specification of a permutation relation, we can prove that $\quot{\str{F}(A)}{\approx}$ gives the free
-commutative monoid on $A$.
-
-% \begin{lemma}
-%     For all $f : A \to X$, $x : \str{F}(A)$, $\ext{f}(q(x))$ reduces to $\exthat{f}(x)$.
-% \end{lemma}
-
-\begin{proposition}[Universal property for $\quot{\str{F}(A)}{\approx}$]
-    $(\quot{\str{F}(A)}{\approx}, \eta_A : A \xto{q} \str{F}(A) \to \quot{\str{F}(A)}{\approx})$
+\begin{propositionrep}[Universal property for $\quot{\str{F}(A)}{\approx}$]
+    \label{prop:qfreemon}
+    \leavevmode
+    $(\quot{\str{F}(A)}{\approx},\, \eta_A : A \xto{q} \str{F}(A) \to \quot{\str{F}(A)}{\approx})$
     is the free commutative monoid on $A$.
-\end{proposition}
-
+\end{propositionrep}
 \begin{proof}
     To show that $\ext{(\blank)}$ is an inverse to $(\blank) \comp \eta_A$,
     we first show $\ext{(\blank)}$ is the right inverse to $(\blank) \comp \eta_A$.
@@ -124,13 +113,13 @@ commutative monoid on $A$.
 
 \subsection{Lists quotiented by permutation}\label{cmon:plist}
 
-A specific instance of this construction would be $\List$ quotiented with permutation to get commutativity. This
-construction is also considered in~\cite{joramConstructiveFinalSemantics2023}, who give a proof that $\PList$ is
-equivalent to the free commutative monoid as a HIT. We give a direct proof of its universal property using our
-generalistaion.
+A specific instance of this construction is $\List$ quotiented by a permutation relation to get commutativity.
+We study one such construction ($\PList$), considered in~\cite{joramConstructiveFinalSemantics2023},
+who give a proof that $\PList$ is equivalent to the free commutative monoid (constructed as a HIT).
+We give a direct proof of its universal property using our generalisation.
 
-The permutation relation on lists is as follows -- it swaps any two adjacent elements somewhere in the middle of the list.
-This is only one example of such a relation, of course, there are many such in the literature.
+Of course, there are many permutation relations in the literature, we consider
+the one which swaps any two adjacent elements somewhere in the middle of the list.
 \begin{definition}[PList]
     \leavevmode
     \begin{code}
@@ -144,23 +133,17 @@ PList : UU -> UU
 PList A = List A quot Perm
     \end{code}
 \end{definition}
-
-We have already given a proof of $\List$ being the free monoid in~\cref{mon:lists}.
-By~\cref{cmon:qfreemon} it suffices to show $\Perm$ satisfies the axioms of permutation relation
+\vspace*{-2em}
+By~\cref{cmon:qfreemon}, it suffices to show $\Perm$ satisfies the axioms of permutation relation
 to show $\PList$ is the free commutative monoid.
 
-It is trivial to see how $\Perm$ satisfies reflexivity, symmetry, transitivity.
-We can also prove $\Perm$ is congruent wrt to $\concat$ inductively.
-Commutativity is proven similarly, like the proof for $\SList$ in~\cref{slist:comm}.
-
-\begin{proposition}\label{plist:sharp-sat}
-    Let $X$ be the carrier set of a commutative monoid $\mathfrak{X}$.
-    For all $f : A \to X$, $x, \, y : A$ and $xs, \, ys : \PList(A)$,
-    $\ext{f}(xs\,\concat\,x \cons y \cons ys) = \ext{f}(xs\,\concat\,y \cons x \cons ys)$.
-\end{proposition}
-
-With this we can prove $\Perm$ respects $\ext{(\blank)}$.
-
+\begin{propositionrep}
+    \label{plist:sharp-sat}
+    Let $\str{X}$ be a commutative monoid, and $f : A \to X$.
+    For $x,y : A$ and $xs,ys : \PList(A)$,
+    $\ext{f}(xs\,\concat\,x \cons y \cons ys) \id \ext{f}(xs\,\concat\,y \cons x \cons ys)$.
+    Hence, $\Perm$ respects $\ext{(\blank)}$.
+\end{propositionrep}
 \begin{proof}
     We can prove this by induction on $xs$. For $xs = []$, by homomorphism properties of $\ext{f}$,
     we can prove $\ext{f}(x \cons y \cons ys) = \ext{f}([ x ]) \mult \ext{f}([ y ]) \mult \ext{f}(ys)$.
@@ -188,20 +171,21 @@ divide-and-conquer algorithm such as merge sort, which involves partitioning a $
 two smaller $\PList$ of length $n$ and length $m$. The inductive nature of $\PList$ makes it such that
 we must iterate all $n$ elements before we can make such a partition, thus making $\PList$ unintuitive
 to work with when we want to reason with operations that involve arbitrary partitioning.
-
-Also, whenever we define a function on $\PList$ by pattern matching we would also need to show
-the function respects $\Perm$, i.e. $\Perm as\,bs \to f(as) = f(bs)$. This can be annoying because
-of the many auxiliary variables in the constructor $\term{perm-swap}$, namely $xs$, $ys$, $zs$.
-We need to show $f$ would respect a swap in the list anywhere between $xs$ and $ys$, which can
-unnecessarily complicate the proof. For example in the inductive step of~\cref{plist:sharp-sat},
-$\ext{f}((z \cons zs)\,\concat\,x \cons y \cons ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\concat\,x \cons y \cons ys)$,
-to actually prove this in Cubical Agda would involve first applying associativity to prove
-$(z \cons zs)\,\concat\,x \cons y \cons ys = z \cons (zs\,\concat\,x \cons y \cons ys)$, before we can actually
-apply homomorphism properties of $f$. In the final reassembling step, similarly,
-we also need to re-apply associativity to go from $z \cons (zs\,\concat\,y \cons x \cons ys)$
-to $(z \cons zs)\,\concat\,y \cons x \cons ys$. Also since we are working with an equivalence relation we
-defined ($\Perm$) and not the equality type directly, we cannot exploit the many combinators defined
-in the standard library for the equality type and often needing to re-define combinators ourselves.
+\begin{toappendix}
+    Also, whenever we define a function on $\PList$ by pattern matching we would also need to show
+    the function respects $\Perm$, i.e. $\Perm as\,bs \to f(as) = f(bs)$. This can be annoying because
+    of the many auxiliary variables in the constructor $\term{perm-swap}$, namely $xs$, $ys$, $zs$.
+    We need to show $f$ would respect a swap in the list anywhere between $xs$ and $ys$, which can
+    unnecessarily complicate the proof. For example in the inductive step of~\cref{plist:sharp-sat},
+    $\ext{f}((z \cons zs)\,\concat\,x \cons y \cons ys) = \ext{f}([ z ]) \mult \ext{f}(zs\,\concat\,x \cons y \cons ys)$,
+    to actually prove this in Cubical Agda would involve first applying associativity to prove
+    $(z \cons zs)\,\concat\,x \cons y \cons ys = z \cons (zs\,\concat\,x \cons y \cons ys)$, before we can actually
+    apply homomorphism properties of $f$. In the final reassembling step, similarly,
+    we also need to re-apply associativity to go from $z \cons (zs\,\concat\,y \cons x \cons ys)$
+    to $(z \cons zs)\,\concat\,y \cons x \cons ys$. Also since we are working with an equivalence relation we
+    defined ($\Perm$) and not the equality type directly, we cannot exploit the many combinators defined
+    in the standard library for the equality type and often needing to re-define combinators ourselves.
+\end{toappendix}
 
 \subsection{Swap-List}\label{cmon:slist}
 
@@ -211,10 +195,7 @@ congruence relation.
 Alternately, HITs use generators (points) and higher generators (paths) (and higher higher generators and so on\ldots).
 %
 We can define free commutative monoids using HITs were adjacent swaps generate all symmetries,
-for example swap-list taken from \cite{choudhuryFreeCommutativeMonoids2023}, where they have also given a proof of its
-universal property. We include this presentation for completeness, which is also a good presentation in some of our
-proofs.
-
+for example swap-lists taken from \cite{choudhuryFreeCommutativeMonoids2023} (and in the Cubical library).
 \begin{code}
 data SList (A : UU) : UU where
   nil : SList A
@@ -223,68 +204,71 @@ data SList (A : UU) : UU where
   trunc : forall x y -> (p q : x == y) -> p == q
 \end{code}
 
-The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
-thereby ignoring any higher paths introduced by the $\term{swap}$ constructor.
-This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
-because it does not have any path constructors, therefore it can be proven that $\List(A)$
-is a set assuming $A$ is a set (see formalization).
+\begin{toappendix}
+    The $\term{trunc}$ constructor is necessary to truncate $\SList$ down to a set,
+    thereby ignoring any higher paths introduced by the $\term{swap}$ constructor.
+    This is opposed to $\List$, which does not need a $\term{trunc}$ constructor
+    because it does not have any path constructors, therefore it can be proven that $\List(A)$
+    is a set assuming $A$ is a set (see formalization).
 
-\begin{definition}[Concatenation]
-    We define the concatenation operation $\concat : \SList(A) \to \SList(A) \to \SList(A)$
-    recursively, where we also have to consider the (functorial) action on the $\term{swap}$ path using $\term{ap}$.
-    \begin{align*}
-        [] \concat ys                                 & = ys                               \\
-        (x \cons xs) \concat ys                       & = x \cons (xs \concat ys)          \\
-        \term{ap}_{\concat ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \concat xs)
-    \end{align*}
-\end{definition}
+    \begin{definition}[Concatenation]
+        We define the concatenation operation $\concat : \SList(A) \to \SList(A) \to \SList(A)$
+        recursively, where we also have to consider the (functorial) action on the $\term{swap}$ path using $\term{ap}$.
+        \begin{align*}
+            [] \concat ys                                 & = ys                               \\
+            (x \cons xs) \concat ys                       & = x \cons (xs \concat ys)          \\
+            \term{ap}_{\concat ys}(\term{swap}(x, y, xs)) & = \term{swap}(x, y, ys \concat xs)
+        \end{align*}
+    \end{definition}
 
-\cite{choudhuryFreeCommutativeMonoids2023} have already given a proof of $(\SList(A), \concat, [])$ satisfying
-commutative monoid laws. We explain the proof of $\concat$ satisfying commutativity here.
+    \cite{choudhuryFreeCommutativeMonoids2023} have already given a proof of $(\SList(A), \concat, [])$ satisfying
+    commutative monoid laws. We explain the proof of $\concat$ satisfying commutativity here.
 
-\begin{lemma}[Head rearrange]\label{slist:cons}
-    For all $x : A$, $xs : \SList(A)$, $x \cons xs = xs \concat [ x ]$.
-\end{lemma}
+    \begin{lemma}[Head rearrange]\label{slist:cons}
+        For all $x : A$, $xs : \SList(A)$, $x \cons xs = xs \concat [ x ]$.
+    \end{lemma}
 
-\begin{proof}
-    We can prove this by induction on $xs$.
-    For $xs \jdgeq []$ this is trivial. For $xs \jdgeq y \cons ys$, we have the induction hypothesis $x \cons ys = ys \concat [ x ]$.
-    By applying $y \cons (\blank)$ on both side and then apply $\term{swap}$, we can complete the proof.
-\end{proof}
+    \begin{proof}
+        We can prove this by induction on $xs$.
+        For $xs \jdgeq []$ this is trivial. For $xs \jdgeq y \cons ys$, we have the induction hypothesis $x \cons ys = ys \concat [ x ]$.
+        By applying $y \cons (\blank)$ on both side and then apply $\term{swap}$, we can complete the proof.
+    \end{proof}
 
-\begin{theorem}[Commutativity]\label{slist:comm}
-    For all $xs,\,ys : \SList(A)$, $xs \concat ys = ys \concat xs$.
-\end{theorem}
+    \begin{theorem}[Commutativity]\label{slist:comm}
+        For all $xs,\,ys : \SList(A)$, $xs \concat ys = ys \concat xs$.
+    \end{theorem}
 
-\begin{proof}
-    By induction on $xs$ we can iteratively apply~\cref{slist:cons} to move all elements of $xs$
-    to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
-    $xs \concat ys = ys \concat xs$.
-\end{proof}
+    \begin{proof}
+        By induction on $xs$ we can iteratively apply~\cref{slist:cons} to move all elements of $xs$
+        to after $ys$. This would move $ys$ to the head and $xs$ to the end, thereby proving
+        $xs \concat ys = ys \concat xs$.
+    \end{proof}
+\end{toappendix}
 
 \subsubsection*{Remark on representation}\label{slist:rep}
 Much like $\PList$ and $\List$, $\SList$ is inductively defined, therefore making it very intuitive to reason
 with when defining inductive operations or inductive proofs on $\SList$, however difficult to reason with
 when defining operations that involve arbitrary partitioning, for reasons similar to those given
 in~\cref{plist:rep}.
-
-Unlike $\PList$ which is defined as a set quotient, this is defined as a HIT, therefore handling equalities
-between $\SList$ is much simpler than $\PList$. We would still need to prove a function $f$ respects
-the path constructor of $\SList$ when pattern matching, i.e. $f(x \cons y \cons xs) = f(y \cons x \cons xs)$.
-Unlike $\PList$ we do not need to worry about as many auxiliary variables since swap
-only happens at the head of the list, whereas with $\PList$ we would need to prove
-$f(xs\,\concat\,x \cons y \cons ys) = f(xs\,\concat\,y \cons x \cons ys)$. One may be tempted to just remove $xs$
-from the $\term{perm-swap}$ constructor such that it becomes
-$\term{perm-swap} : \forall x\,y\,ys\,zs \to \Perm\,(x \cons y \cons ys)\,zs \to \Perm\,(y \cons x \cons ys)\,zs$.
-However this would break $\Perm$'s congruence wrt to $\concat$, therefore violating the axioms of
-permutation relations. Also, since we are working with the identity type directly, properties we would
-expect from $\term{swap}$, such as reflexivity, transitivity, symmetry, congruence and such all comes directly by
-construction, whereas with $\Perm$ we would have to prove these properties manually.
-We can also use the many combinatorics defined in the standard library for equational reasoning,
-making the handling of $\SList$ equalities a lot simpler.
+\begin{toappendix}
+    Unlike $\PList$ which is defined as a set quotient, this is defined as a HIT, therefore handling equalities
+    between $\SList$ is much simpler than $\PList$. We would still need to prove a function $f$ respects
+    the path constructor of $\SList$ when pattern matching, i.e. $f(x \cons y \cons xs) = f(y \cons x \cons xs)$.
+    Unlike $\PList$ we do not need to worry about as many auxiliary variables since swap
+    only happens at the head of the list, whereas with $\PList$ we would need to prove
+    $f(xs\,\concat\,x \cons y \cons ys) = f(xs\,\concat\,y \cons x \cons ys)$. One may be tempted to just remove $xs$
+    from the $\term{perm-swap}$ constructor such that it becomes
+    $\term{perm-swap} : \forall x\,y\,ys\,zs \to \Perm\,(x \cons y \cons ys)\,zs \to \Perm\,(y \cons x \cons ys)\,zs$.
+    However this would break $\Perm$'s congruence wrt to $\concat$, therefore violating the axioms of
+    permutation relations. Also, since we are working with the identity type directly, properties we would
+    expect from $\term{swap}$, such as reflexivity, transitivity, symmetry, congruence and such all comes directly by
+    construction, whereas with $\Perm$ we would have to prove these properties manually.
+    We can also use the many combinatorics defined in the standard library for equational reasoning,
+    making the handling of $\SList$ equalities a lot simpler.
+\end{toappendix}
 
 \subsection{Bag}\label{cmon:bag}
-Alternatively, we can also quotient $\Array$ with symmetries to get commutativity.
+Alternatively, we can also quotient $\Array$ by symmetries to get commutativity.
 %
 This construction is first considered in~\cite{altenkirchDefinableQuotientsType2011}
 and~\cite{liQuotientTypesType2015}, then partially considered in~\cite{choudhuryFreeCommutativeMonoids2023},
@@ -295,8 +279,8 @@ the entire array.
 \cite{danielssonBagEquivalenceProofRelevant2012} also considered $\Bag$ as a setoid relation
 on $\List$ in an intensional MLTT setting.
 %
-\cite{joramConstructiveFinalSemantics2023} prove that their version of $\Bag$ is the free commutative monoid by
-equivalence to the other HIT constructions.
+\cite{joramConstructiveFinalSemantics2023} prove that their version of $\Bag$
+is the free commutative monoid by equivalence to the other HIT constructions.
 %
 We give a direct proof of its universal property instead, using the technology we have developed.
 
@@ -311,21 +295,20 @@ Bag : UU -> UU
 Bag A = Array A quot _$\approx$_
     \end{code}
 \end{definition}
-
+\vspace*{-2em}
 Note that by the pigeonhole principle, $\sigma$ can only be constructed when $n = m$, though this requires a proof in
 type theory (see the formalization).
 %
-Conceptually, we are quotienting array by a permutation or an automorphism on the indices.
+Conceptually, we are quotienting $\Array$ by an automorphism on the indices.
 
 We have already given a proof of $\Array$ being the free monoid in~\cref{mon:array}.
 %
 By~\cref{cmon:qfreemon} it suffices to show $\approx$ satisfies the axioms of permutation relations to show that $\Bag$
 is the free commutative monoid.
 
-\begin{proposition}
+\begin{propositionrep}
     $\approx$ is a equivalence relation.
-\end{proposition}
-
+\end{propositionrep}
 \begin{proof}
     We can show any array $xs$ is related to itself by the identity isomorphism, therefore $\approx$ is reflexive.
     If $xs \approx ys$ by $\sigma$, we can show $ys \approx xs$ by $\sigma^{-1}$, therefore $\approx$ is symmetric.
@@ -340,24 +323,20 @@ is the free commutative monoid.
 \begin{proof}
     Given $(n, f) \approx (m, g)$ by $\sigma$ and $(u, p) \approx (v, q)$ by $\phi$,
     we want to show $(n, f) \concat (u, p) \approx (m, g) \concat (v, q)$ by some $\tau$.
-    We can construct $\tau$ as follow:
-
-    \begin{align*}
+    We construct $\tau$ as follows:
+    \[
         \tau \defeq \Fin[n+u] \xto{\sim} \Fin[n] + \Fin[u] \xto{\sigma,\,\phi} \Fin[m] + \Fin[v] \xto{\sim} \Fin[m+v] \\
-    \end{align*}
-
-    \begin{figure}[H]
-        \centering
+    \]
+    which operationally performs:
+    \[
         % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+u-1 \color{black}\}} \\
             { \{\color{red}\sigma(0),\sigma(1)\dots,\sigma(n-1), \color{blue}\phi(0),\phi(1),\dots,\phi(u-1) \color{black}\}}
             \arrow["{\sigma,\phi}", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \caption{Operation of $\tau$}
-        \label{fig:enter-label}
-    \end{figure}
-
+        \enspace.
+    \]
 \end{proof}
 
 \begin{proposition}\label{bag:comm}
@@ -367,30 +346,25 @@ is the free commutative monoid.
 \begin{proof}
     We want to show for any arrays $(n, f)$ and $(m, g)$, $(n, f) \mult (m, g) \approx (m, g) \mult (n, f)$
     by some $\phi$.
-
     We can use combinators from formal operations in symmetric rig groupoids \cite{choudhurySymmetriesReversibleProgramming2022} to define $\phi$:
-    \begin{align*}
+    \[
         \phi \defeq \Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m] \xto{\term{swap}_{+}} \Fin[m] + \Fin[n] \xto{\sim} \Fin[m+n] \\
-    \end{align*}
-
-    \begin{figure}[H]
-        \centering
+    \]
+    which operationally performs:
+    \[
         % https://q.uiver.app/#q=WzAsMixbMCwwLCJcXHswLDEsXFxkb3RzLG4tMSwgbixuKzEsXFxkb3RzLG4rbS0xXFx9Il0sWzAsMSwiIFxce24sbisxXFxkb3RzLG4rbS0xLDAsMSxcXGRvdHMsbi0xXFx9Il0sWzAsMSwiIiwwLHsic3R5bGUiOnsidGFpbCI6eyJuYW1lIjoibWFwcyB0byJ9fX1dXQ==
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{red}0,1,\dots,n-1, \color{blue} n,n+1,\dots,n+m-1 \color{black}\}} \\
             { \{\color{blue}n,n+1\dots,n+m-1, \color{red}0,1,\dots,n-1 \color{black}\}}
             \arrow["\phi", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \caption{Operation of $\phi$}
-        \label{fig:enter-label}
-    \end{figure}
-
+    \]
 \end{proof}
 
 \begin{proposition}
     $\approx$ respects $\ext{(\blank)}$ for arrays.
 \end{proposition}
-
+\noindent
 It suffices to show that $\ext{f}$ is invariant under permutation: for all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$,
 $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$. To prove this we first need to develop some formal combinatorics of
 \emph{punching in} and \emph{punching out} indices. These operations are
@@ -399,19 +373,19 @@ developed further
 in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation codes.
 
 \begin{lemma}\label{bag:tau}
-    Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
+    Given $\phi\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$, there is a permutation $\tau\colon \Fin[S(n)]\xto{\sim}\Fin[S(n)]$
     such that $\tau(0) = 0$, and $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
 \end{lemma}
 
 \begin{proof}
-    Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$, we can construct $\tau$ as follow:
-    \begin{align*}
+    Let $k$ be $\phi^{-1}(0)$, and $k + j = S(n)$, we construct $\tau$:
+    \[
         \tau \defeq \Fin[S(n)] \xto{\phi} \Fin[S(n)] \xto{\sim} \Fin[k+j] \xto{\sim} \Fin[k] + \Fin[j]
+    \]
+    \[
         \xto{\term{swap}_{+}} \Fin[j] + \Fin[k] \xto{\sim} \Fin[j+k] \xto{\sim} \Fin[S(n)]
-    \end{align*}
-
-    \begin{figure}[H]
-        \centering
+    \]
+    \[
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{blue}0, 1, 2, \dots, \color{red}k, k+1, k+2, \dots \color{black}\}} \\
             {\{\color{blue}x, y, z, \dots, \color{red}0, u, v, \dots \color{black}\}}
@@ -423,14 +397,11 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
             {\{\color{red}0, u, v, \dots, \color{blue}x, y, z, \dots \color{black}\}}
             \arrow["\tau", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \caption{Operation of $\tau$ constructed from $\phi$}
-        \label{fig:enter-label}
-    \end{figure}
-
-    It is trivial to prove $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$ since the only
+    \]
+    It is trivial to show $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$, since the only
     operation on indices in $\tau$ is $\term{swap}_{+}$. It suffices to show $(S(n), i \circ \phi)$
     can be decomposed into two arrays such that $(S(n), i \circ \phi) = (k, g) \concat (j, h)$
-    for some $g$ and $h$. Since the image of $\ext{f}$ is a commutative monoid and $\ext{f}$ is a homomorphism,
+    for some $g$ and $h$. Since the image of $\ext{f}$ is a commutative monoid, and $\ext{f}$ is a homomorphism,
     $\ext{f}((k, g) \concat (j, h)) = \ext{f}(k, g) \mult \ext{f}(j, h) = \ext{f}(j, h) \mult \ext{f}(k, g) =
         \ext{f}((j, h) \concat (k, g))$, thereby proving $\ext{f}(S(n), i \circ \phi) = \ext{f}(S(n), i \circ \tau)$.
 
@@ -442,38 +413,32 @@ in~\cite{choudhurySymmetriesReversibleProgramming2022} for studying permutation 
 \end{lemma}
 
 \begin{proof}
-    We can construct $\psi$ by $\psi(x) = \tau(S(x)) - 1$.
+    We construct $\psi$ as $\psi(x) = \tau(S(x)) - 1$.
     %
     Since $\tau$ maps only 0 to 0 by assumption, $\forall x. \, \tau(S(x)) > 0$, therefore
     the $(- 1)$ is well defined. This is the special case for $k = 0$ in the punch-in and punch-out
     equivalence for Lehmer codes in~\cite{choudhurySymmetriesReversibleProgramming2022}.
-
-    \begin{figure}[H]
-        \centering
+    \[
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{blue}0, \color{red}1, 2, 3, \dots \color{black}\}} \\
             { \{\color{blue}0, \color{red} x, y, z \dots \color{black}\}}
             \arrow["\tau", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \hspace{1em}
+        \\
         \begin{tikzcd}[ampersand replacement=\&,cramped]
             {\{\color{red}0, 1, 2, \dots \color{black}\}} \\
             { \{\color{red} x-1, y-1, z-1 \dots \color{black}\}}
             \arrow["\psi", maps to, from=1-1, to=2-1]
         \end{tikzcd}
-        \caption{Operation of $\psi$ constructed from $\tau$}
-        \label{fig:enter-label}
-    \end{figure}
+    \]
 \end{proof}
-
-We now prove our main theorem.
 
 \begin{theorem}[Permutation invariance]\label{bag:perm-sat}
     For all $\phi\colon \Fin[n]\xto{\sim}\Fin[n]$, $\ext{f}(n, i) \id \ext{f}(n, i \circ \phi)$.
 \end{theorem}
 
 \begin{proof}
-    We can prove this by induction on $n$.
+    By induction on $n$.
     \begin{itemize}
         \item On $n = 0$, $\ext{f}(0, i) \id \ext{f}(0, i \circ \phi) = e$.
         \item On $n = S(m)$,
@@ -504,24 +469,24 @@ $\PList$ and $\SList$, because whereas with $\PList$ and $\SList$ we only need t
 in the proof of~\cref{bag:perm-sat}, we need to first construct a $\tau$ which satisfies $\tau(0) = 0$ and prove
 $\ext{f}(n, i \comp \sigma) = \ext{f}(n, i \comp \tau)$ before we can apply induction.
 
-Also, on a more technical note, since $\Array$ and $\Bag$ are not simple data types, the definition of
-the monoid operation on them $\concat$ are necessarily more complicated, and unlike $\List$, $\PList$
-and $\SList$, constructions of $\Array$ and $\Bag$ via $\concat$ often would not normalize into a
-very simple form, but would instead expand into giant trees of terms. This makes it such that when working
-with $\Array$ and $\Bag$ we need to be very careful or otherwise Agda would be stuck trying to display
-the normalized form of $\Array$ and $\Bag$ in the goal and context menu. Type-checking also becomes a lengthy
-process that tests if the user possesses the virtue of patience.
+\begin{toappendix}
+    On a more technical note, since $\Array$ and $\Bag$ are not simple data types, the definition of
+    the monoid operation on them $\concat$ are necessarily more complicated, and unlike $\List$, $\PList$
+    and $\SList$, constructions of $\Array$ and $\Bag$ via $\concat$ often would not normalize into a
+    very simple form, but would instead expand into giant trees of terms. This makes it such that when working
+    with $\Array$ and $\Bag$ we need to be very careful or otherwise Agda would be stuck trying to display
+    the normalized form of $\Array$ and $\Bag$ in the goal and context menu. Type-checking also becomes a lengthy
+    process that tests if the user possesses the virtue of patience.
 
-However, performing arbitrary partitioning with $\Array$ and $\Bag$ is much easier than
-$\List$, $\SList$, $\PList$. For example,
-one can simply use the combinator ${\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]}$ to partition the array,
-then perform operations on the partitions such as swapping in~\cref{bag:comm},
-or perform operations on the partitions individually such as two individual permutation in~\cref{bag:cong}.
-This makes it such that when defining divide-and-conquer algorithms such as merge sort,
-$\Bag$ and $\Array$ are more natural to work with than $\List$, $\SList$, and $\PList$.
+    However, performing arbitrary partitioning with $\Array$ and $\Bag$ is much easier than
+    $\List$, $\SList$, $\PList$. For example,
+    one can simply use the combinator ${\Fin[n+m] \xto{\sim} \Fin[n] + \Fin[m]}$ to partition the array,
+    then perform operations on the partitions such as swapping in~\cref{bag:comm},
+    or perform operations on the partitions individually such as two individual permutation in~\cref{bag:cong}.
+    This makes it such that when defining divide-and-conquer algorithms such as merge sort,
+    $\Bag$ and $\Array$ are more natural to work with than $\List$, $\SList$, and $\PList$.
 
-\redtext{
     We use $\bag{x,y,\dots}$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \MM(A)$,
     and $[x, y, \dots]$ to denote $\eta_A(x) \mult \eta_A(y) \mult \dots : \LL(A)$,
     or $x \cons xs$ to denote $\eta_A(x) \mult xs : \LL(A)$.
-}
+\end{toappendix}

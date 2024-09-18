@@ -65,6 +65,11 @@ In fact, $\hProp$ forms a (commutative) monoid in two different ways: $(\bot,\ve
       \end{align*}
 \end{definition}
 
+\subsubsection*{Remark}
+Note that Cubical Agda has problems with indexing over HITs,
+hence it is preferable to program with our universal properties, such as when defining $\term{Any}$ and $\term{All}$,
+because the (indexed) inductive definitions of these predicates get stuck on $\term{transp}$ terms.
+
 There is a $\term{head}$ function on lists, which is a function that returns the first element of a non-empty list.
 %
 Formally, this is a monoid homomorphism from $\LL(A)$ to $1 + A$.
@@ -88,7 +93,7 @@ Formally, this is a monoid homomorphism from $\LL(A)$ to $1 + A$.
       \]
 \end{definition}
 
-Note that the monoid operation $\oplus$ is not commutative --
+Note that the monoid operation $\oplus$ is not commutative, since
 swapping the input arguments to $\oplus$ would return the leftmost or rightmost element.
 %
 To make it commutative would require a canonical way to pick between two elements --

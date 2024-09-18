@@ -20,11 +20,11 @@ not polynomial (doesn't preserve pullbacks).
 %
 This has led various authors to think about clever encodings of free commutative monoids using inductive types by adding
 assumptions on the carrier set -- in particular, the assumption of total ordering on the carrier set leads to the
-construction of ``fresh-lists'', by~\cite{kupkeFreshLookCommutativity2023}, which was the inspiration for our work!
-
-Perhaps it is worth noting what this observation means for functional programmers.
+construction of ``fresh-lists'', by~\cite{kupkeFreshLookCommutativity2023}, which forces the canonical \emph{sorted}
+ordering on the elements of the finite multiset.
 %
-In programming practice, it is usually the case that all user-defined types have some sort of total order on them,
+It is worth noting that in programming practice,
+it is usually the case that all user-defined types have some sort of total order enforced on them,
 either because they're finite, or they can be enumerated in some way.
 %
 Therefore, under these assumptions, the construction of fresh lists is a very reasonable way to represent free
@@ -47,19 +47,15 @@ in~\cref{prop:sort-correctness}.
 %
 Their work is not just about extensional correctness of sorting, but also deriving various sorting algorithms
 starting from bialgebraic semantics and distributive laws.
-%
+
 Our work is complementary to theirs, in that we are not concerned with the computational content of sorting, but rather
 the abstract properties of sorting functions, which are independent of a given ordering.
 %
 It remains to be seen how these ideas could be combined -- the abstract property of sorting, with the intrinsic essence
 of sorting algortihms -- and that is a direction for future work.
 %
-We do want to point out a fascinating connection between our work and theirs: our observation of recovering $\leq$ from
-the section, by ``sorting'' a 2-element list actually appears in a correctness proof
-in~\cite[Section~4.6,pg.324]{hengleinSortingSearchingDistribution2013}!
-
 This paper only talks about sorting lists and bags, but the abstract property of correct sorting functions could be
-applied to more general inductive types! We speculate that this could lead to some interesting connections with sorting
+applied to more general inductive types. We speculate that this could lead to some interesting connections with sorting
 (binary) trees, and constructions of (binary) search trees, from classical computer science.
 
 \subsection*{Algebra}

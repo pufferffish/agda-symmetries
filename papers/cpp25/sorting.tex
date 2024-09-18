@@ -496,7 +496,7 @@ We can now state and prove our main theorem.
 The sorting axioms we have come up with are abstract properties of functions.
 %
 As a sanity check, we can verify that the colloquial correctness specification of a sorting function (starting from a
-total order) matches our axioms.
+total order) matches our axioms. We consider the correctness criterion in~\cite{alexandruIntrinsicallyCorrectSorting2023}.
 %
 \begin{proposition}
     \label{prop:sort-correctness}
@@ -517,7 +517,7 @@ total order) matches our axioms.
     Sorting functions give sorting algorithms.
 \end{proposition}
 \begin{proof}
-    We construct a section $s:\MM(A) \to \LL(A)$,
-    and set $\term{sort} \defeq s \comp q$,
+    We construct our section $s:\MM(A) \to \LL(A)$,
+    and define $\term{sort} \defeq s \comp q$,
     which produces ordered lists by~\cref{sort:well-behave-sorts}.
 \end{proof}

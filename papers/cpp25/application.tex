@@ -6,11 +6,6 @@ to define operations on them systematically, which are mathematically sound, and
 %
 First, we explore definitions of various operations on both free monoids and free commutative monoids.
 %
-\redtext{
-    Note that Cubical Agda has problems with indexing over HITs, hence we prefer to program with the universal properties,
-    such as when defining Any and All.
-}
-%
 By univalence (and the structure identity principle), everything henceforth holds for any presentation of free monoids
 and free commutative monoids, therefore we avoid picking a specific construction.
 %
@@ -26,7 +21,7 @@ are proven externally.
 In our framework of free algebras, where the $\ext{(\blank)}$ operation is a correct-by-construction homomorphism,
 we can define operations like $\term{length}$ directly by universal extension,
 which also gives us a proof that they are homomorphisms for free.
-\redtext{Note: fold is mapping out into the endomorphism monoid.}
+Note, the fold operation in functional programming is the homomorphism mapping out into the monoid of endofunctions.
 %
 A further application of the universal property is to prove two different types are equal, by showing they both satisfy
 the same universal property (see~\cref{lem:free-algebras-unique}), which is desirable especially when proving a direct
