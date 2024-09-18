@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --exact-split --safe #-}
 
--- Taken from https://github.com/vikraman/generalised-species/
 module Cubical.Structures.Set.CMon.SList.Length where
 
 open import Cubical.Core.Everything
